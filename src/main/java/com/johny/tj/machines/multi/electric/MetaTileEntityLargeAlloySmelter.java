@@ -1,13 +1,13 @@
 package com.johny.tj.machines.multi.electric;
 
 import com.johny.tj.TJConfig;
+import com.johny.tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.item.metal.MetalCasing2;
-import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -31,7 +31,7 @@ import java.util.function.Predicate;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_2;
 
-public class MetaTileEntityLargeAlloySmelter extends LargeSimpleRecipeMapMultiblockController {
+public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMultiblockController {
 
     private int tier;
 

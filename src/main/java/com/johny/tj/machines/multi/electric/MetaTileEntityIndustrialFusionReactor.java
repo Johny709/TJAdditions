@@ -2,7 +2,7 @@ package com.johny.tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.TJGARecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -52,7 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MetaTileEntityIndustrialFusionReactor extends TJGARecipeMapMultiblockController {
+public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController {
 
     private int parallelLayer = 1;
     private long energyToStart;
@@ -67,7 +67,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJGARecipeMapMultiblo
     }
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
-        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false, false);
+        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES);
         IndustrialFusionRecipeLogic fusionRecipeLogic = new IndustrialFusionRecipeLogic(this, 100, 100, 100, 1);
         this.recipeMapWorkable = fusionRecipeLogic;
         this.fusionRecipeLogic = fusionRecipeLogic;
@@ -247,7 +247,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJGARecipeMapMultiblo
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!getWorld().isRemote) {
             if (!playerIn.isSneaking()) {
-                if (!(this.parallelLayer <= TJConfig.industrialFusionReactor.maximumSlices)) {
+                if (this.parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
                     this.parallelLayer++;
                     playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 } else {

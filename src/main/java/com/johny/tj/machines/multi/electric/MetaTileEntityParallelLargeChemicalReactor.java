@@ -3,6 +3,7 @@ package com.johny.tj.machines.multi.electric;
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import com.johny.tj.TJConfig;
 import com.johny.tj.builder.ParallelLargeChemicalReactorRecipeMapBuilder;
+import com.johny.tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;
@@ -48,7 +49,7 @@ import java.util.function.Predicate;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.Steel;
 
-public class MetaTileEntityParallelLargeChemicalReactor extends GARecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -252,7 +253,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends GARecipeMapMulti
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!getWorld().isRemote) {
             if (!playerIn.isSneaking()) {
-                if (!(this.parallelLayer <= TJConfig.parallelLCR.maximumLayers)) {
+                if (this.parallelLayer < TJConfig.parallelLCR.maximumLayers) {
                     this.parallelLayer++;
                     playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 } else {
@@ -297,7 +298,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends GARecipeMapMulti
     private static class ParallelChemicalReactorWorkableHandler extends GAMultiblockRecipeLogic {
 
         MetaTileEntityParallelLargeChemicalReactor chemicalReactor;
-        private int WORKABLE_ID;
+        private final int WORKABLE_ID;
         private boolean canRun = false;
         ParallelLargeChemicalReactorRecipeMapBuilder recipeMapFilter;
 

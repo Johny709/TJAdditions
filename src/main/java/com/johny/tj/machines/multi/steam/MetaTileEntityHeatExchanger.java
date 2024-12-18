@@ -1,7 +1,7 @@
 package com.johny.tj.machines.multi.steam;
 
 import com.johny.tj.TJRecipeMaps;
-import com.johny.tj.builder.TJGARecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;

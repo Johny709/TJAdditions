@@ -1,13 +1,13 @@
 package com.johny.tj.machines.multi.electric;
 
 import com.johny.tj.TJConfig;
+import com.johny.tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityNuclearReactor;
-import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -23,7 +23,7 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class MetaTileEntityLargeDecayChamber extends LargeSimpleRecipeMapMultiblockController {
+public class MetaTileEntityLargeDecayChamber extends TJLargeSimpleRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 

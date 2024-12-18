@@ -3,7 +3,7 @@ package com.johny.tj.machines.multi.electric;
 import com.johny.tj.TJRecipeMaps;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
-import com.johny.tj.builder.TJGARecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
 import com.johny.tj.textures.TJTextures;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;

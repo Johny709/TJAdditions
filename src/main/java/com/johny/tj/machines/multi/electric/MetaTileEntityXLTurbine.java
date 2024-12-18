@@ -2,12 +2,17 @@ package com.johny.tj.machines.multi.electric;
 
 import com.johny.tj.builder.logic.XLHotCoolantTurbineWorkableHandler;
 import com.johny.tj.builder.logic.XLTurbineWorkableHandler;
+import com.johny.tj.gui.TJGuiTextures;
 import gregicadditions.item.GAMetaItems;
 import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -22,6 +27,7 @@ import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityL
 import gregtech.common.metatileentities.multi.electric.generator.RotorHolderMultiblockController;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
@@ -47,6 +53,7 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
     private int pageIndex = 0;
     private final int pageSize = 6;
     private XLTurbineWorkableHandler xlTurbineWorkableHandler;
+    protected boolean doStructureCheck = false;
 
     public MetaTileEntityXLTurbine(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
@@ -333,5 +340,42 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
         return turbineType.frontOverlay;
     }
 
+    @Override
+    protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
+        ModularUI.Builder builder = ModularUI.extendedBuilder();
+        builder.image(-10, 0, 195, 217, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
+        builder.label(1, 9, getMetaFullName(), 0xFFFFFF);
+        builder.widget(new AdvancedTextWidget(1, 19, this::addDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180)
+                .setClickHandler(this::handleDisplayClick));
+        builder.widget(new ToggleButtonWidget(162, 170, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
+                .setTooltipText("machine.universal.toggle.run.mode"));
+        builder.widget(new ToggleButtonWidget(162, 152, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+                .setTooltipText("machine.universal.toggle.check.mode"));
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
+        return builder;
+    }
+
+    protected boolean getToggleMode() {
+        return this.xlTurbineWorkableHandler.isWorkingEnabled();
+    }
+
+    protected void setToggleRunning(boolean running) {
+        this.xlTurbineWorkableHandler.setWorkingEnabled(running);
+    }
+
+    protected boolean getDoStructureCheck() {
+        if (isStructureFormed())
+            this.doStructureCheck = false;
+        return this.doStructureCheck;
+    }
+
+    protected void setDoStructureCheck(boolean check) {
+        if (isStructureFormed()) {
+            this.doStructureCheck = true;
+            invalidateStructure();
+            this.structurePattern = createStructurePattern();
+        }
+    }
 
 }

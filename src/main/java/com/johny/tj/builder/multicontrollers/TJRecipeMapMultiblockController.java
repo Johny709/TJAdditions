@@ -1,8 +1,7 @@
-package com.johny.tj.builder;
+package com.johny.tj.builder.multicontrollers;
 
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
-import gregicadditions.capabilities.impl.GARecipeMapMultiblockController;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
@@ -14,6 +13,7 @@ import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
@@ -27,12 +27,12 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TJGARecipeMapMultiblockController extends GARecipeMapMultiblockController implements IMultiblockAbilityPart<IItemHandlerModifiable> {
+public abstract class TJRecipeMapMultiblockController extends RecipeMapMultiblockController implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     protected boolean doStructureCheck = false;
 
-    public TJGARecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMuffler, boolean hasMaintenance, boolean canDistinct) {
-        super(metaTileEntityId, recipeMap, hasMuffler, hasMaintenance, canDistinct);
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
+        super(metaTileEntityId, recipeMap);
     }
 
     @Override
