@@ -1,0 +1,91 @@
+gregtech.machine.primitive_alloy.name=Primitive Alloy Smelter
+gregtech.machine.coke_oven_2.name=Coke Oven
+gregtech.machine.heat_exchanger.name=Heat Exchanger
+gregtech.machine.mega_coke_oven.name=Mega Coke Oven
+gregtech.machine.armor_infuser.name=Armor Infuser
+gregtech.machine.dragon_egg_replicator.name=Dragon Egg Replicator
+gregtech.machine.chaos_replicator.name=Chaos Replicator
+gregtech.machine.large_powered_spawner.name=Large Powered Spawner (LPS)
+gregtech.machine.large_vial_processor.name=Large Vial Processor (LVP)
+gregtech.machine.steam_turbine.iv.name=Elite Steam Turbine
+gregtech.machine.mega_boiler.name=Mega Tungstensteel Boiler (MTB)
+gregtech.machine.xl_turbine.steam.name=XL Turbo Steam Turbine
+gregtech.machine.xl_turbine.gas.name=XL Turbo Gas Turbine
+gregtech.machine.xl_turbine.plasma.name=XL Turbo Plasma Turbine
+gregtech.machine.xl_turbine.coolant.name=XL Turbo Hot Coolant Turbine
+gregtech.machine.rotor_holder.umv.name= Rotor Holder (UMV)
+gregtech.machine.coolant_rotor_holder.umv.name= Hot Coolant Rotor Holder (UMV)
+gregtech.machine.large_decay_chamber.name=Large Decay Chamber
+gregtech.machine.large_alloy_smelter.name=Large Alloy Smelter
+gregtech.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor
+
+gregtech.multiblock.running=Running
+
+gregtech.multiblock.large_boiler.item_display=Current Item Processed:
+gregtech.multiblock.large_boiler.clear_item=Clear Item:
+gregtech.multiblock.large_boiler.items_process_hover=Current Items going to be processed. Will start when boiler reaches max capacity
+gregtech.multiblock.large_boiler.insert_item=Insert Item
+
+gregtech.multiblock.extreme_turbine.norotor=No Rotor
+gregtech.multiblock.extreme_turbine.insertrotor=Insert Rotor
+gregtech.multiblock.extreme_turbine.name=Name:
+gregtech.multiblock.extreme_turbine.speed=Speed:
+gregtech.multiblock.extreme_turbine.efficiency=Efficiency:
+gregtech.multiblock.extreme_turbine.durability=Durability:
+gregtech.multiblock.extreme_turbine.fast_mode=Fast Mode:
+gregtech.multiblock.extreme_turbine.fast_mode.true=ON
+gregtech.multiblock.extreme_turbine.fast_mode.false=OFF
+gregtech.multiblock.extreme_turbine.energy=Outputting:
+gregtech.multiblock.extreme_turbine.hover.name=Rotor:
+gregtech.multiblock.extreme_turbine.hover.speed=Roter Speed:
+gregtech.multiblock.extreme_turbine=-
+
+gregtech.multiblock.industrial_fusion_reactor.message=Parallel: §e%d§7
+gregtech.multiblock.industrial_fusion_reactor.message.1=Increased slices to:
+gregtech.multiblock.industrial_fusion_reactor.message.2=Decreased slices to:
+gregtech.multiblock.industrial_fusion_reactor.message.3=Already reached minimum slices:
+gregtech.multiblock.industrial_fusion_reactor.message.4=Already reached maximum slices:
+tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
+
+gregtech.multiblock.parallel_large_chemical_reactor.eu=EU/t:
+gregtech.multiblock.parallel_large_chemical_reactor.progress=Progress:
+
+recipemap.primitive_alloy.name=Primitive Alloy Smelter
+recipemap.heat_exchanger.name=Heat Exchanger
+recipemap.coke_oven_2.name=Coke Oven
+
+material.pahoehoe=Pahoehoe Lava
+material.draconium=Draconium
+material.awakened_draconium=Awakened Draconium
+material.chaotic=Choatic
+
+tj.multiblock.default.description=A custom multiblock added by Technological Journey (TJ).
+tj.multiblock.heat_exchanger.description=The Heat Exchanger will cool down lava down into pahoehoe lava by transfuring heat to the water provided. As a byproduct, hot steam is created. This steam can be used in a turbine to generate energy.
+tj.multiblock.armor_infuser.description=A very powerful multiblock structure used for upgrading draconium-based armor and tools.
+tj.multiblock.chaos_replicator.description=A multiblock structure used to fabricate pure chaos shards from various materials.
+tj.multiblock.dragon_egg_replicator.description=A multiblock structure used to fabricate dragon hearts.
+tj.multiblock.large_powered_spawner.description=Large version of Powered Spawner. Generates Vials with mobs in it.
+tj.multiblock.large_vial_processor.description=Larger version of the LV vial processor. Turns vials into Loot.
+tj.multiblock.industrial_fusion_reactor.description=A compact fusion reactor capable of doing parallels. Each new slice increments parallel by 1. Use screwdriver to increase or decrease slices. Right-Click to increment, Shift-Right-Click to decrement. Overclocks are based on Energy To Start.
+
+tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
+tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
+tj.multiblock.universal.tooltip.3=Overclock: §e%d§7
+tj.multiblock.turbine.tooltip.efficiency=Fuel Efficiency: §e%d§7
+tj.multiblock.turbine.description=The XL Turbo Turbines are huge multiblocks with power equal to 18 Large Turbines. Enable Fast Mode to 3x power output but comes at a price with 3x fuel consumption and 16x rotor damage. Has automatic rotor replacement by Inserting rotors in Input Bus.
+
+tile.solid_casing.draconium.name=Draconic Casing
+tile.solid_casing.awakened.name=Awakened Draconium Casing
+tile.solid_casing.chaotic.name=Refined Chaos Casing
+tile.solid_casing.eternity.name=Block of Eternity
+tile.solid_casing.soul.name=Large Soul Manipulation Casing
+
+cover.creative_fluid.title=Creative Fluid Cover
+cover.creative_item.title=Creative Item Cover
+metaitem.creative.fluid.cover.name=Creative Fluid Cover
+metaitem.creative.item.cover.name=Creative Item Cover
+
+machine.universal.toggle.run.mode.disabled=OFF
+machine.universal.toggle.run.mode.enabled=ON
+machine.universal.toggle.check.mode.enabled=Initiating Structure Check
+machine.universal.toggle.check.mode.disabled=Do Structure Check
