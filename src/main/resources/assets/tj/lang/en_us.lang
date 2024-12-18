@@ -84,6 +84,7 @@ cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover
 metaitem.creative.fluid.cover.name=Creative Fluid Cover
 metaitem.creative.item.cover.name=Creative Item Cover
+metaitem.creative.energy.cover.name=Creative Energy Cover
 
 machine.universal.toggle.run.mode.disabled=OFF
 machine.universal.toggle.run.mode.enabled=ON

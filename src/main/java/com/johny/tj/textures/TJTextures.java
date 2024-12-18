@@ -32,6 +32,7 @@ public class TJTextures {
     public static TJSimpleCubeRenderer ETERNITY = new TJSimpleCubeRenderer("casings/solid/eternityblock");
     public static TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer("casings/solid/soulcasing");
     public static TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer("cover/creative_fluid_cover_overlay");
+    public static TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer("cover/creative_energy_cover_overlay");
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {

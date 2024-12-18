@@ -1,6 +1,7 @@
 package com.johny.tj.items;
 
 import com.johny.tj.TJ;
+import com.johny.tj.items.covers.CoverCreativeEnergy;
 import com.johny.tj.items.covers.CoverCreativeFluid;
 import com.johny.tj.items.covers.CoverCreativeItem;
 import gregtech.api.cover.CoverBehavior;
@@ -21,6 +22,7 @@ public class TJCoverBehaviours {
 
         registerBehavior(126, new ResourceLocation(TJ.MODID, "creative.fluid.cover"), TJMetaItems.CREATIVE_FLUID_COVER, (tile, side) -> new CoverCreativeFluid(tile, side, 2));
         registerBehavior(127, new ResourceLocation(TJ.MODID, "creative.item.cover"), TJMetaItems.CREATIVE_ITEM_COVER, (tile, side) -> new CoverCreativeItem(tile, side, 2));
+        registerBehavior(128, new ResourceLocation(TJ.MODID, "creative.energy.cover"), TJMetaItems.CREATIVE_ENERGY_COVER, CoverCreativeEnergy::new);
     }
 
     public static void registerBehavior(int coverNetworkId, ResourceLocation coverId, MetaItem<?>.MetaValueItem placerItem, BiFunction<ICoverable, EnumFacing, CoverBehavior> behaviorCreator) {

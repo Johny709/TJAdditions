@@ -13,6 +13,7 @@ public class TJMetaItems {
 
     public static MetaItem<?>.MetaValueItem CREATIVE_FLUID_COVER;
     public static MetaItem<?>.MetaValueItem CREATIVE_ITEM_COVER;
+    public static MetaItem<?>.MetaValueItem CREATIVE_ENERGY_COVER;
 
     public static void init() {
         TJMetaItem1 item = new TJMetaItem1();
