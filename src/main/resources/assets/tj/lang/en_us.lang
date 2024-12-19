@@ -1,23 +1,24 @@
 gregtech.machine.primitive_alloy.name=Primitive Alloy Smelter
 gregtech.machine.coke_oven_2.name=Coke Oven
 gregtech.machine.heat_exchanger.name=Heat Exchanger
-gregtech.machine.mega_coke_oven.name=Mega Coke Oven
+tj.machine.mega_coke_oven.name=Mega Coke Oven
 gregtech.machine.armor_infuser.name=Armor Infuser
 gregtech.machine.dragon_egg_replicator.name=Dragon Egg Replicator
 gregtech.machine.chaos_replicator.name=Chaos Replicator
 gregtech.machine.large_powered_spawner.name=Large Powered Spawner (LPS)
 gregtech.machine.large_vial_processor.name=Large Vial Processor (LVP)
 gregtech.machine.steam_turbine.iv.name=Elite Steam Turbine
-gregtech.machine.mega_boiler.name=Mega Tungstensteel Boiler (MTB)
-gregtech.machine.xl_turbine.steam.name=XL Turbo Steam Turbine
-gregtech.machine.xl_turbine.gas.name=XL Turbo Gas Turbine
-gregtech.machine.xl_turbine.plasma.name=XL Turbo Plasma Turbine
-gregtech.machine.xl_turbine.coolant.name=XL Turbo Hot Coolant Turbine
-gregtech.machine.rotor_holder.umv.name= Rotor Holder (UMV)
-gregtech.machine.coolant_rotor_holder.umv.name= Hot Coolant Rotor Holder (UMV)
-gregtech.machine.large_decay_chamber.name=Large Decay Chamber
-gregtech.machine.large_alloy_smelter.name=Large Alloy Smelter
-gregtech.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor
+tj.machine.mega_boiler.name=Mega Tungstensteel Boiler (MTB)
+tj.machine.xl_turbine.steam.name=XL Turbo Steam Turbine
+tj.machine.xl_turbine.gas.name=XL Turbo Gas Turbine
+tj.machine.xl_turbine.plasma.name=XL Turbo Plasma Turbine
+tj.machine.xl_turbine.coolant.name=XL Turbo Hot Coolant Turbine
+tj.machine.rotor_holder.umv.name= Rotor Holder (UMV)
+tj.machine.coolant_rotor_holder.umv.name= Hot Coolant Rotor Holder (UMV)
+tj.machine.large_decay_chamber.name=Large Decay Chamber
+tj.machine.large_alloy_smelter.name=Large Alloy Smelter
+tj.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor
+tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor
 
 gregtech.multiblock.running=Running
 
