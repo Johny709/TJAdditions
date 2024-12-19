@@ -83,4 +83,42 @@ public class TJConfig {
         public int stack = 16;
     }
 
+    @Config.Comment("Large Greenhouse")
+    public static LargeGreenhouse largeGreenhouse = new LargeGreenhouse();
+
+    public static class LargeGreenhouse {
+
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("EU/t Percentage [Tree Mode]")
+        @Config.RequiresMcRestart
+        public int eutPercentageTree = 90;
+
+        @Config.Name("Duration Percentage [Tree Mode]")
+        @Config.RequiresMcRestart
+        public int durationPercentageTree = 50;
+
+        @Config.Name("Chance Percentage [Tree Mode]")
+        @Config.RequiresMcRestart
+        public int chancePercentageTree = 150;
+
+        @Config.Name("Stack Size [Tree Mode]")
+        @Config.RequiresMcRestart
+        public int stackTree = 4;
+    }
+
 }

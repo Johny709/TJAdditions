@@ -24,6 +24,7 @@ public class RecipeLoader {
     public static void init() {
 
         craftingRecipes();
+        GreenhouseRecipes.init();
 
     }
     private static void craftingRecipes() {

@@ -19,6 +19,7 @@ tj.machine.large_decay_chamber.name=Large Decay Chamber
 tj.machine.large_alloy_smelter.name=Large Alloy Smelter
 tj.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor
 tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor
+tj.machine.large_greenhouse.name=Large Green House
 
 gregtech.multiblock.running=Running
 
@@ -51,9 +52,12 @@ tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
 gregtech.multiblock.parallel_large_chemical_reactor.eu=EU/t:
 gregtech.multiblock.parallel_large_chemical_reactor.progress=Progress:
 
+gregtech.mulitblock.greenhouse.treemode=[Tree Mode]
+
 recipemap.primitive_alloy.name=Primitive Alloy Smelter
 recipemap.heat_exchanger.name=Heat Exchanger
 recipemap.coke_oven_2.name=Coke Oven
+recipemap.greenhouse_tree.name=Green House Tree Recipes
 
 material.pahoehoe=Pahoehoe Lava
 material.draconium=Draconium

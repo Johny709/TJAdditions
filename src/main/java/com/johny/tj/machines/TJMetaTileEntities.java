@@ -9,6 +9,7 @@ import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityTJMultiFluidHatch;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
+import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.GTValues;
 import gregtech.api.GregTechAPI;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
@@ -39,6 +40,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityParallelLargeChemicalReactor PARALLEL_CHEMICAL_REACTOR;
     public static MetaTileEntityTJMultiFluidHatch INPUT_HATCH_MULTI_MAX;
     public static MetaTileEntityTJMultiFluidHatch OUTPUT_HATCH_MULTI_MAX;
+    public static MetaTileEntityLargeGreenhouse LARGE_GREENHOUSE;
 
     public static void init() {
 
@@ -64,6 +66,7 @@ public class TJMetaTileEntities {
         COOLANT_ROTOR_HOLDER_UMV = GregTechAPI.registerMetaTileEntity(5001, new MetaTileEntityRotorHolderForNuclearCoolantUHVPlus(TJId("coolant_rotor_holder.umv"), GAValues.UMV, 2.5f));
         LARGE_DECAY_CHAMBER = GregTechAPI.registerMetaTileEntity(5002, new MetaTileEntityLargeDecayChamber(TJId("large_decay_chamber")));
         LARGE_ALLOY_SMELTER = GregTechAPI.registerMetaTileEntity(5003, new MetaTileEntityLargeAlloySmelter(TJId("large_alloy_smelter")));
+        LARGE_GREENHOUSE = GregTechAPI.registerMetaTileEntity(5004, new MetaTileEntityLargeGreenhouse(TJId("large_greenhouse"), GARecipeMaps.GREEN_HOUSE_RECIPES));
 
         INDUSTRIAL_FUSION_REACTOR_UV = GregTechAPI.registerMetaTileEntity(5005, new MetaTileEntityIndustrialFusionReactor(TJId("industrial_fusion_reactor.uv"), 8));
         PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5006, new MetaTileEntityParallelLargeChemicalReactor(TJId("parallel_chemical_reactor")));
