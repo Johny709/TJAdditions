@@ -7,7 +7,6 @@ import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.metal.MetalCasing1;
-import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -29,7 +28,6 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
-import static gregicadditions.item.GAMetaBlocks.METAL_CASING_2;
 
 public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMultiblockController {
 
@@ -106,17 +104,17 @@ public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMulti
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
-                .aisle("VVVVV", "HHHHH", "HHHHH", "HHHHH")
-                .aisle("VVVVV", "CcCcC", "c#C#c", "HcCcH")
-                .aisle("VVVVV", "CcCcC", "c#C#c", "HcCcH")
-                .aisle("VVVVV", "CcCcC", "c#C#c", "HcCcH")
-                .aisle("VVVVV", "HHHHH", "HHSHH", "HHHHH")
+                .aisle("HHHHH", "HHHHH", "HHHHH", "~H~H~")
+                .aisle("HHHHH", "CcCcC", "c#c#c", "~c~c~")
+                .aisle("HHHHH", "CcCcC", "c#c#c", "~c~c~")
+                .aisle("HHHHH", "CcCcC", "c#c#c", "~c~c~")
+                .aisle("HHHHH", "HHSHH", "HHHHH", "~H~H~")
                 .where('S', selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('V', statePredicate(METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY)))
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
-                .where('#', (tile) -> true)
+                .where('#', isAirPredicate())
+                .where('~', (tile) -> true)
                 .build();
 
     }
