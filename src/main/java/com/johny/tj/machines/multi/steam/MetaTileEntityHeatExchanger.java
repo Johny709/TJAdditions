@@ -1,7 +1,7 @@
 package com.johny.tj.machines.multi.steam;
 
 import com.johny.tj.TJRecipeMaps;
-import com.johny.tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -15,23 +15,40 @@ import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static gregicadditions.client.ClientHandler.ZIRCONIUM_CARBIDE_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
-public class MetaTileEntityHeatExchanger extends TJGARecipeMapMultiblockController {
+public class MetaTileEntityHeatExchanger extends TJRecipeMapMultiblockController {
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS};
 
     public MetaTileEntityHeatExchanger (ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.HEAT_EXCHANGER_RECIPES, false, false, false);
+        super(metaTileEntityId, TJRecipeMaps.HEAT_EXCHANGER_RECIPES);
         this.recipeMapWorkable = new MultiblockRecipeLogic(this);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityHeatExchanger(this.metaTileEntityId);/*(3)!*/
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        //basically check minimal requirements for inputs count
+        //noinspection SuspiciousMethodCalls
+        int itemInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList())
+                .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
+        //noinspection SuspiciousMethodCalls
+        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        //noinspection SuspiciousMethodCalls
+        return itemInputsCount >= recipeMap.getMinInputs() &&
+                fluidInputsCount >= recipeMap.getMinFluidInputs();
     }
 
     @Override

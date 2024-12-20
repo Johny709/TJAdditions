@@ -1,7 +1,7 @@
 package com.johny.tj.machines.multi.steam;
 
 import com.johny.tj.TJRecipeMaps;
-import com.johny.tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -16,20 +16,37 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-public class MetaTileEntityCokeOven extends TJGARecipeMapMultiblockController {
+public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockController {
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
 
     public MetaTileEntityCokeOven (ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES, false, false, false);
+        super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES);
         this.recipeMapWorkable = new MultiblockRecipeLogic(this);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityCokeOven(this.metaTileEntityId);/*(3)!*/
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        //basically check minimal requirements for inputs count
+        //noinspection SuspiciousMethodCalls
+        int itemInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList())
+                .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
+        //noinspection SuspiciousMethodCalls
+        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        //noinspection SuspiciousMethodCalls
+        return itemInputsCount >= recipeMap.getMinInputs() &&
+                fluidInputsCount >= recipeMap.getMinFluidInputs();
     }
 
     @Override
