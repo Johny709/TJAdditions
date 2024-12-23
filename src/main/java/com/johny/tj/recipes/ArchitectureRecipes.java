@@ -6,6 +6,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.johny.tj.TJRecipeMaps.ARCHITECT_RECIPES;
 
 public class ArchitectureRecipes {
@@ -14,8 +17,12 @@ public class ArchitectureRecipes {
     private static int outputQuantity;
 
     public static void init() {
+        List<Integer> excludeShapeNumber = Arrays.asList(29, 39, 46, 47, 48, 49, 57, 58, 59, 69);
 
         for (int i = 0; i < 89; i++) {
+            if (excludeShapeNumber.contains(i))
+                continue;
+
             int finalI = i;
             getQuantity(i);
             NBTTagCompound nbtTagCompound = new NBTTagCompound();
