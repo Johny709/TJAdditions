@@ -53,7 +53,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                     .put("large_alloy_smelter", new MultiblockInfoRecipeWrapper(new LargeAlloySmelterInfo()))
                     .put("industrial_fusion_reactor.uv", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo()))
                     .put("parallel_chemical_reactor", new MultiblockInfoRecipeWrapper(new ParallelChemicalReactorInfo()))
-                    .put("large_greenhouse", new MultiblockInfoRecipeWrapper(new LargeGreenhouseInfo()));
+                    .put("large_greenhouse", new MultiblockInfoRecipeWrapper(new LargeGreenhouseInfo()))
+                    .put("large_architect_workbench", new MultiblockInfoRecipeWrapper(new LargeArchitectWorkbenchInfo()));
 
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }

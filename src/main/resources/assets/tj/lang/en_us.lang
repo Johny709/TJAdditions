@@ -20,6 +20,7 @@ tj.machine.large_alloy_smelter.name=Large Alloy Smelter
 tj.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor
 tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor
 tj.machine.large_greenhouse.name=Large Green House
+tj.machine.large_architect_workbench.name=Large Architect Workbench
 
 gregtech.multiblock.running=Running
 
@@ -58,6 +59,7 @@ recipemap.primitive_alloy.name=Primitive Alloy Smelter
 recipemap.heat_exchanger.name=Heat Exchanger
 recipemap.coke_oven_2.name=Coke Oven
 recipemap.greenhouse_tree.name=Green House Tree Recipes
+recipemap.architect.name=Architecture Recipes
 
 material.pahoehoe=Pahoehoe Lava
 material.draconium=Draconium

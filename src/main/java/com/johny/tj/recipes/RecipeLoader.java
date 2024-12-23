@@ -3,13 +3,11 @@ package com.johny.tj.recipes;
 import com.johny.tj.TJConfig;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
-import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.loaders.recipe.CraftingComponent;
 import net.minecraft.init.Blocks;
 
-import static com.johny.tj.TJRecipeMaps.DRAGON_REPLICATOR_RECIPES;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static com.johny.tj.materials.TJMaterials.PahoehoeLava;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
@@ -17,7 +15,6 @@ import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.COKE_OVEN;
 import static gregtech.common.metatileentities.MetaTileEntities.LARGE_TUNGSTENSTEEL_BOILER;
-import static net.minecraft.init.Blocks.DRAGON_EGG;
 
 public class RecipeLoader {
 
@@ -25,6 +22,7 @@ public class RecipeLoader {
 
         craftingRecipes();
         GreenhouseRecipes.init();
+        ArchitectureRecipes.init();
 
     }
     private static void craftingRecipes() {
@@ -55,13 +53,6 @@ public class RecipeLoader {
                 'F', CraftingComponent.FIELD_GENERATOR.getIngredient(6),
                 'M', GATileEntities.DECAY_CHAMBER[5].getMetaTileEntity().getStackForm());
 
-        DRAGON_REPLICATOR_RECIPES.recipeBuilder() // Recipe for testing
-                .notConsumable(new IntCircuitIngredient(1))
-                .input(DRAGON_EGG)
-                .output(DRAGON_EGG)
-                .duration(600)
-                .EUt(500000)
-                .buildAndRegister();
 
         if (TJConfig.machines.replaceCTMultis) {
             ELECTROLYZER_RECIPES.recipeBuilder()
