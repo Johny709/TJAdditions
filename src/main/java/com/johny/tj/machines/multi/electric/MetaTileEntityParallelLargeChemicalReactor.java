@@ -86,7 +86,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
             textList.add(page);
 
             int recipeHandlersSize = chemicalReactorWorkableHandlers.size();
-            for (int i = pageIndex, recipeHandlerIndex = i + 1; i < (recipeHandlersSize - (pageIndex == 0 ? 0 : pageSize)); i++, recipeHandlerIndex++) {
+            for (int i = pageIndex, recipeHandlerIndex = i + 1; i < (recipeHandlersSize - (pageIndex != 0 ? 0 : pageSize)); i++, recipeHandlerIndex++) {
 
                 ParallelChemicalReactorWorkableHandler recipeHandler = chemicalReactorWorkableHandlers.get(i);
 
@@ -315,18 +315,24 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
         }
 
         @Override
-        protected boolean setupAndConsumeRecipeInputs(Recipe recipe) {
-            return super.setupAndConsumeRecipeInputs(recipe);
-        }
-
-        @Override
         protected boolean trySearchNewRecipe() {
+            if (chemicalReactor.getNumProblems() > 5)
+                return false;
+
             if (this.recipeMapFilter == null) {
                 this.recipeMapFilter = chemicalReactor.LargeChemicalRecipeMap;
                 for (Recipe recipe : chemicalReactor.occupiedRecipes)
                     this.recipeMapFilter.removeRecipe(recipe);
             }
 
+            if (chemicalReactor.canDistinct && chemicalReactor.isDistinct) {
+                return trySearchNewRecipeDistinct();
+            }
+            return trySearchNewRecipeCombined();
+        }
+
+        @Override
+        protected boolean trySearchNewRecipeCombined() {
             long maxVoltage = chemicalReactor.maxVoltage;
             Recipe currentRecipe = null;
             IItemHandlerModifiable importInventory = getInputInventory();
@@ -351,6 +357,73 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
                 if (foundRecipe != null) {
                     this.previousRecipe.cacheUtilized();
                 }
+                chemicalReactor.occupiedRecipes.add(currentRecipe);
+                setupRecipe(currentRecipe);
+                chemicalReactor.countId++;
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean trySearchNewRecipeDistinct() {
+            long maxVoltage = chemicalReactor.maxVoltage;
+            Recipe currentRecipe = null;
+            List<IItemHandlerModifiable> importInventory = getInputBuses();
+            IMultipleTankHandler importFluids = getInputTank();
+
+            // Our caching implementation
+            // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
+            Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids);
+            HashSet<Integer> foundRecipeIndex = new HashSet<>();
+            if (foundRecipe != null) {
+                currentRecipe = foundRecipe;
+                if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex)) {
+                    this.previousRecipe.cacheUtilized();
+                    setupRecipe(currentRecipe);
+                    return true;
+                }
+                foundRecipeIndex.add(lastRecipeIndex);
+            }
+
+            for (int i = 0; i < importInventory.size(); i++) {
+                if (i == lastRecipeIndex) {
+                    continue;
+                }
+                foundRecipe = this.previousRecipe.get(importInventory.get(i), importFluids);
+                if (foundRecipe != null) {
+                    currentRecipe = foundRecipe;
+                    if (setupAndConsumeRecipeInputs(currentRecipe, i)) {
+                        this.previousRecipe.cacheUtilized();
+                        setupRecipe(currentRecipe);
+                        return true;
+                    }
+                    foundRecipeIndex.add(i);
+                }
+            }
+
+            // On a cache miss, our efficiency is much worse, as it will check
+            // each bus individually instead of the combined inventory all at once.
+            for (int i = 0; i < importInventory.size(); i++) {
+                if (foundRecipeIndex.contains(i)) {
+                    continue;
+                }
+                IItemHandlerModifiable bus = importInventory.get(i);
+                boolean dirty = checkRecipeInputsDirty(bus, importFluids, i);
+                if (!dirty && !forceRecipeRecheck) {
+                    continue;
+                }
+                this.forceRecipeRecheck = false;
+                currentRecipe = findRecipe(maxVoltage, bus, importFluids, this.useOptimizedRecipeLookUp);
+                if (currentRecipe == null) {
+                    continue;
+                }
+                this.previousRecipe.put(currentRecipe);
+                this.previousRecipe.cacheUnutilized();
+                if (!setupAndConsumeRecipeInputs(currentRecipe, i)) {
+                    continue;
+                }
+                lastRecipeIndex = i;
                 chemicalReactor.occupiedRecipes.add(currentRecipe);
                 setupRecipe(currentRecipe);
                 chemicalReactor.countId++;
