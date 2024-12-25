@@ -97,3 +97,5 @@ machine.universal.toggle.run.mode.disabled=OFF
 machine.universal.toggle.run.mode.enabled=ON
 machine.universal.toggle.check.mode.enabled=Initiating Structure Check
 machine.universal.toggle.check.mode.disabled=Do Structure Check
+machine.universal.toggle.distinct.mode.enabled=Distinct Mode: ON
+machine.universal.toggle.distinct.mode.disabled=Distinct Mode: OFF

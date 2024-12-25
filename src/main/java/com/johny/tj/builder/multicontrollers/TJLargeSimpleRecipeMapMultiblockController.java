@@ -87,7 +87,9 @@ public abstract class TJLargeSimpleRecipeMapMultiblockController extends LargeSi
         builder.image(161, 191, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY);
         builder.widget(new ToggleButtonWidget(162, 170, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        builder.widget(new ToggleButtonWidget(162, 152, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        builder.widget(new ToggleButtonWidget(162, 152, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this::getDistinctMode, this::setDistinctMode)
+                .setTooltipText("machine.universal.toggle.distinct.mode"));
+        builder.widget(new ToggleButtonWidget(162, 134, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
         return builder;
@@ -113,6 +115,14 @@ public abstract class TJLargeSimpleRecipeMapMultiblockController extends LargeSi
             invalidateStructure();
             this.structurePattern = createStructurePattern();
         }
+    }
+
+    protected boolean getDistinctMode() {
+        return isDistinct;
+    }
+
+    protected void setDistinctMode(boolean distinct) {
+        isDistinct = distinct;
     }
 
     @Override
