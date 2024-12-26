@@ -35,6 +35,10 @@ public abstract class TJLargeSimpleRecipeMapMultiblockController extends LargeSi
         super(metaTileEntityId, recipeMap, EUtPercentage, durationPercentage, chancePercentage, stack);
     }
 
+    public TJLargeSimpleRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, int EUtPercentage, int durationPercentage, int chancePercentage, int stack, boolean hasMuffler, boolean hasMaintenance, boolean canDistinct) {
+        super(metaTileEntityId, recipeMap, EUtPercentage, durationPercentage, chancePercentage, stack, hasMuffler, hasMaintenance, canDistinct);
+    }
+
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
         return new ItemStackHandler(1) {

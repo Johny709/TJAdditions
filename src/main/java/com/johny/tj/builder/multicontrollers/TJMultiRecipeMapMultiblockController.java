@@ -35,6 +35,10 @@ public abstract class TJMultiRecipeMapMultiblockController extends MultiRecipeMa
         super(metaTileEntityId, recipeMap, EUtPercentage, durationPercentage, chancePercentage, stack, recipeMaps);
     }
 
+    public TJMultiRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, int EUtPercentage, int durationPercentage, int chancePercentage, int stack, RecipeMap<?>[] recipeMaps, boolean canDistinct, boolean hasMuffler, boolean hasMaintenance) {
+        super(metaTileEntityId, recipeMap, EUtPercentage, durationPercentage, chancePercentage, stack, recipeMaps, canDistinct, hasMuffler, hasMaintenance);
+    }
+
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
         return new ItemStackHandler(1) {

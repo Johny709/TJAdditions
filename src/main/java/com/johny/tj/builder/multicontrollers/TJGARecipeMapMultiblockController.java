@@ -31,6 +31,10 @@ public abstract class TJGARecipeMapMultiblockController extends GARecipeMapMulti
 
     protected boolean doStructureCheck = false;
 
+    public TJGARecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
+        super(metaTileEntityId, recipeMap);
+    }
+
     public TJGARecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMuffler, boolean hasMaintenance, boolean canDistinct) {
         super(metaTileEntityId, recipeMap, hasMuffler, hasMaintenance, canDistinct);
     }
