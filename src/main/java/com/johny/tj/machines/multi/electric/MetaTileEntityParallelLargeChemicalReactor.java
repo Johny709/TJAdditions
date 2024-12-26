@@ -17,6 +17,7 @@ import gregicadditions.recipes.impl.LargeRecipeBuilder;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -46,6 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.Steel;
 
@@ -141,6 +143,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     @Override
     protected BlockPattern createStructurePattern() {
+        Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
 
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(BlockPattern.RelativeDirection.LEFT, BlockPattern.RelativeDirection.FRONT, BlockPattern.RelativeDirection.DOWN);
 
@@ -149,6 +152,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
             this.chemicalReactorWorkableHandlers.add(count, new ParallelChemicalReactorWorkableHandler(this, count));
             factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
             factoryPattern.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
+            factoryPattern.validateLayer(2 + count * 2, (context) -> context.getInt("RedstoneControllerAmount") <= 1);
         }
 
         this.recipeMapWorkable = this.chemicalReactorWorkableHandlers.get(0);
@@ -156,7 +160,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
         factoryPattern.aisle("HHSHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH")
                 .where('S', selfPredicate())
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('C', statePredicate(getCasingState()))
+                .where('C', statePredicate(getCasingState()).or(machineControllerPredicate))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
                 .where('B', pumpPredicate())
@@ -202,10 +206,16 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     @Override
     protected void updateFormedValid() {
+        int index = 0;
         for (ParallelChemicalReactorWorkableHandler reactorWorkableHandler : this.chemicalReactorWorkableHandlers) {
             reactorWorkableHandler.updateWorkable();
+
             if (countId == reactorWorkableHandler.WORKABLE_ID)
                 reactorWorkableHandler.canRun = true;
+
+            if (index < getAbilities(REDSTONE_CONTROLLER).size())
+                reactorWorkableHandler.setWorkingEnabled(!getAbilities(REDSTONE_CONTROLLER).get(index).getRedstonePowered());
+            index++;
         }
     }
 
