@@ -21,6 +21,7 @@ tj.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor
 tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor
 tj.machine.large_greenhouse.name=Large Green House
 tj.machine.large_architect_workbench.name=Large Architect Workbench
+tj.machine.machine_controller.name=Machine Controller
 
 gregtech.multiblock.running=Running
 

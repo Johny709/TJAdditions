@@ -8,6 +8,7 @@ import com.johny.tj.machines.multi.steam.*;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityTJMultiFluidHatch;
+import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
 import gregicadditions.recipes.GARecipeMaps;
@@ -43,6 +44,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityTJMultiFluidHatch OUTPUT_HATCH_MULTI_MAX;
     public static MetaTileEntityLargeGreenhouse LARGE_GREENHOUSE;
     public static MetaTileEntityLargeArchitectWorkbench LARGE_ARCHITECT_WORKBENCH;
+    public static MetaTileEntityMachineController MACHINE_CONTROLLER;
 
     public static void init() {
 
@@ -76,6 +78,7 @@ public class TJMetaTileEntities {
 
         INPUT_HATCH_MULTI_MAX = GregTechAPI.registerMetaTileEntity(5008, new MetaTileEntityTJMultiFluidHatch(TJId("fluid_input_multi_max"), 14, false, Integer.MAX_VALUE));
         OUTPUT_HATCH_MULTI_MAX = GregTechAPI.registerMetaTileEntity(5009, new MetaTileEntityTJMultiFluidHatch(TJId("fluid_output_multi_max"), 14, true, Integer.MAX_VALUE));
+        MACHINE_CONTROLLER = GregTechAPI.registerMetaTileEntity(5010, new MetaTileEntityMachineController(TJId("machine_controller")));
 
     }
 
