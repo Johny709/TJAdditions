@@ -99,36 +99,36 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             textList.add(page);
 
             int rotorHolderSize = getAbilities(ABILITY_ROTOR_HOLDER).size();
-            for (int i = pageIndex, rotorIndex = i + 1; i < (rotorHolderSize - (pageIndex != 0 ? 0 : pageSize)); i++, rotorIndex++) {
+            for (int i = pageIndex, rotorIndex = i + 1; i < pageIndex + pageSize; i++, rotorIndex++) {
+                if (i < rotorHolderSize) {
+                    MetaTileEntityRotorHolderForNuclearCoolant rotorHolder = getAbilities(ABILITY_ROTOR_HOLDER).get(i);
 
-                MetaTileEntityRotorHolderForNuclearCoolant rotorHolder = getAbilities(ABILITY_ROTOR_HOLDER).get(i);
+                    double durabilityToInt = rotorHolder.getRotorDurability() * 100;
 
-                double durabilityToInt = rotorHolder.getRotorDurability() * 100;
+                    ITextComponent turbineText;
+                    TextFormatting colorFormatting;
 
-                ITextComponent turbineText;
-                TextFormatting colorFormatting;
+                    StringBuilder rotorInstance = getStringBuilder(rotorHolder);
 
-                StringBuilder rotorInstance = getStringBuilder(rotorHolder);
+                    if (rotorHolder.hasRotorInInventory()) {
+                        if (durabilityToInt <= 10)
+                            colorFormatting = TextFormatting.RED;
+                        else if (durabilityToInt <= 25)
+                            colorFormatting = TextFormatting.YELLOW;
+                        else
+                            colorFormatting = TextFormatting.GREEN;
+                    } else {
+                        colorFormatting = TextFormatting.WHITE;
+                    }
 
-                if (rotorHolder.hasRotorInInventory()) {
-                    if (durabilityToInt <= 10)
-                        colorFormatting = TextFormatting.RED;
-                    else if (durabilityToInt <= 25)
-                        colorFormatting = TextFormatting.YELLOW;
-                    else
-                        colorFormatting = TextFormatting.GREEN;
+                    String rotorName = getShortenRotorName(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName());
+                    turbineText = new TextComponentString("-");
+                    turbineText.appendText(" ");
+                    turbineText.appendSibling(new TextComponentString("[" + rotorIndex + "] " + (rotorName.equals("Air") ? I18n.format("gregtech.multiblock.extreme_turbine.insertrotor") : rotorName))
+                                    .setStyle(new Style().setColor(colorFormatting)))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(rotorInstance.toString()))));
+                    textList.add(turbineText);
                 }
-                else {
-                    colorFormatting = TextFormatting.WHITE;
-                }
-
-                String rotorName = getShortenRotorName(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName());
-                turbineText = new TextComponentString("-");
-                turbineText.appendText(" ");
-                turbineText.appendSibling(new TextComponentString("[" + rotorIndex + "] " + (rotorName.equals("Air") ? I18n.format("gregtech.multiblock.extreme_turbine.insertrotor") : rotorName))
-                                .setStyle(new Style().setColor(colorFormatting)))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(rotorInstance.toString()))));
-                textList.add(turbineText);
             }
         }
         else {

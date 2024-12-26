@@ -86,18 +86,18 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
             textList.add(page);
 
             int recipeHandlersSize = chemicalReactorWorkableHandlers.size();
-            for (int i = pageIndex, recipeHandlerIndex = i + 1; i < (recipeHandlersSize - (pageIndex != 0 ? 0 : pageSize)); i++, recipeHandlerIndex++) {
+            for (int i = pageIndex, recipeHandlerIndex = i + 1; i < pageIndex + pageSize; i++, recipeHandlerIndex++) {
+                if (i < recipeHandlersSize) {
+                    ParallelChemicalReactorWorkableHandler recipeHandler = chemicalReactorWorkableHandlers.get(i);
 
-                ParallelChemicalReactorWorkableHandler recipeHandler = chemicalReactorWorkableHandlers.get(i);
+                    StringBuilder recipeHandlerIntance = getStringBuilder(recipeHandler);
 
-                StringBuilder recipeHandlerIntance = getStringBuilder(recipeHandler);
-
-                ITextComponent recipeInstance = new TextComponentString("-");
-                recipeInstance.appendText(" ");
-                recipeInstance.appendSibling(new TextComponentString("[" + recipeHandlerIndex + "] " + (recipeHandler.isActive() ? I18n.format("gregtech.multiblock.running") : I18n.format("gregtech.multiblock.idling")))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(recipeHandlerIntance.toString())))));
-                textList.add(recipeInstance);
-
+                    ITextComponent recipeInstance = new TextComponentString("-");
+                    recipeInstance.appendText(" ");
+                    recipeInstance.appendSibling(new TextComponentString("[" + recipeHandlerIndex + "] " + (recipeHandler.isActive() ? I18n.format("gregtech.multiblock.running") : I18n.format("gregtech.multiblock.idling")))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(recipeHandlerIntance.toString())))));
+                    textList.add(recipeInstance);
+                }
             }
         }
         else {
@@ -316,27 +316,15 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
         @Override
         protected boolean trySearchNewRecipe() {
-            if (chemicalReactor.getNumProblems() > 5)
-                return false;
-
+            long maxVoltage = chemicalReactor.maxVoltage;
+            Recipe currentRecipe = null;
+            IItemHandlerModifiable importInventory = getInputInventory();
+            IMultipleTankHandler importFluids = getInputTank();
             if (this.recipeMapFilter == null) {
                 this.recipeMapFilter = chemicalReactor.LargeChemicalRecipeMap;
                 for (Recipe recipe : chemicalReactor.occupiedRecipes)
                     this.recipeMapFilter.removeRecipe(recipe);
             }
-
-            if (chemicalReactor.canDistinct && chemicalReactor.isDistinct) {
-                return trySearchNewRecipeDistinct();
-            }
-            return trySearchNewRecipeCombined();
-        }
-
-        @Override
-        protected boolean trySearchNewRecipeCombined() {
-            long maxVoltage = chemicalReactor.maxVoltage;
-            Recipe currentRecipe = null;
-            IItemHandlerModifiable importInventory = getInputInventory();
-            IMultipleTankHandler importFluids = getInputTank();
             Recipe foundRecipe = this.previousRecipe.get(importInventory, importFluids);
             if (foundRecipe != null) {
                 //if previous recipe still matches inputs, try to use it
@@ -371,6 +359,11 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
             Recipe currentRecipe = null;
             List<IItemHandlerModifiable> importInventory = getInputBuses();
             IMultipleTankHandler importFluids = getInputTank();
+            if (this.recipeMapFilter == null) {
+                this.recipeMapFilter = chemicalReactor.LargeChemicalRecipeMap;
+                for (Recipe recipe : chemicalReactor.occupiedRecipes)
+                    this.recipeMapFilter.removeRecipe(recipe);
+            }
 
             // Our caching implementation
             // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
