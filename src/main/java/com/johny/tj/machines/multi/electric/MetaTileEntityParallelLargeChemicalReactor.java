@@ -59,6 +59,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
     private final HashSet<Recipe> occupiedRecipes;
     private int energyBonus;
     private int parallelLayer = 1;
+    private boolean initializeArray = true;
     private long maxVoltage = 0;
     private int pageIndex = 0;
     private final int pageSize = 6;
@@ -116,15 +117,20 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
         double progressPercent = recipeHandler.getProgressPercent() * 100;
         StringBuilder recipeHandlerIntance = new StringBuilder();
 
+        recipeHandlerIntance.append(I18n.format("gregtech.multiblock.parallel_large_chemical_reactor.status"))
+                .append(" ")
+                .append(recipeHandler.isWorkingEnabled() ? I18n.format("gregtech.multiblock.running") : I18n.format("gregtech.multiblock.work_paused"))
+                .append("\n");
+
         recipeHandlerIntance.append(I18n.format("gregtech.multiblock.parallel_large_chemical_reactor.eu"))
-            .append(" ")
-            .append(recipeHandler.getRecipeEUt())
-            .append("\n");
+                .append(" ")
+                .append(recipeHandler.getRecipeEUt())
+                .append("\n");
 
         recipeHandlerIntance.append(I18n.format("gregtech.multiblock.parallel_large_chemical_reactor.progress"))
-            .append(" ")
-            .append(((int) progressPercent))
-            .append(" %");
+                .append(" ")
+                .append(((int) progressPercent))
+                .append(" %");
         return recipeHandlerIntance;
     }
 
@@ -149,7 +155,8 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
         factoryPattern.aisle("HHHHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH");
         for (int count = 0; count < this.parallelLayer; count++) {
-            this.chemicalReactorWorkableHandlers.add(count, new ParallelChemicalReactorWorkableHandler(this, count));
+            if (initializeArray)
+                this.chemicalReactorWorkableHandlers.add(count, new ParallelChemicalReactorWorkableHandler(this, count));
             factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
             factoryPattern.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
             factoryPattern.validateLayer(2 + count * 2, (context) -> context.getInt("RedstoneControllerAmount") <= 1);
@@ -165,6 +172,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
                 .where('B', pumpPredicate())
                 .where('#', (tile) -> true);
+        this.initializeArray = false;
         return factoryPattern.build();
     }
 
@@ -206,16 +214,19 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     @Override
     protected void updateFormedValid() {
-        int index = 0;
-        for (ParallelChemicalReactorWorkableHandler reactorWorkableHandler : this.chemicalReactorWorkableHandlers) {
-            reactorWorkableHandler.updateWorkable();
+        if (!getWorld().isRemote) {
+            int index = 0;
+            for (ParallelChemicalReactorWorkableHandler reactorWorkableHandler : this.chemicalReactorWorkableHandlers) {
+                reactorWorkableHandler.updateWorkable();
 
-            if (countId == reactorWorkableHandler.WORKABLE_ID)
-                reactorWorkableHandler.canRun = true;
+                if (countId == reactorWorkableHandler.workableId)
+                    reactorWorkableHandler.canRun = true;
 
-            if (index < getAbilities(REDSTONE_CONTROLLER).size())
-                reactorWorkableHandler.setWorkingEnabled(!getAbilities(REDSTONE_CONTROLLER).get(index).getRedstonePowered());
-            index++;
+                if (index < getAbilities(REDSTONE_CONTROLLER).size())
+                    reactorWorkableHandler.setWorkingEnabled(!getAbilities(REDSTONE_CONTROLLER).get(index).getRedstonePowered());
+
+                index++;
+            }
         }
     }
 
@@ -245,6 +256,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     public void resetStructure() {
         this.invalidateStructure();
+        this.initializeArray = true;
         this.chemicalReactorWorkableHandlers.clear();
         this.LargeChemicalRecipeMap.addRecipes(occupiedRecipes);
         this.occupiedRecipes.clear();
@@ -290,8 +302,9 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
         this.parallelLayer = data.getInteger("Parallel");
+        this.structurePattern = createStructurePattern();
+        super.readFromNBT(data);
     }
 
 
@@ -308,19 +321,29 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
     private static class ParallelChemicalReactorWorkableHandler extends GAMultiblockRecipeLogic {
 
         MetaTileEntityParallelLargeChemicalReactor chemicalReactor;
-        private final int WORKABLE_ID;
+        private int workableId;
         private boolean canRun = false;
-        ParallelLargeChemicalReactorRecipeMapBuilder recipeMapFilter;
+        ParallelLargeChemicalReactorRecipeMapBuilder recipeMapFilter = null;
 
         public ParallelChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity, int workableId) {
             super(tileEntity);
             this.chemicalReactor = tileEntity;
-            this.WORKABLE_ID = workableId;
+            this.workableId = workableId;
+        }
+
+        @Override
+        public String getName() {
+            return this.workableId == 0 ? "RecipeMapWorkable" : "RecipeMapWorkable" + this.workableId;
+        }
+
+        @Override
+        public int getNetworkID() {
+            return 2 + this.workableId;
         }
 
         @Override
         public void updateWorkable() {
-            if (canRun)
+            if (canRun || progressTime > 0)
                 super.updateWorkable();
         }
 
@@ -330,25 +353,26 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
             Recipe currentRecipe = null;
             IItemHandlerModifiable importInventory = getInputInventory();
             IMultipleTankHandler importFluids = getInputTank();
-            if (this.recipeMapFilter == null) {
-                this.recipeMapFilter = chemicalReactor.LargeChemicalRecipeMap;
-                for (Recipe recipe : chemicalReactor.occupiedRecipes)
-                    this.recipeMapFilter.removeRecipe(recipe);
-            }
             Recipe foundRecipe = this.previousRecipe.get(importInventory, importFluids);
             if (foundRecipe != null) {
                 //if previous recipe still matches inputs, try to use it
                 currentRecipe = foundRecipe;
             } else {
-                    boolean dirty = checkRecipeInputsDirty(importInventory, importFluids);
-                    if (dirty || forceRecipeRecheck) {
-                        this.forceRecipeRecheck = false;
-                        //else, try searching new recipe for given inputs
-                        currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
-                        if (currentRecipe != null) {
-                            this.previousRecipe.put(currentRecipe);
-                            this.previousRecipe.cacheUnutilized();
-                        }
+                if (this.recipeMapFilter == null) {
+                    this.recipeMapFilter = chemicalReactor.LargeChemicalRecipeMap;
+                    for (Recipe recipe : chemicalReactor.occupiedRecipes)
+                        this.recipeMapFilter.removeRecipe(recipe);
+                }
+
+                boolean dirty = checkRecipeInputsDirty(importInventory, importFluids);
+                if (dirty || forceRecipeRecheck) {
+                    this.forceRecipeRecheck = false;
+                    //else, try searching new recipe for given inputs
+                    currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
+                    if (currentRecipe != null) {
+                        this.previousRecipe.put(currentRecipe);
+                        this.previousRecipe.cacheUnutilized();
+                    }
                 }
             }
             if (currentRecipe != null && setupAndConsumeRecipeInputs(currentRecipe)) {
@@ -369,11 +393,6 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
             Recipe currentRecipe = null;
             List<IItemHandlerModifiable> importInventory = getInputBuses();
             IMultipleTankHandler importFluids = getInputTank();
-            if (this.recipeMapFilter == null) {
-                this.recipeMapFilter = chemicalReactor.LargeChemicalRecipeMap;
-                for (Recipe recipe : chemicalReactor.occupiedRecipes)
-                    this.recipeMapFilter.removeRecipe(recipe);
-            }
 
             // Our caching implementation
             // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
@@ -411,6 +430,12 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
                 if (foundRecipeIndex.contains(i)) {
                     continue;
                 }
+                if (this.recipeMapFilter == null) {
+                    this.recipeMapFilter = chemicalReactor.LargeChemicalRecipeMap;
+                    for (Recipe recipe : chemicalReactor.occupiedRecipes)
+                        this.recipeMapFilter.removeRecipe(recipe);
+                }
+
                 IItemHandlerModifiable bus = importInventory.get(i);
                 boolean dirty = checkRecipeInputsDirty(bus, importFluids, i);
                 if (!dirty && !forceRecipeRecheck) {

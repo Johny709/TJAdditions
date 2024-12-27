@@ -53,6 +53,7 @@ tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
 
 gregtech.multiblock.parallel_large_chemical_reactor.eu=EU/t:
 gregtech.multiblock.parallel_large_chemical_reactor.progress=Progress:
+gregtech.multiblock.parallel_large_chemical_reactor.status=Status:
 
 gregtech.mulitblock.greenhouse.treemode=[Tree Mode]
 
