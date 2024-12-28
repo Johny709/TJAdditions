@@ -55,8 +55,10 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    private final ArrayList<ParallelChemicalReactorWorkableHandler> chemicalReactorWorkableHandlers;
+    private final List<ParallelChemicalReactorWorkableHandler> chemicalReactorWorkableHandlers;
+    public final ParallelLargeChemicalReactorRecipeMapBuilder LargeChemicalRecipeMap;
     private final HashSet<Recipe> occupiedRecipes;
+    private List<String> hasRan;
     private int energyBonus;
     private int parallelLayer = 1;
     private boolean initializeArray = true;
@@ -64,11 +66,11 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
     private int pageIndex = 0;
     private final int pageSize = 6;
     private int countId = 0;
-    public final ParallelLargeChemicalReactorRecipeMapBuilder LargeChemicalRecipeMap;
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.LARGE_CHEMICAL_RECIPES, false, true, true);
         this.chemicalReactorWorkableHandlers = new ArrayList<>();
+        this.hasRan = new ArrayList<>();
         this.occupiedRecipes = new HashSet<>();
         this.LargeChemicalRecipeMap = new ParallelLargeChemicalReactorRecipeMapBuilder("parallel_large_chemical_reactor",
                 0, 3, 0, 3, 0, 5, 0, 4, (new LargeRecipeBuilder(RecipeMaps.CHEMICAL_RECIPES))
@@ -214,18 +216,27 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     @Override
     protected void updateFormedValid() {
-        if (!getWorld().isRemote) {
-            int index = 0;
+        if (!getWorld().isRemote && getOffsetTimer() > 50) {
+            int i = 0;
             for (ParallelChemicalReactorWorkableHandler reactorWorkableHandler : this.chemicalReactorWorkableHandlers) {
                 reactorWorkableHandler.updateWorkable();
 
-                if (countId == reactorWorkableHandler.workableId)
-                    reactorWorkableHandler.canRun = true;
+                if (i < getAbilities(REDSTONE_CONTROLLER).size())
+                    reactorWorkableHandler.setWorkingEnabled(!getAbilities(REDSTONE_CONTROLLER).get(i).getRedstonePowered());
 
-                if (index < getAbilities(REDSTONE_CONTROLLER).size())
-                    reactorWorkableHandler.setWorkingEnabled(!getAbilities(REDSTONE_CONTROLLER).get(index).getRedstonePowered());
-
-                index++;
+                i++;
+            }
+            if (getOffsetTimer() % 20 == 0) {
+                for (ParallelChemicalReactorWorkableHandler reactorWorkableHandler : this.chemicalReactorWorkableHandlers) {
+                    if (hasRan.contains(reactorWorkableHandler.getName()))
+                        continue;
+                    if (reactorWorkableHandler.getProgress() < 0)
+                        break;
+                    if (countId >= reactorWorkableHandler.workableId) {
+                        reactorWorkableHandler.canRun = true;
+                        hasRan.add(reactorWorkableHandler.getName());
+                    }
+                }
             }
         }
     }
@@ -258,9 +269,10 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
         this.invalidateStructure();
         this.initializeArray = true;
         this.chemicalReactorWorkableHandlers.clear();
-        this.LargeChemicalRecipeMap.addRecipes(occupiedRecipes);
         this.occupiedRecipes.clear();
+        this.hasRan.clear();
         this.countId = 0;
+        this.LargeChemicalRecipeMap.addRecipes(occupiedRecipes);
         this.structurePattern = createStructurePattern();
     }
 
@@ -297,13 +309,18 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setInteger("Parallel", this.parallelLayer);
+        data.setBoolean("InitializeArray", this.initializeArray);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         this.parallelLayer = data.getInteger("Parallel");
-        this.structurePattern = createStructurePattern();
+        this.initializeArray = data.getBoolean("InitializeArray");
+        if (!this.initializeArray)
+            for (int i = 0; i < this.parallelLayer; i++)
+                this.chemicalReactorWorkableHandlers.add(i, new ParallelChemicalReactorWorkableHandler(this, i));
+
         super.readFromNBT(data);
     }
 
@@ -321,7 +338,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
     private static class ParallelChemicalReactorWorkableHandler extends GAMultiblockRecipeLogic {
 
         MetaTileEntityParallelLargeChemicalReactor chemicalReactor;
-        private int workableId;
+        private final int workableId;
         private boolean canRun = false;
         ParallelLargeChemicalReactorRecipeMapBuilder recipeMapFilter = null;
 
@@ -343,7 +360,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
         @Override
         public void updateWorkable() {
-            if (canRun || progressTime > 0)
+            if (canRun || progressTime < 0)
                 super.updateWorkable();
         }
 
@@ -370,6 +387,8 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
                     //else, try searching new recipe for given inputs
                     currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
                     if (currentRecipe != null) {
+                        chemicalReactor.occupiedRecipes.add(currentRecipe);
+                        chemicalReactor.countId = workableId + 1;
                         this.previousRecipe.put(currentRecipe);
                         this.previousRecipe.cacheUnutilized();
                     }
@@ -379,9 +398,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
                 if (foundRecipe != null) {
                     this.previousRecipe.cacheUtilized();
                 }
-                chemicalReactor.occupiedRecipes.add(currentRecipe);
                 setupRecipe(currentRecipe);
-                chemicalReactor.countId++;
                 return true;
             }
             return false;
@@ -446,15 +463,15 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
                 if (currentRecipe == null) {
                     continue;
                 }
+                chemicalReactor.occupiedRecipes.add(currentRecipe);
+                chemicalReactor.countId = workableId + 1;
                 this.previousRecipe.put(currentRecipe);
                 this.previousRecipe.cacheUnutilized();
                 if (!setupAndConsumeRecipeInputs(currentRecipe, i)) {
                     continue;
                 }
                 lastRecipeIndex = i;
-                chemicalReactor.occupiedRecipes.add(currentRecipe);
                 setupRecipe(currentRecipe);
-                chemicalReactor.countId++;
                 return true;
             }
             return false;
