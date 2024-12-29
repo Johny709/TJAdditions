@@ -19,7 +19,7 @@ public class ArchitectureRecipes {
     public static void init() {
         List<Integer> excludeShapeNumber = Arrays.asList(29, 39, 46, 47, 48, 49, 57, 58, 59, 69);
 
-        for (int i = 0; i < 89; i++) {
+        for (int i = 0; i < 94; i++) {
             if (excludeShapeNumber.contains(i))
                 continue;
 
