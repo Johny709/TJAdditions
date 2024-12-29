@@ -33,23 +33,30 @@ public class ArchitectureRecipes {
             oakCatalyst.setTagCompound(nbtTagCompound);
 
             Block.REGISTRY.forEach(block -> {
-                    String blockName = block.getRegistryName().toString();
+                String blockName = block.getRegistryName().toString();
+
+                block.getBlockState().getValidStates().forEach(state -> {
+
                     NBTTagCompound tagCompound = new NBTTagCompound();
                     tagCompound.setInteger("Shape", finalI);
                     tagCompound.setString("BaseName", blockName);
-                    tagCompound.setInteger("BaseData", block.getMetaFromState(block.getDefaultState()));
+                    tagCompound.setInteger("BaseData", state.getBlock().getMetaFromState(state));
 
                     ItemStack architectStack = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), outputQuantity);
                     architectStack.setTagCompound(tagCompound);
+                    ItemStack item = new ItemStack(block, inputQuantity, state.getBlock().getMetaFromState(state));
+                    if (item.isEmpty())
+                        return;
 
                     ARCHITECT_RECIPES.recipeBuilder()
                             .notConsumable(oakCatalyst)
-                            .inputs(new ItemStack(block, inputQuantity))
+                            .inputs(item)
                             .outputs(architectStack)
                             .EUt(30)
                             .duration(20)
+                            .hidden()
                             .buildAndRegister();
-                });}
+                });});}
     }
 
     public static void getQuantity(int shape) {
