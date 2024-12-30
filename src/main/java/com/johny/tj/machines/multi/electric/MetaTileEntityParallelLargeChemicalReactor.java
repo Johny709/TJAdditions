@@ -216,7 +216,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends TJGARecipeMapMul
 
     @Override
     protected void updateFormedValid() {
-        if (!getWorld().isRemote && getOffsetTimer() > 50) {
+        if (!getWorld().isRemote) {
             int i = 0;
             for (ParallelChemicalReactorWorkableHandler reactorWorkableHandler : this.chemicalReactorWorkableHandlers) {
                 reactorWorkableHandler.updateWorkable();
