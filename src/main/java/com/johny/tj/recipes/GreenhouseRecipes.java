@@ -93,7 +93,7 @@ public class GreenhouseRecipes {
 
         GREENHOUSE_TREE_RECIPES.recipeBuilder() // Rubber Tree
                 .notConsumable(new ItemStack(MetaBlocks.SAPLING))
-                .chancedOutput(MetaBlocks.LOG.getItem(BlockGregLog.LogVariant.RUBBER_WOOD), 9500, 1000)
+                .chancedOutput(new ItemStack(MetaBlocks.LOG.getItem(BlockGregLog.LogVariant.RUBBER_WOOD).getItem(), 5), 9500, 1000)
                 .chancedOutput(new ItemStack(Items.APPLE, 6), 7000, 1000)
                 .chancedOutput(MetaItems.RUBBER_DROP.getStackForm(6), 7000, 1000)
                 .chancedOutput(new ItemStack(MetaBlocks.SAPLING), 5000, 1000)
