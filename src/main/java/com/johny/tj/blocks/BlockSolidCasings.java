@@ -16,6 +16,7 @@ public class BlockSolidCasings extends VariantBlock<BlockSolidCasings.SolidCasin
         super(Material.IRON);
         setHardness(5.0f);
         setResistance(10.0f);
+        setTranslationKey("solid_casing");
         setSoundType(SoundType.METAL);
         setHarvestLevel("wrench", 2);
         setDefaultState(getState(SolidCasingType.DRACONIC_CASING));
@@ -31,7 +32,9 @@ public class BlockSolidCasings extends VariantBlock<BlockSolidCasings.SolidCasin
         AWAKENED_CASING("awakened"),
         CHOATIC_CASING("chaotic"),
         ETERNITY_CASING("eternity"),
-        SOUL_CASING("soul");
+        SOUL_CASING("soul"),
+        DURANIUM_CASING("duranium"),
+        SEABORGIUM_CASING("seaborgium");
 
         private final String name;
 

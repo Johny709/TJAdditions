@@ -45,6 +45,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeGreenhouse LARGE_GREENHOUSE;
     public static MetaTileEntityLargeArchitectWorkbench LARGE_ARCHITECT_WORKBENCH;
     public static MetaTileEntityMachineController MACHINE_CONTROLLER;
+    public static MetaTileEntityEliteLargeMiner ELITE_LARGE_MINER;
+    public static MetaTileEntityUltimateLargeMiner ULTIMATE_LARGE_MINER;
 
     public static void init() {
 
@@ -79,6 +81,8 @@ public class TJMetaTileEntities {
         INPUT_HATCH_MULTI_MAX = GregTechAPI.registerMetaTileEntity(5008, new MetaTileEntityTJMultiFluidHatch(TJId("fluid_input_multi_max"), 14, false, Integer.MAX_VALUE));
         OUTPUT_HATCH_MULTI_MAX = GregTechAPI.registerMetaTileEntity(5009, new MetaTileEntityTJMultiFluidHatch(TJId("fluid_output_multi_max"), 14, true, Integer.MAX_VALUE));
         MACHINE_CONTROLLER = GregTechAPI.registerMetaTileEntity(5010, new MetaTileEntityMachineController(TJId("machine_controller")));
+        ELITE_LARGE_MINER = GregTechAPI.registerMetaTileEntity(5011, new MetaTileEntityEliteLargeMiner(TJId("elite_large_miner"), TJMiner.Type.ELITE));
+        ULTIMATE_LARGE_MINER = GregTechAPI.registerMetaTileEntity(5012, new MetaTileEntityUltimateLargeMiner(TJId("ultimate_large_miner"), TJMiner.Type.ULTIMATE));
 
     }
 

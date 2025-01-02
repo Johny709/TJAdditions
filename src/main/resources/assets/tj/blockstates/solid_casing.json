@@ -29,6 +29,16 @@
         "textures": {
           "all": "tj:blocks/casings/solid/soulcasing"
         }
+      },
+      "duranium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/duranium"
+        }
+      },
+      "seaborgium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/seaborgium"
+        }
       }
     }
   }

@@ -22,6 +22,8 @@ tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor
 tj.machine.large_greenhouse.name=Large Green House
 tj.machine.large_architect_workbench.name=Large Architect Workbench
 tj.machine.machine_controller.name=Machine Controller
+tj.machine.elite_large_miner.name=Elite Large Miner (ELM)
+tj.machine.ultimate_large_miner.name=Ultimate Large Miner (ULM)
 
 gregtech.multiblock.running=Running
 
@@ -54,6 +56,10 @@ tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
 gregtech.multiblock.parallel_large_chemical_reactor.eu=EU/t:
 gregtech.multiblock.parallel_large_chemical_reactor.progress=Progress:
 gregtech.multiblock.parallel_large_chemical_reactor.status=Status:
+
+gregtech.multiblock.elite_large_miner.restart=Can Restart:
+gregtech.multiblock.elite_large_miner.restart.true=Yes
+gregtech.multiblock.elite_large_miner.restart.false=No
 
 gregtech.mulitblock.greenhouse.treemode=[Tree Mode]
 
@@ -88,6 +94,8 @@ tile.solid_casing.awakened.name=Awakened Draconium Casing
 tile.solid_casing.chaotic.name=Refined Chaos Casing
 tile.solid_casing.eternity.name=Block of Eternity
 tile.solid_casing.soul.name=Large Soul Manipulation Casing
+tile.solid_casing.duranium.name=Duranium Casing
+tile.solid_casing.seaborgium.name=Seaborgium Casing
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover

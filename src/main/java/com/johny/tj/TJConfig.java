@@ -146,6 +146,47 @@ public class TJConfig {
         @Config.Comment("Adjust the maximum number of slices the Large Architect Workbench can have")
         @Config.RequiresMcRestart
         public int maximumSlices = 64;
+    }
 
+    @Config.Comment("Elite Large Miner")
+    public static EliteLargeMiner eliteLargeMiner = new EliteLargeMiner();
+
+    public static class EliteLargeMiner {
+
+        @Config.Name("Elite Large Miner Chunk Diamater")
+        @Config.RequiresMcRestart
+        @Config.Comment("The length in chunks of the side of the square centered on the Miner that will be mined.")
+        public int eliteMinerChunkDiamater = 9;
+
+        @Config.Name("Elite Large Miner Fortune Level")
+        @Config.RequiresMcRestart
+        @Config.Comment("The level of fortune which will be applied to blocks that the Miner mines.")
+        public int eliteMinerFortune = 12;
+
+        @Config.Name("Elite Large Miner Drilling Fluid Consumption")
+        @Config.RequiresMcRestart
+        @Config.Comment("The amount of drilling fluid consumed per tick")
+        public int eliteMinerDrillingFluid = 64;
+    }
+
+    @Config.Comment("Elite Large Miner")
+    public static UltimateLargeMiner ultimateLargeMiner = new UltimateLargeMiner();
+
+    public static class UltimateLargeMiner {
+
+        @Config.Name("Elite Large Miner Chunk Diamater")
+        @Config.RequiresMcRestart
+        @Config.Comment("The length in chunks of the side of the square centered on the Miner that will be mined.")
+        public int ultimateMinerChunkDiamater = 12;
+
+        @Config.Name("Elite Large Miner Fortune Level")
+        @Config.RequiresMcRestart
+        @Config.Comment("The level of fortune which will be applied to blocks that the Miner mines.")
+        public int ultimateMinerFortune = 15;
+
+        @Config.Name("Elite Large Miner Drilling Fluid Consumption")
+        @Config.RequiresMcRestart
+        @Config.Comment("The amount of drilling fluid consumed per tick")
+        public int ultimateMinerDrillingFluid = 128;
     }
 }
