@@ -189,4 +189,25 @@ public class TJConfig {
         @Config.Comment("The amount of drilling fluid consumed per tick")
         public int ultimateMinerDrillingFluid = 128;
     }
+
+    @Config.Comment("World Destroyer")
+    public static WorldDestroyerMiner worldDestroyerMiner = new WorldDestroyerMiner();
+
+    public static class WorldDestroyerMiner {
+
+        @Config.Name("World Destroyer Fortune Level")
+        @Config.RequiresMcRestart
+        @Config.Comment("The level of fortune which will be applied to blocks that the Miner mines.")
+        public int worldDestroyerFortune = 3;
+
+        @Config.Name("World Destroyer Drilling Fluid Consumption")
+        @Config.RequiresMcRestart
+        @Config.Comment("The amount of drilling fluid consumed per tick")
+        public int worldDestroyerDrillingFluid = 100;
+
+        @Config.Name("World Destroyer Chunk Multiplier")
+        @Config.RequiresMcRestart
+        @Config.Comment("The amount chunk area multiplied per motor tier")
+        public int worldDestroyerChunkMultiplier = 2;
+    }
 }
