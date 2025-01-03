@@ -1,6 +1,5 @@
 package com.johny.tj.machines.multi.electric;
 
-import com.johny.tj.builder.logic.XLHotCoolantTurbineWorkableHandler;
 import com.johny.tj.builder.logic.XLTurbineWorkableHandler;
 import com.johny.tj.gui.TJGuiTextures;
 import gregicadditions.item.GAMetaItems;
@@ -34,7 +33,6 @@ import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,22 +65,18 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
         tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", turbineType.recipeMap.getLocalizedName()));
         tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency", "Normal: " + (int) XLHotCoolantTurbineWorkableHandler.getTurbineBonus() + "%, " + "Fast: " + 100 + "%"));
+        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
+        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus() + "%"));
+        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100 + "%"));
     }
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         if (isStructureFormed()) {
-            if (isTurbineFaceFree()) {
-                ITextComponent totalEnergy = new TextComponentTranslation("gregtech.multiblock.extreme_turbine.energy");
-                totalEnergy.appendText(" ");
-                totalEnergy.appendSibling(new TextComponentString(xlTurbineWorkableHandler.getTotalEnergyProduced() + " EU/t"));
-                textList.add(totalEnergy);
-            }
-            else {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
-                        .setStyle(new Style().setColor(TextFormatting.RED)));
-            }
+            ITextComponent totalEnergy = new TextComponentTranslation("gregtech.multiblock.extreme_turbine.energy");
+            totalEnergy.appendText(" ");
+            totalEnergy.appendSibling(new TextComponentString(xlTurbineWorkableHandler.getTotalEnergyProduced() + " EU/t"));
+            textList.add(totalEnergy);
 
             ITextComponent toggleFastMode = new TextComponentTranslation("gregtech.multiblock.extreme_turbine.fast_mode");
             toggleFastMode.appendText(" ");
@@ -107,19 +101,21 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
                     MetaTileEntityRotorHolder rotorHolder = getAbilities(ABILITY_ROTOR_HOLDER).get(i);
 
                     double durabilityToInt = rotorHolder.getRotorDurability() * 100;
+                    double efficencyToInt = rotorHolder.getRotorEfficiency() * 100;
 
                     ITextComponent turbineText;
                     TextFormatting colorFormatting;
 
-                    StringBuilder rotorInstance = getStringBuilder(rotorHolder);
-
                     if (rotorHolder.hasRotorInInventory()) {
-                        if (durabilityToInt <= 10)
+                        if (durabilityToInt <= 10) {
                             colorFormatting = TextFormatting.RED;
-                        else if (durabilityToInt <= 25)
+                        }
+                        else if (durabilityToInt <= 25) {
                             colorFormatting = TextFormatting.YELLOW;
-                        else
+                        }
+                        else {
                             colorFormatting = TextFormatting.GREEN;
+                        }
                     } else {
                         colorFormatting = TextFormatting.WHITE;
                     }
@@ -129,7 +125,12 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
                     turbineText.appendText(" ");
                     turbineText.appendSibling(new TextComponentString("[" + rotorIndex + "] " + (rotorName.equals("Air") ? I18n.format("gregtech.multiblock.extreme_turbine.insertrotor") : rotorName))
                                     .setStyle(new Style().setColor(colorFormatting)))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(rotorInstance.toString()))));
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("gregtech.multiblock.extreme_turbine.name").appendSibling(new TextComponentString(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ? " " + I18n.format("gregtech.multiblock.extreme_turbine.norotor") + "\n" :
+                                            " " + rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName() + "\n"))
+                                    .appendSibling(new TextComponentTranslation("gregtech.multiblock.extreme_turbine.speed").appendSibling(new TextComponentString(" " + rotorHolder.getCurrentRotorSpeed() + " / " + rotorHolder.getMaxRotorSpeed() + "\n")))
+                                    .appendSibling(new TextComponentTranslation("gregtech.multiblock.extreme_turbine.efficiency").appendSibling(new TextComponentString(" " + (int) efficencyToInt + "%\n")))
+                                    .appendSibling(new TextComponentTranslation("gregtech.multiblock.extreme_turbine.durability").appendSibling(new TextComponentString(" " + (int) durabilityToInt + "%").setStyle(new Style().setColor(colorFormatting))))
+                            )));
                     textList.add(turbineText);
                 }
             }
@@ -141,38 +142,6 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip))));
         }
-    }
-
-    @NotNull
-    private static StringBuilder getStringBuilder(MetaTileEntityRotorHolder rotorHolder) {
-        double durabilityToInt = rotorHolder.getRotorDurability() * 100;
-        double efficencyToInt = rotorHolder.getRotorEfficiency() * 100;
-        StringBuilder rotorInstance = new StringBuilder();
-
-        rotorInstance.append(I18n.format("gregtech.multiblock.extreme_turbine.name"))
-            .append(" ")
-            .append(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ? I18n.format("gregtech.multiblock.extreme_turbine.norotor") :
-                rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName())
-            .append("\n");
-
-        rotorInstance.append(I18n.format("gregtech.multiblock.extreme_turbine.speed"))
-            .append(" ")
-            .append(rotorHolder.getCurrentRotorSpeed())
-            .append(" / ")
-            .append(rotorHolder.getMaxRotorSpeed())
-            .append("\n");
-
-        rotorInstance.append(I18n.format("gregtech.multiblock.extreme_turbine.efficiency"))
-            .append(" ")
-            .append((int) efficencyToInt)
-            .append("%")
-            .append("\n");
-
-        rotorInstance.append(I18n.format("gregtech.multiblock.extreme_turbine.durability"))
-            .append(" ")
-            .append((int) durabilityToInt)
-            .append("%");
-        return rotorInstance;
     }
 
     @Override
@@ -232,21 +201,19 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
 
     @Override
     protected void updateFormedValid() {
+        super.updateFormedValid();
         if (isStructureFormed()) {
-            ItemStack rotorReplacementStack;
-            int index = 0;
-            for (MetaTileEntityRotorHolder rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
-                index++;
-                if (rotorHolder.hasRotorInInventory())
-                    continue;
-                rotorReplacementStack = checkAndConsumeItem();
-                if (!(rotorReplacementStack == null)) {
-                    rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
+            if (getOffsetTimer() % 20 == 0) {
+                ItemStack rotorReplacementStack;
+                for (MetaTileEntityRotorHolder rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
+                    if (rotorHolder.hasRotorInInventory())
+                        continue;
+                    rotorReplacementStack = checkAndConsumeItem();
+                    if (!(rotorReplacementStack == null)) {
+                        rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
+                    }
                 }
             }
-        }
-        if (this.isRotorFaceFree()) {
-            super.updateFormedValid();
         }
     }
 
@@ -280,14 +247,10 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
     public int getRotorSpeedDecrement() {
         return -1;
     }
+
     @Override
     public boolean isRotorFaceFree() {
-        int numberOfFacesFree = 0;
-        for (MetaTileEntityRotorHolder rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
-            if (rotorHolder.isFrontFaceFree())
-                numberOfFacesFree++;
-        }
-        return isStructureFormed() && numberOfFacesFree == 12;
+        return true;
     }
 
     @Override

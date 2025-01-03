@@ -55,9 +55,11 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic {
     @Override
     public void update() {
         super.update();
-        long totalEnergyOutput = getRecipeOutputVoltage();
-        if (totalEnergyOutput > 0) {
-            energyContainer.get().addEnergy(totalEnergyOutput);
+        if (extremeTurbine.getOffsetTimer() % 20 == 0) {
+            totalEnergyProduced = (int) getRecipeOutputVoltage();
+        }
+        if (totalEnergyProduced > 0) {
+            energyContainer.get().addEnergy(totalEnergyProduced);
         }
     }
 
@@ -116,7 +118,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic {
                 return MathHelper.ceil((((totalEnergyOutput / totalEnergyMultiplier) * TURBINE_BONUS) * efficiencyPenalty) * fastModeMultiplier);
             }
         }
-        return (long) (((BASE_EU_OUTPUT + (float) getBonusForTurbineType(extremeTurbine) / totalEnergyMultiplier) * TURBINE_BONUS) * efficiencyPenalty) * fastModeMultiplier;
+        return BASE_EU_OUTPUT;
     }
 
     @Override
@@ -153,7 +155,6 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic {
             if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += (BASE_EU_OUTPUT + getBonusForTurbineType(extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
-                totalEnergyProduced = (int) (totalEnergyOutput * TURBINE_BONUS) * fastModeMultiplier;
                 if (index < extremeTurbine.getAbilities(MetaTileEntityXLHotCoolantTurbine.ABILITY_ROTOR_HOLDER).size())
                     continue;
                 return MathHelper.ceil((totalEnergyOutput * TURBINE_BONUS) * fastModeMultiplier);
@@ -170,17 +171,19 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic {
         tagCompound.setInteger("DamageMultiplier", rotorDamageMultiplier);
         tagCompound.setBoolean("FastMode", fastMode);
         tagCompound.setFloat("EfficiencyBonus", efficiencyPenalty);
+        tagCompound.setInteger("TotalEnergy", totalEnergyProduced);
         return tagCompound;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        this.rotorCycleLength = compound.getInteger("CycleLength");
-        this.fastModeMultiplier = compound.getInteger("FastModeMultiplier");
-        this.rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
-        this.fastMode = compound.getBoolean("FastMode");
-        this.efficiencyPenalty = compound.getFloat("EfficiencyBonus");
+        rotorCycleLength = compound.getInteger("CycleLength");
+        fastModeMultiplier = compound.getInteger("FastModeMultiplier");
+        rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
+        fastMode = compound.getBoolean("FastMode");
+        efficiencyPenalty = compound.getFloat("EfficiencyBonus");
+        totalEnergyProduced = compound.getInteger("TotalEnergy");
     }
 
     @Override

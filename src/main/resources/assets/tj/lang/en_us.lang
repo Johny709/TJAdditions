@@ -93,7 +93,9 @@ tj.multiblock.industrial_fusion_reactor.description=A compact fusion reactor cap
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
 tj.multiblock.universal.tooltip.3=Overclock: §e%d§7
-tj.multiblock.turbine.tooltip.efficiency=Fuel Efficiency: §e%d§7
+tj.multiblock.turbine.tooltip.efficiency=[Fuel Efficiency]
+tj.multiblock.turbine.tooltip.efficiency.normal=Normal: §e%d§7
+tj.multiblock.turbine.tooltip.efficiency.fast=Fast: §e%d§7
 tj.multiblock.turbine.description=The XL Turbo Turbines are huge multiblocks with power equal to 18 Large Turbines. Enable Fast Mode to 3x power output but comes at a price with 3x fuel consumption and 16x rotor damage. Has automatic rotor replacement by Inserting rotors in Input Bus.
 
 tile.solid_casing.draconium.name=Draconic Casing
