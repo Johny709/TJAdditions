@@ -56,7 +56,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                     .put("large_greenhouse", new MultiblockInfoRecipeWrapper(new LargeGreenhouseInfo()))
                     .put("large_architect_workbench", new MultiblockInfoRecipeWrapper(new LargeArchitectWorkbenchInfo()))
                     .put("elite_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ELITE_LARGE_MINER)))
-                    .put("ultimate_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ULTIMATE_LARGE_MINER)));
+                    .put("ultimate_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ULTIMATE_LARGE_MINER)))
+                    .put("world_destroyer", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.WORLD_DESTROYER)));
 
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }

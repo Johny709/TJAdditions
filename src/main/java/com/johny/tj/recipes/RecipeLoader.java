@@ -9,6 +9,7 @@ import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.common.items.MetaItems;
+import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.loaders.recipe.CraftingComponent;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -17,8 +18,7 @@ import net.minecraft.item.ItemStack;
 
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static com.johny.tj.materials.TJMaterials.PahoehoeLava;
-import static gregicadditions.GAMaterials.Seaborgium;
-import static gregicadditions.GAMaterials.ZirconiumCarbide;
+import static gregicadditions.GAMaterials.*;
 import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.LARGE_TUNGSTENSTEEL_BOILER;
@@ -58,6 +58,15 @@ public class RecipeLoader {
                 .input(OrePrefix.frameGt, Seaborgium)
                 .notConsumable(new IntCircuitIngredient(0))
                 .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING, 3))
+                .duration(50)
+                .EUt(16)
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .input(OrePrefix.plate, TungstenTitaniumCarbide, 6)
+                .input(OrePrefix.frameGt, TungstenTitaniumCarbide)
+                .notConsumable(new IntCircuitIngredient(0))
+                .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.TUNGSTEN_TITANIUM_CARBIDE_CASING, 3))
                 .duration(50)
                 .EUt(16)
                 .buildAndRegister();
@@ -102,6 +111,13 @@ public class RecipeLoader {
                 'H', CraftingComponent.HULL.getIngredient(8),
                 'S', CraftingComponent.SENSOR.getIngredient(8));
 
+        ModHandler.addShapedRecipe("world_destroyer", WORLD_DESTROYER.getStackForm(), "GCG", "DTD", "SCS",
+                'G', new UnificationEntry(OrePrefix.gear, TungstenTitaniumCarbide),
+                'C', CraftingComponent.CIRCUIT.getIngredient(5),
+                'D', MetaItems.COMPONENT_GRINDER_TUNGSTEN.getStackForm(),
+                'T', MetaTileEntities.BLOCK_BREAKER[3].getStackForm(),
+                'S', CraftingComponent.SENSOR.getIngredient(5));
+
         ModHandler.addShapedRecipe("duranium_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.DURANIUM_CASING, 3), "PhP", "PFP", "PwP",
                 'P', new UnificationEntry(OrePrefix.plate, Duranium),
                 'F', new UnificationEntry(OrePrefix.frameGt, Duranium));
@@ -109,6 +125,10 @@ public class RecipeLoader {
         ModHandler.addShapedRecipe("seaborgium_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING, 3), "PhP", "PFP", "PwP",
                 'P', new UnificationEntry(OrePrefix.plate, Seaborgium),
                 'F', new UnificationEntry(OrePrefix.frameGt, Seaborgium));
+
+        ModHandler.addShapedRecipe("tungsten_titanium_carbide_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.TUNGSTEN_TITANIUM_CARBIDE_CASING, 3), "PhP", "PFP", "PwP",
+                'P', new UnificationEntry(OrePrefix.plate, TungstenTitaniumCarbide),
+                'F', new UnificationEntry(OrePrefix.frameGt, TungstenTitaniumCarbide));
 
 
         if (TJConfig.machines.replaceCTMultis) {

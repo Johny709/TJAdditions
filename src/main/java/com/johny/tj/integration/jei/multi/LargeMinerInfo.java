@@ -1,7 +1,9 @@
 package com.johny.tj.integration.jei.multi;
 
 import com.google.common.collect.Lists;
+import com.johny.tj.machines.TJMiner;
 import com.johny.tj.machines.multi.electric.MetaTileEntityEliteLargeMiner;
+import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -28,6 +30,25 @@ public class LargeMinerInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
+        if (largeMiner.getType() == TJMiner.Type.DESTROYER) {
+            MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
+                    .aisle("F###F", "F###F", "PPPPP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
+                    .aisle("#####", "#####", "PPPPP", "#MPO#", "##F##", "##F##", "##F##", "#####", "#####", "#####")
+                    .aisle("#####", "#####", "PPmPP", "#SPE#", "##F##", "##F##", "##F##", "##F##", "##F##", "##F##")
+                    .aisle("#####", "#####", "PPPPP", "#IPP#", "##F##", "##F##", "##F##", "#####", "#####", "#####")
+                    .aisle("F###F", "F###F", "PPPPP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
+                    .where('S', getController(), EnumFacing.WEST)
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .where('P', largeMiner.getCasingState())
+                    .where('m', GAMetaBlocks.MOTOR_CASING.getDefaultState())
+                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[4], EnumFacing.EAST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.EAST)
+                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                    .where('F', largeMiner.getFrameState())
+                    .where('#', Blocks.AIR.getDefaultState())
+                    .build();
+            return Lists.newArrayList(shapeInfo);
+        }
         MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("F###F", "F###F", "PPPPP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
                 .aisle("#####", "#####", "PPPPP", "#MPO#", "##F##", "##F##", "##F##", "#####", "#####", "#####")
@@ -48,6 +69,9 @@ public class LargeMinerInfo extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
+        if (largeMiner.getType() == TJMiner.Type.DESTROYER) {
+            return new String[]{I18n.format("gregtech.multiblock.elite_large_miner.description", largeMiner.type.chunk, largeMiner.type.chunk, largeMiner.type.fortuneString)};
+        }
         return new String[]{I18n.format("gtadditions.machine.miner.multi.description", largeMiner.type.chunk, largeMiner.type.chunk, largeMiner.type.fortuneString)};
     }
 

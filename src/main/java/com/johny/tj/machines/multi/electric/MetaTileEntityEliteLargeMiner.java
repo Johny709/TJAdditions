@@ -68,19 +68,19 @@ import static gregtech.api.unification.material.Materials.Duranium;
 
 public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase implements TJMiner {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    protected static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public final Type type;
-    private AtomicLong x = new AtomicLong(Long.MAX_VALUE), y = new AtomicLong(Long.MAX_VALUE), z = new AtomicLong(Long.MAX_VALUE);
-    private AtomicInteger currentChunk = new AtomicInteger(0);
-    private IEnergyContainer energyContainer;
-    private IMultipleTankHandler importFluidHandler;
+    protected AtomicLong x = new AtomicLong(Long.MAX_VALUE), y = new AtomicLong(Long.MAX_VALUE), z = new AtomicLong(Long.MAX_VALUE);
+    protected AtomicInteger currentChunk = new AtomicInteger(0);
+    protected IEnergyContainer energyContainer;
+    protected IMultipleTankHandler importFluidHandler;
     protected IItemHandlerModifiable outputInventory;
-    private List<Chunk> chunks = new ArrayList<>();
-    private boolean isActive = false;
-    private boolean done = false;
-    private boolean silktouch = false;
-    private boolean canRestart = false;
+    protected List<Chunk> chunks = new ArrayList<>();
+    protected boolean isActive = false;
+    protected boolean done = false;
+    protected boolean silktouch = false;
+    protected boolean canRestart = false;
 
 
     public MetaTileEntityEliteLargeMiner(ResourceLocation metaTileEntityId, Type type) {
@@ -160,7 +160,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                 WorldServer world = (WorldServer) this.getWorld();
                 Chunk chunkMiner = world.getChunk(getPos());
                 Chunk origin;
-                if (chunks.size() == 0 && type.chunk / 2.0 > 1.0) {
+                if (chunks.isEmpty() && type.chunk / 2.0 > 1.0) {
                     int tmp = Math.floorDiv(type.chunk, 2);
                     origin = world.getChunk(chunkMiner.x - tmp, chunkMiner.z - tmp);
                     for (int i = 0; i < type.chunk; i++) {
@@ -168,7 +168,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                             chunks.add(world.getChunk(origin.x + i, origin.z + j));
                         }
                     }
-                } else if (chunks.size() == 0 && type.chunk == 1) {
+                } else if (chunks.isEmpty() && type.chunk == 1) {
                     origin = world.getChunk(chunkMiner.x, chunkMiner.z);
                     chunks.add(origin);
                 }

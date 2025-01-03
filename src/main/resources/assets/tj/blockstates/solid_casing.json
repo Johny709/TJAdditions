@@ -39,6 +39,11 @@
         "textures": {
           "all": "tj:blocks/casings/solid/seaborgium"
         }
+      },
+      "tungsten_titanium_carbide": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/tungsten_titanium_carbide"
+        }
       }
     }
   }

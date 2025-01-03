@@ -34,7 +34,8 @@ public class BlockSolidCasings extends VariantBlock<BlockSolidCasings.SolidCasin
         ETERNITY_CASING("eternity"),
         SOUL_CASING("soul"),
         DURANIUM_CASING("duranium"),
-        SEABORGIUM_CASING("seaborgium");
+        SEABORGIUM_CASING("seaborgium"),
+        TUNGSTEN_TITANIUM_CARBIDE_CASING("tungsten_titanium_carbide");
 
         private final String name;
 

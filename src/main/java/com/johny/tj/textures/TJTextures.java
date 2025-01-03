@@ -33,6 +33,7 @@ public class TJTextures {
     public static TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer("casings/solid/soulcasing");
     public static TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer("casings/solid/duranium");
     public static TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer("casings/solid/seaborgium");
+    public static TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer("casings/solid/tungsten_titanium_carbide");
     public static TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer("cover/creative_fluid_cover_overlay");
     public static TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer("cover/creative_energy_cover_overlay");
 

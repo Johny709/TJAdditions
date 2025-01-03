@@ -24,6 +24,7 @@ tj.machine.large_architect_workbench.name=Large Architect Workbench
 tj.machine.machine_controller.name=Machine Controller
 tj.machine.elite_large_miner.name=Elite Large Miner (ELM)
 tj.machine.ultimate_large_miner.name=Ultimate Large Miner (ULM)
+tj.machine.world_destroyer.name=World Destroyer
 
 gregtech.multiblock.running=Running
 
@@ -60,6 +61,12 @@ gregtech.multiblock.parallel_large_chemical_reactor.status=Status:
 gregtech.multiblock.elite_large_miner.restart=Can Restart:
 gregtech.multiblock.elite_large_miner.restart.true=Yes
 gregtech.multiblock.elite_large_miner.restart.false=No
+gregtech.multiblock.elite_large_miner.chunk.info=Use Hard Hammer to set chunk area. Right-Click to increase, Shift-Right-Click to decrease. Upgrade motor block to increase maximum chunk area limit.
+gregtech.multiblock.elite_large_miner.chunk.increase=Increased chunk to:
+gregtech.multiblock.elite_large_miner.chunk.decrease=Decreased chunk to:
+gregtech.multiblock.elite_large_miner.chunk.max=Already reached maximum chunk area at:
+gregtech.multiblock.elite_large_miner.chunk.min=Already reached minimum chunk area at:
+gregtech.multiblock.elite_large_miner.description=Mines all blocks in an area of %dx%d Chunks base. Can creatively mine ore as if it was using a pickaxe with fortune %s
 
 gregtech.mulitblock.greenhouse.treemode=[Tree Mode]
 
@@ -96,6 +103,7 @@ tile.solid_casing.eternity.name=Block of Eternity
 tile.solid_casing.soul.name=Large Soul Manipulation Casing
 tile.solid_casing.duranium.name=Duranium Casing
 tile.solid_casing.seaborgium.name=Seaborgium Casing
+tile.solid_casing.tungsten_titanium_carbide.name=Tungsten Titanium Carbide Casing
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover

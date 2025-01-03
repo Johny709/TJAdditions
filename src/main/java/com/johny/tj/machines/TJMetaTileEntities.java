@@ -47,6 +47,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityMachineController MACHINE_CONTROLLER;
     public static MetaTileEntityEliteLargeMiner ELITE_LARGE_MINER;
     public static MetaTileEntityUltimateLargeMiner ULTIMATE_LARGE_MINER;
+    public static MetaTileEntityWorldDestroyer WORLD_DESTROYER;
 
     public static void init() {
 
@@ -83,6 +84,7 @@ public class TJMetaTileEntities {
         MACHINE_CONTROLLER = GregTechAPI.registerMetaTileEntity(5010, new MetaTileEntityMachineController(TJId("machine_controller")));
         ELITE_LARGE_MINER = GregTechAPI.registerMetaTileEntity(5011, new MetaTileEntityEliteLargeMiner(TJId("elite_large_miner"), TJMiner.Type.ELITE));
         ULTIMATE_LARGE_MINER = GregTechAPI.registerMetaTileEntity(5012, new MetaTileEntityUltimateLargeMiner(TJId("ultimate_large_miner"), TJMiner.Type.ULTIMATE));
+        WORLD_DESTROYER = GregTechAPI.registerMetaTileEntity(5013, new MetaTileEntityWorldDestroyer(TJId("world_destroyer"), TJMiner.Type.DESTROYER));
 
     }
 

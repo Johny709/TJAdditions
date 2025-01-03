@@ -4,6 +4,7 @@ import com.johny.tj.TJConfig;
 import gregicadditions.GAConfig;
 import gregicadditions.machines.multi.miner.Miner;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -20,6 +21,7 @@ public interface TJMiner {
 
         ELITE(1, TJConfig.eliteLargeMiner.eliteMinerChunkDiamater, TJConfig.eliteLargeMiner.eliteMinerFortune, Miner.fortuneString(TJConfig.eliteLargeMiner.eliteMinerFortune), TJConfig.eliteLargeMiner.eliteMinerDrillingFluid),
         ULTIMATE(1, TJConfig.ultimateLargeMiner.ultimateMinerChunkDiamater, TJConfig.ultimateLargeMiner.ultimateMinerFortune, Miner.fortuneString(TJConfig.ultimateLargeMiner.ultimateMinerFortune), TJConfig.ultimateLargeMiner.ultimateMinerDrillingFluid),
+        DESTROYER(1, 1, TJConfig.worldDestroyerMiner.worldDestroyerFortune, Miner.fortuneString(TJConfig.worldDestroyerMiner.worldDestroyerFortune), TJConfig.worldDestroyerMiner.worldDestroyerDrillingFluid),
         CREATIVE(1, GAConfig.multis.largeMiner.voidLargeMinerDiameter, 6, Miner.fortuneString(6), 5);
 
         public final int tick;
@@ -56,7 +58,7 @@ public interface TJMiner {
                         BlockPos blockPos = new BlockPos(x.get(), y.get(), z.get());
                         Block block = miner.getWorld().getBlockState(blockPos).getBlock();
                         if (miner.getWorld().getTileEntity(blockPos) == null) {
-                            if (isOre(block)) {
+                            if (isOre(block) || miner.getType() == Type.DESTROYER && block != Blocks.BEDROCK) {
                                 blocks.add(blockPos);
                             }
                         }
