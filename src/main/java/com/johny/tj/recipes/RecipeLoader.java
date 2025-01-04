@@ -3,9 +3,11 @@ package com.johny.tj.recipes;
 import com.johny.tj.TJConfig;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
+import gregicadditions.item.GAMetaItems;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
+import gregtech.api.unification.material.MarkerMaterials;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.common.items.MetaItems;
@@ -19,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static com.johny.tj.materials.TJMaterials.PahoehoeLava;
 import static gregicadditions.GAMaterials.*;
+import static gregicadditions.recipes.GARecipeMaps.ASSEMBLY_LINE_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.LARGE_TUNGSTENSTEEL_BOILER;
@@ -60,6 +63,102 @@ public class RecipeLoader {
                 .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING, 3))
                 .duration(50)
                 .EUt(16)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(Polybenzimidazole.getFluid(4608))
+                .fluidInputs(Naquadria.getFluid(2304))
+                .inputs(GATileEntities.LARGE_STEAM_TURBINE.getStackForm(12))
+                .inputs(MetaItems.ELECTRIC_MOTOR_UV.getStackForm(12))
+                .inputs(MetaItems.ELECTRIC_PUMP_UV.getStackForm(12))
+                .inputs(GATileEntities.MAINTENANCE_HATCH[2].getStackForm())
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .input(OrePrefix.wireGtSingle, UVSuperconductor, 64)
+                .input(OrePrefix.pipeLarge, Steel, 64)
+                .input(OrePrefix.plateDense, Steel, 7)
+                .input(OrePrefix.gear, Steel, 16)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
+                .outputs(XL_STEAM_TURBINE.getStackForm())
+                .EUt(491520)
+                .duration(2400)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(Polybenzimidazole.getFluid(4608))
+                .fluidInputs(Naquadria.getFluid(2304))
+                .inputs(GATileEntities.LARGE_GAS_TURBINE.getStackForm(12))
+                .inputs(MetaItems.ELECTRIC_MOTOR_UV.getStackForm(12))
+                .inputs(MetaItems.ELECTRIC_PUMP_UV.getStackForm(12))
+                .inputs(GATileEntities.MAINTENANCE_HATCH[2].getStackForm())
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .input(OrePrefix.wireGtSingle, UVSuperconductor, 64)
+                .input(OrePrefix.pipeLarge, StainlessSteel, 64)
+                .input(OrePrefix.plateDense, StainlessSteel, 7)
+                .input(OrePrefix.gear, StainlessSteel, 16)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .outputs(XL_GAS_TURBINE.getStackForm())
+                .EUt(491520)
+                .duration(2400)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(Polybenzimidazole.getFluid(4608))
+                .fluidInputs(Bohrium.getFluid(2304))
+                .inputs(GATileEntities.HOT_COOLANT_TURBINE.getStackForm(12))
+                .inputs(GAMetaItems.ELECTRIC_MOTOR_UHV.getStackForm(12))
+                .inputs(GAMetaItems.ELECTRIC_PUMP_UHV.getStackForm(12))
+                .inputs(GATileEntities.MAINTENANCE_HATCH[2].getStackForm())
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .input(OrePrefix.wireGtSingle, UHVSuperconductor, 64)
+                .input(OrePrefix.pipeLarge, Ultimet, 64)
+                .input(OrePrefix.plateDense, Stellite, 7)
+                .input(OrePrefix.gear, Stellite, 16)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .outputs(XL_COOLANT_TURBINE.getStackForm())
+                .EUt(1966080)
+                .duration(2400)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(Polybenzimidazole.getFluid(4608))
+                .fluidInputs(Seaborgium.getFluid(2304))
+                .inputs(GATileEntities.LARGE_PLASMA_TURBINE.getStackForm(12))
+                .inputs(GAMetaItems.ELECTRIC_MOTOR_UHV.getStackForm(12))
+                .inputs(GAMetaItems.ELECTRIC_PUMP_UHV.getStackForm(12))
+                .inputs(GATileEntities.MAINTENANCE_HATCH[2].getStackForm())
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .input(OrePrefix.wireGtSingle, UHVSuperconductor, 64)
+                .input(OrePrefix.pipeLarge, TungstenSteel, 64)
+                .input(OrePrefix.plateDense, TungstenSteel, 7)
+                .input(OrePrefix.gear, TungstenSteel, 16)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .outputs(XL_PLASMA_TURBINE.getStackForm())
+                .EUt(1966080)
+                .duration(2400)
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
