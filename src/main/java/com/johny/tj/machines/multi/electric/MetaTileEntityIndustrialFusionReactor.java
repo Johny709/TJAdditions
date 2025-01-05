@@ -23,11 +23,13 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.*;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeBuilder;
+import gregtech.api.recipes.RecipeMap;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipeproperties.FusionEUToStartProperty;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.util.GTFluidUtils;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
@@ -46,7 +48,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +63,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private final int tier;
     private EnergyContainerList inputEnergyContainers;
     private long heat = 0;
-    IndustrialFusionRecipeLogic fusionRecipeLogic;
+    DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public void resetStructure() {
         this.invalidateStructure();
@@ -68,9 +72,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, RecipeMaps.FUSION_RECIPES);
-        IndustrialFusionRecipeLogic fusionRecipeLogic = new IndustrialFusionRecipeLogic(this, 100, 100, 100, 1);
-        this.recipeMapWorkable = fusionRecipeLogic;
-        this.fusionRecipeLogic = fusionRecipeLogic;
+        this.recipeMapWorkable = new IndustrialFusionRecipeLogic(this, TJConfig.industrialFusionReactor.eutPercentage, TJConfig.industrialFusionReactor.durationPercentage, 100, 1);
         this.tier = tier;
         switch (tier) {
             case 6:
@@ -89,6 +91,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 return "EnergyContainerInternal";
             }
         };
+    }
+
+    public int getTier() {
+        return tier;
     }
 
     @Override
@@ -132,7 +138,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         return ClientHandler.FUSION_TEXTURE;
     }
 
-    private IBlockState getCasingState() {
+    public IBlockState getCasingState() {
         switch (tier) {
             case 6:
                 return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING);
@@ -144,7 +150,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
     }
 
-    private IBlockState getCoilState() {
+    public IBlockState getCoilState() {
         switch (tier) {
             case 6:
                 return MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.FUSION_COIL);
@@ -226,7 +232,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             } else {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.idling"));
             }
-
             if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
             }
@@ -265,6 +270,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         return true;
     }
 
+    @Nonnull
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
         return ClientHandler.FUSION_REACTOR_OVERLAY;
@@ -274,9 +280,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.description"));
         tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", recipeMap.getLocalizedName()));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", 1 + " + Number of Slices"));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)));
+        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices));
         tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.energyToStart));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.3", "Duration / 2, " + "Energy * 2"));
     }
 
 
@@ -294,8 +301,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         private final MetaTileEntityIndustrialFusionReactor fusionReactor;
         private final int EUtPercentage;
         private final int durationPercentage;
-        private final int chancePercentage;
-        private final int stack;
         public RecipeMap<?> recipeMap;
 
         public IndustrialFusionRecipeLogic(MetaTileEntityIndustrialFusionReactor tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
@@ -304,8 +309,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             this.fusionReactor = tileEntity;
             this.EUtPercentage = EUtPercentage;
             this.durationPercentage = durationPercentage;
-            this.chancePercentage = chancePercentage;
-            this.stack = stack;
             this.recipeMap = tileEntity.recipeMap;
         }
 
@@ -320,7 +323,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         @Override
         protected Recipe findRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, boolean useOptimizedRecipeLookUp) {
             Recipe recipe = super.findRecipe(maxVoltage, inputs, fluidInputs, useOptimizedRecipeLookUp);
-            return (recipe != null && recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) <= fusionReactor.energyContainer.getEnergyCapacity()) ? recipe : null;
+            return (recipe != null && recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) <= (fusionReactor.energyContainer.getEnergyCapacity()) / fusionReactor.parallelLayer) ? recipe : null;
         }
 
         @Override
@@ -329,7 +332,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             if (heatDiff <= 0) {
                 return super.setupAndConsumeRecipeInputs(recipe);
             }
-            if (fusionReactor.energyContainer.getEnergyStored() < heatDiff || !super.setupAndConsumeRecipeInputs(recipe)) {
+            if (fusionReactor.energyContainer.getEnergyStored() < heatDiff  || !super.setupAndConsumeRecipeInputs(recipe)) {
                 return false;
             }
             fusionReactor.energyContainer.removeEnergy(heatDiff);
@@ -356,16 +359,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
             int EUt;
             int duration;
-            //int currentTier = getOverclockingTier(maxVoltage);
-            //int tierNeeded;
             int minMultiplier = Integer.MAX_VALUE;
-            int overclockMultiplier = 2;
-
-            //tierNeeded = Math.max(1, GAUtility.getTierByVoltage(matchingRecipe.getEUt()));
-            //maxItemsLimit *= currentTier - tierNeeded;
 
             Map<String, Integer> countFluid = new HashMap<>();
-            if (matchingRecipe.getFluidInputs().size() != 0) {
+            if (!matchingRecipe.getFluidInputs().isEmpty()) {
 
                 this.findFluid(countFluid, fluidInputs);
                 minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, matchingRecipe, fusionReactor.parallelLayer));
@@ -380,42 +377,29 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
             int tierDiff = fusionOverclockMultiplier(matchingRecipe, fusionReactor.energyToStart);
 
-                List<CountableIngredient> newRecipeInputs = new ArrayList<>();
-                List<FluidStack> newFluidInputs = new ArrayList<>();
-                List<ItemStack> outputI = new ArrayList<>();
-                List<FluidStack> outputF = new ArrayList<>();
-                this.multiplyInputsAndOutputs(newRecipeInputs, newFluidInputs, outputI, outputF, matchingRecipe, fusionReactor.parallelLayer);
+            List<FluidStack> newFluidInputs = new ArrayList<>();
+            List<FluidStack> outputF = new ArrayList<>();
+            this.multiplyInputsAndOutputs(newFluidInputs, outputF, matchingRecipe, fusionReactor.parallelLayer);
 
+            RecipeBuilder<?> newRecipe = recipeMap.recipeBuilder();
+            copyChancedItemOutputs(newRecipe, matchingRecipe, fusionReactor.parallelLayer);
 
-                RecipeBuilder<?> newRecipe = recipeMap.recipeBuilder();
-                copyChancedItemOutputs(newRecipe, matchingRecipe, fusionReactor.parallelLayer);
+            newRecipe.fluidInputs(newFluidInputs)
+                    .fluidOutputs(outputF)
+                    .EUt(Math.max(1, (EUt * this.EUtPercentage * fusionReactor.parallelLayer / 100) * tierDiff))
+                    .duration((int) Math.max(3, (duration * (this.durationPercentage / 100.0)) / tierDiff));
 
-                // determine if there is enough room in the output to fit all of this
-                // if there isn't, we can't process this recipe.
-                boolean canFitOutputs = GTFluidUtils.simulateFluidStackMerge(outputF, this.getOutputTank());
-                if (!canFitOutputs) {
-                    return matchingRecipe;
-                }
-
-                newRecipe.inputsIngredients(newRecipeInputs)
-                        .fluidInputs(newFluidInputs)
-                        .outputs(outputI)
-                        .fluidOutputs(outputF)
-                        .EUt(Math.max(1, (EUt * this.EUtPercentage * fusionReactor.parallelLayer / 100) * tierDiff))
-                        .duration((int) Math.max(3, (duration * (this.durationPercentage / 100.0)) / tierDiff));
-
-                return newRecipe.build().getResult();
+            return newRecipe.build().getResult();
         }
 
-        @Override
-        protected void multiplyInputsAndOutputs(List<CountableIngredient> newRecipeInputs, List<FluidStack> newFluidInputs, List<ItemStack> outputI, List<FluidStack> outputF, Recipe r, int multiplier) {
-            for (FluidStack fs : r.getFluidInputs()) {
-                FluidStack newFluid = new FluidStack(fs.getFluid(), fs.amount * multiplier);
+        protected void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
+            for (FluidStack fluidS : recipe.getFluidInputs()) {
+                FluidStack newFluid = new FluidStack(fluidS.getFluid(), fluidS.amount * multiplier);
                 newFluidInputs.add(newFluid);
             }
-            for (FluidStack f : r.getFluidOutputs()) {
-                int fluidNum = f.amount * multiplier;
-                FluidStack fluidCopy = f.copy();
+            for (FluidStack fluid : recipe.getFluidOutputs()) {
+                int fluidNum = fluid.amount * multiplier;
+                FluidStack fluidCopy = fluid.copy();
                 fluidCopy.amount = fluidNum;
                 outputF.add(fluidCopy);
             }

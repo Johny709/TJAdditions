@@ -22,6 +22,14 @@ public class TJConfig {
 
     public static class IndustrialFusionReactor {
 
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
         @Config.Name("Slice Limit")
         @Config.Comment("Adjust the maximum number of slices the fusion reactor can have")
         @Config.RequiresMcRestart

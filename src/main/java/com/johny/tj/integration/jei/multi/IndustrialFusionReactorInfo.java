@@ -1,10 +1,7 @@
 package com.johny.tj.integration.jei.multi;
 
-import com.johny.tj.machines.TJMetaTileEntities;
-import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.fusion.GAFusionCasing;
+import com.johny.tj.machines.multi.electric.MetaTileEntityIndustrialFusionReactor;
 import gregicadditions.jei.GAMultiblockShapeInfo;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
@@ -19,9 +16,15 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
 
+    MetaTileEntityIndustrialFusionReactor fusionReactor;
+
+    public IndustrialFusionReactorInfo(MetaTileEntityIndustrialFusionReactor fusionReactor) {
+        this.fusionReactor = fusionReactor;
+    }
+
     @Override
     public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_UV;
+        return fusionReactor;
     }
 
     @Override
@@ -36,13 +39,13 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
             builder.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
             builder.aisle("######OCO######", "####CCcccCC####", "###EccOCOccE###", "##EcEC###CEcE##", "#CcE#######EcC#", "#CcC#######CcC#", "OcO#########OcO", "CcC#########CcS", "OcO#########OcO", "#CcC#######CcC#", "#CcE#######EcC#", "##EcEC###CEcE##", "###EccOCOccE###", "####CCcccCC####", "######OCO######");
             builder.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
-                    builder.where('S', TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_UV, EnumFacing.WEST)
-                    .where('C', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_3))
-                    .where('c', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_3))
-                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV], EnumFacing.WEST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.UV], EnumFacing.WEST);
-            shapes.add(builder.build());;
+                    builder.where('S', fusionReactor, EnumFacing.WEST)
+                    .where('C', fusionReactor.getCasingState())
+                    .where('c', fusionReactor.getCoilState())
+                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[fusionReactor.getTier()], EnumFacing.WEST)
+                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[fusionReactor.getTier()], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[fusionReactor.getTier()], EnumFacing.WEST);
+            shapes.add(builder.build());
         }
         return shapes;
     }
