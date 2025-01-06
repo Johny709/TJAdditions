@@ -1,4 +1,4 @@
-package com.johny.tj.multiblockpart.rotorholder;
+package com.johny.tj.multiblockpart.utility;
 
 import gregicadditions.client.ClientHandler;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMultiFluidHatch;
@@ -9,8 +9,14 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.render.ICubeRenderer;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTank;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHatch {
 
@@ -24,6 +30,7 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
         this.TANK_SIZE = tankSize;
         this.isExportHatch = isExportHatch;
         this.tier = tier;
+        initializeInventory();
     }
 
     @Override
@@ -35,7 +42,7 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
     protected void initializeInventory() {
         FluidTank[] fluidsHandlers = new FluidTank[(int) Math.pow(this.getTier(), 2)];
         for (int i = 0; i <fluidsHandlers.length; i++) {
-            fluidsHandlers[i] = new FluidTank(TANK_SIZE - 1);
+            fluidsHandlers[i] = new FluidTank(TANK_SIZE);
         }
         this.fluidTanks = new FluidTankList(false, fluidsHandlers);
         this.fluidInventory = fluidTanks;
@@ -48,6 +55,13 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
     }
 
     @Override
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.1", TANK_SIZE));
+        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", (int) Math.pow(this.getTier(), 2)));
+        tooltip.add(I18n.format("gregtech.universal.enabled"));
+    }
+
+    @Override
     public ICubeRenderer getBaseTexture() {
         MultiblockControllerBase controller = getController();
         if (controller != null) {
@@ -57,7 +71,7 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
             return this.hatchTexture;
         }
         if (controller == null) {
-            return ClientHandler.VOLTAGE_CASINGS[tier];
+            return ClientHandler.VOLTAGE_CASINGS[tier + 2];
         }
         this.setPaintingColor(0xFFFFFF);
         return controller.getBaseTexture(this);
