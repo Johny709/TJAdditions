@@ -102,6 +102,8 @@ tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
 gregtech.multiblock.parallel_large_chemical_reactor.eu=EU/t:
 gregtech.multiblock.parallel_large_chemical_reactor.progress=Progress:
 gregtech.multiblock.parallel_large_chemical_reactor.status=Status:
+gregtech.multiblock.parallel_large_chemical_reactor.lock=[Locked]
+gregtech.multiblock.parallel_large_chemical_reactor.unlock=[Unlocked]
 
 gregtech.multiblock.elite_large_miner.restart=Can Restart:
 gregtech.multiblock.elite_large_miner.restart.true=Yes

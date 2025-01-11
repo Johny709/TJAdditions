@@ -3,7 +3,9 @@ package com.johny.tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
+import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -22,6 +24,8 @@ import java.util.List;
 public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPart implements IMultiblockAbilityPart<MetaTileEntityMachineController> {
 
     private boolean redstonePowered = false;
+    private int Id;
+    private MetaTileEntity controller;
 
     public MetaTileEntityMachineController(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, 1);
@@ -29,6 +33,11 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
 
     public boolean getRedstonePowered() {
         return this.redstonePowered;
+    }
+
+    public void setID(MetaTileEntity metaTileEntity, int Id) {
+        this.controller = metaTileEntity;
+        this.Id = Id;
     }
 
     @Override
@@ -68,9 +77,15 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
     @Override
     public void update() {
         super.update();
-
         if (!getWorld().isRemote && getOffsetTimer() % 5 == 0) {
             this.redstonePowered = getInputRedstoneSignal(getFrontFacing(), false) > 0;
+            if (this.controller != null) {
+                if (this.controller instanceof MultipleRecipeMapMultiblockController) {
+                    ((MultipleRecipeMapMultiblockController) this.controller).recipeMapWorkable.setWorkingEnabled(!redstonePowered, Id);
+                } else {
+                    this.controller.getCapability(GregtechTileCapabilities.CAPABILITY_CONTROLLABLE, getFrontFacing()).setWorkingEnabled(!redstonePowered);
+                }
+            }
         }
     }
 
@@ -78,6 +93,7 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
     public NBTTagCompound writeToNBT (NBTTagCompound data) {
         super.writeToNBT(data);
         data.setBoolean("RedstonePowered", this.redstonePowered);
+        data.setInteger("RedstoneId", this.Id);
         return data;
     }
 
@@ -85,5 +101,6 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.redstonePowered = data.getBoolean("RedstonePowered");
+        this.Id = data.getInteger("RedstoneId");
     }
 }

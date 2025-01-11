@@ -1,6 +1,6 @@
 package com.johny.tj.machines.multi.electric;
 
-import com.johny.tj.builder.logic.XLHotCoolantTurbineWorkableHandler;
+import com.johny.tj.builder.handlers.XLHotCoolantTurbineWorkableHandler;
 import com.johny.tj.gui.TJGuiTextures;
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.item.metal.MetalCasing1;

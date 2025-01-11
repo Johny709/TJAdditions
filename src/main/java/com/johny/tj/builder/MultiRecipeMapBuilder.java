@@ -5,7 +5,6 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.MatchingMode;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.map.MapFluidIngredient;
 import gregtech.api.recipes.map.MapItemStackIngredient;
 import gregtech.api.util.GTUtility;
@@ -18,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 
-public class ParallelLargeChemicalReactorRecipeMapBuilder extends RecipeMap<LargeRecipeBuilder> {
+public class MultiRecipeMapBuilder {
 
     private final int minInputs, maxInputs;
     private final int minOutputs, maxOutputs;
@@ -29,8 +28,7 @@ public class ParallelLargeChemicalReactorRecipeMapBuilder extends RecipeMap<Larg
     private final Map<MapItemStackIngredient, Collection<Recipe>> recipeItemMap = new HashMap<>();
     private final Map<Recipe, Byte> recipeIngredientCountMap = new HashMap<>();
 
-    public ParallelLargeChemicalReactorRecipeMapBuilder(String unlocalizedName, int minInputs, int maxInputs, int minOutputs, int maxOutputs, int minFluidInputs, int maxFluidInputs, int minFluidOutputs, int maxFluidOutputs, LargeRecipeBuilder defaultRecipe) {
-        super(unlocalizedName, minInputs, maxInputs, minOutputs, maxOutputs, minFluidInputs, maxFluidInputs, minFluidOutputs, maxFluidOutputs, defaultRecipe, true);
+    public MultiRecipeMapBuilder(int minInputs, int maxInputs, int minOutputs, int maxOutputs, int minFluidInputs, int maxFluidInputs, int minFluidOutputs, int maxFluidOutputs, LargeRecipeBuilder defaultRecipe) {
         this.minInputs = minInputs;
         this.minFluidInputs = minFluidInputs;
         this.minOutputs = minOutputs;
@@ -43,7 +41,6 @@ public class ParallelLargeChemicalReactorRecipeMapBuilder extends RecipeMap<Larg
 
     }
 
-    @Override
     public boolean removeRecipe(Recipe recipe) {
         //if we actually removed this recipe
         if (recipeList.remove(recipe)) {
@@ -56,6 +53,31 @@ public class ParallelLargeChemicalReactorRecipeMapBuilder extends RecipeMap<Larg
             return true;
         }
         return false;
+    }
+
+    public void addRecipe(Recipe recipe) {
+        this.recipeList.add(recipe);
+        HashSet<MapFluidIngredient> uniqueFluidIngredients = new HashSet<>();
+        for (FluidStack fluid : recipe.getFluidInputs()) {
+            MapFluidIngredient fluidIngredient = new MapFluidIngredient(fluid);
+            uniqueFluidIngredients.add(fluidIngredient);
+            recipeFluidMap.computeIfAbsent(fluidIngredient, k -> new HashSet<>(1)).add(recipe);
+        }
+
+        HashSet<MapItemStackIngredient> uniqueItemIngredients = new HashSet<>();
+        for (CountableIngredient item : recipe.getInputs()) {
+            Ingredient ingredient = item.getIngredient();
+            ItemStack[] itemStacks = ingredient.getMatchingStacks();
+            if (itemStacks.length == 0) continue;
+            uniqueItemIngredients.add(new MapItemStackIngredient(itemStacks[0].copy()));
+            for (ItemStack itemStack : itemStacks) {
+                ItemStack newItemStack = itemStack.copy();
+                recipeItemMap.computeIfAbsent(new MapItemStackIngredient(newItemStack), k -> new HashSet<>(1)).add(recipe);
+            }
+        }
+        byte uniqueIngredients = 0;
+        uniqueIngredients += (byte) (uniqueFluidIngredients.size() + uniqueItemIngredients.size());
+        recipeIngredientCountMap.put(recipe, uniqueIngredients);
     }
 
     public void addRecipes(Collection<Recipe> listOfRecipes) {
@@ -85,38 +107,31 @@ public class ParallelLargeChemicalReactorRecipeMapBuilder extends RecipeMap<Larg
             recipeIngredientCountMap.put(recipe, uniqueIngredients);
         });
     }
-
-    @Override
     @Nullable
     public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity) {
         return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, MatchingMode.DEFAULT, false);
     }
 
-    @Override
     @Nullable
     public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity) {
         return this.findRecipe(voltage, inputs, fluidInputs, outputFluidTankCapacity, MatchingMode.DEFAULT, false);
     }
 
-    @Override
     @Nullable
     public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp) {
         return this.findRecipe(voltage, inputs, fluidInputs, outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp);
     }
 
-    @Override
     @Nullable
     public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode) {
         return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, matchingMode, false);
     }
 
-    @Override
     @Nullable
     public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp) {
         return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp);
     }
 
-    @Override
     @Nullable
     public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode, boolean useOptimizedRecipeLookUp) {
 

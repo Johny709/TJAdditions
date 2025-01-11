@@ -1,6 +1,6 @@
 package com.johny.tj.machines.multi.electric;
 
-import com.johny.tj.builder.logic.XLTurbineWorkableHandler;
+import com.johny.tj.builder.handlers.XLTurbineWorkableHandler;
 import com.johny.tj.gui.TJGuiTextures;
 import gregicadditions.item.GAMetaItems;
 import gregtech.api.GTValues;

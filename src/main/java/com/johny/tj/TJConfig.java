@@ -45,6 +45,11 @@ public class TJConfig {
         @Config.Comment("Adjust the maximum number of layers the chemical reactor can have")
         @Config.RequiresMcRestart
         public int maximumLayers = 64;
+
+        @Config.Name("Recipe Parallel")
+        @Config.Comment("Adjust the amount of recipes the machine can run simultaneously")
+        @Config.RequiresMcRestart
+        public int maximumRecipeParallel = 64;
     }
 
     @Config.Comment("Decay Chamber")

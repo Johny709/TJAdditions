@@ -1,29 +1,28 @@
-package com.johny.tj.builder.logic;
+package com.johny.tj.builder.handlers;
 
-import com.johny.tj.machines.multi.electric.MetaTileEntityXLTurbine;
+import com.johny.tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
+import gregicadditions.machines.multi.impl.HotCoolantRecipeLogic;
+import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCoolant;
+import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
+import gregicadditions.recipes.impl.nuclear.HotCoolantRecipe;
+import gregicadditions.recipes.impl.nuclear.HotCoolantRecipeMap;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.recipes.machines.FuelRecipeMap;
-import gregtech.api.recipes.recipes.FuelRecipe;
-import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.material.type.FluidMaterial;
 import gregtech.common.ConfigHolder;
 import gregtech.common.MetaFluids;
-import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
-import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.function.Supplier;
 
-public class XLTurbineWorkableHandler extends FuelRecipeLogic {
+public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic {
 
     private static final float TURBINE_BONUS = 1.5f;
     private static final int CYCLE_LENGTH = 230;
-    private static final int BASE_ROTOR_DAMAGE = (int) (22 * TURBINE_BONUS);
+    private static final int BASE_ROTOR_DAMAGE = (int) (11 * TURBINE_BONUS);
     private static final int BASE_EU_OUTPUT = 2048;
 
     private int totalEnergyProduced = 0;
@@ -32,12 +31,12 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic {
     private float efficiencyPenalty = 1.5f;
     private boolean fastMode = false;
 
-    private final MetaTileEntityXLTurbine extremeTurbine;
+    private final MetaTileEntityXLHotCoolantTurbine extremeTurbine;
     private int rotorCycleLength = CYCLE_LENGTH;
 
-    public XLTurbineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
+    public XLHotCoolantTurbineWorkableHandler(MetaTileEntity metaTileEntity, HotCoolantRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
-        this.extremeTurbine = (MetaTileEntityXLTurbine) metaTileEntity;
+        this.extremeTurbine = (MetaTileEntityXLHotCoolantTurbine) metaTileEntity;
     }
 
     public int getTotalEnergyProduced() {
@@ -52,7 +51,6 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic {
         float castTurbineBonus = 100 * TURBINE_BONUS;
         return (int) castTurbineBonus;
     }
-
 
     @Override
     public void update() {
@@ -88,16 +86,14 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic {
     }
 
     @Override
-    public boolean checkRecipe(FuelRecipe recipe) {
+    public boolean checkRecipe(HotCoolantRecipe recipe) {
         int index = 0;
-        for (MetaTileEntityRotorHolder rotorHolder : extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
+        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : extremeTurbine.getAbilities(MetaTileEntityXLHotCoolantTurbine.ABILITY_ROTOR_HOLDER)) {
             index++;
-            int baseRotorDamage = BASE_ROTOR_DAMAGE;
             if (++rotorCycleLength >= CYCLE_LENGTH) {
-                if (extremeTurbine.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM) baseRotorDamage = 200;
-                int damageToBeApplied = (int) Math.round(((baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier);
+                int damageToBeApplied = (int) Math.round(((BASE_ROTOR_DAMAGE * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier);
                 if (rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
-                    if (index < extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size())
+                    if (index < extremeTurbine.getAbilities(MetaTileEntityXLHotCoolantTurbine.ABILITY_ROTOR_HOLDER).size())
                         continue;
                     this.rotorCycleLength = 0;
                     return true;
@@ -111,13 +107,13 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic {
     public long getMaxVoltage() {
         int totalEnergyMultiplier = 0;
         int index = 0;
-        for (MetaTileEntityRotorHolder rotorHolder : extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
+        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : extremeTurbine.getAbilities(MetaTileEntityXLHotCoolantTurbine.ABILITY_ROTOR_HOLDER)) {
             index++;
             if (rotorHolder.hasRotorInInventory()) {
                 totalEnergyMultiplier++;
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 double totalEnergyOutput = (BASE_EU_OUTPUT + getBonusForTurbineType(extremeTurbine) * rotorEfficiency);
-                if (index < extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size())
+                if (index < extremeTurbine.getAbilities(MetaTileEntityXLHotCoolantTurbine.ABILITY_ROTOR_HOLDER).size())
                     continue;
                 return MathHelper.ceil((((totalEnergyOutput / totalEnergyMultiplier) * TURBINE_BONUS) * efficiencyPenalty) * fastModeMultiplier);
             }
@@ -126,57 +122,40 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic {
     }
 
     @Override
-    protected boolean isReadyForRecipes() {
-        int areReadyForRecipes = 0;
-        int rotorHolderSize = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size();
-        for (int index = 0; index < rotorHolderSize; index++) {
-            MetaTileEntityRotorHolder rotorHolder = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).get(index);
-            if (rotorHolder.isHasRotor())
-                areReadyForRecipes++;
-        }
-        return areReadyForRecipes == 12;
-    }
-
-    @Override
-    protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
+    protected long startRecipe(HotCoolantRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
         addOutputFluids(currentRecipe, fuelAmountUsed);
         return 0L; //energy is added each tick while the rotor speed is >0 RPM
     }
 
-    private void addOutputFluids(FuelRecipe currentRecipe, int fuelAmountUsed) {
-        if (extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
-            int waterFluidAmount = fuelAmountUsed / 15;
-            if (waterFluidAmount > 0) {
-                FluidStack waterStack = Materials.Water.getFluid(waterFluidAmount);
-                extremeTurbine.exportFluidHandler.fill(waterStack, true);
-            }
-        } else if (extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
-            FluidMaterial material = MetaFluids.getMaterialFromFluid(currentRecipe.getRecipeFluid().getFluid());
-            if (material != null) {
-                extremeTurbine.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
+    private void addOutputFluids(HotCoolantRecipe currentRecipe, int fuelAmountUsed) {
+        if (extremeTurbine.turbineType == MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT) {
+            if (fuelAmountUsed > 0) {
+                FluidMaterial material = MetaFluids.getMaterialFromFluid(currentRecipe.getRecipeFluid().getFluid());
+                if (material != null) {
+                    extremeTurbine.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
+                }
             }
         }
     }
 
-    private int getBonusForTurbineType(MetaTileEntityXLTurbine turbine) {
-        switch (turbine.turbineType) {
-            case GAS: return ConfigHolder.gasTurbineBonusOutput;
-            case PLASMA: return ConfigHolder.plasmaTurbineBonusOutput;
-            case STEAM: return ConfigHolder.steamTurbineBonusOutput;
-            default: return 1;
+    private int getBonusForTurbineType(MetaTileEntityXLHotCoolantTurbine turbine) {
+        if (turbine.turbineType == MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT) {
+            return ConfigHolder.steamTurbineBonusOutput * 130 / 100;
         }
+        return 1;
     }
+
     @Override
     public long getRecipeOutputVoltage() {
         double totalEnergyOutput = 0;
         int index = 0;
-        for (MetaTileEntityRotorHolder rotorHolder : extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
+        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : extremeTurbine.getAbilities(MetaTileEntityXLHotCoolantTurbine.ABILITY_ROTOR_HOLDER)) {
             index++;
+            double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
             if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
-                double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += (BASE_EU_OUTPUT + getBonusForTurbineType(extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
-                if (index < extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size())
+                if (index < extremeTurbine.getAbilities(MetaTileEntityXLHotCoolantTurbine.ABILITY_ROTOR_HOLDER).size())
                     continue;
                 return MathHelper.ceil((totalEnergyOutput * TURBINE_BONUS) * fastModeMultiplier);
             }
@@ -212,4 +191,3 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic {
         return true;
     }
 }
-
