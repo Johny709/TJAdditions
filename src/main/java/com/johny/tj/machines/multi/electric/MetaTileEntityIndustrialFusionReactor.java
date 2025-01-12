@@ -2,6 +2,7 @@ package com.johny.tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import com.johny.tj.TJConfig;
+import com.johny.tj.blocks.BlockAbilityCasings;
 import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
@@ -21,6 +22,7 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
@@ -51,16 +53,15 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController {
 
     private int parallelLayer = 1;
     private long energyToStart;
     private final int tier;
+    private long euCapacity;
     private EnergyContainerList inputEnergyContainers;
     private long heat = 0;
     DecimalFormat formatter = new DecimalFormat("#0.00");
@@ -127,10 +128,24 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                             return true;
                     }
                     return false;
-                    })))
+                    })).or(energyPortPredicate()))
             .where('I', statePredicate(getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
             .where('#', (tile) -> true);
         return factoryPattern.build();
+    }
+
+    public Predicate<BlockWorldState> energyPortPredicate() {
+        return (blockWorldState) -> {
+            IBlockState blockState = blockWorldState.getBlockState();
+            if (!(blockState.getBlock() instanceof BlockAbilityCasings abilityCasings)) {
+                return false;
+            } else {
+                BlockAbilityCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                List<BlockAbilityCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                currentCasing.add(tieredCasingType);
+                return currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() == this.tier;
+            }
+        };
     }
 
     @Override
@@ -162,9 +177,13 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
     }
 
+
     @Override
     protected void formStructure(PatternMatchContext context) {
+        euCapacity = 0;
         long energyStored = this.energyContainer.getEnergyStored();
+        int energyPortAmount = Collections.unmodifiableList(context.getOrDefault("EnergyPort", Collections.emptyList())).size();
+        euCapacity += energyPortAmount * 10000000L * (long) Math.pow(2, tier - 6);
         super.formStructure(context);
         this.initializeAbilities();
         ((EnergyContainerHandler) this.energyContainer).setEnergyStored(energyStored);
@@ -177,7 +196,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.outputFluidInventory = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         List<IEnergyContainer> energyInputs = getAbilities(MultiblockAbility.INPUT_ENERGY);
         this.inputEnergyContainers = new EnergyContainerList(energyInputs);
-        long euCapacity = energyInputs.size() * 10000000L * (long) Math.pow(2, tier - 6);
+        euCapacity += energyInputs.size() * 10000000L * (long) Math.pow(2, tier - 6);
         this.energyContainer = new EnergyContainerHandler(this, euCapacity, GAValues.V[tier], 0, 0, 0) {
             @Override
             public String getName() {

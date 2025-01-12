@@ -21,15 +21,20 @@ public class TJMetaBlocks {
     }
 
     public static BlockSolidCasings SOLID_CASING;
+    public static BlockAbilityCasings ABILITY_CASING;
 
     public static void init() {
         SOLID_CASING = new BlockSolidCasings();
         SOLID_CASING.setRegistryName("solid_casing");
+
+        ABILITY_CASING = new BlockAbilityCasings();
+        ABILITY_CASING.setRegistryName("ability_casing");
     }
 
     @SideOnly(Side.CLIENT)
     public static void registerItemModels() {
         registerItemModel(SOLID_CASING);
+        registerItemModel(ABILITY_CASING);
     }
 
     @SideOnly(Side.CLIENT)

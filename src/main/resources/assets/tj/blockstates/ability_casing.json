@@ -1,0 +1,25 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minecraft:cube_all"
+  },
+  "variants": {
+    "variant": {
+      "energy_port_luv": {
+        "textures": {
+          "all": "tj:blocks/casings/ability/fusion_energy_port_luv"
+        }
+      },
+      "energy_port_zpm": {
+        "textures": {
+          "all": "tj:blocks/casings/ability/fusion_energy_port_zpm"
+        }
+      },
+      "energy_port_uv": {
+        "textures": {
+          "all": "tj:blocks/casings/ability/fusion_energy_port_uv"
+        }
+      }
+    }
+  }
+}

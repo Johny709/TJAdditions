@@ -16,6 +16,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.function.Function;
 
+import static com.johny.tj.blocks.TJMetaBlocks.ABILITY_CASING;
 import static com.johny.tj.blocks.TJMetaBlocks.SOLID_CASING;
 
 
@@ -29,6 +30,7 @@ public class CommonProxy {
         IForgeRegistry<Block> registry = event.getRegistry();
 
         registry.register(SOLID_CASING);
+        registry.register(ABILITY_CASING);
     }
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
@@ -39,6 +41,7 @@ public class CommonProxy {
         }
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
+        registry.register(createItemBlock(ABILITY_CASING, VariantItemBlock::new));
     }
 
     @SubscribeEvent

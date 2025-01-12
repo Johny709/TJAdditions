@@ -26,8 +26,8 @@ public class RecipeLoader {
         craftingRecipes();
         GreenhouseRecipes.init();
         ArchitectureRecipes.init();
-        AssemblingRecipes.AssemblerRecipes();
-        AssemblingRecipes.AssemblyLineRecipes();
+        AssemblingRecipes.assemblerRecipes();
+        AssemblingRecipes.assemblyLineRecipes();
 
     }
     private static void craftingRecipes() {

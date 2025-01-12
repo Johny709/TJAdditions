@@ -1,6 +1,7 @@
 package com.johny.tj.recipes;
 
 import com.johny.tj.TJConfig;
+import com.johny.tj.blocks.BlockAbilityCasings;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
@@ -31,7 +32,7 @@ public class AssemblingRecipes {
     public static Material[][] materialTier = {{Steel, Aluminium, StainlessSteel, Titanium, TungstenSteel, RhodiumPlatedPalladium, IngotMaterial.MATERIAL_REGISTRY.getObject("star_metal_alloy"), Tritanium, Seaborgium, Bohrium, Adamantium, Vibranium, HeavyQuarkDegenerateMatter, Neutronium},
                                                 {IngotMaterial.MATERIAL_REGISTRY.getObject("lv_superconductor"), MVSuperconductor, HVSuperconductor, EVSuperconductor, IVSuperconductor, LuVSuperconductor, ZPMSuperconductor, UVSuperconductor, UHVSuperconductor, UEVSuperconductor, UIVSuperconductor, UMVSuperconductor, UXVSuperconductor, MarkerMaterials.Tier.Superconductor}};
 
-    public static void AssemblerRecipes() {
+    public static void assemblerRecipes() {
 
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(LARGE_TUNGSTENSTEEL_BOILER.getStackForm(64))
@@ -88,6 +89,36 @@ public class AssemblingRecipes {
                 .EUt(7680)
                 .buildAndRegister();
 
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(MetaTileEntities.ENERGY_INPUT_HATCH[6].getStackForm())
+                .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(2))
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Ultimate)
+                .input(OrePrefix.plate, TungstenSteel, 8)
+                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_LUV))
+                .duration(200)
+                .EUt(GAValues.VA[6])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(MetaTileEntities.ENERGY_INPUT_HATCH[7].getStackForm())
+                .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(2))
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
+                .input(OrePrefix.plate, Rutherfordium, 8)
+                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_ZPM))
+                .duration(200)
+                .EUt(GAValues.VA[7])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(MetaTileEntities.ENERGY_INPUT_HATCH[8].getStackForm())
+                .inputs(GAMetaItems.UHPIC.getStackForm(2))
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.plate, Dubnium, 8)
+                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_UV))
+                .duration(200)
+                .EUt(GAValues.VA[8])
+                .buildAndRegister();
+
         for (int i = 0; i < materialTier[0].length; i++) {
 
             ASSEMBLER_RECIPES.recipeBuilder()
@@ -131,7 +162,7 @@ public class AssemblingRecipes {
         }
     }
 
-    public static void AssemblyLineRecipes() {
+    public static void assemblyLineRecipes() {
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
