@@ -9,11 +9,11 @@ import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeBuilder;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.util.GTUtility;
 import gregtech.common.ConfigHolder;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
@@ -27,7 +27,6 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import java.util.*;
 import java.util.function.LongSupplier;
-import java.util.stream.Collectors;
 
 public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMultipleWorkable {
 
@@ -72,7 +71,6 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
     public MultiAbstractRecipeLogic(MetaTileEntity metaTileEntity, int recipeCacheSize, int size) {
         super(metaTileEntity);
         this.controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
-        this.recipeMap = ((MultipleRecipeMapMultiblockController) metaTileEntity).recipeMap;
         this.size = size;
         this.recipeCacheSize = recipeCacheSize;
         this.forceRecipeRecheck = new boolean[this.size];
@@ -586,7 +584,13 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                 itemCompound = new NBTTagCompound(),
                 fluidCompound = new NBTTagCompound(),
                 recipeItemInputCompound = new NBTTagCompound(),
+                recipeItemInputCountCompound = new NBTTagCompound(),
+                recipeItemOutputCompound = new NBTTagCompound(),
                 recipeFluidInputCompound = new NBTTagCompound(),
+                recipeFluidOutputCompound = new NBTTagCompound(),
+                recipeChancedOutputCompound = new NBTTagCompound(),
+                recipeChancedOutputChanceCompound = new NBTTagCompound(),
+                recipeChancedOutputBoostCompound = new NBTTagCompound(),
                 recipeEnergyCompound = new NBTTagCompound(),
                 recipeDurationCompound = new NBTTagCompound(),
                 recipeIndexCompound = new NBTTagCompound();
@@ -601,7 +605,13 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                 totalOutputItemsList = new NBTTagList(),
                 totalOutputFluidsList = new NBTTagList(),
                 totalRecipeItemInputsList = new NBTTagList(),
+                totalRecipeItemInputsCountList = new NBTTagList(),
+                totalRecipeItemOutputList = new NBTTagList(),
                 totalRecipeFluidInputsList = new NBTTagList(),
+                totalRecipeFluidOutputsList = new NBTTagList(),
+                totalRecipeChancedOutputsList = new NBTTagList(),
+                totalRecipeChancedOutputsChanceList = new NBTTagList(),
+                totalRecipeChancedOutputsBoostList = new NBTTagList(),
                 recipeEnergyList = new NBTTagList(),
                 recipeDurationList = new NBTTagList(),
                 recipeIndexList = new NBTTagList();
@@ -609,28 +619,71 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         mainCompound.setBoolean(ALLOW_OVERCLOCKING, allowOverclocking);
         mainCompound.setLong(OVERCLOCK_VOLTAGE, overclockVoltage);
 
-
-        for (int i = 0, j = 0; i < occupiedRecipes.length; i++) {
+        for (int i = 0, recipeIndex = 0; i < occupiedRecipes.length; i++) {
             if (occupiedRecipes[i] != null) {
                 if (lockRecipe[i]) {
                     NBTTagList recipeItemInputsList = new NBTTagList();
-                    for (CountableIngredient countableIngredient : occupiedRecipes[i].getInputs()) {
-                        List<ItemStack> itemStackList = Arrays.stream(countableIngredient.getIngredient().getMatchingStacks()).collect(Collectors.toCollection(NonNullList::create));
-                        itemStackList.forEach(item -> recipeItemInputsList.appendTag(item.writeToNBT(new NBTTagCompound())));
+                    NBTTagList recipeItemInputsCountList = new NBTTagList();
+                    for (int j = 0; j < occupiedRecipes[i].getInputs().size(); j++) {
+                        NBTTagList recipeItemInputsSlotsList = new NBTTagList();
+                        for (ItemStack itemStack : occupiedRecipes[i].getInputs().get(j).getIngredient().getMatchingStacks()) {
+                            recipeItemInputsSlotsList.appendTag(itemStack.writeToNBT(new NBTTagCompound()));
+                        }
+                        NBTTagCompound recipeItemInputsSlotsCompound = new NBTTagCompound();
+                        recipeItemInputsSlotsCompound.setTag("RecipeItemInput" + i + ":" + j, recipeItemInputsSlotsList);
+                        recipeItemInputsList.appendTag(recipeItemInputsSlotsCompound);
+                        NBTTagCompound recipeItemInputsCountCompound = new NBTTagCompound();
+                        recipeItemInputsCountCompound.setInteger("RecipeItemInputCount" + i + ":" + j, occupiedRecipes[i].getInputs().get(j).getCount());
+                        recipeItemInputsCountList.appendTag(recipeItemInputsCountCompound);
+                    }
+
+                    NBTTagList recipeItemOutputsList = new NBTTagList();
+                    for (ItemStack itemStack : occupiedRecipes[i].getOutputs()) {
+                        recipeItemOutputsList.appendTag(itemStack.writeToNBT(new NBTTagCompound()));
                     }
                     NBTTagList recipeFluidInputsList = new NBTTagList();
                     for (FluidStack fluidStack : occupiedRecipes[i].getFluidInputs()) {
                         recipeFluidInputsList.appendTag(fluidStack.writeToNBT(new NBTTagCompound()));
                     }
+                    NBTTagList recipeFluidOutputsList = new NBTTagList();
+                    for (FluidStack fluidStack : occupiedRecipes[i].getFluidOutputs()) {
+                        recipeFluidOutputsList.appendTag(fluidStack.writeToNBT(new NBTTagCompound()));
+                    }
+                    NBTTagList recipeChancedOutputsList = new NBTTagList();
+                    NBTTagList recipeChancedOutputsChanceList = new NBTTagList();
+                    NBTTagList recipeChancedOutputsBoostList = new NBTTagList();
+                    for (int k = 0; k < occupiedRecipes[i].getChancedOutputs().size(); k++) {
+                        Recipe.ChanceEntry chanceEntry = occupiedRecipes[i].getChancedOutputs().get(k);
+                        NBTTagCompound recipeChancedOutputsChanceCompound = new NBTTagCompound();
+                        NBTTagCompound recipeChancedOutputsBoostCompound = new NBTTagCompound();
+                        recipeChancedOutputsList.appendTag(chanceEntry.getItemStack().writeToNBT(new NBTTagCompound()));
+                        recipeChancedOutputsChanceCompound.setInteger("RecipeChancedOutputChance" + i + ":" + k, chanceEntry.getChance());
+                        recipeChancedOutputsChanceList.appendTag(recipeChancedOutputsChanceCompound);
+                        recipeChancedOutputsBoostCompound.setInteger("RecipeChancedOutputBoost" + i + ":" + k, chanceEntry.getBoostPerTier());
+                        recipeChancedOutputsBoostList.appendTag(recipeChancedOutputsBoostCompound);
+                    }
+
                     recipeItemInputCompound.setTag("RecipeItemInput" + i, recipeItemInputsList);
                     totalRecipeItemInputsList.appendTag(recipeItemInputCompound);
+                    recipeItemInputCountCompound.setTag("RecipeItemInputCount" + i, recipeItemInputsCountList);
+                    totalRecipeItemInputsCountList.appendTag(recipeItemInputCountCompound);
+                    recipeItemOutputCompound.setTag("RecipeItemOutput" + i, recipeItemOutputsList);
+                    totalRecipeItemOutputList.appendTag(recipeItemOutputCompound);
                     recipeFluidInputCompound.setTag("RecipeFluidInput" + i, recipeFluidInputsList);
                     totalRecipeFluidInputsList.appendTag(recipeFluidInputCompound);
+                    recipeFluidOutputCompound.setTag("RecipeFluidOutput" + i, recipeFluidOutputsList);
+                    totalRecipeFluidOutputsList.appendTag(recipeFluidOutputCompound);
+                    recipeChancedOutputCompound.setTag("RecipeChancedOutput" + i, recipeChancedOutputsList);
+                    totalRecipeChancedOutputsList.appendTag(recipeChancedOutputCompound);
+                    recipeChancedOutputChanceCompound.setTag("RecipeChancedOutputChance" + i, recipeChancedOutputsChanceList);
+                    totalRecipeChancedOutputsChanceList.appendTag(recipeChancedOutputChanceCompound);
+                    recipeChancedOutputBoostCompound.setTag("RecipeChancedOutputBoost" + i, recipeChancedOutputsBoostList);
+                    totalRecipeChancedOutputsBoostList.appendTag(recipeChancedOutputBoostCompound);
                     recipeEnergyCompound.setInteger("RecipeEnergy" + i, occupiedRecipes[i].getEUt());
                     recipeEnergyList.appendTag(recipeEnergyCompound);
                     recipeDurationCompound.setInteger("RecipeDuration" + i, occupiedRecipes[i].getDuration());
                     recipeDurationList.appendTag(recipeDurationCompound);
-                    recipeIndexCompound.setInteger("RecipeIndex" + j++, i);
+                    recipeIndexCompound.setInteger("RecipeIndex" + recipeIndex++, i);
                     recipeIndexList.appendTag(recipeIndexCompound);
                 }
             }
@@ -685,7 +738,13 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         mainCompound.setTag("RecipeLock", lockList);
         mainCompound.setTag("Timer", timerList);
         mainCompound.setTag("RecipeItemInput", totalRecipeItemInputsList);
+        mainCompound.setTag("RecipeItemInputCount", totalRecipeItemInputsCountList);
+        mainCompound.setTag("RecipeItemOutput", totalRecipeItemOutputList);
         mainCompound.setTag("RecipeFluidInput", totalRecipeFluidInputsList);
+        mainCompound.setTag("RecipeFluidOutput", totalRecipeFluidOutputsList);
+        mainCompound.setTag("RecipeChancedOutput", totalRecipeChancedOutputsList);
+        mainCompound.setTag("RecipeChancedOutputChance", totalRecipeChancedOutputsChanceList);
+        mainCompound.setTag("RecipeChancedOutputBoost", totalRecipeChancedOutputsBoostList);
         mainCompound.setTag("RecipeEnergy", recipeEnergyList);
         mainCompound.setTag("RecipeDuration", recipeDurationList);
         mainCompound.setTag("RecipeIndex", recipeIndexList);
@@ -704,7 +763,13 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                 lockList = compound.getTagList("RecipeLock", Constants.NBT.TAG_COMPOUND),
                 timerList = compound.getTagList("Timer", Constants.NBT.TAG_COMPOUND),
                 totalRecipeItemInputsList = compound.getTagList("RecipeItemInput", Constants.NBT.TAG_COMPOUND),
+                totalRecipeItemInputsCountList = compound.getTagList("RecipeItemInputCount", Constants.NBT.TAG_COMPOUND),
+                totalRecipeItemOutputsList = compound.getTagList("RecipeItemOutput", Constants.NBT.TAG_COMPOUND),
                 totalRecipeFluidInputsList = compound.getTagList("RecipeFluidInput", Constants.NBT.TAG_COMPOUND),
+                totalRecipeFluidOutputsList = compound.getTagList("RecipeFluidOutput", Constants.NBT.TAG_COMPOUND),
+                totalRecipeChancedOutputsList = compound.getTagList("RecipeChancedOutput", Constants.NBT.TAG_COMPOUND),
+                totalRecipeChancedOutputsChanceList = compound.getTagList("RecipeChancedOutputChance", Constants.NBT.TAG_COMPOUND),
+                totalRecipeChancedOutputsBoostList = compound.getTagList("RecipeChancedOutputBoost", Constants.NBT.TAG_COMPOUND),
                 recipeEnergyList = compound.getTagList("RecipeEnergy", Constants.NBT.TAG_COMPOUND),
                 recipeDurationList = compound.getTagList("RecipeDuration", Constants.NBT.TAG_COMPOUND),
                 recipeIndexList = compound.getTagList("RecipeIndex", Constants.NBT.TAG_COMPOUND);
@@ -741,29 +806,48 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         }
         for (int i = 0; i < recipeIndexList.tagCount(); i++) {
             int recipeIndex = recipeIndexList.getCompoundTagAt(i).getInteger("RecipeIndex" + i);
-            NBTTagList recipeItemInputsList = totalRecipeItemInputsList.getCompoundTagAt(i).getTagList("RecipeItemInput" + recipeIndex, Constants.NBT.TAG_COMPOUND);
-            NBTTagList recipeFluidInputsList = totalRecipeFluidInputsList.getCompoundTagAt(i).getTagList("RecipeFluidInput" + recipeIndex, Constants.NBT.TAG_COMPOUND);
-            Collection<ItemStack> itemStackCollection = NonNullList.create();
+            NBTTagList recipeItemInputsList = totalRecipeItemInputsList.getCompoundTagAt(i).getTagList("RecipeItemInput" + recipeIndex, Constants.NBT.TAG_COMPOUND),
+                    recipeItemInputsCountList = totalRecipeItemInputsCountList.getCompoundTagAt(i).getTagList("RecipeItemInputCount" + recipeIndex, Constants.NBT.TAG_COMPOUND),
+                    recipeItemOutputsList = totalRecipeItemOutputsList.getCompoundTagAt(i).getTagList("RecipeItemOutput" + recipeIndex, Constants.NBT.TAG_COMPOUND),
+                    recipeFluidInputsList = totalRecipeFluidInputsList.getCompoundTagAt(i).getTagList("RecipeFluidInput" + recipeIndex, Constants.NBT.TAG_COMPOUND),
+                    recipeFluidOutputsList = totalRecipeFluidOutputsList.getCompoundTagAt(i).getTagList("RecipeFluidOutput" + recipeIndex, Constants.NBT.TAG_COMPOUND),
+                    recipeChancedOutputsList = totalRecipeChancedOutputsList.getCompoundTagAt(i).getTagList("RecipeChancedOutput" + recipeIndex, Constants.NBT.TAG_COMPOUND),
+                    recipeChancedOutputsChanceList = totalRecipeChancedOutputsChanceList.getCompoundTagAt(i).getTagList("RecipeChancedOutputChance" + recipeIndex, Constants.NBT.TAG_COMPOUND),
+                    recipeChancedOutputsBoostList = totalRecipeChancedOutputsBoostList.getCompoundTagAt(i).getTagList("RecipeChancedOutputBoost" + recipeIndex, Constants.NBT.TAG_COMPOUND);
+
+            List<CountableIngredient> inputIngredients = NonNullList.create();
             for (int j = 0; j < recipeItemInputsList.tagCount(); j++) {
-                itemStackCollection.add(new ItemStack(recipeItemInputsList.getCompoundTagAt(j)));
+                NBTTagList recipeItemInputsOreDictList = recipeItemInputsList.getCompoundTagAt(j).getTagList("RecipeItemInput" + recipeIndex + ":" + j, Constants.NBT.TAG_COMPOUND);
+                ItemStack[] oreDictStack = new ItemStack[recipeItemInputsOreDictList.tagCount()];
+                for (int k = 0; k < recipeItemInputsOreDictList.tagCount(); k++) {
+                    oreDictStack[k] = new ItemStack(recipeItemInputsOreDictList.getCompoundTagAt(k));
+                }
+                inputIngredients.add(new CountableIngredient(Ingredient.fromStacks(oreDictStack),
+                        recipeItemInputsCountList.getCompoundTagAt(j).getInteger("RecipeItemInputCount" + recipeIndex + ":" + j)));
             }
-            Collection<FluidStack> fluidStackCollection = new ArrayList<>();
+            List<ItemStack> outputItemStackCollection = NonNullList.create();
+            for (int j = 0; j < recipeItemOutputsList.tagCount(); j++) {
+                outputItemStackCollection.add(new ItemStack(recipeItemOutputsList.getCompoundTagAt(j)));
+            }
+            List<FluidStack> inputFluidStackCollection = new ArrayList<>(0);
             for (int j = 0; j < recipeFluidInputsList.tagCount(); j++) {
-                fluidStackCollection.add(FluidStack.loadFluidStackFromNBT(recipeFluidInputsList.getCompoundTagAt(j)));
+                inputFluidStackCollection.add(FluidStack.loadFluidStackFromNBT(recipeFluidInputsList.getCompoundTagAt(j)));
             }
-            Collection<CountableIngredient> ingredients = new ArrayList<>();
-            for (ItemStack itemStack : itemStackCollection) {
-                ingredients.add(CountableIngredient.from(itemStack, itemStack.getCount()));
+            List<FluidStack> outputFluidStackCollection = new ArrayList<>(0);
+            for (int j = 0; j < recipeFluidOutputsList.tagCount(); j++) {
+                outputFluidStackCollection.add(FluidStack.loadFluidStackFromNBT(recipeFluidOutputsList.getCompoundTagAt(j)));
             }
-            RecipeBuilder<?> loadRecipe = recipeMap.recipeBuilder();
-            loadRecipe.inputsIngredients(ingredients)
-                    .fluidInputs(fluidStackCollection)
-                    .EUt(recipeEnergyList.getCompoundTagAt(i).getInteger("RecipeEnergy" + recipeIndex))
-                    .duration(recipeDurationList.getCompoundTagAt(i).getInteger("RecipeDuration" + recipeIndex));
-            occupiedRecipes[recipeIndex] = loadRecipe.build().getResult();
-        }
-        for (Recipe recipe : occupiedRecipes) {
-            controller.multiRecipeMap.removeRecipe(recipe);
+            List<Recipe.ChanceEntry> chancedOutputCollection = new ArrayList<>();
+            for (int j = 0; j < recipeChancedOutputsList.tagCount(); j++) {
+                chancedOutputCollection.add(new Recipe.ChanceEntry(new ItemStack(recipeChancedOutputsList.getCompoundTagAt(j)),
+                        recipeChancedOutputsChanceList.getCompoundTagAt(j).getInteger("RecipeChancedOutputChance" + recipeIndex + ":" + j),
+                        recipeChancedOutputsBoostList.getCompoundTagAt(j).getInteger("RecipeChancedOutputBoost" + recipeIndex + ":" + j)
+                        ));
+            }
+
+            occupiedRecipes[recipeIndex] = new Recipe(inputIngredients, outputItemStackCollection, chancedOutputCollection, inputFluidStackCollection, outputFluidStackCollection,
+                    recipeDurationList.getCompoundTagAt(i).getInteger("RecipeDuration" + recipeIndex), recipeEnergyList.getCompoundTagAt(i).getInteger("RecipeEnergy" + recipeIndex), false);
+            controller.multiRecipeMap.removeIfMatches(occupiedRecipes[recipeIndex]);
         }
     }
 }

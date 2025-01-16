@@ -41,7 +41,7 @@ public class MultiRecipeMapBuilder {
 
     }
 
-    public boolean removeRecipe(Recipe recipe) {
+    public void removeRecipe(Recipe recipe) {
         //if we actually removed this recipe
         if (recipeList.remove(recipe)) {
             //also iterate through fluid mappings and remove recipe from them
@@ -50,9 +50,35 @@ public class MultiRecipeMapBuilder {
             //also iterate through item mappings and remove recipe from them
             recipeItemMap.values().forEach(itemMap ->
                     itemMap.removeIf(itemRecipe -> itemRecipe == recipe));
-            return true;
         }
-        return false;
+    }
+
+    public void removeIfMatches(Recipe newRecipe) {
+        for (Recipe recipe : recipeList) {
+            if (!recipe.getInputs().toString().equals(newRecipe.getInputs().toString())) {
+                continue;
+            }
+            if (!recipe.getOutputs().equals(newRecipe.getOutputs())) {
+                continue;
+            }
+            if (!recipe.getFluidInputs().equals(newRecipe.getFluidInputs())) {
+                continue;
+            }
+            if (!recipe.getFluidOutputs().equals(newRecipe.getFluidOutputs())) {
+                continue;
+            }
+            if (!recipe.getChancedOutputs().equals(newRecipe.getChancedOutputs())) {
+                continue;
+            }
+            if (recipe.getEUt() != newRecipe.getEUt()) {
+                continue;
+            }
+            if (recipe.getDuration() != newRecipe.getDuration()) {
+                continue;
+            }
+            removeRecipe(recipe);
+            return;
+        }
     }
 
     public void addRecipe(Recipe recipe) {
