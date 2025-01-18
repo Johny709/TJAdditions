@@ -91,10 +91,9 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
     public static Predicate<BlockWorldState> motorPredicate() {
         return (blockWorldState) -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof MotorCasing)) {
+            if (!(blockState.getBlock() instanceof MotorCasing motorCasing)) {
                 return false;
             } else {
-                MotorCasing motorCasing = (MotorCasing) blockState.getBlock();
                 MotorCasing.CasingType tieredCasingType = motorCasing.getState(blockState);
                 MotorCasing.CasingType currentCasing = blockWorldState.getMatchContext().getOrPut("Motor", tieredCasingType);
                 return currentCasing.getName().equals(tieredCasingType.getName());
@@ -213,12 +212,12 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                     y.set(getPos().getY() - 5);
                 }
 
-                List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
+                List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos(), blocksToFilter, this::isEnableFilter, this::isBlackListFilter);
                 blockPos.forEach(blockPos1 -> {
                     NonNullList<ItemStack> itemStacks = NonNullList.create();
                     IBlockState blockState = this.getWorld().getBlockState(blockPos1);
                     if (!silktouch) {
-                        itemStacks.add(new ItemStack(blockState.getBlock().getItemDropped(blockState, world.rand, type.fortune)));
+                        itemStacks.add(new ItemStack(blockState.getBlock().getItemDropped(blockState, world.rand, type.fortune), 1, blockState.getBlock().getMetaFromState(blockState)));
                     } else {
                         itemStacks.add(new ItemStack(blockState.getBlock(), 1, blockState.getBlock().getMetaFromState(blockState)));
                     }

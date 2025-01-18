@@ -139,6 +139,8 @@ tj.multiblock.industrial_fusion_reactor.description=A compact fusion reactor cap
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
+tj.multiblock.tab.display=Multiblock Display
+tj.multiblock.tab.filter=Filter
 tj.multiblock.turbine.tooltip.efficiency=[Fuel Efficiency]
 tj.multiblock.turbine.tooltip.efficiency.normal=Normal: §e%d§7
 tj.multiblock.turbine.tooltip.efficiency.fast=Fast: §e%d§7
@@ -168,3 +170,5 @@ machine.universal.toggle.check.mode.enabled=Initiating Structure Check
 machine.universal.toggle.check.mode.disabled=Do Structure Check
 machine.universal.toggle.distinct.mode.enabled=Distinct Mode: ON
 machine.universal.toggle.distinct.mode.disabled=Distinct Mode: OFF
+machine.universal.toggle.filter.enabled=Filter ON
+machine.universal.toggle.filter.disabled=Filter OFF
