@@ -60,14 +60,16 @@ public interface TJMiner {
                         BlockPos blockPos = new BlockPos(x.get(), y.get(), z.get());
                         Block block = miner.getWorld().getBlockState(blockPos).getBlock();
                         IBlockState state = miner.getWorld().getBlockState(blockPos);
+                        int meta = block.getMetaFromState(state);
+                        IBlockState actualState = state.getBlock().getBlockState().getValidStates().get(meta);
                         if (miner.getWorld().getTileEntity(blockPos) == null) {
                             if (isOre(block) || miner.getType() == Type.DESTROYER) {
                                 if (blackListFilterSupplier.getAsBoolean()) {
-                                    if (!enableFilterSupplier.getAsBoolean() || !blockToFilter.containsValue(state)) {
+                                    if (!enableFilterSupplier.getAsBoolean() || !blockToFilter.containsValue(actualState)) {
                                         blocks.add(blockPos);
                                     }
                                 } else {
-                                    if (!enableFilterSupplier.getAsBoolean() || blockToFilter.containsValue(state)) {
+                                    if (!enableFilterSupplier.getAsBoolean() || blockToFilter.containsValue(actualState)) {
                                         blocks.add(blockPos);
                                     }
                                 }
