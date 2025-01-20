@@ -212,14 +212,28 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                     y.set(getPos().getY() - 5);
                 }
 
-                List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos(), blocksToFilter, this::isEnableFilter, this::isBlackListFilter);
+                List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
                 blockPos.forEach(blockPos1 -> {
                     NonNullList<ItemStack> itemStacks = NonNullList.create();
                     IBlockState blockState = this.getWorld().getBlockState(blockPos1);
+                    int meta = blockState.getBlock().getMetaFromState(blockState);
+                    int maxState = blockState.getBlock().getBlockState().getValidStates().size() - 1;
+                    IBlockState actualState = blockState.getBlock().getBlockState().getValidStates().get(Math.min(meta, maxState));
+                    if (isEnableFilter()) {
+                        if (isBlackListFilter()) {
+                            if (blocksToFilter.containsValue(actualState)) {
+                                return;
+                            }
+                        } else {
+                            if (!blocksToFilter.containsValue(actualState)) {
+                                return;
+                            }
+                        }
+                    }
                     if (!silktouch) {
-                        itemStacks.add(new ItemStack(blockState.getBlock().getItemDropped(blockState, world.rand, type.fortune), 1, blockState.getBlock().getMetaFromState(blockState)));
+                        itemStacks.add(new ItemStack(actualState.getBlock().getItemDropped(actualState, world.rand, type.fortune), 1, Math.min(meta, maxState)));
                     } else {
-                        itemStacks.add(new ItemStack(blockState.getBlock(), 1, blockState.getBlock().getMetaFromState(blockState)));
+                        itemStacks.add(new ItemStack(actualState.getBlock(), 1, Math.min(meta, maxState)));
                     }
                     if (addItemsToItemHandler(outputInventory, true, itemStacks)) {
                         addItemsToItemHandler(outputInventory, false, itemStacks);

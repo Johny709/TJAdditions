@@ -205,14 +205,28 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                     y.set(getPos().getY());
                 }
 
-                List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos(), blocksToFilter, this::isEnableFilter, this::isBlackListFilter);
+                List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
                 blockPos.forEach(blockPos1 -> {
                     NonNullList<ItemStack> itemStacks = NonNullList.create();
                     IBlockState blockState = this.getWorld().getBlockState(blockPos1);
+                    int meta = blockState.getBlock().getMetaFromState(blockState);
+                    int maxState = blockState.getBlock().getBlockState().getValidStates().size();
+                    IBlockState actualState = blockState.getBlock().getBlockState().getValidStates().get(Math.min(meta, maxState));
+                    if (isEnableFilter()) {
+                        if (isBlackListFilter()) {
+                            if (blocksToFilter.containsValue(actualState)) {
+                                return;
+                            }
+                        } else {
+                            if (!blocksToFilter.containsValue(actualState)) {
+                                return;
+                            }
+                        }
+                    }
                     if (!silktouch) {
-                        GAUtility.applyHammerDrops(world.rand, blockState, itemStacks, type.fortune, null, this.energyContainer.getInputVoltage());
+                        GAUtility.applyHammerDrops(world.rand, actualState, itemStacks, type.fortune, null, this.energyContainer.getInputVoltage());
                     } else {
-                        itemStacks.add(new ItemStack(blockState.getBlock(), 1, blockState.getBlock().getMetaFromState(blockState)));
+                        itemStacks.add(new ItemStack(actualState.getBlock(), 1, Math.min(meta, maxState)));
                     }
                     if (addItemsToItemHandler(outputInventory, true, itemStacks)) {
                         addItemsToItemHandler(outputInventory, false, itemStacks);

@@ -4,16 +4,13 @@ import com.johny.tj.TJConfig;
 import gregicadditions.GAConfig;
 import gregicadditions.machines.multi.miner.Miner;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BooleanSupplier;
 
 import static gregicadditions.machines.multi.miner.Miner.isOre;
 
@@ -51,7 +48,7 @@ public interface TJMiner {
         return 3L;
     }
 
-    static List<BlockPos> getBlockToMinePerChunk(TJMiner miner, AtomicLong x, AtomicLong y, AtomicLong z, ChunkPos chunkPos, Map<Integer, IBlockState> blockToFilter, BooleanSupplier enableFilterSupplier, BooleanSupplier blackListFilterSupplier) {
+    static List<BlockPos> getBlockToMinePerChunk(TJMiner miner, AtomicLong x, AtomicLong y, AtomicLong z, ChunkPos chunkPos) {
         List<BlockPos> blocks = new ArrayList<>();
         for (int i = 0; i < miner.getNbBlock(); i++) {
             if (y.get() >= 0 && miner.getTimer() % miner.getType().tick == 0) {
@@ -59,20 +56,9 @@ public interface TJMiner {
                     if (x.get() <= chunkPos.getXEnd()) {
                         BlockPos blockPos = new BlockPos(x.get(), y.get(), z.get());
                         Block block = miner.getWorld().getBlockState(blockPos).getBlock();
-                        IBlockState state = miner.getWorld().getBlockState(blockPos);
-                        int meta = block.getMetaFromState(state);
-                        IBlockState actualState = state.getBlock().getBlockState().getValidStates().get(meta);
                         if (miner.getWorld().getTileEntity(blockPos) == null) {
                             if (isOre(block) || miner.getType() == Type.DESTROYER) {
-                                if (blackListFilterSupplier.getAsBoolean()) {
-                                    if (!enableFilterSupplier.getAsBoolean() || !blockToFilter.containsValue(actualState)) {
-                                        blocks.add(blockPos);
-                                    }
-                                } else {
-                                    if (!enableFilterSupplier.getAsBoolean() || blockToFilter.containsValue(actualState)) {
-                                        blocks.add(blockPos);
-                                    }
-                                }
+                                blocks.add(blockPos);
                             }
                         }
                         x.incrementAndGet();
