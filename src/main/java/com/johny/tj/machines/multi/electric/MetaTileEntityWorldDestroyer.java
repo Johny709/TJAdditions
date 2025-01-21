@@ -169,106 +169,110 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
     protected void updateFormedValid() {
         if (!getWorld().isRemote) {
             if (isWorkingEnabled) {
-                if (done || !drainEnergy()) {
-                    if (isActive)
-                        setActive(false);
-                    return;
-                }
-
-                if (!isActive)
-                    setActive(true);
-
-                WorldServer world = (WorldServer) this.getWorld();
-                Chunk chunkMiner = world.getChunk(getPos());
-                Chunk origin;
-                int chunkSize = type.chunk * chunkArea;
-                if (chunks.isEmpty() && chunkSize / 2.0 > 1.0) {
-                    int tmp = Math.floorDiv(chunkSize, 2);
-                    origin = world.getChunk(chunkMiner.x - tmp, chunkMiner.z - tmp);
-                    for (int i = 0; i < chunkSize; i++) {
-                        for (int j = 0; j < chunkSize; j++) {
-                            chunks.add(world.getChunk(origin.x + i, origin.z + j));
+                if (getNumProblems() < 6) {
+                    if (getOffsetTimer() % (1 + getNumProblems()) == 0) {
+                        if (done || !drainEnergy()) {
+                            if (isActive)
+                                setActive(false);
+                            return;
                         }
-                    }
-                } else if (chunks.isEmpty() && chunkSize == 1) {
-                    origin = world.getChunk(chunkMiner.x, chunkMiner.z);
-                    chunks.add(origin);
-                }
 
-                if (currentChunk.intValue() == chunks.size()) {
-                    setActive(false);
-                    return;
-                }
+                        if (!isActive)
+                            setActive(true);
 
-                Chunk chunk = chunks.get(currentChunk.intValue());
-
-                if (x.get() == Long.MAX_VALUE) {
-                    x.set(chunk.getPos().getXStart());
-                }
-                if (z.get() == Long.MAX_VALUE) {
-                    z.set(chunk.getPos().getZStart());
-                }
-                if (y.get() == Long.MAX_VALUE) {
-                    y.set(getPos().getY() - 5);
-                }
-
-                List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
-                blockPos.forEach(blockPos1 -> {
-                    NonNullList<ItemStack> itemStacks = NonNullList.create();
-                    IBlockState blockState = this.getWorld().getBlockState(blockPos1);
-                    int meta = blockState.getBlock().getMetaFromState(blockState);
-                    int maxState = blockState.getBlock().getBlockState().getValidStates().size() - 1;
-                    IBlockState actualState = blockState.getBlock().getBlockState().getValidStates().get(Math.min(meta, maxState));
-                    if (isEnableFilter()) {
-                        if (isBlackListFilter()) {
-                            if (blocksToFilter.containsValue(actualState)) {
-                                return;
+                        WorldServer world = (WorldServer) this.getWorld();
+                        Chunk chunkMiner = world.getChunk(getPos());
+                        Chunk origin;
+                        int chunkSize = type.chunk * chunkArea;
+                        if (chunks.isEmpty() && chunkSize / 2.0 > 1.0) {
+                            int tmp = Math.floorDiv(chunkSize, 2);
+                            origin = world.getChunk(chunkMiner.x - tmp, chunkMiner.z - tmp);
+                            for (int i = 0; i < chunkSize; i++) {
+                                for (int j = 0; j < chunkSize; j++) {
+                                    chunks.add(world.getChunk(origin.x + i, origin.z + j));
+                                }
                             }
-                        } else {
-                            if (!blocksToFilter.containsValue(actualState)) {
-                                return;
-                            }
+                        } else if (chunks.isEmpty() && chunkSize == 1) {
+                            origin = world.getChunk(chunkMiner.x, chunkMiner.z);
+                            chunks.add(origin);
                         }
-                    }
-                    if (!silktouch) {
-                        itemStacks.add(new ItemStack(actualState.getBlock().getItemDropped(actualState, world.rand, type.fortune), 1, Math.min(meta, maxState)));
-                    } else {
-                        itemStacks.add(new ItemStack(actualState.getBlock(), 1, Math.min(meta, maxState)));
-                    }
-                    if (addItemsToItemHandler(outputInventory, true, itemStacks)) {
-                        addItemsToItemHandler(outputInventory, false, itemStacks);
-                        if (this.getType() != Type.CREATIVE) {
-                            world.setBlockState(blockPos1, Blocks.AIR.getDefaultState());
-                        }
-                    }
-                });
 
-                if (y.get() < 0) {
-                    if (type != Type.CREATIVE) {
-                        currentChunk.incrementAndGet();
-                        if (currentChunk.get() >= chunks.size()) {
-                            if (canRestart) {
-                                currentChunk.set(0);
+                        if (currentChunk.intValue() == chunks.size()) {
+                            setActive(false);
+                            return;
+                        }
+
+                        Chunk chunk = chunks.get(currentChunk.intValue());
+
+                        if (x.get() == Long.MAX_VALUE) {
+                            x.set(chunk.getPos().getXStart());
+                        }
+                        if (z.get() == Long.MAX_VALUE) {
+                            z.set(chunk.getPos().getZStart());
+                        }
+                        if (y.get() == Long.MAX_VALUE) {
+                            y.set(getPos().getY() - 5);
+                        }
+
+                        List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
+                        blockPos.forEach(blockPos1 -> {
+                            NonNullList<ItemStack> itemStacks = NonNullList.create();
+                            IBlockState blockState = this.getWorld().getBlockState(blockPos1);
+                            int meta = blockState.getBlock().getMetaFromState(blockState);
+                            int maxState = blockState.getBlock().getBlockState().getValidStates().size() - 1;
+                            IBlockState actualState = blockState.getBlock().getBlockState().getValidStates().get(Math.min(meta, maxState));
+                            if (isEnableFilter()) {
+                                if (isBlackListFilter()) {
+                                    if (blocksToFilter.containsValue(actualState)) {
+                                        return;
+                                    }
+                                } else {
+                                    if (!blocksToFilter.containsValue(actualState)) {
+                                        return;
+                                    }
+                                }
+                            }
+                            if (!silktouch) {
+                                itemStacks.add(new ItemStack(actualState.getBlock().getItemDropped(actualState, world.rand, type.fortune), 1, Math.min(meta, maxState)));
+                            } else {
+                                itemStacks.add(new ItemStack(actualState.getBlock(), 1, Math.min(meta, maxState)));
+                            }
+                            if (addItemsToItemHandler(outputInventory, true, itemStacks)) {
+                                addItemsToItemHandler(outputInventory, false, itemStacks);
+                                if (this.getType() != Type.CREATIVE) {
+                                    world.setBlockState(blockPos1, Blocks.AIR.getDefaultState());
+                                }
+                            }
+                        });
+
+                        if (y.get() < 0) {
+                            if (type != Type.CREATIVE) {
+                                currentChunk.incrementAndGet();
+                                if (currentChunk.get() >= chunks.size()) {
+                                    if (canRestart) {
+                                        currentChunk.set(0);
+                                        x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
+                                        z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
+                                        y.set(getPos().getY() - 5);
+                                    } else
+                                        done = true;
+                                } else {
+                                    x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
+                                    z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
+                                    y.set(getPos().getY() - 5);
+                                }
+                            } else {
                                 x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                                 z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
                                 y.set(getPos().getY() - 5);
-                            } else
-                                done = true;
-                        } else {
-                            x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
-                            z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                            y.set(getPos().getY() - 5);
+                            }
                         }
-                    } else {
-                        x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
-                        z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                        y.set(getPos().getY() - 5);
+
+
+                        if (!getWorld().isRemote && getOffsetTimer() % 5 == 0) {
+                            pushItemsIntoNearbyHandlers(getFrontFacing());
+                        }
                     }
-                }
-
-
-                if (!getWorld().isRemote && getOffsetTimer() % 5 == 0) {
-                    pushItemsIntoNearbyHandlers(getFrontFacing());
                 }
             }
         }
