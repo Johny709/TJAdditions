@@ -12,6 +12,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
         CREATIVE_FLUID_COVER = addItem(1000, "creative.fluid.cover");
         CREATIVE_ITEM_COVER = addItem(1001, "creative.item.cover");
         CREATIVE_ENERGY_COVER = addItem(1002, "creative.energy.cover");
+        LINKING_DEVICE = addItem(1003,"item.linking.device").addComponents(new LinkingDeviceBehavior()).setMaxStackSize(1);
     }
 
     @Override

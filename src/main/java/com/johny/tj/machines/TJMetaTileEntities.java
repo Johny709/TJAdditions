@@ -53,6 +53,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityEliteLargeMiner ELITE_LARGE_MINER;
     public static MetaTileEntityUltimateLargeMiner ULTIMATE_LARGE_MINER;
     public static MetaTileEntityWorldDestroyer WORLD_DESTROYER;
+    public static MetaTileEntityLargeWorldAccelerator LARGE_WORLD_ACCELERATOR;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
 
@@ -95,6 +96,7 @@ public class TJMetaTileEntities {
 
         PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5014, new MetaTileEntityParallelLargeChemicalReactor(TJId("parallel_chemical_reactor")));
         LARGE_ARCHITECT_WORKBENCH = GregTechAPI.registerMetaTileEntity(5015, new MetaTileEntityLargeArchitectWorkbench(TJId("large_architect_workbench"), TJRecipeMaps.ARCHITECT_RECIPES));
+        LARGE_WORLD_ACCELERATOR = GregTechAPI.registerMetaTileEntity(5052, new MetaTileEntityLargeWorldAccelerator(TJId("large_world_accelerator")));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
