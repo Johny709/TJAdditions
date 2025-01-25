@@ -3,7 +3,7 @@ package com.johny.tj.integration.jei.multi;
 import com.google.common.collect.Lists;
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
@@ -29,7 +29,7 @@ public class LargeWorldAcceleratorInfo extends MultiblockInfoPage {
                 .aisle("IEC", "SFE", "MEC")
                 .aisle("#C#", "CEC", "#C#")
                 .where('S', TJMetaTileEntities.LARGE_WORLD_ACCELERATOR, EnumFacing.WEST)
-                .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_K243))
+                .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM))
                 .where('F', GAMetaBlocks.FIELD_GEN_CASING.getDefaultState())
                 .where('E', GAMetaBlocks.EMITTER_CASING.getDefaultState())
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)

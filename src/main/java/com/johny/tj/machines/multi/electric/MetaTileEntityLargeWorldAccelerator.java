@@ -13,7 +13,7 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.EmitterCasing;
 import gregicadditions.item.components.FieldGenCasing;
-import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.capability.IEnergyContainer;
@@ -151,7 +151,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                         if (!isActive)
                             setActive(true);
                         energyContainer.removeEnergy(energyPerTick);
-                        BlockPos worldAcceleratorPos = getPos();
+                        BlockPos worldAcceleratorPos = getPos().offset(getFrontFacing().getOpposite());
                         WorldServer world = (WorldServer) this.getWorld();
                         BlockPos upperConner = worldAcceleratorPos.north(tier).east(tier);
                         switch (acceleratorMode) {
@@ -247,7 +247,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 .aisle("CEC", "EFE", "CEC")
                 .aisle("#C#", "CSC", "#C#")
                 .where('S', selfPredicate())
-                .where('C', statePredicate(GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_K243)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', LargeSimpleRecipeMapMultiblockController.fieldGenPredicate())
                 .where('E', LargeSimpleRecipeMapMultiblockController.emitterPredicate())
                 .where('#', (tile) -> true)
@@ -257,7 +257,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart iMultiblockPart) {
-        return ClientHandler.HASTELLOY_K243_CASING;
+        return ClientHandler.TRITANIUM_CASING;
     }
 
     @Override

@@ -8,6 +8,7 @@ import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
@@ -37,12 +38,13 @@ public class ParallelChemicalReactorInfo extends MultiblockInfoPage {
             builder.aisle("CCCCC", "CCCCi", "CCCCM", "CCCCo", "CCCCC");
             for (int num = 0; num < index; num++) {
                 builder.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-                builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
+                builder.aisle("F###F", "#CCC#", "#CcC#", "#CCC#", "F###F");
             }
             builder.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
             builder.aisle("CCCCC", "CCCCI", "ECCCS", "CCCCO", "CCCCC");
             builder.where('S', chemicalReactor, EnumFacing.WEST)
                     .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
+                    .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                     .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
                     .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
                     .where('B', GAMetaBlocks.PUMP_CASING.getDefaultState())

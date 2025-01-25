@@ -10,6 +10,8 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.PumpCasing;
+import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import gregicadditions.machines.multi.simple.TileEntityLargeChemicalReactor;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
@@ -35,6 +37,7 @@ import static gregtech.api.unification.material.Materials.Steel;
 public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private int energyBonus;
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.LARGE_CHEMICAL_RECIPES);
@@ -50,7 +53,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
         factoryPattern.aisle("HHHHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH");
         for (int count = 0; count < this.parallelLayer; count++) {
             factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-            factoryPattern.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
+            factoryPattern.aisle("F###F", "#CCC#", "#CcC#", "#CCC#", "F###F");
             factoryPattern.validateLayer(2 + count * 2, (context) -> context.getInt("RedstoneControllerAmount") <= 1);
         }
 
@@ -59,25 +62,12 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
                 .where('S', selfPredicate())
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('C', statePredicate(getCasingState()).or(machineControllerPredicate))
+                .where('c', TileEntityLargeChemicalReactor.heatingCoilPredicate().or(TileEntityLargeChemicalReactor.heatingCoilPredicate2()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
-                .where('B', pumpPredicate())
+                .where('B', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
                 .where('#', (tile) -> true);
         return factoryPattern.build();
-    }
-
-    public static Predicate<BlockWorldState> pumpPredicate() {
-        return (blockWorldState) -> {
-            IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof PumpCasing)) {
-                return false;
-            } else {
-                PumpCasing motorCasing = (PumpCasing) blockState.getBlock();
-                PumpCasing.CasingType tieredCasingType = motorCasing.getState(blockState);
-                PumpCasing.CasingType currentCasing = blockWorldState.getMatchContext().getOrPut("Pump", tieredCasingType);
-                return currentCasing.getName().equals(tieredCasingType.getName());
-            }
-        };
     }
 
     protected IBlockState getCasingState() {
@@ -100,6 +90,52 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
         PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
         int min = pump.getTier();
         maxVoltage = (long) (Math.pow(4, min) * 8);
+        int temperature = context.getOrDefault("blastFurnaceTemperature", 0);
+
+        switch (temperature){
+
+            case 2700:
+                energyBonus = 5;
+                break;
+            case 3600:
+                energyBonus = 10;
+                break;
+            case 4500:
+                energyBonus = 15;
+                break;
+            case 5400:
+                energyBonus = 20;
+                break;
+            case 7200:
+                energyBonus = 25;
+                break;
+            case 8600:
+                energyBonus = 30;
+                break;
+            case 9600:
+                energyBonus = 35;
+                break;
+            case 10700:
+                energyBonus = 40;
+                break;
+            case 11200:
+                energyBonus = 45;
+                break;
+            case 12600:
+                energyBonus = 50;
+                break;
+            case 14200:
+                energyBonus = 55;
+                break;
+            case 28400:
+                energyBonus = 60;
+                break;
+            case 56800:
+                energyBonus = 65;
+                break;
+            default:
+                energyBonus = 0;
+        }
     }
 
     @Override
@@ -161,7 +197,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
 
         @Override
         protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = 0;
+            int energyBonus = chemicalReactor.energyBonus;
             long maxVoltage = chemicalReactor.maxVoltage;
 
             int[] resultOverclock = calculateOverclock(recipe.getEUt(), maxVoltage, recipe.getDuration());
