@@ -223,4 +223,30 @@ public class TJConfig {
         @Config.Comment("The amount chunk area multiplied per motor tier")
         public int worldDestroyerChunkMultiplier = 2;
     }
+
+    @Config.Comment("Large Rock Breaker")
+    public static LargeRockBreaker largeRockBreaker = new LargeRockBreaker();
+
+    public static class LargeRockBreaker {
+
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 1;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumSlices = 64;
+    }
 }

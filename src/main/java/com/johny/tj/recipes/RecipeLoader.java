@@ -2,6 +2,8 @@ package com.johny.tj.recipes;
 
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GATransparentCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.unification.ore.OrePrefix;
@@ -28,6 +30,7 @@ public class RecipeLoader {
         ArchitectureRecipes.init();
         AssemblingRecipes.assemblerRecipes();
         AssemblingRecipes.assemblyLineRecipes();
+        RockBreakerRecipes.init();
 
     }
     private static void craftingRecipes() {
@@ -86,6 +89,14 @@ public class RecipeLoader {
                 'D', MetaItems.COMPONENT_GRINDER_TUNGSTEN.getStackForm(),
                 'T', MetaTileEntities.BLOCK_BREAKER[3].getStackForm(),
                 'S', CraftingComponent.SENSOR.getIngredient(5));
+
+        ModHandler.addShapedRecipe("large_rock_breaker", LARGE_ROCK_BREAKER.getStackForm(), "PCP", "USU", "GBG",
+                'P', CraftingComponent.PISTON.getIngredient(5),
+                'C', CraftingComponent.CIRCUIT.getIngredient(5),
+                'U', CraftingComponent.PIPE.getIngredient(5),
+                'S', GATileEntities.ROCK_BREAKER[4].getStackForm(),
+                'G', GAMetaBlocks.TRANSPARENT_CASING.getItemVariant(GATransparentCasing.CasingType.CHROME_GLASS),
+                'B', MetaItems.COMPONENT_GRINDER_TUNGSTEN.getStackForm());
 
         ModHandler.addShapedRecipe("duranium_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.DURANIUM_CASING, 3), "PhP", "PFP", "PwP",
                 'P', new UnificationEntry(OrePrefix.plate, Duranium),
