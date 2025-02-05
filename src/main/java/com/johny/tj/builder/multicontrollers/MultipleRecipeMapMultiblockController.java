@@ -119,15 +119,15 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
                     recipeInstance.appendText(" ");
                     recipeInstance.appendSibling(new TextComponentString("[" + recipeHandlerPos + "] " + (recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? I18n.format("gregtech.multiblock.running") + " " : I18n.format("gregtech.multiblock.idling") + " ") : I18n.format("gregtech.multiblock.work_paused") + " "))
                                     .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                                            new TextComponentTranslation("gregtech.multiblock.parallel_large_chemical_reactor.status")
+                                                            new TextComponentTranslation("tj.multiblock.parallel.status")
                                                                     .appendSibling(new TextComponentString(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? " " + I18n.format("gregtech.multiblock.running") + "\n" : " " + I18n.format("gregtech.multiblock.idling") + "\n") : " " + I18n.format("gregtech.multiblock.work_paused") + "\n")
                                                                             .setStyle(new Style().setColor(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? TextFormatting.GREEN : TextFormatting.WHITE) : TextFormatting.YELLOW)))
-                                                                    .appendSibling(new TextComponentTranslation("gregtech.multiblock.parallel_large_chemical_reactor.eu").appendSibling(new TextComponentString(" " + recipeMapWorkable.getRecipeEUt(i) + "\n")))
-                                                                    .appendSibling(new TextComponentTranslation("gregtech.multiblock.parallel_large_chemical_reactor.progress").appendSibling(new TextComponentString(" " + (int) progressPercent + "%")))
+                                                                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.eu").appendSibling(new TextComponentString(" " + recipeMapWorkable.getRecipeEUt(i) + "\n")))
+                                                                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.progress").appendSibling(new TextComponentString(" " + (int) progressPercent + "%")))
                                                     ))
                                                     .setColor(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? TextFormatting.GREEN : TextFormatting.WHITE) : TextFormatting.YELLOW)
                                     ))
-                            .appendSibling(recipeMapWorkable.getLockingMode(i) ? withButton(new TextComponentTranslation("gregtech.multiblock.parallel_large_chemical_reactor.lock"), "lock" + i) : withButton(new TextComponentTranslation("gregtech.multiblock.parallel_large_chemical_reactor.unlock"), "unlock" + i));
+                            .appendSibling(recipeMapWorkable.getLockingMode(i) ? withButton(new TextComponentTranslation("tj.multiblock.parallel.lock"), "lock" + i) : withButton(new TextComponentTranslation("tj.multiblock.parallel.unlock"), "unlock" + i));
                     textList.add(recipeInstance);
                 }
             }
@@ -246,16 +246,16 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
             if (!playerIn.isSneaking()) {
                 if (this.parallelLayer < TJConfig.parallelLCR.maximumLayers) {
                     this.parallelLayer++;
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 } else {
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.parallelLayer)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 }
             } else {
                 if (this.parallelLayer > 1) {
                     this.parallelLayer--;
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.parallelLayer)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 } else
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.parallelLayer)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.parallelLayer)));
             }
             this.resetStructure();
         }

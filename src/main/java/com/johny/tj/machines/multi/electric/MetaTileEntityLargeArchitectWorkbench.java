@@ -124,16 +124,16 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
             if (!playerIn.isSneaking()) {
                 if (this.slices < TJConfig.largeArchitectWorkbench.maximumSlices) {
                     this.slices++;
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.slices)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.slices)));
                 } else {
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.slices)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.slices)));
                 }
             } else {
                 if (this.slices > 1) {
                     this.slices--;
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.slices)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.slices)));
                 } else
-                    playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.slices)));
+                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.slices)));
             }
             this.resetStructure();
         }
