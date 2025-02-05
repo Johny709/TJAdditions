@@ -84,9 +84,9 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.large_world_accelerator.description"));
-        tooltip.add(I18n.format("gregtech.machine.world_accelerator.mode.entity") + " -> " + I18n.format("gregtech.machine.world_accelerator.mode.entity.description"));
-        tooltip.add(I18n.format("gregtech.machine.world_accelerator.mode.tile") + " -> " + I18n.format("gregtech.machine.world_accelerator.mode.tile.description") + " " + entityLinkBlockPos.length);
-        tooltip.add(I18n.format("tj.multiblock.large_world_accelerator.mode.GT") + " -> " + I18n.format("tj.multiblock.large_world_accelerator.mode.GT.description"));
+        tooltip.add("§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.entity") + "§r§e§l -> §r" + I18n.format("tj.multiblock.world_accelerator.mode.entity.description"));
+        tooltip.add("§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.tile") + "§r§e§l -> §r" + I18n.format("tj.multiblock.world_accelerator.mode.tile.description") + " " + entityLinkBlockPos.length);
+        tooltip.add("§f§n" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT") + "§r§e§l -> §r" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT.description"));
     }
 
     @Override

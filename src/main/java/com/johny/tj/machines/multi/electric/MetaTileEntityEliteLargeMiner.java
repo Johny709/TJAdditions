@@ -405,13 +405,13 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                 textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", silktouch));
                 textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.mode"));
             }
-            ITextComponent toggleContinous = new TextComponentTranslation("gregtech.multiblock.elite_large_miner.restart");
+            ITextComponent toggleContinous = new TextComponentTranslation("tj.multiblock.elite_large_miner.restart");
             toggleContinous.appendText(" ");
 
             if (canRestart)
-                toggleContinous.appendSibling(withButton(new TextComponentTranslation("gregtech.multiblock.elite_large_miner.restart.true"), "true"));
+                toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.true"), "true"));
             else
-                toggleContinous.appendSibling(withButton(new TextComponentTranslation("gregtech.multiblock.elite_large_miner.restart.false"), "false"));
+                toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.false"), "false"));
 
             textList.add(toggleContinous);
 

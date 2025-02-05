@@ -70,7 +70,7 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
     private boolean wasActiveAndNeedsUpdate;
     private boolean hasNoWater;
     private int lastTickSteamOutput;
-    String currentItemProcessed = "Insert Burnable";
+    String currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
     int currentItemsEngaged = 0;
 
     private FluidTankList fluidImportInventory;
@@ -143,14 +143,14 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
 
             ITextComponent itemDisplayText;
             if (!isActive) {
-                itemDisplayText = new TextComponentString(currentItemProcessed + " (" + currentItemsEngaged + "/" + MAX_PROCESSES + ")");
-                withHoverTextTranslate(itemDisplayText, "gregtech.multiblock.large_boiler.items_process_hover");
+                itemDisplayText = new TextComponentString(I18n.format(currentItemProcessed) + " (" + currentItemsEngaged + "/" + MAX_PROCESSES + ")");
+                withHoverTextTranslate(itemDisplayText, "tj.multiblock.large_boiler.items_process_hover");
             }
             else {
                 itemDisplayText = new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN));
             }
             textList.add(itemDisplayText);
-            ITextComponent itemClear = new TextComponentTranslation("gregtech.multiblock.large_boiler.clear_item");
+            ITextComponent itemClear = new TextComponentTranslation("tj.multiblock.large_boiler.clear_item");
             itemClear.appendText(" ");
             itemClear.appendSibling(withButton(new TextComponentString("[O]"), "clear"));
             textList.add(itemClear);
@@ -171,7 +171,7 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
         }
         else {
             currentItemsEngaged = 0;
-            currentItemProcessed = "Insert Burnable";
+            currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
         }
 
         int result = (clickData.isShiftClick ? 1 : 5) * modifier;
@@ -292,7 +292,7 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
                     continue;
 
                 currentItemsEngaged = 0;
-                currentItemProcessed = "Insert Burnable";
+                currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
                 return fuelBurnValue;
             }
         }

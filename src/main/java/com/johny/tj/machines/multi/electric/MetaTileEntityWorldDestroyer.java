@@ -108,9 +108,9 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gregtech.multiblock.elite_large_miner.description", type.chunk, type.chunk, type.fortuneString));
+        tooltip.add(I18n.format("tj.multiblock.elite_large_miner.description", type.chunk, type.chunk, type.fortuneString));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", type.drillingFluidConsumePerTick, I18n.format(DrillingFluid.getFluid(0).getUnlocalizedName())));
-        tooltip.add(I18n.format("gregtech.multiblock.elite_large_miner.chunk.info"));
+        tooltip.add(I18n.format("tj.multiblock.elite_large_miner.chunk.info"));
     }
 
     @Override
@@ -120,19 +120,19 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                 if (!playerIn.isSneaking()) {
                     if (chunkArea < chunkAreaLimit) {
                         chunkArea++;
-                        playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.elite_large_miner.chunk.increase")
+                        playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.elite_large_miner.chunk.increase")
                                 .appendSibling(new TextComponentString(" " + chunkArea + "x" + chunkArea).setStyle(new Style().setColor(TextFormatting.YELLOW))));
                     } else {
-                        playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.elite_large_miner.chunk.max")
+                        playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.elite_large_miner.chunk.max")
                                 .appendSibling(new TextComponentString(" " + chunkArea + "x" + chunkArea).setStyle(new Style().setColor(TextFormatting.YELLOW))));
                     }
                 } else {
                     if (chunkArea > 1) {
                         chunkArea--;
-                        playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.elite_large_miner.chunk.decrease")
+                        playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.elite_large_miner.chunk.decrease")
                                 .appendSibling(new TextComponentString(" " + chunkArea + "x" + chunkArea).setStyle(new Style().setColor(TextFormatting.YELLOW))));
                     } else {
-                        playerIn.sendMessage(new TextComponentTranslation("gregtech.multiblock.elite_large_miner.chunk.min")
+                        playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.elite_large_miner.chunk.min")
                                 .appendSibling(new TextComponentString(" " + chunkArea + "x" + chunkArea).setStyle(new Style().setColor(TextFormatting.YELLOW))));
                     }
                 }

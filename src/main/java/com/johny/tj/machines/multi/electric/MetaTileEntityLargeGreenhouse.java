@@ -74,7 +74,7 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("gregtech.mulitblock.greenhouse.treemode"));
+        tooltip.add(I18n.format("tj.mulitblock.greenhouse.treemode"));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.largeGreenhouse.eutPercentageTree / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.largeGreenhouse.durationPercentageTree / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeGreenhouse.stackTree));

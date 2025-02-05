@@ -70,60 +70,60 @@ tj.machine.energy_output_256_umv.name=Energy Output Hatch 256 Amps (UMV)
 tj.machine.energy_output_256_uxv.name=Energy Output Hatch 256 Amps (UXV)
 tj.machine.energy_output_256_max.name=Energy Output Hatch 256 Amps (MAX)
 
-gregtech.multiblock.running=Running
+tj.multiblock.large_boiler.item_display=Current Item Processed:
+tj.multiblock.large_boiler.clear_item=Clear Item:
+tj.multiblock.large_boiler.items_process_hover=Current Items going to be processed. Will start when boiler reaches max capacity
+tj.multiblock.large_boiler.insert_item=Insert Item
+tj.multiblock.large_boiler.insert_burnable=Insert Burnable
 
-gregtech.multiblock.large_boiler.item_display=Current Item Processed:
-gregtech.multiblock.large_boiler.clear_item=Clear Item:
-gregtech.multiblock.large_boiler.items_process_hover=Current Items going to be processed. Will start when boiler reaches max capacity
-gregtech.multiblock.large_boiler.insert_item=Insert Item
+tj.multiblock.extreme_turbine.norotor=No Rotor
+tj.multiblock.extreme_turbine.insertrotor=Insert Rotor
+tj.multiblock.extreme_turbine.name=Name:
+tj.multiblock.extreme_turbine.speed=Speed:
+tj.multiblock.extreme_turbine.efficiency=Efficiency:
+tj.multiblock.extreme_turbine.durability=Durability:
+tj.multiblock.extreme_turbine.fast_mode=Fast Mode:
+tj.multiblock.extreme_turbine.fast_mode.true=ON
+tj.multiblock.extreme_turbine.fast_mode.false=OFF
+tj.multiblock.extreme_turbine.energy=Outputting:
+tj.multiblock.extreme_turbine.hover.name=Rotor:
+tj.multiblock.extreme_turbine.hover.speed=Roter Speed:
+tj.multiblock.extreme_turbine=-
 
-gregtech.multiblock.extreme_turbine.norotor=No Rotor
-gregtech.multiblock.extreme_turbine.insertrotor=Insert Rotor
-gregtech.multiblock.extreme_turbine.name=Name:
-gregtech.multiblock.extreme_turbine.speed=Speed:
-gregtech.multiblock.extreme_turbine.efficiency=Efficiency:
-gregtech.multiblock.extreme_turbine.durability=Durability:
-gregtech.multiblock.extreme_turbine.fast_mode=Fast Mode:
-gregtech.multiblock.extreme_turbine.fast_mode.true=ON
-gregtech.multiblock.extreme_turbine.fast_mode.false=OFF
-gregtech.multiblock.extreme_turbine.energy=Outputting:
-gregtech.multiblock.extreme_turbine.hover.name=Rotor:
-gregtech.multiblock.extreme_turbine.hover.speed=Roter Speed:
-gregtech.multiblock.extreme_turbine=-
-
-gregtech.multiblock.industrial_fusion_reactor.message=Parallel: §e%d§7
-gregtech.multiblock.industrial_fusion_reactor.message.1=Increased slices to:
-gregtech.multiblock.industrial_fusion_reactor.message.2=Decreased slices to:
-gregtech.multiblock.industrial_fusion_reactor.message.3=Already reached minimum slices:
-gregtech.multiblock.industrial_fusion_reactor.message.4=Already reached maximum slices:
+tj.multiblock.industrial_fusion_reactor.message=Parallel: §e%d§7
+tj.multiblock.industrial_fusion_reactor.message.1=Increased slices to:
+tj.multiblock.industrial_fusion_reactor.message.2=Decreased slices to:
+tj.multiblock.industrial_fusion_reactor.message.3=Already reached minimum slices:
+tj.multiblock.industrial_fusion_reactor.message.4=Already reached maximum slices:
 tj.multiblock.industrial_fusion_reactor.slices=Number of slices
 tj.multiblock.industrial_fusion_reactor.overclock.1=Duration / 2
 tj.multiblock.industrial_fusion_reactor.overclock.2=Energy * 2
 tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
 
-gregtech.multiblock.parallel_large_chemical_reactor.eu=EU/t:
-gregtech.multiblock.parallel_large_chemical_reactor.progress=Progress:
-gregtech.multiblock.parallel_large_chemical_reactor.status=Status:
-gregtech.multiblock.parallel_large_chemical_reactor.lock=[Locked]
-gregtech.multiblock.parallel_large_chemical_reactor.unlock=[Unlocked]
+tj.multiblock.parallel.eu=EU/t:
+tj.multiblock.parallel.progress=Progress:
+tj.multiblock.parallel.status=Status:
+tj.multiblock.parallel.lock=[Locked]
+tj.multiblock.parallel.unlock=[Unlocked]
 
-gregtech.multiblock.elite_large_miner.restart=Can Restart:
-gregtech.multiblock.elite_large_miner.restart.true=Yes
-gregtech.multiblock.elite_large_miner.restart.false=No
-gregtech.multiblock.elite_large_miner.chunk.info=Use Hard Hammer to set chunk area. Right-Click to increase, Shift-Right-Click to decrease. Upgrade motor block to increase maximum chunk area limit.
-gregtech.multiblock.elite_large_miner.chunk.increase=Increased chunk to:
-gregtech.multiblock.elite_large_miner.chunk.decrease=Decreased chunk to:
-gregtech.multiblock.elite_large_miner.chunk.max=Already reached maximum chunk area at:
-gregtech.multiblock.elite_large_miner.chunk.min=Already reached minimum chunk area at:
-gregtech.multiblock.elite_large_miner.description=Mines all blocks in an area of %dx%d Chunks base. Can creatively mine ore as if it was using a pickaxe with fortune %s
+tj.multiblock.elite_large_miner.restart=Can Restart:
+tj.multiblock.elite_large_miner.restart.true=Yes
+tj.multiblock.elite_large_miner.restart.false=No
+tj.multiblock.elite_large_miner.chunk.info=Use Hard Hammer to set chunk area. Right-Click to increase, Shift-Right-Click to decrease. Upgrade motor block to increase maximum chunk area limit.
+tj.multiblock.elite_large_miner.chunk.increase=Increased chunk to:
+tj.multiblock.elite_large_miner.chunk.decrease=Decreased chunk to:
+tj.multiblock.elite_large_miner.chunk.max=Already reached maximum chunk area at:
+tj.multiblock.elite_large_miner.chunk.min=Already reached minimum chunk area at:
+tj.multiblock.elite_large_miner.description=Mines all blocks in an area of %dx%d Chunks base. Can creatively mine ore as if it was using a pickaxe with fortune %s
 
-gregtech.mulitblock.greenhouse.treemode=[Tree Mode]
+tj.mulitblock.greenhouse.treemode=[Tree Mode]
 
 recipemap.primitive_alloy.name=Primitive Alloy Smelter
 recipemap.heat_exchanger.name=Heat Exchanger
 recipemap.coke_oven_2.name=Coke Oven
 recipemap.greenhouse_tree.name=Green House Tree Recipes
 recipemap.architect.name=Architecture Recipes
+recipemap.rock_breaker.name=Rock Breaker
 
 material.pahoehoe=Pahoehoe Lava
 material.draconium=Draconium
@@ -139,6 +139,7 @@ tj.multiblock.large_powered_spawner.description=Large version of Powered Spawner
 tj.multiblock.large_vial_processor.description=Larger version of the LV vial processor. Turns vials into Loot.
 tj.multiblock.industrial_fusion_reactor.description=A compact fusion reactor capable of doing parallels. Each new slice increments parallel by 1. Use screwdriver to increase or decrease slices. Right-Click to increment, Shift-Right-Click to decrement. Overclocks are based on Energy To Start.
 tj.multiblock.large_world_accelerator.description=Tick accelerates blocks by sending them more updates. Effectively increasing their speed. Comes with 3 modes.
+tj.multiblock.large_rock_breaker.description=Generates stone from interaction of 2 fluids. Max Parallels can be increased by extending the machine
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
