@@ -32,7 +32,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityChaosReplicator CHAOS_REPLICATOR;
     public static MetaTileEntityLargePoweredSpawner LARGE_POWERED_SPAWNER;
     public static MetaTileEntityLargeVialProcessor LARGE_VIAL_PROCESSOR;
-    public static MetaTileEntityMegaBoiler MEGA_TUNGSTENSTEEL_BOILER;
+    public static MetaTileEntityMegaBoiler[] MEGA_BOILER = new MetaTileEntityMegaBoiler[4];
     public static MetaTileEntityXLTurbine XL_STEAM_TURBINE;
     public static MetaTileEntityXLTurbine XL_GAS_TURBINE;
     public static MetaTileEntityXLTurbine XL_PLASMA_TURBINE;
@@ -71,9 +71,7 @@ public class TJMetaTileEntities {
             LARGE_VIAL_PROCESSOR = GregTechAPI.registerMetaTileEntity(4202, new MetaTileEntityLargeVialProcessor(gregtechId("large_vial_processor")));
         }
 
-        MEGA_COKE_OVEN = GregTechAPI.registerMetaTileEntity(32000, new MetaTileEntityMegaCokeOven(TJId("mega_coke_oven")));
-        MEGA_TUNGSTENSTEEL_BOILER = GregTechAPI.registerMetaTileEntity(4205, new MetaTileEntityMegaBoiler(TJId("mega_boiler"), MetaTileEntityLargeBoiler.BoilerType.TUNGSTENSTEEL, 256));
-
+        MEGA_COKE_OVEN = GregTechAPI.registerMetaTileEntity(4205, new MetaTileEntityMegaCokeOven(TJId("mega_coke_oven")));
         XL_STEAM_TURBINE = GregTechAPI.registerMetaTileEntity(4206, new MetaTileEntityXLTurbine(TJId("xl_turbine.steam"), MetaTileEntityLargeTurbine.TurbineType.STEAM));
         XL_GAS_TURBINE = GregTechAPI.registerMetaTileEntity(4207, new MetaTileEntityXLTurbine(TJId("xl_turbine.gas"), MetaTileEntityLargeTurbine.TurbineType.GAS));
         XL_PLASMA_TURBINE = GregTechAPI.registerMetaTileEntity(4208, new MetaTileEntityXLTurbine(TJId("xl_turbine.plasma"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
@@ -99,6 +97,11 @@ public class TJMetaTileEntities {
         LARGE_ARCHITECT_WORKBENCH = GregTechAPI.registerMetaTileEntity(5015, new MetaTileEntityLargeArchitectWorkbench(TJId("large_architect_workbench"), TJRecipeMaps.ARCHITECT_RECIPES));
         LARGE_WORLD_ACCELERATOR = GregTechAPI.registerMetaTileEntity(5052, new MetaTileEntityLargeWorldAccelerator(TJId("large_world_accelerator")));
         LARGE_ROCK_BREAKER = GregTechAPI.registerMetaTileEntity(5053, new MetaTileEntityLargeRockBreaker(TJId("large_rock_breaker")));
+
+        MEGA_BOILER[0] = GregTechAPI.registerMetaTileEntity(5054, new MetaTileEntityMegaBoiler(TJId("mega_bronze_boiler"), MetaTileEntityLargeBoiler.BoilerType.BRONZE, 256));
+        MEGA_BOILER[1] = GregTechAPI.registerMetaTileEntity(5055, new MetaTileEntityMegaBoiler(TJId("mega_steel_boiler"), MetaTileEntityLargeBoiler.BoilerType.STEEL, 256));
+        MEGA_BOILER[2] = GregTechAPI.registerMetaTileEntity(5056, new MetaTileEntityMegaBoiler(TJId("mega_titanium_boiler"), MetaTileEntityLargeBoiler.BoilerType.TITANIUM, 256));
+        MEGA_BOILER[3] = GregTechAPI.registerMetaTileEntity(5057, new MetaTileEntityMegaBoiler(TJId("mega_tungstensteel_boiler"), MetaTileEntityLargeBoiler.BoilerType.TUNGSTENSTEEL, 256));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

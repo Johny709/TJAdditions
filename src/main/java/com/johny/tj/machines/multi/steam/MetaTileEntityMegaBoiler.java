@@ -4,6 +4,8 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IFuelInfo;
@@ -15,7 +17,6 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
-import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
@@ -55,7 +56,7 @@ import java.util.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 
-public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implements IFuelable {
+public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IFuelable {
 
     private static final int CONSUMPTION_MULTIPLIER = 100;
     private static final int BOILING_TEMPERATURE = 100;
@@ -140,10 +141,9 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
             buttonText.appendText(" ");
             buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
             textList.add(buttonText);
-
             ITextComponent itemDisplayText;
             if (!isActive) {
-                itemDisplayText = new TextComponentString(I18n.format(currentItemProcessed) + " (" + currentItemsEngaged + "/" + MAX_PROCESSES + ")");
+                itemDisplayText = new TextComponentTranslation(currentItemProcessed + ".name").appendSibling(new TextComponentString(" (" + currentItemsEngaged + "/" + MAX_PROCESSES + ")"));
                 withHoverTextTranslate(itemDisplayText, "tj.multiblock.large_boiler.items_process_hover");
             }
             else {
@@ -274,10 +274,10 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
             ItemStack itemStack = itemImportInventory.getStackInSlot(slotIndex);
             int fuelBurnValue = (int) Math.ceil(TileEntityFurnace.getItemBurnTime(itemStack) / (50.0 * boilerType.fuelConsumptionMultiplier * getThrottleMultiplier()));
             if (fuelBurnValue > 0 ) {
-                if (currentItemProcessed.equals("Insert Burnable")) {
-                    currentItemProcessed = itemStack.getDisplayName();
+                if (currentItemProcessed.equals("tj.multiblock.large_boiler.insert_burnable")) {
+                    currentItemProcessed = itemStack.getTranslationKey();
                 }
-                if (itemStack.getDisplayName().equals(currentItemProcessed)) {
+                if (itemStack.getTranslationKey().equals(currentItemProcessed)) {
                     currentItemsEngaged += itemStack.getCount();
                     if (currentItemsEngaged >= MAX_PROCESSES) {
                         int takeAmountFromStack = Math.abs((currentItemsEngaged - MAX_PROCESSES) - itemStack.getCount());
@@ -306,6 +306,8 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
         data.setInteger("FuelBurnTicksLeft", fuelBurnTicksLeft);
         data.setBoolean("HasNoWater", hasNoWater);
         data.setInteger("ThrottlePercentage", throttlePercentage);
+        data.setString("CurrentItemProcessed", currentItemProcessed);
+        data.setInteger("CurrentItemsEngaged", currentItemsEngaged);
         return data;
     }
 
@@ -315,6 +317,10 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
         this.currentTemperature = data.getInteger("CurrentTemperature");
         this.fuelBurnTicksLeft = data.getInteger("FuelBurnTicksLeft");
         this.hasNoWater = data.getBoolean("HasNoWater");
+        if (data.hasKey("CurrentItemProcessed")) {
+            this.currentItemProcessed = data.getString("CurrentItemProcessed");
+        }
+        this.currentItemsEngaged = data.getInteger("CurrentItemsEngaged");
         if(data.hasKey("ThrottlePercentage")) {
             this.throttlePercentage = data.getInteger("ThrottlePercentage");
         }
@@ -402,7 +408,7 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
                 .where('S', selfPredicate())
                 .where('P', statePredicate(boilerType.pipeState))
                 .where('X', state -> statePredicate(GTUtility.getAllPropertyValues(boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
-                        .or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS)).test(state))
+                        .or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.MAINTENANCE_HATCH)).test(state))
                 .where('C', statePredicate(boilerType.casingState).or(abilityPartPredicate(
                         MultiblockAbility.EXPORT_FLUIDS)))
                 .build();
@@ -539,7 +545,7 @@ public class MetaTileEntityMegaBoiler extends MultiblockWithDisplayBase implemen
             ItemStack itemStack = itemImportInventory.getStackInSlot(slotIndex);
             final long burnTime = (int) Math.ceil(TileEntityFurnace.getItemBurnTime(itemStack) / (50.0 * this.boilerType.fuelConsumptionMultiplier * MAX_PROCESSES * getThrottleMultiplier()));
             if (burnTime > 0) {
-                ItemFuelInfo itemFuelInfo = (ItemFuelInfo) fuels.get(itemStack.getDisplayName());
+                ItemFuelInfo itemFuelInfo = (ItemFuelInfo) fuels.get(itemStack.getTranslationKey());
                 if (itemFuelInfo == null) {
                     itemFuelInfo = new ItemFuelInfo(itemStack, itemStack.getCount(), itemCapacity, 1, itemStack.getCount() * burnTime);
                     fuels.put(itemStack.getDisplayName(), itemFuelInfo);

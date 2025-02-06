@@ -14,8 +14,10 @@ import gregtech.api.unification.material.type.Material;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import net.minecraft.init.Blocks;
 
+import static com.johny.tj.machines.TJMetaTileEntities.COKE_OVEN;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static com.johny.tj.materials.TJMaterials.PahoehoeLava;
 import static gregicadditions.GAMaterials.*;
@@ -25,24 +27,27 @@ import static gregicadditions.recipes.GARecipeMaps.ASSEMBLY_LINE_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
 import static gregtech.api.unification.material.Materials.*;
-import static gregtech.common.metatileentities.MetaTileEntities.LARGE_TUNGSTENSTEEL_BOILER;
+import static gregtech.common.metatileentities.MetaTileEntities.*;
 
 public class AssemblingRecipes {
 
     public static Material[][] materialTier = {{Steel, Aluminium, StainlessSteel, Titanium, TungstenSteel, RhodiumPlatedPalladium, IngotMaterial.MATERIAL_REGISTRY.getObject("star_metal_alloy"), Tritanium, Seaborgium, Bohrium, Adamantium, Vibranium, HeavyQuarkDegenerateMatter, Neutronium},
                                                 {IngotMaterial.MATERIAL_REGISTRY.getObject("lv_superconductor"), MVSuperconductor, HVSuperconductor, EVSuperconductor, IVSuperconductor, LuVSuperconductor, ZPMSuperconductor, UVSuperconductor, UHVSuperconductor, UEVSuperconductor, UIVSuperconductor, UMVSuperconductor, UXVSuperconductor, MarkerMaterials.Tier.Superconductor}};
+    public static MetaTileEntityLargeBoiler[] boilerType = {LARGE_BRONZE_BOILER, LARGE_STEEL_BOILER, LARGE_TITANIUM_BOILER, LARGE_TUNGSTENSTEEL_BOILER};
 
     public static void assemblerRecipes() {
 
-        ASSEMBLER_RECIPES.recipeBuilder()
-                .inputs(LARGE_TUNGSTENSTEEL_BOILER.getStackForm(64))
-                .inputs(LARGE_TUNGSTENSTEEL_BOILER.getStackForm(64))
-                .inputs(LARGE_TUNGSTENSTEEL_BOILER.getStackForm(64))
-                .inputs(LARGE_TUNGSTENSTEEL_BOILER.getStackForm(64))
-                .outputs(MEGA_TUNGSTENSTEEL_BOILER.getStackForm(1))
-                .EUt(7680)
-                .duration(1200)
-                .buildAndRegister();
+        for (int i = 0; i < boilerType.length; i++) {
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .inputs(boilerType[i].getStackForm(64))
+                    .inputs(boilerType[i].getStackForm(64))
+                    .inputs(boilerType[i].getStackForm(64))
+                    .inputs(boilerType[i].getStackForm(64))
+                    .outputs(MEGA_BOILER[i].getStackForm(1))
+                    .EUt(GAValues.VA[2 + i])
+                    .duration(1200)
+                    .buildAndRegister();
+        }
 
         ASSEMBLER_RECIPES.recipeBuilder()
                 .input(OrePrefix.plate, Duranium, 6)

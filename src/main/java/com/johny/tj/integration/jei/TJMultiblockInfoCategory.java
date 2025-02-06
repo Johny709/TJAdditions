@@ -5,6 +5,7 @@ import com.johny.tj.TJ;
 import com.johny.tj.TJConfig;
 import com.johny.tj.integration.jei.multi.*;
 import com.johny.tj.machines.TJMetaTileEntities;
+import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.integration.jei.multiblock.MultiblockInfoRecipeWrapper;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.IJeiHelpers;
@@ -44,24 +45,28 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                                 .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
                     }
 
-                    multiblockRecipes.put("mega_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo()))
-                    .put("xl_turbine.steam", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_STEAM_TURBINE)))
-                    .put("xl_turbine.gas", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_GAS_TURBINE)))
-                    .put("xl_turbine.plasma", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_PLASMA_TURBINE)))
-                    .put("xl_turbine.coolant", new MultiblockInfoRecipeWrapper(new XLHotCoolantTurbineInfo(TJMetaTileEntities.XL_COOLANT_TURBINE)))
-                    .put("large_decay_chamber", new MultiblockInfoRecipeWrapper(new LargeDecayChamberInfo()))
-                    .put("large_alloy_smelter", new MultiblockInfoRecipeWrapper(new LargeAlloySmelterInfo()))
-                    .put("industrial_fusion_reactor.luv", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_LUV)))
-                    .put("industrial_fusion_reactor.zpm", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_ZPM)))
-                    .put("industrial_fusion_reactor.uv", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_UV)))
-                    .put("parallel_chemical_reactor", new MultiblockInfoRecipeWrapper(new ParallelChemicalReactorInfo()))
-                    .put("large_greenhouse", new MultiblockInfoRecipeWrapper(new LargeGreenhouseInfo()))
-                    .put("large_architect_workbench", new MultiblockInfoRecipeWrapper(new LargeArchitectWorkbenchInfo()))
-                    .put("elite_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ELITE_LARGE_MINER)))
-                    .put("ultimate_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ULTIMATE_LARGE_MINER)))
-                    .put("world_destroyer", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.WORLD_DESTROYER)))
-                    .put("large_world_accelerator", new MultiblockInfoRecipeWrapper(new LargeWorldAcceleratorInfo()))
-                    .put("large_rock_brealer", new MultiblockInfoRecipeWrapper(new LargeRockBreakerInfo()));
+                    multiblockRecipes
+                            .put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
+                            .put("mega_steel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.STEEL, TJMetaTileEntities.MEGA_BOILER[1])))
+                            .put("mega_titanium_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.TITANIUM, TJMetaTileEntities.MEGA_BOILER[2])))
+                            .put("mega_tungstensteel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.TUNGSTENSTEEL, TJMetaTileEntities.MEGA_BOILER[3])))
+                            .put("xl_turbine.steam", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_STEAM_TURBINE)))
+                            .put("xl_turbine.gas", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_GAS_TURBINE)))
+                            .put("xl_turbine.plasma", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_PLASMA_TURBINE)))
+                            .put("xl_turbine.coolant", new MultiblockInfoRecipeWrapper(new XLHotCoolantTurbineInfo(TJMetaTileEntities.XL_COOLANT_TURBINE)))
+                            .put("large_decay_chamber", new MultiblockInfoRecipeWrapper(new LargeDecayChamberInfo()))
+                            .put("large_alloy_smelter", new MultiblockInfoRecipeWrapper(new LargeAlloySmelterInfo()))
+                            .put("industrial_fusion_reactor.luv", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_LUV)))
+                            .put("industrial_fusion_reactor.zpm", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_ZPM)))
+                            .put("industrial_fusion_reactor.uv", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_UV)))
+                            .put("parallel_chemical_reactor", new MultiblockInfoRecipeWrapper(new ParallelChemicalReactorInfo()))
+                            .put("large_greenhouse", new MultiblockInfoRecipeWrapper(new LargeGreenhouseInfo()))
+                            .put("large_architect_workbench", new MultiblockInfoRecipeWrapper(new LargeArchitectWorkbenchInfo()))
+                            .put("elite_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ELITE_LARGE_MINER)))
+                            .put("ultimate_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ULTIMATE_LARGE_MINER)))
+                            .put("world_destroyer", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.WORLD_DESTROYER)))
+                            .put("large_world_accelerator", new MultiblockInfoRecipeWrapper(new LargeWorldAcceleratorInfo()))
+                            .put("large_rock_brealer", new MultiblockInfoRecipeWrapper(new LargeRockBreakerInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;
