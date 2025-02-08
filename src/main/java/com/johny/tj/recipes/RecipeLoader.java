@@ -10,6 +10,7 @@ import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.common.metatileentities.electric.MetaTileEntityAirCollector;
 import gregtech.loaders.recipe.CraftingComponent;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -18,6 +19,7 @@ import net.minecraft.item.ItemStack;
 
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
+import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
 import static gregtech.api.recipes.RecipeMaps.ALLOY_SMELTER_RECIPES;
 import static gregtech.api.unification.material.Materials.*;
 
@@ -98,6 +100,14 @@ public class RecipeLoader {
                 'G', GAMetaBlocks.TRANSPARENT_CASING.getItemVariant(GATransparentCasing.CasingType.CHROME_GLASS),
                 'B', MetaItems.COMPONENT_GRINDER_TUNGSTEN.getStackForm());
 
+        for (int i = 0; i < AIR_COLLECTORS.length; i++) {
+            ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTOR[i].getStackForm(), "CRC", "RSR", "PRP",
+                    'C', CraftingComponent.CIRCUIT.getIngredient(5 + i),
+                    'R', CraftingComponent.ROTOR.getIngredient(5 + i),
+                    'S', AIR_COLLECTORS[i].getStackForm(),
+                    'P', CraftingComponent.PIPE.getIngredient(5 + i));
+        }
+
         ModHandler.addShapedRecipe("duranium_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.DURANIUM_CASING, 3), "PhP", "PFP", "PwP",
                 'P', new UnificationEntry(OrePrefix.plate, Duranium),
                 'F', new UnificationEntry(OrePrefix.frameGt, Duranium));
@@ -111,4 +121,6 @@ public class RecipeLoader {
                 'F', new UnificationEntry(OrePrefix.frameGt, TungstenTitaniumCarbide));
 
     }
+
+    public static MetaTileEntityAirCollector[] AIR_COLLECTORS = {MetaTileEntities.AIR_COLLECTOR[3], AIR_COLLECTOR[4], AIR_COLLECTOR[5]};
 }

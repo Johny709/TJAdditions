@@ -32,6 +32,9 @@ tj.machine.ultimate_large_miner.name=Ultimate Large Miner (ULM)
 tj.machine.world_destroyer.name=World Destroyer
 tj.machine.large_world_accelerator.name=Large World Accelerator
 tj.machine.large_rock_breaker.name=Large Rock Breaker
+tj.machine.steam_air_collector_turbine.name=Large Atmosphere Collector (Steam)
+tj.machine.gas_air_collector_turbine.name=Large Atmosphere Collector (Gas)
+tj.machine.plasma_air_collector_turbine.name=Large Atmosphere Collector (Plasma)
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -143,6 +146,7 @@ tj.multiblock.large_vial_processor.description=Larger version of the LV vial pro
 tj.multiblock.industrial_fusion_reactor.description=A compact fusion reactor capable of doing parallels. Each new slice increments parallel by 1. Use screwdriver to increase or decrease slices. Right-Click to increment, Shift-Right-Click to decrement. Overclocks are based on Energy To Start.
 tj.multiblock.large_world_accelerator.description=Tick accelerates blocks by sending them more updates. Effectively increasing their speed. Comes with 3 modes.
 tj.multiblock.large_rock_breaker.description=Generates stone from interaction of 2 fluids. Max Parallels can be increased by extending the machine
+tj.multiblock.large_atmosphere_collector.description=Collects lots of air every second. Works like large turbines but outputs air instead
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7

@@ -5,7 +5,8 @@ import com.johny.tj.TJ;
 import com.johny.tj.TJConfig;
 import com.johny.tj.integration.jei.multi.*;
 import com.johny.tj.machines.TJMetaTileEntities;
-import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
+import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler.BoilerType;
+import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine.TurbineType;
 import gregtech.integration.jei.multiblock.MultiblockInfoRecipeWrapper;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.IJeiHelpers;
@@ -17,7 +18,6 @@ import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.gui.recipes.RecipeLayout;
 import net.minecraft.client.resources.I18n;
-
 
 public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoRecipeWrapper> {
     private final IDrawable background;
@@ -46,10 +46,10 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                     }
 
                     multiblockRecipes
-                            .put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
-                            .put("mega_steel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.STEEL, TJMetaTileEntities.MEGA_BOILER[1])))
-                            .put("mega_titanium_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.TITANIUM, TJMetaTileEntities.MEGA_BOILER[2])))
-                            .put("mega_tungstensteel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(MetaTileEntityLargeBoiler.BoilerType.TUNGSTENSTEEL, TJMetaTileEntities.MEGA_BOILER[3])))
+                            .put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
+                            .put("mega_steel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.STEEL, TJMetaTileEntities.MEGA_BOILER[1])))
+                            .put("mega_titanium_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.TITANIUM, TJMetaTileEntities.MEGA_BOILER[2])))
+                            .put("mega_tungstensteel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.TUNGSTENSTEEL, TJMetaTileEntities.MEGA_BOILER[3])))
                             .put("xl_turbine.steam", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_STEAM_TURBINE)))
                             .put("xl_turbine.gas", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_GAS_TURBINE)))
                             .put("xl_turbine.plasma", new MultiblockInfoRecipeWrapper(new XLTurbineInfo(TJMetaTileEntities.XL_PLASMA_TURBINE)))
@@ -66,7 +66,10 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("ultimate_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ULTIMATE_LARGE_MINER)))
                             .put("world_destroyer", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.WORLD_DESTROYER)))
                             .put("large_world_accelerator", new MultiblockInfoRecipeWrapper(new LargeWorldAcceleratorInfo()))
-                            .put("large_rock_brealer", new MultiblockInfoRecipeWrapper(new LargeRockBreakerInfo()));
+                            .put("large_rock_breaker", new MultiblockInfoRecipeWrapper(new LargeRockBreakerInfo()))
+                            .put("steam_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.STEAM, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[0])))
+                            .put("gas_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.GAS, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[1])))
+                            .put("plasma_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.PLASMA, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[2])));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;
