@@ -41,19 +41,17 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic {
         if (!rotorHolder.isHasRotor()) {
             setActive(false);
         }
-        if (largeTurbine.getOffsetTimer() % 20 == 0) {
-            long totalAirOutput = getRecipeOutputVoltage();
-            IFluidTank fluidTank = null;
-            if (largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).size() > 1) {
-                fluidTank = largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).get(1);
-            } else {
-                fluidTank = largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).get(0);
-            }
-            if (totalAirOutput > 0) {
-                FluidStack fluidStack = Materials.Air.getFluid((int) totalAirOutput);
-                if (fluidTank != null) {
-                    fluidTank.fill(fluidStack, true);
-                }
+        long totalAirOutput = getRecipeOutputVoltage();
+        IFluidTank fluidTank;
+        if (largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).size() > 1) {
+            fluidTank = largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).get(1);
+        } else {
+            fluidTank = largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).get(0);
+        }
+        if (totalAirOutput > 0) {
+            FluidStack fluidStack = Materials.Air.getFluid((int) totalAirOutput);
+            if (fluidTank != null) {
+                fluidTank.fill(fluidStack, true);
             }
         }
     }

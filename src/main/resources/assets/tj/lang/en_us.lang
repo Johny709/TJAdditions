@@ -35,6 +35,7 @@ tj.machine.large_rock_breaker.name=Large Rock Breaker
 tj.machine.steam_air_collector_turbine.name=Large Atmosphere Collector (Steam)
 tj.machine.gas_air_collector_turbine.name=Large Atmosphere Collector (Gas)
 tj.machine.plasma_air_collector_turbine.name=Large Atmosphere Collector (Plasma)
+tj.machine.infinite_fluid_drill.name=Infinite Fluid Drilling Plant
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -123,6 +124,10 @@ tj.multiblock.elite_large_miner.chunk.min=Already reached minimum chunk area at:
 tj.multiblock.elite_large_miner.description=Mines all blocks in an area of %dx%d Chunks base. Can creatively mine ore as if it was using a pickaxe with fortune %s
 
 tj.mulitblock.greenhouse.treemode=[Tree Mode]
+tj.multiblock.drilling_rig.voltage=Requires §d%s§7 voltage or higher. Overclocks up to §d%s§7.
+tj.multiblock.drilling_rig_drilling_mud.input=Fluid Input: %dmB/sec
+tj.multiblock.drilling_rig_drilling_mud.output=Fluid Output: %dmB/sec
+tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%dmB§7 Drilling Mud and outputs §c%dmB§7 Used Drilling Mud per second.
 
 recipemap.primitive_alloy.name=Primitive Alloy Smelter
 recipemap.heat_exchanger.name=Heat Exchanger
@@ -153,7 +158,8 @@ tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
 tj.multiblock.tab.display=Multiblock Display
 tj.multiblock.tab.filter=Filter
 tj.multiblock.tab.maintenance=Maintenance
-tj.multiblock.not_enough_fluid=WARNING: not enough fluid
+tj.multiblock.not_enough_fluid=WARNING: not enough fluid %d
+tj.multiblock.not_enough_fluid.space=WARNING: not enough space for fluid %d
 tj.multiblock.enough_fluid=Consuming:
 tj.multiblock.turbine.tooltip.efficiency=[Fuel Efficiency]
 tj.multiblock.turbine.tooltip.efficiency.normal=Normal: §e%d§7

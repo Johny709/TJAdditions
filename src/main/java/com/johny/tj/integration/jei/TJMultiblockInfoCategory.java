@@ -69,7 +69,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("large_rock_breaker", new MultiblockInfoRecipeWrapper(new LargeRockBreakerInfo()))
                             .put("steam_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.STEAM, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[0])))
                             .put("gas_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.GAS, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[1])))
-                            .put("plasma_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.PLASMA, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[2])));
+                            .put("plasma_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.PLASMA, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[2])))
+                            .put("infinite_fluid_drill", new MultiblockInfoRecipeWrapper(new InfiniteFluidDrillInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;
