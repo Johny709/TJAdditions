@@ -88,9 +88,9 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         int drillingMud = (int) Math.pow(4, (9 - GAValues.EV)) * 20;
-        int outputFluid = (int) Math.pow(4, (tier - GAValues.EV)) * 1000;
+        int outputFluid = (int) Math.pow(4, (9 - GAValues.EV)) * 1000;
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.1"));
-        tooltip.add(I18n.format("tj.multiblock.drilling_rig.voltage", GAValues.VN[10], GAValues.VN[15]));
+        tooltip.add(I18n.format("tj.multiblock.drilling_rig.voltage", GAValues.VN[9], GAValues.VN[14]));
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.void.2"));
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.4", outputFluid, GAValues.VN[9]));
         tooltip.add(I18n.format("tj.multiblock.drilling_rig.tooltip.drilling_mud", drillingMud, drillingMud));
@@ -102,24 +102,24 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
         if (!isStructureFormed())
             return;
 
-        if (veinFluid != null) {
-            textList.add(hasEnoughEnergy(maxVoltage) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage)
-                    : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
-                    .setStyle(new Style().setColor(TextFormatting.RED)));
-            textList.add(hasEnoughFluid(drillingMudAmount) ? new TextComponentTranslation("tj.multiblock.drilling_rig_drilling_mud.input", drillingMudAmount)
-                    : new TextComponentTranslation("tj.multiblock.not_enough_fluid", DrillingMud.getFluid(drillingMudAmount).getLocalizedName()));
-            textList.add(canFillFluidExport(outputVeinFluidAmount, drillingMudAmount) ? new TextComponentTranslation("gtadditions.multiblock.drilling_rig.rig_production", outputVeinFluidAmount)
-                    : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", DrillingMud.fluid.getName()));
-            textList.add(canFillFluidExport(outputVeinFluidAmount, drillingMudAmount) ? new TextComponentTranslation("tj.multiblock.drilling_rig_drilling_mud.output", drillingMudAmount)
-                    : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", veinFluid.getName()));
-            textList.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.fluid", veinFluid.getName()));
-            textList.add(isWorkingEnabled ? (isActive ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
-                    : new TextComponentTranslation("gregtech.multiblock.idling"))
-                    : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
-        } else {
+        if (veinFluid == null) {
             textList.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(TextFormatting.RED)));
+            return;
         }
 
+        textList.add(hasEnoughEnergy(maxVoltage) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage)
+                : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+        textList.add(hasEnoughFluid(drillingMudAmount) ? new TextComponentTranslation("tj.multiblock.drilling_rig_drilling_mud.input", drillingMudAmount)
+                : new TextComponentTranslation("tj.multiblock.not_enough_fluid", DrillingMud.getFluid(drillingMudAmount).getLocalizedName()));
+        textList.add(canFillFluidExport(outputVeinFluidAmount, drillingMudAmount) ? new TextComponentTranslation("gtadditions.multiblock.drilling_rig.rig_production", outputVeinFluidAmount)
+                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", DrillingMud.fluid.getName()));
+        textList.add(canFillFluidExport(outputVeinFluidAmount, drillingMudAmount) ? new TextComponentTranslation("tj.multiblock.drilling_rig_drilling_mud.output", drillingMudAmount)
+                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", veinFluid.getName()));
+        textList.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.fluid", veinFluid.getName()));
+        textList.add(isWorkingEnabled ? (isActive ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
+                : new TextComponentTranslation("gregtech.multiblock.idling"))
+                : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
     }
 
     @Override
