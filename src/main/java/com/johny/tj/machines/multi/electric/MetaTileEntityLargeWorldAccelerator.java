@@ -312,7 +312,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 data.setDouble("EntityLinkZ" + i, entityLinkBlockPos[i].getZ());
             }
         }
-        data.setBoolean("isWorking", isWorkingEnabled);
         data.setInteger("EnergyMultiplier", energyMultiplier);
         data.setInteger("AcceleratorMode", acceleratorMode.ordinal());
         data.setInteger("BlockPosSize", entityLinkBlockPos.length);
@@ -322,7 +321,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        isWorkingEnabled = data.getBoolean("isWorking");
         energyMultiplier = data.getInteger("EnergyModifier");
         acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
         entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
