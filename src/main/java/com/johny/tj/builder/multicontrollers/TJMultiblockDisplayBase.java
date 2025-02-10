@@ -2,13 +2,16 @@ package com.johny.tj.builder.multicontrollers;
 
 import com.johny.tj.gui.TJGuiTextures;
 import gregicadditions.machines.multi.GAMultiblockWithDisplayBase;
+import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IControllable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.capabilities.Capability;
 
 public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBase implements IControllable {
 
@@ -58,5 +61,13 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
             invalidateStructure();
             this.structurePattern = createStructurePattern();
         }
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE) {
+            return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
+        }
+        return super.getCapability(capability, side);
     }
 }
