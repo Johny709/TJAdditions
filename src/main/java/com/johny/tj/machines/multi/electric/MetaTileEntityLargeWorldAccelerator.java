@@ -6,7 +6,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.machines.LinkPos;
-import com.johny.tj.machines.TileAccelerator;
+import com.johny.tj.machines.acceleratorBlacklist;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -55,7 +55,7 @@ import java.util.stream.IntStream;
 
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements TileAccelerator, LinkPos {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements acceleratorBlacklist, LinkPos {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -65,15 +65,15 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     private IMultipleTankHandler importFluidHandler;
     private IEnergyContainer energyContainer;
     private int tier;
-    private int acceleratorTier;
+    private int gtAcceleratorTier;
     private int energyMultiplier = 1;
     private BlockPos[] entityLinkBlockPos;
+    private int fluidConsumption;
 
     public MetaTileEntityLargeWorldAccelerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
         this.acceleratorMode = AcceleratorMode.RANDOM_TICK;
         this.isWorkingEnabled = false;
-        this.entityLinkBlockPos = new BlockPos[6];
     }
 
     @Override
@@ -85,7 +85,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.large_world_accelerator.description"));
         tooltip.add("§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.entity") + "§r§e§l -> §r" + I18n.format("tj.multiblock.world_accelerator.mode.entity.description"));
-        tooltip.add("§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.tile") + "§r§e§l -> §r" + I18n.format("tj.multiblock.world_accelerator.mode.tile.description") + " " + entityLinkBlockPos.length);
+        tooltip.add("§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.tile") + "§r§e§l -> §r" + I18n.format("tj.multiblock.world_accelerator.mode.tile.description"));
         tooltip.add("§f§n" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT") + "§r§e§l -> §r" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT.description"));
     }
 
@@ -93,11 +93,13 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     protected void addDisplayText(List<ITextComponent> textList) {
         if (isStructureFormed()) {
             WorldServer world = (WorldServer) this.getWorld();
-            boolean hasEnoughEnergy = energyContainer.getEnergyStored() > energyPerTick;
             long maxVoltage = energyContainer.getInputVoltage();
-            textList.add(!hasEnoughEnergy ? new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
-                    .setStyle(new Style().setColor(TextFormatting.RED)) :
-                    new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage));
+            textList.add(hasEnoughEnergy(energyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage)
+                    : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
+                        .setStyle(new Style().setColor(TextFormatting.RED)));
+            textList.add(isWorkingEnabled ? (isActive ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
+                    : new TextComponentTranslation("gregtech.multiblock.idling"))
+                    : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
 
             switch (acceleratorMode) {
                 case TILE_ENTITY:
@@ -111,13 +113,12 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                     break;
 
                 case GT_TILE_ENTITY:
-                    FluidStack fluidStack = importFluidHandler.drain(UUMatter.getFluid(1000), false);
-                    textList.add(fluidStack != null && fluidStack.amount == 1000 ? new TextComponentTranslation("tj.multiblock.enough_fluid")
-                            .appendSibling(new TextComponentString(" " + fluidStack.getLocalizedName() + ": " + fluidStack.amount + "/t")
+                    textList.add(hasEnoughFluid(fluidConsumption) ? new TextComponentTranslation("tj.multiblock.enough_fluid")
+                            .appendSibling(new TextComponentString(" " + UUMatter.getLocalizedName() + ": " + fluidConsumption + "/t")
                                     .setStyle(new Style().setColor(TextFormatting.YELLOW))) :
                             new TextComponentTranslation("tj.multiblock.not_enough_fluid").setStyle(new Style().setColor(TextFormatting.RED)));
                     textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT"));
-                    if (acceleratorTier > 0) {
+                    if (gtAcceleratorTier > 0) {
                         textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
                                 .setStyle(new Style().setBold(true).setUnderlined(true)));
                         Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).forEach(blockPos -> textList.add(new TextComponentTranslation(BlockMachine.getMetaTileEntity(world, blockPos).getMetaFullName())
@@ -139,21 +140,20 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     protected void updateFormedValid() {
-        if (!getWorld().isRemote && getOffsetTimer() > 100) {
-            if (isWorkingEnabled) {
-                if (getNumProblems() < 6) {
-                    if (getOffsetTimer() % (1 + getNumProblems()) == 0) {
-                        if (energyContainer.getEnergyStored() < energyPerTick) {
-                            if (isActive)
-                                setActive(false);
-                            return;
-                        }
+        if (getOffsetTimer() > 100) {
+            if (!isWorkingEnabled) {
+                if (isActive)
+                    setActive(false);
+                return;
+            }
+            if (getNumProblems() < 6) {
+                if (getOffsetTimer() % (1 + getNumProblems()) == 0) {
+                    if (hasEnoughEnergy(energyPerTick)) {
                         if (!isActive)
                             setActive(true);
+
                         energyContainer.removeEnergy(energyPerTick);
-                        BlockPos worldAcceleratorPos = getPos().offset(getFrontFacing().getOpposite());
                         WorldServer world = (WorldServer) this.getWorld();
-                        BlockPos upperConner = worldAcceleratorPos.north(tier).east(tier);
                         switch (acceleratorMode) {
 
                             case TILE_ENTITY:
@@ -176,23 +176,24 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                                 return;
 
                             case GT_TILE_ENTITY:
-                                if (acceleratorTier < 1) {
+                                if (gtAcceleratorTier < 1) {
                                     return;
                                 }
-                                FluidStack fluidStack = importFluidHandler.drain(UUMatter.getFluid(1000), false);
-                                if (fluidStack != null && fluidStack.amount == 1000) {
-                                    importFluidHandler.drain(UUMatter.getFluid(1000), true);
+                                if (hasEnoughFluid(fluidConsumption)) {
+                                    importFluidHandler.drain(UUMatter.getFluid(fluidConsumption), true);
                                     if (entityLinkBlockPos[0] != null) {
                                         MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[0]);
-                                        if (targetGTTE == null || targetGTTE instanceof TileAccelerator) {
+                                        if (targetGTTE == null || targetGTTE instanceof acceleratorBlacklist) {
                                             return;
                                         }
-                                        IntStream.range(0, (int) Math.pow(2, acceleratorTier)).forEach(value -> targetGTTE.update());
+                                        IntStream.range(0, (int) Math.pow(2, gtAcceleratorTier)).forEach(value -> targetGTTE.update());
                                     }
                                 }
                                 return;
 
                             case RANDOM_TICK:
+                                BlockPos worldAcceleratorPos = getPos().offset(getFrontFacing().getOpposite());
+                                BlockPos upperConner = worldAcceleratorPos.north(tier).east(tier);
                                 for (int x = 0; x < getArea(); x++) {
                                     BlockPos row = upperConner.south(x);
                                     for (int y = 0; y < getArea(); y++) {
@@ -208,10 +209,22 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                                     }
                                 }
                         }
+                    } else {
+                        if (isActive)
+                            setActive(false);
                     }
                 }
             }
         }
+    }
+
+    private boolean hasEnoughEnergy(long amount) {
+        return energyContainer.getEnergyStored() >= amount;
+    }
+
+    private boolean hasEnoughFluid(int amount) {
+        FluidStack fluidStack = importFluidHandler.drain(UUMatter.getFluid(amount), false);
+        return fluidStack != null && fluidStack.amount == amount;
     }
 
     public int getArea() {
@@ -236,8 +249,9 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         FieldGenCasing.CasingType fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV);
         EmitterCasing.CasingType emitter = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV);
         tier = Math.min(fieldGen.getTier(), emitter.getTier());
-        acceleratorTier = tier - 9;
+        gtAcceleratorTier = tier - GAValues.UHV;
         energyPerTick = (long) (Math.pow(4, tier) * 8) * energyMultiplier;
+        fluidConsumption = (int) Math.pow(4, gtAcceleratorTier - 1) * 1000;
     }
 
     @Override
@@ -282,7 +296,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 case RANDOM_TICK:
                     acceleratorMode = AcceleratorMode.TILE_ENTITY;
                     energyMultiplier = 6;
-                    entityLinkBlockPos = new BlockPos[6];
+                    entityLinkBlockPos = new BlockPos[tier];
                     tileMode = "gregtech.machine.world_accelerator.mode.tile";
                     break;
                 case TILE_ENTITY:
