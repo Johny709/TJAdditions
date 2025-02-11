@@ -5,6 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.machines.LinkPos;
 import com.johny.tj.machines.acceleratorBlacklist;
 import gregicadditions.GAValues;
@@ -20,6 +21,9 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.gui.widgets.AbstractWidgetGroup;
+import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -46,6 +50,8 @@ import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.FluidStack;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -92,7 +98,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         if (isStructureFormed()) {
-            WorldServer world = (WorldServer) this.getWorld();
             long maxVoltage = energyContainer.getInputVoltage();
             textList.add(hasEnoughEnergy(energyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage)
                     : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
@@ -104,12 +109,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             switch (acceleratorMode) {
                 case TILE_ENTITY:
                     textList.add(new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile"));
-                    textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
-                            .setStyle(new Style().setBold(true).setUnderlined(true)));
-                    Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).forEach(blockPos -> textList.add(new TextComponentString(world.getTileEntity(blockPos).getBlockType().getLocalizedName())
-                            .appendSibling(new TextComponentString(" X: ").appendSibling(new TextComponentString("" + blockPos.getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                            .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + blockPos.getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                            .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + blockPos.getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))));
                     break;
 
                 case GT_TILE_ENTITY:
@@ -118,24 +117,53 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                                     .setStyle(new Style().setColor(TextFormatting.YELLOW))) :
                             new TextComponentTranslation("tj.multiblock.not_enough_fluid").setStyle(new Style().setColor(TextFormatting.RED)));
                     textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT"));
-                    if (gtAcceleratorTier > 0) {
-                        textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
-                                .setStyle(new Style().setBold(true).setUnderlined(true)));
-                        Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).forEach(blockPos -> textList.add(new TextComponentTranslation(BlockMachine.getMetaTileEntity(world, blockPos).getMetaFullName())
-                                .appendSibling(new TextComponentString(" X: ").appendSibling(new TextComponentString("" + blockPos.getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + blockPos.getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + blockPos.getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))));
-                    } else {
-                        textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.tier", GAValues.VN[10]));
-                    }
                     break;
 
                 case RANDOM_TICK:
                     textList.add(new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity"));
+            }
+        } else {
+            super.addDisplayText(textList);
+        }
+    }
 
+    private void addDisplayLinkedEntities(List<ITextComponent> textList) {
+        WorldServer world = (WorldServer) this.getWorld();
+        if (acceleratorMode == AcceleratorMode.TILE_ENTITY) {
+            textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
+                    .setStyle(new Style().setBold(true).setUnderlined(true)));
+            Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).forEach(blockPos -> textList.add(new TextComponentString(world.getTileEntity(blockPos).getBlockType().getLocalizedName())
+                    .appendSibling(new TextComponentString(" X: ").appendSibling(new TextComponentString("" + blockPos.getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                    .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + blockPos.getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                    .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + blockPos.getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))));
+            return;
+        }
+        if (acceleratorMode == AcceleratorMode.GT_TILE_ENTITY) {
+            if (gtAcceleratorTier > 0) {
+                textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
+                        .setStyle(new Style().setBold(true).setUnderlined(true)));
+                Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).forEach(blockPos -> textList.add(new TextComponentTranslation(BlockMachine.getMetaTileEntity(world, blockPos).getMetaFullName())
+                        .appendSibling(new TextComponentString(" X: ").appendSibling(new TextComponentString("" + blockPos.getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                        .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + blockPos.getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                        .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + blockPos.getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))));
+            } else {
+                textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.tier", GAValues.VN[10]));
             }
         }
-        super.addDisplayText(textList);
+    }
+
+    @Override
+    protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+        super.addNewTabs(tabs);
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab()));
+        return tabs;
+    }
+
+    private AbstractWidgetGroup linkedEntitiesDisplayTab() {
+        WidgetGroup widgetGroup = new WidgetGroup();
+        widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntities, 0xFFFFFF)
+                .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
+        return widgetGroup;
     }
 
     @Override

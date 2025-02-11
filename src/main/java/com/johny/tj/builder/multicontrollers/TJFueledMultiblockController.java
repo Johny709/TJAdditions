@@ -4,34 +4,29 @@ import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJHorizontoalTabListRenderer;
 import com.johny.tj.gui.TJTabGroup;
 import gregicadditions.machines.GATileEntities;
-import gregicadditions.machines.multi.GAMultiblockWithDisplayBase;
-import gregtech.api.capability.GregtechTileCapabilities;
-import gregtech.api.capability.IControllable;
+import gregicadditions.machines.multi.GAFueledMultiblockController;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.ItemTabInfo;
+import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.common.capabilities.Capability;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBase implements IControllable {
+public abstract class TJFueledMultiblockController extends GAFueledMultiblockController {
 
-    protected boolean doStructureCheck = false;
-    protected boolean isWorkingEnabled = true;
+    private boolean doStructureCheck;
 
-    public TJMultiblockDisplayBase(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId);
+    public TJFueledMultiblockController(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
+        super(metaTileEntityId, recipeMap, maxVoltage);
     }
 
     @Override
@@ -75,6 +70,7 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         MultiblockDisplaysBuilder.start()
+                .recipeMapWorkable(textList, isStructureFormed(), workableHandler)
                 .isInvalid(textList, isStructureFormed());
     }
 
@@ -84,14 +80,12 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
                 .maintenanceDisplay(textList, maintenance_problems, hasProblems());
     }
 
-    @Override
     public boolean isWorkingEnabled() {
-        return this.isWorkingEnabled;
+        return this.workableHandler.isWorkingEnabled();
     }
 
-    @Override
     public void setWorkingEnabled(boolean isActivationAllowed) {
-        this.isWorkingEnabled = isActivationAllowed;
+        this.workableHandler.setWorkingEnabled(isActivationAllowed);
         this.markDirty();
     }
 
@@ -107,26 +101,5 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
             invalidateStructure();
             this.structurePattern = createStructurePattern();
         }
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE) {
-            return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
-        }
-        return super.getCapability(capability, side);
-    }
-
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setBoolean("IsWorking", isWorkingEnabled);
-        return data;
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        isWorkingEnabled = data.getBoolean("IsWorking");
     }
 }

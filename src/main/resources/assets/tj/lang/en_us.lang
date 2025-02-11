@@ -158,6 +158,8 @@ tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
 tj.multiblock.tab.display=Multiblock Display
 tj.multiblock.tab.filter=Filter
 tj.multiblock.tab.maintenance=Maintenance
+tj.multiblock.tab.linked_entities_display=Linked Entities
+
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %d
 tj.multiblock.not_enough_fluid.space=WARNING: not enough space for fluid %d
 tj.multiblock.enough_fluid=Consuming:

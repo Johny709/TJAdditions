@@ -1,27 +1,33 @@
 package com.johny.tj.builder.multicontrollers;
 
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.gui.TJHorizontoalTabListRenderer;
+import com.johny.tj.gui.TJTabGroup;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
+import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.MultiRecipeMapMultiblockController;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.SlotWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.gui.widgets.*;
+import gregtech.api.gui.widgets.tab.ItemTabInfo;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
+import gregtech.api.util.Position;
 import gregtech.common.items.MetaItems;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -83,20 +89,56 @@ public abstract class TJMultiRecipeMapMultiblockController extends MultiRecipeMa
     protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
         ModularUI.Builder builder = ModularUI.extendedBuilder();
         builder.image(-10, 0, 195, 217, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
-        builder.label(1, 9, getMetaFullName(), 0xFFFFFF);
-        builder.widget(new AdvancedTextWidget(1, 19, this::addDisplayText, 0xFFFFFF)
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
+        builder.widget(new LabelWidget(0, 7, getMetaFullName(), 0xFFFFFF));
+
+        TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT, TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM), new Position(-10, 1));
+        List<Triple<String, ItemStack, AbstractWidgetGroup>> tabList = new ArrayList<>();
+        addNewTabs(tabList).forEach(tabs -> tabGroup.addTab(new ItemTabInfo(tabs.getLeft(), tabs.getMiddle()), tabs.getRight()));
+        builder.widget(tabGroup);
+        return builder;
+    }
+
+    protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab()));
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab()));
+        return tabs;
+    }
+
+    protected AbstractWidgetGroup mainDisplayTab() {
+        WidgetGroup widgetGroup = new WidgetGroup();
+        widgetGroup.addWidget(new AdvancedTextWidget(10, 19, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
-        builder.widget(new SlotWidget(this.importItems, 0, 162, 192));
-        builder.image(161, 191, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY);
-        builder.widget(new ToggleButtonWidget(162, 170, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
+        widgetGroup.addWidget(new SlotWidget(this.importItems, 0, 172, 192));
+        widgetGroup.addWidget(new ImageWidget(171, 191, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY));
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 170, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        builder.widget(new ToggleButtonWidget(162, 152, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this::getDistinctMode, this::setDistinctMode)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 152, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this::getDistinctMode, this::setDistinctMode)
                 .setTooltipText("machine.universal.toggle.distinct.mode"));
-        builder.widget(new ToggleButtonWidget(162, 134, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 134, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
-        return builder;
+        return widgetGroup;
+    }
+
+    @Override
+    protected void addDisplayText(List<ITextComponent> textList) {
+        MultiblockDisplaysBuilder.start()
+                .recipeMapWorkable(textList, isStructureFormed(), recipeMapWorkable)
+                .isInvalid(textList, isStructureFormed());
+    }
+
+    protected AbstractWidgetGroup maintenanceTab() {
+        WidgetGroup widgetGroup = new WidgetGroup();
+        widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addMaintenanceDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180));
+        return widgetGroup;
+    }
+
+    protected void addMaintenanceDisplayText(List<ITextComponent> textList) {
+        MultiblockDisplaysBuilder.start()
+                .mufflerDisplay(textList, !hasMufflerHatch() || isMufflerFaceFree())
+                .maintenanceDisplay(textList, maintenance_problems, hasProblems());
     }
 
     protected boolean getToggleMode() {
