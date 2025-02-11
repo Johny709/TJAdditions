@@ -2,6 +2,7 @@ package com.johny.tj.recipes;
 
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
+import com.johny.tj.items.TJMetaItems;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.machines.GATileEntities;
@@ -119,6 +120,13 @@ public class RecipeLoader {
         ModHandler.addShapedRecipe("tungsten_titanium_carbide_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.TUNGSTEN_TITANIUM_CARBIDE_CASING, 3), "PhP", "PFP", "PwP",
                 'P', new UnificationEntry(OrePrefix.plate, TungstenTitaniumCarbide),
                 'F', new UnificationEntry(OrePrefix.frameGt, TungstenTitaniumCarbide));
+
+        ModHandler.addShapedRecipe("linking_device", TJMetaItems.LINKING_DEVICE.getStackForm(), "SIS", "RLR", "CIC",
+                'S', CraftingComponent.SENSOR.getIngredient(5),
+                'I', new UnificationEntry(OrePrefix.cableGtSingle, IVSuperconductor),
+                'R', new UnificationEntry(OrePrefix.ring, HSSE),
+                'L', new UnificationEntry(OrePrefix.stickLong, Osmium),
+                'C', CraftingComponent.CIRCUIT.getIngredient(6));
 
     }
 
