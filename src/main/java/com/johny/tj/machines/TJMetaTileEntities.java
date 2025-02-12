@@ -56,6 +56,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeWorldAccelerator LARGE_WORLD_ACCELERATOR;
     public static MetaTileEntityLargeRockBreaker LARGE_ROCK_BREAKER;
     public static MetaTileEntityInfiniteFluidDrill INFINITE_FLUID_DRILL;
+    public static MetaTileEntityIndustrialSteamEngine INDUSTRIAL_STEAM_ENGINE;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -110,7 +111,7 @@ public class TJMetaTileEntities {
         LARGE_ATMOSPHERE_COLLECTOR[2] = GregTechAPI.registerMetaTileEntity(5080, new MetaTileEntityLargeAtmosphereCollector(TJId("plasma_air_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
 
         INFINITE_FLUID_DRILL = GregTechAPI.registerMetaTileEntity(5081, new MetaTileEntityInfiniteFluidDrill(TJId("infinite_fluid_drill")));
-
+        INDUSTRIAL_STEAM_ENGINE = GregTechAPI.registerMetaTileEntity(5082, new MetaTileEntityIndustrialSteamEngine(TJId("industrial_steam_engine")));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

@@ -5,6 +5,7 @@ import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.items.TJMetaItems;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
+import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.unification.ore.OrePrefix;
@@ -127,6 +128,14 @@ public class RecipeLoader {
                 'R', new UnificationEntry(OrePrefix.ring, HSSE),
                 'L', new UnificationEntry(OrePrefix.stickLong, Osmium),
                 'C', CraftingComponent.CIRCUIT.getIngredient(6));
+
+        ModHandler.addShapedRecipe("industrial_stean_engine", INDUSTRIAL_STEAM_ENGINE.getStackForm(), "PCP", "BHB", "GOG",
+                'P', new UnificationEntry(OrePrefix.pipeLarge, Bronze),
+                'C', CraftingComponent.CIRCUIT.getIngredient(2),
+                'B', new UnificationEntry(OrePrefix.plate, Brass),
+                'H', GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TUMBAGA),
+                'G', new UnificationEntry(OrePrefix.gear, Bronze),
+                'O', new UnificationEntry(OrePrefix.gear, Steel));
 
     }
 

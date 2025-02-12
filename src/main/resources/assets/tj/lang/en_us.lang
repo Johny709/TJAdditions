@@ -36,6 +36,7 @@ tj.machine.steam_air_collector_turbine.name=Large Atmosphere Collector (Steam)
 tj.machine.gas_air_collector_turbine.name=Large Atmosphere Collector (Gas)
 tj.machine.plasma_air_collector_turbine.name=Large Atmosphere Collector (Plasma)
 tj.machine.infinite_fluid_drill.name=Infinite Fluid Drilling Plant
+tj.machine.industrial_steam_engine.name=Industrial Steam Engine
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -152,6 +153,7 @@ tj.multiblock.industrial_fusion_reactor.description=A compact fusion reactor cap
 tj.multiblock.large_world_accelerator.description=Tick accelerates blocks by sending them more updates. Effectively increasing their speed. Comes with 3 modes.
 tj.multiblock.large_rock_breaker.description=Generates stone from interaction of 2 fluids. Max Parallels can be increased by extending the machine
 tj.multiblock.large_atmosphere_collector.description=Collects lots of air every second. Works like large turbines but outputs air instead
+tj.multiblock.industrial_steam_engine.description=A "scalable" steam generator. Motor block determines tier and energy output however each tier reduces efficiency by 10%
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
