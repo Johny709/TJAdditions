@@ -77,7 +77,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
 
         return fluidInputsCount >= 1 &&
                 fluidOutputsCount >= 1 &&
@@ -136,7 +136,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
         maxVoltage = (long) (Math.pow(4, tier) * 8);
         outputVeinFluidAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 1000;
-        drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
+        drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 20;
     }
 
 
