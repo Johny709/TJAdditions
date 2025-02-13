@@ -22,7 +22,6 @@ import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
-import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -332,7 +331,6 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     protected AbstractWidgetGroup filterTab() {
         WidgetGroup widgetGroup = new WidgetGroup();
         this.blockFilter.initUI(widgetGroup::addWidget);
-        widgetGroup.addWidget(new LabelWidget(11, 7, getMetaFullName(), 0xFFFFFF));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 132, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                 .setTooltipText("machine.universal.toggle.filter"));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 150, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
