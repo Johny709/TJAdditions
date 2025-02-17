@@ -11,6 +11,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -48,6 +49,12 @@ public class CommonProxy {
     public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
         RecipeLoader.init();
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void registerMultiRecipes(RegistryEvent.Register<IRecipe> event) {
+        RecipeLoader.multiRecipesInit();
+    }
+
 
     @SubscribeEvent
     public static void registerOrePrefix(RegistryEvent.Register<IRecipe> event) {

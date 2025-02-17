@@ -1,18 +1,17 @@
 package com.johny.tj.machines.multi.electric;
 
-import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.MultiGAMultiblockRecipeLogic;
+import com.johny.tj.recipes.RecipeLoader;
+import gregicadditions.GAConfig;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.capabilities.impl.GARecipeMapMultiblockController;
 import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregicadditions.machines.multi.simple.TileEntityLargeChemicalReactor;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -24,11 +23,16 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.util.GTUtility;
+import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
@@ -40,8 +44,14 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
     private int energyBonus;
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.LARGE_CHEMICAL_RECIPES);
-        this.recipeMapWorkable = new ParallelChemicalReactorWorkableHandler(this, TJConfig.parallelLCR.maximumRecipeParallel);
+        super(metaTileEntityId, RecipeLoader.LARGE_CHEMICAL_REACTOR_RECIPES);
+        this.recipeMapWorkable = new ParallelChemicalReactorWorkableHandler(this);
+        this.isWorkingEnabled = false;
+    }
+
+    @Override
+    public MetaTileEntityParallelLargeChemicalReactor createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityParallelLargeChemicalReactor(metaTileEntityId);
     }
 
     @Override
@@ -62,7 +72,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
                 .where('S', selfPredicate())
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('C', statePredicate(getCasingState()).or(machineControllerPredicate))
-                .where('c', TileEntityLargeChemicalReactor.heatingCoilPredicate().or(TileEntityLargeChemicalReactor.heatingCoilPredicate2()))
+                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
                 .where('B', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
@@ -79,9 +89,51 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
         return ClientHandler.CHEMICALLY_INERT;
     }
 
+    public static Predicate<BlockWorldState> heatingCoilPredicate() {
+        return blockWorldState -> {
+            IBlockState blockState = blockWorldState.getBlockState();
+            if (!(blockState.getBlock() instanceof BlockWireCoil))
+                return false;
+            BlockWireCoil blockWireCoil = (BlockWireCoil) blockState.getBlock();
+            BlockWireCoil.CoilType coilType = blockWireCoil.getState(blockState);
+            if (Arrays.asList(GAConfig.multis.heatingCoils.gtceHeatingCoilsBlacklist).contains(coilType.getName()))
+                return false;
+
+            int coilLevel = coilType.ordinal();
+            int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
+
+            BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
+
+            return currentLevel == coilLevel && coilType.equals(currentCoilType);
+        };
+    }
+
+    public static Predicate<BlockWorldState> heatingCoilPredicate2() {
+        return blockWorldState -> {
+            IBlockState blockState = blockWorldState.getBlockState();
+            if (!(blockState.getBlock() instanceof GAHeatingCoil))
+                return false;
+            GAHeatingCoil blockWireCoil = (GAHeatingCoil) blockState.getBlock();
+            GAHeatingCoil.CoilType coilType = blockWireCoil.getState(blockState);
+            if (Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName()))
+                return false;
+
+            int coilLevel = coilType.ordinal() + 8;
+            int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
+
+            GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
+
+            return currentLevel == coilLevel && coilType.equals(currentCoilType);
+        };
+    }
+
     @Override
-    public MetaTileEntityParallelLargeChemicalReactor createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityParallelLargeChemicalReactor(metaTileEntityId);
+    protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
+        if (isStructureFormed()) {
+            textList.add(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus).setStyle(new Style().setColor(TextFormatting.AQUA)));
+            textList.add(new TextComponentString(I18n.format("gregtech.universal.tooltip.voltage_in", maxVoltage, GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])));
+        }
     }
 
     @Override
@@ -90,52 +142,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
         PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
         int min = pump.getTier();
         maxVoltage = (long) (Math.pow(4, min) * 8);
-        int temperature = context.getOrDefault("blastFurnaceTemperature", 0);
-
-        switch (temperature){
-
-            case 2700:
-                energyBonus = 5;
-                break;
-            case 3600:
-                energyBonus = 10;
-                break;
-            case 4500:
-                energyBonus = 15;
-                break;
-            case 5400:
-                energyBonus = 20;
-                break;
-            case 7200:
-                energyBonus = 25;
-                break;
-            case 8600:
-                energyBonus = 30;
-                break;
-            case 9600:
-                energyBonus = 35;
-                break;
-            case 10700:
-                energyBonus = 40;
-                break;
-            case 11200:
-                energyBonus = 45;
-                break;
-            case 12600:
-                energyBonus = 50;
-                break;
-            case 14200:
-                energyBonus = 55;
-                break;
-            case 28400:
-                energyBonus = 60;
-                break;
-            case 56800:
-                energyBonus = 65;
-                break;
-            default:
-                energyBonus = 0;
-        }
+        energyBonus = context.getOrDefault("coilLevel", 0) * 5;
     }
 
     @Override
@@ -190,8 +197,8 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
 
         MetaTileEntityParallelLargeChemicalReactor chemicalReactor;
 
-        public ParallelChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity, int size) {
-            super(tileEntity, size);
+        public ParallelChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity) {
+            super(tileEntity);
             this.chemicalReactor = tileEntity;
         }
 
@@ -216,36 +223,11 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
             this.fluidOutputs.put(i, GTUtility.copyFluidList(recipe.getFluidOutputs()));
             int tier = getMachineTierForRecipe(recipe);
             this.itemOutputs.put(i, GTUtility.copyStackList(recipe.getResultItemOutputs(getOutputInventory().getSlots(), random, tier)));
-            if (this.wasActiveAndNeedsUpdate[i]) {
-                this.wasActiveAndNeedsUpdate[i] = false;
+            if (this.wasActiveAndNeedsUpdate) {
+                this.wasActiveAndNeedsUpdate = false;
             } else {
                 this.setActive(true, i);
             }
-        }
-
-        @Override
-        protected int[] calculateOverclock(int EUt, long voltage, int duration) {
-            int numMaintenanceProblems = (this.metaTileEntity instanceof GARecipeMapMultiblockController) ?
-                    ((GARecipeMapMultiblockController) metaTileEntity).getNumProblems() : 0;
-
-            double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
-            int durationModified = (int) (duration * maintenanceDurationMultiplier);
-
-            boolean negativeEU = EUt < 0;
-            int tier = getOverclockingTier(voltage);
-            if (GAValues.V[tier] <= EUt || tier == 0)
-                return new int[]{EUt, durationModified};
-            if (negativeEU)
-                EUt = -EUt;
-            int resultEUt = EUt;
-            double resultDuration = durationModified;
-            //do not overclock further if duration is already too small
-            while (resultDuration >= 1 && resultEUt <= GAValues.V[tier - 1]) {
-                resultEUt *= 4;
-                resultDuration /= 4;
-            }
-            previousRecipeDuration = (int) resultDuration;
-            return new int[]{negativeEU ? -resultEUt : resultEUt, (int) Math.ceil(resultDuration)};
         }
     }
 }

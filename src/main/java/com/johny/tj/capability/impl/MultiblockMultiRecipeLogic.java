@@ -8,12 +8,8 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 public class MultiblockMultiRecipeLogic extends MultiAbstractRecipeLogic {
 
-    public MultiblockMultiRecipeLogic(MultipleRecipeMapMultiblockController tileEntity, int size) {
-        this(tileEntity, 16, size);
-    }
-
-    public MultiblockMultiRecipeLogic(MultipleRecipeMapMultiblockController tileEntity, int recipeCacheSize, int size) {
-        super(tileEntity, recipeCacheSize, size);
+    public MultiblockMultiRecipeLogic(MultipleRecipeMapMultiblockController tileEntity, int recipeCacheSize) {
+        super(tileEntity, recipeCacheSize);
     }
 
     public IEnergyContainer getEnergyContainer() {

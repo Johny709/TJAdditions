@@ -29,8 +29,8 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
     protected int lastRecipeIndex = 0;
     protected ItemStack[][] lastItemInputsMatrix;
 
-    public MultiGAMultiblockRecipeLogic(MultipleRecipeMapMultiblockController tileEntity, int size) {
-        super(tileEntity, 16, size);
+    public MultiGAMultiblockRecipeLogic(MultipleRecipeMapMultiblockController tileEntity) {
+        super(tileEntity, 16);
         this.controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
     }
 
@@ -47,8 +47,8 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
 
     @Override
     protected int[] calculateOverclock(int EUt, long voltage, int duration) {
-        int numMaintenanceProblems = (this.metaTileEntity instanceof TJGARecipeMapMultiblockController) ?
-                ((TJGARecipeMapMultiblockController) metaTileEntity).getNumProblems() : 0;
+        int numMaintenanceProblems = (this.metaTileEntity instanceof MultipleRecipeMapMultiblockController) ?
+                ((MultipleRecipeMapMultiblockController) metaTileEntity).getNumProblems() : 0;
 
         double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
         int durationModified = (int) (duration * maintenanceDurationMultiplier);
@@ -119,7 +119,7 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i);
+        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
@@ -135,7 +135,7 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
             if (j == lastRecipeIndex) {
                 continue;
             }
-            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i);
+            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 if (setupAndConsumeRecipeInputs(currentRecipe, j)) {
@@ -155,7 +155,7 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
             }
 
             IItemHandlerModifiable bus = importInventory.get(j);
-            boolean dirty = checkRecipeInputsDirty(bus, importFluids, i);
+            boolean dirty = checkRecipeInputsDirty(bus, importFluids);
             if (!dirty && !forceRecipeRecheck[i]) {
                 continue;
             }
@@ -188,7 +188,7 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
             Arrays.fill(lastItemInputsMatrix[index], ItemStack.EMPTY);
         }
         if (lastFluidInputs == null || lastFluidInputs.length != fluidInputs.getTanks()) {
-            this.lastFluidInputs[i] = new FluidStack[fluidInputs.getTanks()];
+            this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
         for (int j = 0; j < lastItemInputsMatrix[index].length; j++) {
             ItemStack currentStack = inputs.getStackInSlot(j);
@@ -203,10 +203,10 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
         }
         for (int j = 0; j < lastFluidInputs.length; j++) {
             FluidStack currentStack = fluidInputs.getTankAt(j).getFluid();
-            FluidStack lastStack = lastFluidInputs[i][j];
+            FluidStack lastStack = lastFluidInputs[j];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
-                this.lastFluidInputs[i][j] = currentStack == null ? null : currentStack.copy();
+                this.lastFluidInputs[j] = currentStack == null ? null : currentStack.copy();
                 shouldRecheckRecipe = true;
             } else if (currentStack != null && lastStack != null &&
                     currentStack.amount != lastStack.amount) {

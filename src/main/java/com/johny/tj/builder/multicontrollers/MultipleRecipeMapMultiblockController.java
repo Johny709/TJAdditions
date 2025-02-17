@@ -6,51 +6,62 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.MultiRecipeMapBuilder;
+import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.capability.impl.MultiblockMultiRecipeLogic;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
-import gregicadditions.recipes.impl.LargeRecipeBuilder;
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.AbstractWidgetGroup;
+import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeMap;
-import gregtech.api.recipes.RecipeMaps;
+import gregtech.common.blocks.BlockTurbineCasing;
+import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.johny.tj.recipes.RecipeLoader.LARGE_CHEMICAL_REACTOR_RECIPES;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public abstract class MultipleRecipeMapMultiblockController extends TJMultiblockDisplayBase {
 
-    public final RecipeMap<?> recipeMap;
-
-    public final MultiRecipeMapBuilder multiRecipeMap;
+    public final MultiRecipeMap multiRecipeMap;
     public MultiblockMultiRecipeLogic recipeMapWorkable;
     protected int parallelLayer = 1;
     protected long maxVoltage = 0;
     protected int pageIndex = 0;
     protected final int pageSize = 6;
+    protected boolean advancedText;
 
     protected IItemHandlerModifiable inputInventory;
     protected IItemHandlerModifiable outputInventory;
@@ -58,13 +69,9 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
     protected IMultipleTankHandler outputFluidInventory;
     protected IEnergyContainer energyContainer;
 
-    public MultipleRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
+    public MultipleRecipeMapMultiblockController(ResourceLocation metaTileEntityId, MultiRecipeMap recipeMap) {
         super(metaTileEntityId);
-        this.recipeMap = recipeMap;
-        this.multiRecipeMap = new MultiRecipeMapBuilder(
-                0, 3, 0, 3, 0, 5, 0, 4, (new LargeRecipeBuilder(RecipeMaps.CHEMICAL_RECIPES))
-                .EUt(30));
-        multiRecipeMap.addRecipes(recipeMap.getRecipeList());
+        this.multiRecipeMap = recipeMap;
     }
 
     public IEnergyContainer getEnergyContainer() {
@@ -100,49 +107,137 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
+    protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+        super.addNewTabs(tabs);
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab()));
+        return tabs;
+    }
+
+    private AbstractWidgetGroup workableTab() {
+        WidgetGroup widgetGroup = new WidgetGroup();
+        widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addWorkableDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180).setClickHandler(this::handleWorkableDisplayClick));
+        return widgetGroup;
+    }
+
+    @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("gregtech.multiblock.industrial_fusion_reactor.message", this.parallelLayer));
+        super.addDisplayText(textList);
+        if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
+            long maxVoltage = energyContainer.getInputVoltage();
+            String voltageName = GAValues.VN[GAUtility.getTierByVoltage(maxVoltage)];
+            textList.add(new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, voltageName));
+        }
+        int powerConsumptionSum = 0;
+        for (int i = 0; i < recipeMapWorkable.getSize(); i++) {
+            powerConsumptionSum += recipeMapWorkable.getRecipeEUt(i);
+        }
+        textList.add(new TextComponentTranslation("tj.multiblock.parallel.sum", powerConsumptionSum));
+    }
+
+    private static ITextComponent displayItemInputs(Recipe recipe) {
+        ITextComponent itemInputs = new TextComponentTranslation("tj.multiblock.parallel.advanced.itemInputs");
+        Style gold = new Style().setColor(TextFormatting.GOLD);
+        List<CountableIngredient> itemStackIn = recipe.getInputs();
+        itemStackIn.forEach(item -> {
+            itemInputs.appendText("\n-");
+            itemInputs.appendSibling(new TextComponentString(item.getIngredient().getMatchingStacks()[0].getDisplayName()).setStyle(gold));
+            itemInputs.appendText(" ");
+            itemInputs.appendText(String.valueOf(item.getIngredient().getMatchingStacks()[0].getCount()));
+        });
+        return itemInputs;
+    }
+
+    private static ITextComponent displayItemOutputs(Recipe recipe) {
+        ITextComponent itemOutputs = new TextComponentTranslation("tj.multiblock.parallel.advanced.itemOutputs");
+        Style gold = new Style().setColor(TextFormatting.GOLD);
+        List<ItemStack> itemStackOut = recipe.getOutputs();
+        itemStackOut.forEach(item -> {
+            itemOutputs.appendText("\n-");
+            itemOutputs.appendSibling(new TextComponentString(item.getDisplayName()).setStyle(gold));
+            itemOutputs.appendText("\n");
+            itemOutputs.appendText(String.valueOf(item.getCount()));
+        });
+        return itemOutputs;
+    }
+
+    private static ITextComponent displayFluidInputs(Recipe recipe) {
+        ITextComponent fluidInputs = new TextComponentTranslation("tj.multiblock.parallel.advanced.fluidInput");
+        Style aqua = new Style().setColor(TextFormatting.AQUA);
+        List<FluidStack> fluidStackIn = recipe.getFluidInputs();
+        fluidStackIn.forEach(fluid -> {
+            fluidInputs.appendText("\n-");
+            fluidInputs.appendSibling(new TextComponentString(fluid.getLocalizedName()).setStyle(aqua));
+            fluidInputs.appendText(" ");
+            fluidInputs.appendText(String.valueOf(fluid.amount));
+        });
+        return fluidInputs;
+    }
+
+    private static ITextComponent displayFluidOutputs(Recipe recipe) {
+        ITextComponent fluidOutputs = new TextComponentTranslation("tj.multiblock.parallel.advanced.fluidOutput");
+        Style aqua = new Style().setColor(TextFormatting.AQUA);
+        List<FluidStack> fluidStackOut = recipe.getFluidOutputs();
+        fluidStackOut.forEach(fluid -> {
+            fluidOutputs.appendText("\n-");
+            fluidOutputs.appendSibling(new TextComponentString(fluid.getLocalizedName()).setStyle(aqua));
+            fluidOutputs.appendText(" ");
+            fluidOutputs.appendText(String.valueOf(fluid.amount));
+        });
+        return fluidOutputs;
+    }
+
+    private void addWorkableDisplayText(List<ITextComponent> textList) {
+        textList.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer));
+        textList.add(new TextComponentTranslation("tj.multiblock.parallel.advanced")
+                .appendText(" ")
+                .appendSibling(advancedText ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "advanced")
+                        : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "basic")));
+        ITextComponent page = new TextComponentString(":");
+        page.appendText(" ");
+        page.appendSibling(withButton(new TextComponentString("[<]"), "leftPage"));
+        page.appendText(" ");
+        page.appendSibling(withButton(new TextComponentString("[>]"), "rightPage"));
+        textList.add(page);
         if (isStructureFormed()) {
-
-            ITextComponent page = new TextComponentString(":");
-            page.appendText(" ");
-            page.appendSibling(withButton(new TextComponentString("[<]"), "leftPage"));
-            page.appendText(" ");
-            page.appendSibling(withButton(new TextComponentString("[>]"), "rightPage"));
-            textList.add(page);
-
             for (int i = pageIndex, recipeHandlerPos = i + 1; i < pageIndex + pageSize; i++, recipeHandlerPos++) {
                 if (i < parallelLayer) {
 
                     double progressPercent = recipeMapWorkable.getProgressPercent(i) * 100;
-                    ITextComponent recipeInstance = new TextComponentString("-");
-                    recipeInstance.appendText(" ");
-                    recipeInstance.appendSibling(new TextComponentString("[" + recipeHandlerPos + "] " + (recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? I18n.format("gregtech.multiblock.running") + " " : I18n.format("gregtech.multiblock.idling") + " ") : I18n.format("gregtech.multiblock.work_paused") + " "))
-                                    .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                                            new TextComponentTranslation("tj.multiblock.parallel.status")
-                                                                    .appendSibling(new TextComponentString(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? " " + I18n.format("gregtech.multiblock.running") + "\n" : " " + I18n.format("gregtech.multiblock.idling") + "\n") : " " + I18n.format("gregtech.multiblock.work_paused") + "\n")
-                                                                            .setStyle(new Style().setColor(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? TextFormatting.GREEN : TextFormatting.WHITE) : TextFormatting.YELLOW)))
-                                                                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.eu").appendSibling(new TextComponentString(" " + recipeMapWorkable.getRecipeEUt(i) + "\n")))
-                                                                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.progress").appendSibling(new TextComponentString(" " + (int) progressPercent + "%")))
-                                                    ))
-                                                    .setColor(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isActive(i) ? TextFormatting.GREEN : TextFormatting.WHITE) : TextFormatting.YELLOW)
-                                    ))
+                    ITextComponent recipeInstance = new TextComponentString(": ");
+                    ITextComponent advancedTooltip = advancedText ? new TextComponentTranslation("tj.multiblock.parallel.advanced.on")
+                            : new TextComponentTranslation("tj.multiblock.parallel.advanced.off").setStyle(new Style().setColor(TextFormatting.GRAY));
+                    if (advancedText) {
+                        Recipe recipe = recipeMapWorkable.getRecipe(i);
+                        if (recipe != null) {
+                            advancedTooltip.setStyle(new Style().setColor(TextFormatting.YELLOW))
+                                    .appendText("\n")
+                                    .appendSibling(displayItemInputs(recipe).setStyle(new Style().setBold(true)))
+                                    .appendText("\n")
+                                    .appendSibling(displayItemOutputs(recipe).setStyle(new Style().setBold(true)))
+                                    .appendText("\n")
+                                    .appendSibling(displayFluidInputs(recipe).setStyle(new Style().setBold(true)))
+                                    .appendText("\n")
+                                    .appendSibling(displayFluidOutputs(recipe).setStyle(new Style().setBold(true)));
+                        }
+                    }
+                    recipeInstance.appendSibling(new TextComponentString("[" + recipeHandlerPos + "] " + (recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? I18n.format("gregtech.multiblock.running") + " " : I18n.format("gregtech.multiblock.idling") + " ") : I18n.format("gregtech.multiblock.work_paused") + " "))
+                                    .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.status")
+                                                    .appendSibling(new TextComponentString(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? " " + I18n.format("gregtech.multiblock.running") + "\n" : " " + I18n.format("gregtech.multiblock.idling") + "\n") : " " + I18n.format("gregtech.multiblock.work_paused") + "\n")
+                                                            .setStyle(new Style().setColor(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? TextFormatting.GREEN : TextFormatting.WHITE) : TextFormatting.YELLOW)))
+                                                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.eu").appendSibling(new TextComponentString(" " + recipeMapWorkable.getRecipeEUt(i) + "\n")))
+                                                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.progress").appendSibling(new TextComponentString(" " + (int) progressPercent + "%\n")))
+                                                    .appendText("\n")
+                                                    .appendSibling(advancedTooltip)))
+                                            .setColor(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? TextFormatting.GREEN : TextFormatting.WHITE) : TextFormatting.YELLOW)))
                             .appendSibling(recipeMapWorkable.getLockingMode(i) ? withButton(new TextComponentTranslation("tj.multiblock.parallel.lock"), "lock" + i) : withButton(new TextComponentTranslation("tj.multiblock.parallel.unlock"), "unlock" + i));
                     textList.add(recipeInstance);
                 }
             }
         }
-        else {
-            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
-            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
-                    .setStyle(new Style().setColor(TextFormatting.RED)
-                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip))));
-        }
     }
 
-    @Override
-    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+    private void handleWorkableDisplayClick(String componentData, Widget.ClickData clickData) {
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
             if (componentData.equals("lock" + i)) {
                 recipeMapWorkable.setLockingMode(false, i);
@@ -153,9 +248,14 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
         if (componentData.equals("leftPage")) {
             if (pageIndex > 0)
                 pageIndex -= pageSize;
-        } else if (componentData.equals("rightPage")){
+        } else if (componentData.equals("rightPage")) {
             if (pageIndex < parallelLayer - pageSize)
                 pageIndex += pageSize;
+        }
+        if (componentData.equals("basic")) {
+            advancedText = true;
+        } else if (componentData.equals("advanced")) {
+            advancedText = false;
         }
     }
 
@@ -176,12 +276,10 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     protected void updateFormedValid() {
-        if (!getWorld().isRemote) {
-            if (getOffsetTimer() > 100) {
-                for (int i = 0; i < parallelLayer; i++) {
-                    recipeMapWorkable.update(i);
-                }
-            }
+        if (!isWorkingEnabled)
+            return;
+        for (int i = 0; i < recipeMapWorkable.getSize(); i++) {
+            recipeMapWorkable.update(i);
         }
     }
 
@@ -214,22 +312,20 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
         //noinspection SuspiciousMethodCalls
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         //noinspection SuspiciousMethodCalls
-        return itemInputsCount >= recipeMap.getMinInputs() &&
-                fluidInputsCount >= recipeMap.getMinFluidInputs() &&
+        return itemInputsCount >= LARGE_CHEMICAL_REACTOR_RECIPES.getMinInputs() &&
+                fluidInputsCount >= LARGE_CHEMICAL_REACTOR_RECIPES.getMinFluidInputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        this.getFrontOverlay().render(renderState, translation, pipeline, getFrontFacing(), recipeMapWorkable.isActive(0));
+        this.getFrontOverlay().render(renderState, translation, pipeline, getFrontFacing(), recipeMapWorkable.isActive());
     }
 
     public void resetStructure() {
         this.invalidateStructure();
-        if (parallelLayer < 1) {
-            this.recipeMapWorkable.removeFrom(parallelLayer);
-        }
         this.structurePattern = createStructurePattern();
     }
 
@@ -245,19 +341,20 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
         if (!getWorld().isRemote) {
             if (!playerIn.isSneaking()) {
                 if (this.parallelLayer < TJConfig.parallelLCR.maximumLayers) {
-                    this.parallelLayer++;
+                    this.recipeMapWorkable.setLayer(++parallelLayer, false);
+                    this.resetStructure();
                     playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 } else {
                     playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 }
             } else {
                 if (this.parallelLayer > 1) {
-                    this.parallelLayer--;
+                    this.recipeMapWorkable.setLayer(--parallelLayer, true);
+                    this.resetStructure();
                     playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.parallelLayer)));
                 } else
                     playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.parallelLayer)));
             }
-            this.resetStructure();
         }
         return true;
     }

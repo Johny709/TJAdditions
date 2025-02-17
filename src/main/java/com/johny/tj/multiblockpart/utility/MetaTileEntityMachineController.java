@@ -83,7 +83,7 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
                 if (this.controller instanceof MultipleRecipeMapMultiblockController) {
                     ((MultipleRecipeMapMultiblockController) this.controller).recipeMapWorkable.setWorkingEnabled(!redstonePowered, Id);
                 } else {
-                    this.controller.getCapability(GregtechTileCapabilities.CAPABILITY_CONTROLLABLE, getFrontFacing()).setWorkingEnabled(!redstonePowered);
+                    this.controller.getCapability(GregtechTileCapabilities.CAPABILITY_CONTROLLABLE, null).setWorkingEnabled(!redstonePowered);
                 }
             }
         }

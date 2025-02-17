@@ -35,11 +35,11 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
 
     protected MultipleRecipeMapMultiblockController controller;
     protected RecipeMap<?> recipeMap;
-    private final int size;
+    private int size;
 
     protected boolean[] forceRecipeRecheck;
-    protected ItemStack[][] lastItemInputs;
-    protected FluidStack[][] lastFluidInputs;
+    protected ItemStack[] lastItemInputs;
+    protected FluidStack[] lastFluidInputs;
     public MultiRecipeLRUCache previousRecipe;
     public int recipeCacheSize;
     protected boolean useOptimizedRecipeLookUp = true;
@@ -55,37 +55,35 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
     protected Map<Integer, NonNullList<ItemStack>> itemOutputs;
     protected final Random random = new Random();
 
-    protected boolean[] isActive;
+    protected boolean isActive;
+    protected boolean[] isInstanceActive;
     protected boolean[] workingEnabled;
     protected boolean[] hasNotEnoughEnergy;
-    protected boolean[] wasActiveAndNeedsUpdate;
+    protected boolean wasActiveAndNeedsUpdate;
     protected boolean[] lockRecipe;
     private final long[] V;
     private final String[] VN;
 
-    private final int[] sleepTimer;
-    private final int[] sleepTime;
-    private final int[] failCount;
-    protected final int[] timeToStop;
+    private int[] sleepTimer;
+    private int[] sleepTime;
+    private int[] failCount;
+    protected int[] timeToStop;
 
-    public MultiAbstractRecipeLogic(MetaTileEntity metaTileEntity, int recipeCacheSize, int size) {
+    public MultiAbstractRecipeLogic(MetaTileEntity metaTileEntity, int recipeCacheSize) {
         super(metaTileEntity);
         this.controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
-        this.size = size;
+        this.size = 1;
         this.recipeCacheSize = recipeCacheSize;
         this.forceRecipeRecheck = new boolean[this.size];
-        this.lastItemInputs = new ItemStack[this.size][];
-        this.lastFluidInputs = new FluidStack[this.size][];
         this.previousRecipe = new MultiRecipeLRUCache(this.recipeCacheSize);
         this.progressTime = new int[this.size];
         this.maxProgressTime = new int[this.size];
         this.recipeEUt = new int[this.size];
         this.fluidOutputs = new HashMap<>();
         this.itemOutputs = new HashMap<>();
-        this.isActive = new boolean[this.size];
+        this.isInstanceActive = new boolean[this.size];
         this.workingEnabled = new boolean[this.size];
         this.hasNotEnoughEnergy = new boolean[this.size];
-        this.wasActiveAndNeedsUpdate = new boolean[this.size];
         this.lockRecipe = new boolean[this.size];
         this.sleepTimer = new int[this.size];
         this.sleepTime = new int[this.size];
@@ -104,21 +102,29 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         }
     }
 
-    public void removeFrom(int i) {
-        forceRecipeRecheck[i] = false;
-        progressTime[i] = 0;
-        maxProgressTime[i] = 0;
-        recipeEUt[i] = 0;
-        fluidOutputs.remove(i);
-        itemOutputs.remove(i);
-        isActive[i] = false;
-        workingEnabled[i] = false;
-        hasNotEnoughEnergy[i] = false;
-        wasActiveAndNeedsUpdate[i] = false;
-        sleepTimer[i] = 0;
-        sleepTime[i] = 0;
-        failCount[i] = 0;
-        occupiedRecipes[i] = null;
+    public void setLayer(int i, boolean remove) {
+        this.size = i;
+        this.forceRecipeRecheck = Arrays.copyOf(forceRecipeRecheck, this.size);
+        this.progressTime = Arrays.copyOf(progressTime, this.size);
+        this.maxProgressTime = Arrays.copyOf(maxProgressTime, this.size);
+        this.recipeEUt = Arrays.copyOf(recipeEUt, this.size);
+        this.isInstanceActive = Arrays.copyOf(isInstanceActive, this.size);
+        this.workingEnabled = Arrays.copyOf(workingEnabled, this.size);
+        this.hasNotEnoughEnergy = Arrays.copyOf(hasNotEnoughEnergy, this.size);
+        this.lockRecipe = Arrays.copyOf(lockRecipe, this.size);
+        this.sleepTimer = Arrays.copyOf(sleepTimer, this.size);
+        this.sleepTime = Arrays.copyOf(sleepTime, this.size);
+        this.failCount = Arrays.copyOf(failCount, this.size);
+        this.timeToStop = Arrays.copyOf(timeToStop, this.size);
+        this.occupiedRecipes = Arrays.copyOf(occupiedRecipes, this.size);
+        this.previousRecipe.setRecipeCaches(i, remove);
+        if (remove) {
+            this.fluidOutputs.remove(i -1);
+            this.itemOutputs.remove(i -1);
+        } else {
+            this.sleepTime[this.size -1] = 1;
+            this.workingEnabled[this.size -1] = true;
+        }
     }
 
     protected abstract long getEnergyStored();
@@ -147,6 +153,10 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
 
     public int getSize() {
         return size;
+    }
+
+    public Recipe getRecipe(int i) {
+        return occupiedRecipes[i];
     }
 
     public void setLockingMode(boolean setLockingMode, int i) {
@@ -186,18 +196,14 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                     if (!lockRecipe[i]) {
                         if (progressTime[i] <= 0) {
                             if (--timeToStop[i] % 20 == 0) {
-                                if (occupiedRecipes[i] != null) {
-                                    controller.multiRecipeMap.addRecipe(occupiedRecipes[i]);
-                                }
                                 occupiedRecipes[i] = null;
-                                setActive(false, i);
                             }
                         }
                     }
                 }
             }
-            if (wasActiveAndNeedsUpdate[i]) {
-                wasActiveAndNeedsUpdate[i] = false;
+            if (wasActiveAndNeedsUpdate) {
+                wasActiveAndNeedsUpdate = false;
                 setActive(false, i);
             }
         }
@@ -234,20 +240,19 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         if (lockRecipe[i]) {
             foundRecipe = occupiedRecipes[i];
         } else {
-            foundRecipe = this.previousRecipe.get(importInventory, importFluids, i);
+            foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
             currentRecipe = foundRecipe;
         } else {
-            boolean dirty = checkRecipeInputsDirty(importInventory, importFluids, i);
+            boolean dirty = checkRecipeInputsDirty(importInventory, importFluids);
             if (dirty || forceRecipeRecheck[i]) {
                 this.forceRecipeRecheck[i] = false;
                 //else, try searching new recipe for given inputs
                 currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
                 if (currentRecipe != null) {
                     this.occupiedRecipes[i] = currentRecipe;
-                    this.controller.multiRecipeMap.removeRecipe(currentRecipe);
                     this.previousRecipe.put(currentRecipe, i);
                     this.previousRecipe.cacheUnutilized();
                 }
@@ -292,35 +297,35 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
     }
 
     protected Recipe findRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, boolean useOptimizedRecipeLookUp) {
-        return controller.multiRecipeMap.findRecipe(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp);
+        return controller.multiRecipeMap.findRecipe(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp, occupiedRecipes);
     }
 
-    protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs, int i) {
+    protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs) {
         boolean shouldRecheckRecipe = false;
-        if (lastItemInputs[i] == null || lastItemInputs[i].length != inputs.getSlots()) {
-            this.lastItemInputs[i] = new ItemStack[inputs.getSlots()];
-            Arrays.fill(lastItemInputs[i], ItemStack.EMPTY);
+        if (lastItemInputs == null || lastItemInputs.length != inputs.getSlots()) {
+            this.lastItemInputs = new ItemStack[inputs.getSlots()];
+            Arrays.fill(lastItemInputs, ItemStack.EMPTY);
         }
-        if (lastFluidInputs[i] == null || lastFluidInputs[i].length != fluidInputs.getTanks()) {
-            this.lastFluidInputs[i] = new FluidStack[fluidInputs.getTanks()];
+        if (lastFluidInputs == null || lastFluidInputs.length != fluidInputs.getTanks()) {
+            this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
-        for (int j = 0; j < lastItemInputs[i].length; j++) {
+        for (int j = 0; j < lastItemInputs.length; j++) {
             ItemStack currentStack = inputs.getStackInSlot(j);
-            ItemStack lastStack = lastItemInputs[i][j];
+            ItemStack lastStack = lastItemInputs[j];
             if (!areItemStacksEqual(currentStack, lastStack)) {
-                this.lastItemInputs[i][j] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
+                this.lastItemInputs[j] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 shouldRecheckRecipe = true;
             } else if (currentStack.getCount() != lastStack.getCount()) {
                 lastStack.setCount(currentStack.getCount());
                 shouldRecheckRecipe = true;
             }
         }
-        for (int j = 0; j < lastFluidInputs[i].length; j++) {
+        for (int j = 0; j < lastFluidInputs.length; j++) {
             FluidStack currentStack = fluidInputs.getTankAt(j).getFluid();
-            FluidStack lastStack = lastFluidInputs[i][j];
+            FluidStack lastStack = lastFluidInputs[j];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
-                this.lastFluidInputs[i][j] = currentStack == null ? null : currentStack.copy();
+                this.lastFluidInputs[j] = currentStack == null ? null : currentStack.copy();
                 shouldRecheckRecipe = true;
             } else if (currentStack != null && lastStack != null &&
                     currentStack.amount != lastStack.amount) {
@@ -407,8 +412,8 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         this.fluidOutputs.put(i, GTUtility.copyFluidList(recipe.getFluidOutputs()));
         int tier = getMachineTierForRecipe(recipe);
         this.itemOutputs.put(i, GTUtility.copyStackList(recipe.getResultItemOutputs(getOutputInventory().getSlots(), random, tier)));
-        if (this.wasActiveAndNeedsUpdate[i]) {
-            this.wasActiveAndNeedsUpdate[i] = false;
+        if (this.wasActiveAndNeedsUpdate) {
+            this.wasActiveAndNeedsUpdate = false;
         } else {
             this.setActive(true, i);
         }
@@ -424,10 +429,8 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         this.progressTime[i] = 0;
         setMaxProgress(0, i);
         this.recipeEUt[i] = 0;
-        this.fluidOutputs.remove(i);
-        this.itemOutputs.remove(i);
         this.hasNotEnoughEnergy[i] = false;
-        this.wasActiveAndNeedsUpdate[i] = true;
+        this.wasActiveAndNeedsUpdate = true;
         //force recipe recheck because inputs could have changed since last time
         //we checked them before starting our recipe, especially if recipe took long time
         this.forceRecipeRecheck[i] = true;
@@ -460,16 +463,21 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
     }
 
     protected void setActive(boolean active, int i) {
-        this.isActive[i] = active;
+        this.isActive = active;
+        this.isInstanceActive[i] = active;
         metaTileEntity.markDirty();
         if (!metaTileEntity.getWorld().isRemote) {
-            writeCustomData(i + 1, buf -> buf.writeBoolean(active));
+            writeCustomData(1, buf -> buf.writeBoolean(active));
         }
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
     @Override
-    public boolean isActive(int i) {
-        return isActive[i];
+    public boolean isInstanceActive(int i) {
+        return isInstanceActive[i];
     }
 
     @Override
@@ -523,31 +531,25 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
 
     @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
-        for (int i = 0; i < size; i++) {
-            if (dataId == i + 1) {
-                this.isActive[i] = buf.readBoolean();
-            }
+        if (dataId == 1) {
+            this.isActive = buf.readBoolean();
         }
         getMetaTileEntity().getHolder().scheduleChunkForRenderUpdate();
     }
 
     @Override
     public void writeInitialData(PacketBuffer buf) {
-        for (int i = 0; i < size; i++) {
-            buf.writeBoolean(this.isActive[i]);
-        }
+        buf.writeBoolean(this.isActive);
     }
 
     @Override
     public void receiveInitialData(PacketBuffer buf) {
-        for (int i = 0; i < size; i++) {
-            this.isActive[i] = buf.readBoolean();
-        }
+        this.isActive = buf.readBoolean();
     }
 
     @Override
     public void setWorkingEnabled(boolean workingEnabled, int i) {
-        this.workingEnabled[i] = workingEnabled;
+        this.isInstanceActive[i] = workingEnabled;
         metaTileEntity.markDirty();
     }
 
@@ -615,9 +617,6 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                 recipeEnergyList = new NBTTagList(),
                 recipeDurationList = new NBTTagList(),
                 recipeIndexList = new NBTTagList();
-
-        mainCompound.setBoolean(ALLOW_OVERCLOCKING, allowOverclocking);
-        mainCompound.setLong(OVERCLOCK_VOLTAGE, overclockVoltage);
 
         for (int i = 0, recipeIndex = 0; i < occupiedRecipes.length; i++) {
             if (occupiedRecipes[i] != null) {
@@ -697,21 +696,22 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
             lockCompound.setBoolean("RecipeLock" + i, lockRecipe[i]);
             lockList.appendTag(lockCompound);
 
+            isActiveCompound.setBoolean("IsInstanceActive" + i, isInstanceActive[i]);
+            isActiveList.appendTag(isActiveCompound);
+
+            progressCompound.setInteger("Progress" + i, progressTime[i]);
+            progressList.appendTag(progressCompound);
+
+            maxProgressCompound.setInteger("MaxProgress" + i, maxProgressTime[i]);
+            maxProgressList.appendTag(maxProgressCompound);
+
+            recipeEUtCompound.setInteger("RecipeEUt" + i, recipeEUt[i]);
+            EUtList.appendTag(recipeEUtCompound);
+
+            timerCompound.setInteger("Timer" + i, timeToStop[i]);
+            timerList.appendTag(timerCompound);
+
             if (progressTime[i] > 0) {
-                isActiveCompound.setBoolean("IsActive" + i, isActive[i]);
-                isActiveList.appendTag(isActiveCompound);
-
-                progressCompound.setInteger("Progress" + i, progressTime[i]);
-                progressList.appendTag(progressCompound);
-
-                maxProgressCompound.setInteger("MaxProgress" + i, maxProgressTime[i]);
-                maxProgressList.appendTag(maxProgressCompound);
-
-                recipeEUtCompound.setInteger("RecipeEUt" + i, recipeEUt[i]);
-                EUtList.appendTag(recipeEUtCompound);
-
-                timerCompound.setInteger("Timer" + i, timeToStop[i]);
-                timerList.appendTag(timerCompound);
 
                 NBTTagList itemOutputsList = new NBTTagList();
                 for (ItemStack itemOutput : itemOutputs.get(i)) {
@@ -728,10 +728,13 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                 totalOutputFluidsList.appendTag(fluidCompound);
             }
         }
+        mainCompound.setBoolean(ALLOW_OVERCLOCKING, allowOverclocking);
+        mainCompound.setLong(OVERCLOCK_VOLTAGE, overclockVoltage);
+        mainCompound.setBoolean("IsActive", isActive);
         mainCompound.setTag("ItemOutputs", totalOutputItemsList);
         mainCompound.setTag("FluidOutputs", totalOutputFluidsList);
         mainCompound.setTag("WorkingEnabled", workingList);
-        mainCompound.setTag("IsActive", isActiveList);
+        mainCompound.setTag("IsInstanceActive", isActiveList);
         mainCompound.setTag("Progress", progressList);
         mainCompound.setTag("MaxProgress", maxProgressList);
         mainCompound.setTag("RecipeEUt", EUtList);
@@ -756,7 +759,7 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
         NBTTagList totalOutputItemsList = compound.getTagList("ItemOutputs", Constants.NBT.TAG_COMPOUND),
                 totalOutputFluidsList = compound.getTagList("FluidOutputs", Constants.NBT.TAG_COMPOUND),
                 workingList = compound.getTagList("WorkingEnabled", Constants.NBT.TAG_COMPOUND),
-                isActiveList = compound.getTagList("IsActive", Constants.NBT.TAG_COMPOUND),
+                isActiveList = compound.getTagList("IsInstanceActive", Constants.NBT.TAG_COMPOUND),
                 progressList = compound.getTagList("Progress", Constants.NBT.TAG_COMPOUND),
                 maxProgressList = compound.getTagList("MaxProgress", Constants.NBT.TAG_COMPOUND),
                 EUtList = compound.getTagList("RecipeEUt", Constants.NBT.TAG_COMPOUND),
@@ -773,7 +776,9 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                 recipeEnergyList = compound.getTagList("RecipeEnergy", Constants.NBT.TAG_COMPOUND),
                 recipeDurationList = compound.getTagList("RecipeDuration", Constants.NBT.TAG_COMPOUND),
                 recipeIndexList = compound.getTagList("RecipeIndex", Constants.NBT.TAG_COMPOUND);
-
+        if (compound.hasKey("IsActive")) {
+            isActive = compound.getBoolean("IsActive");
+        }
         if (compound.hasKey(ALLOW_OVERCLOCKING)) {
             allowOverclocking = compound.getBoolean(ALLOW_OVERCLOCKING);
         }
@@ -783,15 +788,33 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
             // Calculate overclock voltage based on old allow flag
             overclockVoltage = allowOverclocking ? getMaxVoltage() : 0;
         }
-        for (int i = 0; i < workingList.tagCount(); i++) {
+        this.size = workingList.tagCount();
+        this.forceRecipeRecheck = new boolean[this.size];
+        this.progressTime = new int[this.size];
+        this.maxProgressTime = new int[this.size];
+        this.recipeEUt = new int[this.size];
+        this.isInstanceActive = new boolean[this.size];
+        this.workingEnabled = new boolean[this.size];
+        this.hasNotEnoughEnergy = new boolean[this.size];
+        this.lockRecipe = new boolean[this.size];
+        this.sleepTimer = new int[this.size];
+        this.sleepTime = new int[this.size];
+        this.failCount = new int[this.size];
+        this.timeToStop = new int[this.size];
+        this.occupiedRecipes = new Recipe[this.size];
+        for (int i = 1; i < this.size; i++) {
+            this.previousRecipe.setRecipeCaches(i + 1, false);
+        }
+
+        for (int i = 0; i < this.size; i++) {
             workingEnabled[i] = workingList.getCompoundTagAt(i).getBoolean("WorkingEnabled" + i);
             progressTime[i] = progressList.getCompoundTagAt(i).getInteger("Progress" + i);
             lockRecipe[i] = lockList.getCompoundTagAt(i).getBoolean("RecipeLock" + i);
+            isInstanceActive[i] = isActiveList.getCompoundTagAt(i).getBoolean("IsInstanceActive" + i);
+            maxProgressTime[i] = maxProgressList.getCompoundTagAt(i).getInteger("MaxProgress" + i);
+            recipeEUt[i] = EUtList.getCompoundTagAt(i).getInteger("RecipeEUt" + i);
+            timeToStop[i] = timerList.getCompoundTagAt(i).getInteger("Timer" + i);
             if (progressTime[i] > 0) {
-                isActive[i] = isActiveList.getCompoundTagAt(i).getBoolean("IsActive" + i);
-                maxProgressTime[i] = maxProgressList.getCompoundTagAt(i).getInteger("MaxProgress" + i);
-                recipeEUt[i] = EUtList.getCompoundTagAt(i).getInteger("RecipeEUt" + i);
-                timeToStop[i] = timerList.getCompoundTagAt(i).getInteger("Timer" + i);
                 NBTTagList itemOutputsList = totalOutputItemsList.getCompoundTagAt(i).getTagList("ItemOutputs" + i, Constants.NBT.TAG_COMPOUND);
                 itemOutputs.put(i, NonNullList.create());
                 for (int j = 0; j < itemOutputsList.tagCount(); j++) {
@@ -845,9 +868,8 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
                         ));
             }
 
-            occupiedRecipes[recipeIndex] = new Recipe(inputIngredients, outputItemStackCollection, chancedOutputCollection, inputFluidStackCollection, outputFluidStackCollection,
-                    recipeDurationList.getCompoundTagAt(i).getInteger("RecipeDuration" + recipeIndex), recipeEnergyList.getCompoundTagAt(i).getInteger("RecipeEnergy" + recipeIndex), false);
-            controller.multiRecipeMap.removeIfMatches(occupiedRecipes[recipeIndex]);
+            occupiedRecipes[recipeIndex] = controller.multiRecipeMap.findAndGet(new Recipe(inputIngredients, outputItemStackCollection, chancedOutputCollection, inputFluidStackCollection, outputFluidStackCollection,
+                    recipeDurationList.getCompoundTagAt(i).getInteger("RecipeDuration" + recipeIndex), recipeEnergyList.getCompoundTagAt(i).getInteger("RecipeEnergy" + recipeIndex), false));
         }
     }
 }

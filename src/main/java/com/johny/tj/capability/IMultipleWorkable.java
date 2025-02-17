@@ -18,5 +18,5 @@ public interface IMultipleWorkable extends IMultiControllable {
     /*
      * @return check is this instance active
      */
-    boolean isActive(int i);
+    boolean isInstanceActive(int i);
 }

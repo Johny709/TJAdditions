@@ -113,6 +113,14 @@ tj.multiblock.parallel.progress=Progress:
 tj.multiblock.parallel.status=Status:
 tj.multiblock.parallel.lock=[Locked]
 tj.multiblock.parallel.unlock=[Unlocked]
+tj.multiblock.parallel.sum=Total Energy: §b%s§7 EU/t
+tj.multiblock.parallel.advanced=Advanced tooltip:
+tj.multiblock.parallel.advanced.on=Advanced tooltip ON
+tj.multiblock.parallel.advanced.off=Advanced tooltip OFF
+tj.multiblock.parallel.advanced.itemInputs=Item Inputs:
+tj.multiblock.parallel.advanced.itemOutputs=Item Outputs:
+tj.multiblock.parallel.advanced.fluidInput=Fluid Inputs:
+tj.multiblock.parallel.advanced.fluidOutput=Fluid Outputs:
 
 tj.multiblock.elite_large_miner.restart=Can Restart:
 tj.multiblock.elite_large_miner.restart.true=Yes
@@ -161,6 +169,7 @@ tj.multiblock.tab.display=Multiblock Display
 tj.multiblock.tab.filter=Filter
 tj.multiblock.tab.maintenance=Maintenance
 tj.multiblock.tab.linked_entities_display=Linked Entities
+tj.multiblock.tab.workable=Recipe Workable Handlers
 
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %d
 tj.multiblock.not_enough_fluid.space=WARNING: not enough space for fluid %d

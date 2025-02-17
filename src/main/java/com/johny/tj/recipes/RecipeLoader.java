@@ -2,12 +2,16 @@ package com.johny.tj.recipes;
 
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
+import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.items.TJMetaItems;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
+import gregicadditions.recipes.GARecipeMaps;
+import gregicadditions.recipes.impl.LargeRecipeBuilder;
 import gregtech.api.recipes.ModHandler;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.common.items.MetaItems;
@@ -26,6 +30,8 @@ import static gregtech.api.recipes.RecipeMaps.ALLOY_SMELTER_RECIPES;
 import static gregtech.api.unification.material.Materials.*;
 
 public class RecipeLoader {
+
+    public static MultiRecipeMap LARGE_CHEMICAL_REACTOR_RECIPES;
 
     public static void init() {
 
@@ -137,6 +143,12 @@ public class RecipeLoader {
                 'G', new UnificationEntry(OrePrefix.gear, Bronze),
                 'O', new UnificationEntry(OrePrefix.gear, Steel));
 
+    }
+
+    public static void multiRecipesInit() {
+        LARGE_CHEMICAL_REACTOR_RECIPES = new MultiRecipeMap(
+                0, 3, 0, 3, 0, 5, 0, 4, (new LargeRecipeBuilder(RecipeMaps.CHEMICAL_RECIPES))
+                .EUt(30), GARecipeMaps.LARGE_CHEMICAL_RECIPES.getRecipeList());
     }
 
     public static MetaTileEntityAirCollector[] AIR_COLLECTORS = {MetaTileEntities.AIR_COLLECTOR[3], AIR_COLLECTOR[4], AIR_COLLECTOR[5]};
