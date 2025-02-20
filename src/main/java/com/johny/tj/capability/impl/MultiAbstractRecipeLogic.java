@@ -549,7 +549,7 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
 
     @Override
     public void setWorkingEnabled(boolean workingEnabled, int i) {
-        this.isInstanceActive[i] = workingEnabled;
+        this.workingEnabled[i] = workingEnabled;
         metaTileEntity.markDirty();
     }
 
