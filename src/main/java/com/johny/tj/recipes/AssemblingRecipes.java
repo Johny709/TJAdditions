@@ -16,6 +16,7 @@ import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 
 import static com.johny.tj.machines.TJMetaTileEntities.COKE_OVEN;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
@@ -26,6 +27,7 @@ import static gregicadditions.machines.GATileEntities.ENERGY_OUTPUT_HATCH_128_AM
 import static gregicadditions.recipes.GARecipeMaps.ASSEMBLY_LINE_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
+import static gregtech.api.unification.material.MarkerMaterials.Tier.Master;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
 
@@ -144,6 +146,16 @@ public class AssemblingRecipes {
                     .EUt(GAValues.VA[i + 1])
                     .buildAndRegister();
         }
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(new ItemStack(Blocks.LEVER))
+                .input(OrePrefix.plate, Iron)
+                .inputs(HULL[1].getStackForm())
+                .fluidInputs(SolderingAlloy.getFluid(144))
+                .outputs(MACHINE_CONTROLLER.getStackForm())
+                .duration(200)
+                .EUt(16)
+                .buildAndRegister();
 
         if (TJConfig.machines.replaceCTMultis) {
             ELECTROLYZER_RECIPES.recipeBuilder()
@@ -268,11 +280,15 @@ public class AssemblingRecipes {
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(5760))
                 .fluidInputs(Lubricant.getFluid(16000))
+                .fluidInputs(Uranium238Isotope.getMaterial().getFluid(1440))
+                .fluidInputs(Plutonium244Isotope.getMaterial().getFluid(1440))
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(64))
-                .input(OrePrefix.wireGtDouble, LuVSuperconductor, 64)
+                .input(OrePrefix.wireGtQuadruple, LuVSuperconductor, 64)
                 .input(OrePrefix.plateDense, Einsteinium.getMaterial(), 4)
                 .input(OrePrefix.plateDense, Rutherfordium, 4)
                 .inputs(MetaItems.FIELD_GENERATOR_LUV.getStackForm(16))
+                .inputs(MetaItems.EMITTER_LUV.getStackForm(16))
+                .inputs(MetaItems.SENSOR_LUV.getStackForm(16))
                 .inputs(GATileEntities.FUSION_REACTOR[0].getStackForm())
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Ultimate)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Ultimate)
@@ -286,17 +302,21 @@ public class AssemblingRecipes {
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(5760))
                 .fluidInputs(Lubricant.getFluid(16000))
+                .fluidInputs(Polonium.getFluid(2880))
+                .fluidInputs(Lutetium.getFluid(2880))
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(48))
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(48))
-                .input(OrePrefix.wireGtQuadruple, ZPMSuperconductor, 64)
+                .input(OrePrefix.wireGtOctal, ZPMSuperconductor, 64)
                 .input(OrePrefix.plateDense, Fermium.getMaterial(), 4)
                 .input(OrePrefix.plateDense, Dubnium, 4)
                 .inputs(MetaItems.FIELD_GENERATOR_ZPM.getStackForm(16))
+                .inputs(MetaItems.EMITTER_ZPM.getStackForm(16))
+                .inputs(MetaItems.SENSOR_ZPM.getStackForm(16))
                 .inputs(GATileEntities.FUSION_REACTOR[1].getStackForm())
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_ZPM.getStackForm())
                 .EUt(120000)
                 .duration(1000)
@@ -305,17 +325,21 @@ public class AssemblingRecipes {
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(5760))
                 .fluidInputs(Lubricant.getFluid(16000))
+                .fluidInputs(Copernicium.getFluid(5760))
+                .fluidInputs(Meitnerium.getFluid(5760))
                 .inputs(GAMetaItems.UHPIC.getStackForm(64))
                 .inputs(GAMetaItems.UHPIC.getStackForm(64))
-                .input(OrePrefix.wireGtOctal, UVSuperconductor, 64)
+                .input(OrePrefix.wireGtHex, UVSuperconductor, 64)
                 .input(OrePrefix.plateDense, Mendelevium.getMaterial(), 4)
                 .input(OrePrefix.plateDense, Seaborgium, 4)
                 .inputs(MetaItems.FIELD_GENERATOR_UV.getStackForm(16))
+                .inputs(MetaItems.EMITTER_UV.getStackForm(16))
+                .inputs(MetaItems.SENSOR_UV.getStackForm(16))
                 .inputs(GATileEntities.FUSION_REACTOR[2].getStackForm())
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
-                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 16)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 16)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 16)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite,16)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_UV.getStackForm())
                 .EUt(180000)
                 .duration(1000)
@@ -369,6 +393,24 @@ public class AssemblingRecipes {
                 .outputs(INFINITE_FLUID_DRILL.getStackForm())
                 .EUt(GAValues.VA[10])
                 .duration(2400)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(Plastic.getFluid(9216))
+                .fluidInputs(PolyvinylChloride.getFluid(4608))
+                .fluidInputs(Polytetrafluoroethylene.getFluid(2304))
+                .fluidInputs(Polybenzimidazole.getFluid(1152))
+                .input(OrePrefix.foil, Polycaprolactam, 64)
+                .input(OrePrefix.foil, Polystyrene, 64)
+                .input(OrePrefix.foil, PolyphenyleneSulfide, 64)
+                .input(OrePrefix.foil, Rubber, 64)
+                .inputs(MetaItems.ELECTRIC_PUMP_IV.getStackForm(16))
+                .input(OrePrefix.circuit, Master)
+                .input(OrePrefix.circuit, Master)
+                .inputs(GATileEntities.LARGE_CHEMICAL_REACTOR.getStackForm())
+                .outputs(PARALLEL_CHEMICAL_REACTOR.getStackForm())
+                .EUt(GAValues.VA[6])
+                .duration(1200)
                 .buildAndRegister();
     }
 }
