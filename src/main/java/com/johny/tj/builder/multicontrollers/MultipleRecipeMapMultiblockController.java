@@ -5,7 +5,6 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
-import com.johny.tj.TJConfig;
 import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.capability.impl.MultiblockMultiRecipeLogic;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
@@ -106,6 +105,10 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
         return maxVoltage;
     }
 
+    public int getMaxParallel() {
+        return 1;
+    }
+
     @Override
     protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
@@ -193,12 +196,11 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
                 .appendText(" ")
                 .appendSibling(advancedText ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "advanced")
                         : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "basic")));
-        ITextComponent page = new TextComponentString(":");
-        page.appendText(" ");
-        page.appendSibling(withButton(new TextComponentString("[<]"), "leftPage"));
-        page.appendText(" ");
-        page.appendSibling(withButton(new TextComponentString("[>]"), "rightPage"));
-        textList.add(page);
+        textList.add(new TextComponentString(":")
+                .appendText(" ")
+                .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))
+                .appendText(" ")
+                .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
         if (isStructureFormed()) {
             for (int i = pageIndex, recipeHandlerPos = i + 1; i < pageIndex + pageSize; i++, recipeHandlerPos++) {
                 if (i < parallelLayer) {
@@ -238,24 +240,29 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
     }
 
     private void handleWorkableDisplayClick(String componentData, Widget.ClickData clickData) {
+        switch (componentData) {
+            case "leftPage":
+                if (pageIndex > 0)
+                    pageIndex -= pageSize;
+                return;
+            case "rightPage":
+                if (pageIndex < parallelLayer - pageSize)
+                    pageIndex += pageSize;
+                return;
+            case "basic":
+                advancedText = true;
+                return;
+            case "advanced":
+                advancedText = false;
+                return;
+        }
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
             if (componentData.equals("lock" + i)) {
                 recipeMapWorkable.setLockingMode(false, i);
-            } else if (componentData.equals("unlock" + i)) {
+            }
+            if (componentData.equals("unlock" + i)) {
                 recipeMapWorkable.setLockingMode(true, i);
             }
-        }
-        if (componentData.equals("leftPage")) {
-            if (pageIndex > 0)
-                pageIndex -= pageSize;
-        } else if (componentData.equals("rightPage")) {
-            if (pageIndex < parallelLayer - pageSize)
-                pageIndex += pageSize;
-        }
-        if (componentData.equals("basic")) {
-            advancedText = true;
-        } else if (componentData.equals("advanced")) {
-            advancedText = false;
         }
     }
 
@@ -270,6 +277,9 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public void invalidateStructure() {
+        for (int i = 0; i < getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
+            getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i).setID(null, 0);
+        }
         super.invalidateStructure();
         resetTileAbilities();
     }
@@ -340,7 +350,7 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!getWorld().isRemote) {
             if (!playerIn.isSneaking()) {
-                if (this.parallelLayer < TJConfig.parallelLCR.maximumLayers) {
+                if (this.parallelLayer < getMaxParallel()) {
                     this.recipeMapWorkable.setLayer(++parallelLayer, false);
                     this.resetStructure();
                     playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));

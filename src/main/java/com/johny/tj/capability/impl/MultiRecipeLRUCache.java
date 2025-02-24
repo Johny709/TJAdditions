@@ -26,7 +26,7 @@ public class MultiRecipeLRUCache {
         if (!remove) {
             this.recipeCaches.put(i -1, new LinkedList<>());
         } else {
-            this.recipeCaches.remove(i -1);
+            this.recipeCaches.remove(i);
         }
     }
 
@@ -58,8 +58,8 @@ public class MultiRecipeLRUCache {
     public void clear() {
         this.cacheHit = 0;
         this.cacheMiss = 0;
-        this.lastAccessedRecipe = null;
-        this.recipeCaches.clear();
+        Arrays.fill(this.lastAccessedRecipe, null);
+        this.recipeCaches.forEach((key, value) -> value.clear());
     }
 
     public Recipe get(IItemHandlerModifiable inputItems, IMultipleTankHandler inputFluids, int i, Recipe[] occupiedRecipes) {

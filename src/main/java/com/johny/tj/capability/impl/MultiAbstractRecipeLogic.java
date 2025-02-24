@@ -232,7 +232,7 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
     }
 
     protected boolean trySearchNewRecipe(int i) {
-        long maxVoltage = controller.getMaxVoltage();
+        long maxVoltage = getMaxVoltage();
         Recipe currentRecipe = null;
         IItemHandlerModifiable importInventory = getInputInventory();
         IMultipleTankHandler importFluids = getInputTank();

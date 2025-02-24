@@ -32,7 +32,7 @@ public class ParallelChemicalReactorInfo extends MultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapes = new ArrayList<>();
-        for (int index = 1; index < 16; index++) {
+        for (int index = 1; index <= 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
             MetaTileEntityParallelLargeChemicalReactor chemicalReactor = TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
             builder.aisle("CCCCC", "CCCCi", "CCCCM", "CCCCo", "CCCCC");

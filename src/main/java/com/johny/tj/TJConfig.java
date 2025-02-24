@@ -37,19 +37,15 @@ public class TJConfig {
     }
 
     @Config.Comment("Parallel Large Chemical Reactor")
-    public static ParallelLCR parallelLCR = new ParallelLCR();
+    public static ParallelChemicalReactor parallelChemicalReactor = new ParallelChemicalReactor();
 
-    public static class ParallelLCR {
+    public static class ParallelChemicalReactor {
 
-        @Config.Name("Layer Limit")
-        @Config.Comment("Adjust the maximum number of layers the chemical reactor can have")
+        @Config.Name("Parallel Limit")
+        @Config.Comment("Adjust the maximum number of parallel recipes the chemical reactor can do")
         @Config.RequiresMcRestart
-        public int maximumLayers = 64;
+        public int maximumParallel = 64;
 
-        @Config.Name("Recipe Parallel")
-        @Config.Comment("Adjust the amount of recipes the machine can run simultaneously")
-        @Config.RequiresMcRestart
-        public int maximumRecipeParallel = 64;
     }
 
     @Config.Comment("Decay Chamber")
@@ -248,5 +244,30 @@ public class TJConfig {
         @Config.Name("Slice Limit")
         @Config.RequiresMcRestart
         public int maximumSlices = 64;
+    }
+
+    @Config.Comment("APLCR")
+    public static AdvancedParallelChemicalReactor advancedParallelChemicalReactor = new AdvancedParallelChemicalReactor();
+
+    public static class AdvancedParallelChemicalReactor {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 20;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
     }
 }

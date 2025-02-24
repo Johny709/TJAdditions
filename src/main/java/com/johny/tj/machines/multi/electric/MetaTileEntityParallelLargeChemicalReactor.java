@@ -1,7 +1,8 @@
 package com.johny.tj.machines.multi.electric;
 
+import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
-import com.johny.tj.capability.impl.MultiGAMultiblockRecipeLogic;
+import com.johny.tj.capability.impl.MultiblockMultiRecipeLogic;
 import com.johny.tj.recipes.RecipeLoader;
 import gregicadditions.GAConfig;
 import gregicadditions.GAValues;
@@ -27,9 +28,13 @@ import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +57,15 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
     @Override
     public MetaTileEntityParallelLargeChemicalReactor createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityParallelLargeChemicalReactor(metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"));
+        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
+        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.3"));
     }
 
     @Override
@@ -169,43 +183,30 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
         this.structurePattern = null;
     }
 
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setInteger("Parallel", this.parallelLayer);
-        return data;
+    public int getEnergyBonus() {
+        return energyBonus;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.parallelLayer = data.getInteger("Parallel");
+    public int getMaxParallel() {
+        return TJConfig.parallelChemicalReactor.maximumParallel;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-    private static class ParallelChemicalReactorWorkableHandler extends MultiGAMultiblockRecipeLogic {
-
-        MetaTileEntityParallelLargeChemicalReactor chemicalReactor;
+    private static class ParallelChemicalReactorWorkableHandler extends MultiblockMultiRecipeLogic {
 
         public ParallelChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity) {
-            super(tileEntity);
-            this.chemicalReactor = tileEntity;
+            super(tileEntity, 64);
+        }
+
+        @Override
+        public long getMaxVoltage() {
+            return this.controller.getMaxVoltage();
         }
 
         @Override
         protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = chemicalReactor.energyBonus;
-            long maxVoltage = chemicalReactor.maxVoltage;
+            int energyBonus = ((MetaTileEntityParallelLargeChemicalReactor) this.controller).getEnergyBonus();
+            long maxVoltage = getMaxVoltage();
 
             int[] resultOverclock = calculateOverclock(recipe.getEUt(), maxVoltage, recipe.getDuration());
             this.progressTime[i] = 1;

@@ -32,6 +32,7 @@ import static gregtech.api.unification.material.Materials.*;
 public class RecipeLoader {
 
     public static MultiRecipeMap LARGE_CHEMICAL_REACTOR_RECIPES;
+    public static MultiRecipeMap LARGE_CHEMICAL_PLANT_RECIPES;
 
     public static void init() {
 
@@ -149,6 +150,9 @@ public class RecipeLoader {
         LARGE_CHEMICAL_REACTOR_RECIPES = new MultiRecipeMap(
                 0, 3, 0, 3, 0, 5, 0, 4, (new LargeRecipeBuilder(RecipeMaps.CHEMICAL_RECIPES))
                 .EUt(30), GARecipeMaps.LARGE_CHEMICAL_RECIPES.getRecipeList());
+
+        LARGE_CHEMICAL_PLANT_RECIPES = new MultiRecipeMap(
+                0, 6, 0, 4, 0, 5, 0, 4, new LargeRecipeBuilder(RecipeMaps.CHEMICAL_RECIPES), GARecipeMaps.CHEMICAL_PLANT_RECIPES.getRecipeList());
     }
 
     public static MetaTileEntityAirCollector[] AIR_COLLECTORS = {MetaTileEntities.AIR_COLLECTOR[3], AIR_COLLECTOR[4], AIR_COLLECTOR[5]};

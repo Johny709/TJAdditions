@@ -1,119 +1,105 @@
 package com.johny.tj.capability.impl;
 
 import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
-import com.johny.tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
 import gregicadditions.GAUtility;
-import gregicadditions.GAValues;
+import gregicadditions.utils.GALog;
 import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.multiblock.MultiblockAbility;
-import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeBuilder;
+import gregtech.api.recipes.RecipeMap;
+import gregtech.api.util.GTFluidUtils;
+import gregtech.api.util.InventoryUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 
 public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
 
-    MultipleRecipeMapMultiblockController controller;
-
-    // Field used for maintenance
-    protected int previousRecipeDuration;
-
-    // Fields used for distinct mode
-    protected int lastRecipeIndex = 0;
-    protected ItemStack[][] lastItemInputsMatrix;
-
-    public MultiGAMultiblockRecipeLogic(MultipleRecipeMapMultiblockController tileEntity) {
-        super(tileEntity, 16);
-        this.controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+    private final int EUtPercentage;
+    private final int durationPercentage;
+    private final int chancePercentage;
+    private final int stack;
+    public MultiGAMultiblockRecipeLogic(MultipleRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+        super(tileEntity, 64);
+        this.EUtPercentage = EUtPercentage;
+        this.durationPercentage = durationPercentage;
+        this.chancePercentage = chancePercentage;
+        this.stack = stack;
     }
 
-    /**
-     * Used to reset cached values after multiblock structure deforms
-     */
-    protected void invalidate() {
-        lastRecipeIndex = 0;
+    public int getEUtPercentage() {
+        return EUtPercentage;
     }
 
-    protected List<IItemHandlerModifiable> getInputBuses() {
-        return controller.getAbilities(MultiblockAbility.IMPORT_ITEMS);
+    public int getDurationPercentage() {
+        return durationPercentage;
     }
 
-    @Override
-    protected int[] calculateOverclock(int EUt, long voltage, int duration) {
-        int numMaintenanceProblems = (this.metaTileEntity instanceof MultipleRecipeMapMultiblockController) ?
-                ((MultipleRecipeMapMultiblockController) metaTileEntity).getNumProblems() : 0;
+    public int getChancePercentage() {
+        return chancePercentage;
+    }
 
-        double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
-        int durationModified = (int) (duration * maintenanceDurationMultiplier);
+    public int getStack() {
+        return stack;
+    }
 
-        if (!allowOverclocking) {
-            return new int[]{EUt, durationModified};
-        }
-        boolean negativeEU = EUt < 0;
-        int tier = getOverclockingTier(voltage);
-        if (GAValues.V[tier] <= EUt || tier == 0)
-            return new int[]{EUt, durationModified};
-        if (negativeEU)
-            EUt = -EUt;
-        int resultEUt = EUt;
-        double resultDuration = durationModified;
-        //do not overclock further if duration is already too small
-        while (resultDuration >= 1 && resultEUt <= GAValues.V[tier - 1]) {
-            resultEUt *= 4;
-            resultDuration /= 2.8;
-        }
-        previousRecipeDuration = (int) resultDuration;
-        return new int[]{negativeEU ? -resultEUt : resultEUt, (int) Math.ceil(resultDuration)};
+    public boolean isBatching() {
+        return true;
+    }
+
+    public RecipeMap<?> getRecipeMap() {
+        return this.recipeMap;
     }
 
     @Override
-    protected int getOverclockingTier(long voltage) {
-        return GAUtility.getTierByVoltage(voltage);
-    }
-
-    @Override
-    protected void completeRecipe(int i) {
-        super.completeRecipe(i);
-        if (metaTileEntity instanceof TJGARecipeMapMultiblockController gaController) {
-            //if (gaController.hasMufflerHatch()) {
-            //    gaController.outputRecoveryItems();
-            //}
-            if (gaController.hasMaintenanceHatch()) {
-                gaController.calculateMaintenance(previousRecipeDuration);
-                previousRecipeDuration = 0;
+    protected boolean trySearchNewRecipeCombined(int i) {
+        long maxVoltage = getMaxVoltage();
+        Recipe currentRecipe = null;
+        IItemHandlerModifiable importInventory = getInputInventory();
+        IMultipleTankHandler importFluids = getInputTank();
+        Recipe foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes);
+        if (foundRecipe != null) {
+            currentRecipe = foundRecipe;
+        } else {
+            boolean dirty = checkRecipeInputsDirty(importInventory, importFluids);
+            if (dirty || this.forceRecipeRecheck[i]) {
+                this.forceRecipeRecheck[i] = false;
+                currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
+                if (currentRecipe != null) {
+                    this.occupiedRecipes[i] = currentRecipe;
+                    this.previousRecipe.put(currentRecipe, i);
+                    this.previousRecipe.cacheUnutilized();
+                }
             }
         }
+
+        if (currentRecipe == null) {
+            return false;
+        }
+        if (isBatching()) {
+            currentRecipe = createRecipe(maxVoltage, importInventory, importFluids, currentRecipe);
+        }
+        if (!setupAndConsumeRecipeInputs(currentRecipe)) {
+            return false;
+        }
+        if (foundRecipe != null) {
+            this.previousRecipe.cacheUtilized(i);
+        }
+        setupRecipe(currentRecipe, i);
+        return true;
     }
 
     @Override
-    protected boolean trySearchNewRecipe(int i) {
-        if (metaTileEntity instanceof TJGARecipeMapMultiblockController controller) {
-            if (controller.getNumProblems() > 5)
-                return false;
-
-
-            //    return trySearchNewRecipeDistinct(i);
-
-        }
-        return trySearchNewRecipeCombined(i);
-
-    }
-
-    // TODO May need to do more here
-    protected boolean trySearchNewRecipeCombined(int i) {
-        return super.trySearchNewRecipe(i);
-    }
-
     protected boolean trySearchNewRecipeDistinct(int i) {
-        long maxVoltage = controller.getMaxVoltage();
-        Recipe currentRecipe = null;
+        long maxVoltage = getMaxVoltage();
+        Recipe currentRecipe;
         List<IItemHandlerModifiable> importInventory = getInputBuses();
         IMultipleTankHandler importFluids = getInputTank();
 
@@ -123,6 +109,7 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
+            currentRecipe = createRecipe(maxVoltage, importInventory.get(lastRecipeIndex), importFluids, currentRecipe);
             if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex)) {
                 this.previousRecipe.cacheUtilized(i);
                 setupRecipe(currentRecipe, i);
@@ -138,6 +125,7 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
             foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
+                currentRecipe = createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe);
                 if (setupAndConsumeRecipeInputs(currentRecipe, j)) {
                     this.previousRecipe.cacheUtilized(i);
                     setupRecipe(currentRecipe, i);
@@ -153,9 +141,8 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
             if (foundRecipeIndex.contains(j)) {
                 continue;
             }
-
             IItemHandlerModifiable bus = importInventory.get(j);
-            boolean dirty = checkRecipeInputsDirty(bus, importFluids);
+            boolean dirty = checkRecipeInputsDirty(bus, importFluids, j, i);
             if (!dirty && !forceRecipeRecheck[i]) {
                 continue;
             }
@@ -164,8 +151,12 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
             if (currentRecipe == null) {
                 continue;
             }
+            this.occupiedRecipes[i] = currentRecipe;
             this.previousRecipe.put(currentRecipe, i);
             this.previousRecipe.cacheUnutilized();
+            if (isBatching()) {
+                currentRecipe = createRecipe(maxVoltage, bus, importFluids, currentRecipe);
+            }
             if (!setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }
@@ -176,68 +167,180 @@ public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
         return false;
     }
 
-    // Replacing this for optimization reasons
-    protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs, int index, int i) {
-        boolean shouldRecheckRecipe = false;
+    protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
+        int maxItemsLimit = getStack();
+        int EUt;
+        int duration;
+        int currentTier = getOverclockingTier(maxVoltage);
+        int tierNeeded;
+        int minMultiplier = Integer.MAX_VALUE;
 
-        if (lastItemInputsMatrix == null || lastItemInputsMatrix.length != getInputBuses().size()) {
-            lastItemInputsMatrix = new ItemStack[getInputBuses().size()][];
+        tierNeeded = Math.max(1, GAUtility.getTierByVoltage(matchingRecipe.getEUt()));
+        maxItemsLimit *= currentTier - tierNeeded;
+        maxItemsLimit = Math.max(1, maxItemsLimit);
+        if (maxItemsLimit == 1) {
+            return matchingRecipe;
         }
-        if (lastItemInputsMatrix[index] == null || lastItemInputsMatrix[index].length != inputs.getSlots()) {
-            this.lastItemInputsMatrix[index] = new ItemStack[inputs.getSlots()];
-            Arrays.fill(lastItemInputsMatrix[index], ItemStack.EMPTY);
+
+        Set<ItemStack> countIngredients = new HashSet<>();
+        if (!matchingRecipe.getInputs().isEmpty()) {
+            this.findIngredients(countIngredients, inputs);
+            minMultiplier = Math.min(maxItemsLimit, this.getMinRatioItem(countIngredients, matchingRecipe, maxItemsLimit));
         }
-        if (lastFluidInputs == null || lastFluidInputs.length != fluidInputs.getTanks()) {
-            this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
+
+        Map<String, Integer> countFluid = new HashMap<>();
+        if (!matchingRecipe.getFluidInputs().isEmpty()) {
+
+            this.findFluid(countFluid, fluidInputs);
+            minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, matchingRecipe, maxItemsLimit));
         }
-        for (int j = 0; j < lastItemInputsMatrix[index].length; j++) {
-            ItemStack currentStack = inputs.getStackInSlot(j);
-            ItemStack lastStack = lastItemInputsMatrix[index][j];
-            if (!areItemStacksEqual(currentStack, lastStack)) {
-                this.lastItemInputsMatrix[index][j] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
-                shouldRecheckRecipe = true;
-            } else if (currentStack.getCount() != lastStack.getCount()) {
-                lastStack.setCount(currentStack.getCount());
-                shouldRecheckRecipe = true;
+
+        if (minMultiplier == Integer.MAX_VALUE) {
+            GALog.logger.error("Cannot calculate ratio of items for large multiblocks");
+            return null;
+        }
+
+        EUt = matchingRecipe.getEUt();
+        duration = matchingRecipe.getDuration();
+
+        int tierDiff = currentTier - tierNeeded;
+        for (int i = 0; i < tierDiff; i++) {
+            int attemptItemsLimit = getStack();
+            attemptItemsLimit *= tierDiff - i;
+            attemptItemsLimit = Math.max(1, attemptItemsLimit);
+            attemptItemsLimit = Math.min(minMultiplier, attemptItemsLimit);
+            List<CountableIngredient> newRecipeInputs = new ArrayList<>();
+            List<FluidStack> newFluidInputs = new ArrayList<>();
+            List<ItemStack> outputI = new ArrayList<>();
+            List<FluidStack> outputF = new ArrayList<>();
+            this.multiplyInputsAndOutputs(newRecipeInputs, newFluidInputs, outputI, outputF, matchingRecipe, attemptItemsLimit);
+
+
+            RecipeBuilder<?> newRecipe = getRecipeMap().recipeBuilder();
+            copyChancedItemOutputs(newRecipe, matchingRecipe, attemptItemsLimit);
+
+            // determine if there is enough room in the output to fit all of this
+            // if there isn't, we can't process this recipe.
+            List<ItemStack> totalOutputs = newRecipe.getChancedOutputs().stream().map(Recipe.ChanceEntry::getItemStack).collect(Collectors.toList());
+            totalOutputs.addAll(outputI);
+            boolean canFitOutputs = InventoryUtils.simulateItemStackMerge(totalOutputs, this.getOutputInventory());
+            canFitOutputs = canFitOutputs && GTFluidUtils.simulateFluidStackMerge(outputF, this.getOutputTank());
+            if (!canFitOutputs) {
+                continue;
             }
+
+            newRecipe.inputsIngredients(newRecipeInputs)
+                    .fluidInputs(newFluidInputs)
+                    .outputs(outputI)
+                    .fluidOutputs(outputF)
+                    .EUt(Math.max(1, EUt * getEUtPercentage() / 100))
+                    .duration((int) Math.max(3, duration * (getDurationPercentage() / 100.0)));
+
+            return newRecipe.build().getResult();
         }
-        for (int j = 0; j < lastFluidInputs.length; j++) {
-            FluidStack currentStack = fluidInputs.getTankAt(j).getFluid();
-            FluidStack lastStack = lastFluidInputs[j];
-            if ((currentStack == null && lastStack != null) ||
-                    (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
-                this.lastFluidInputs[j] = currentStack == null ? null : currentStack.copy();
-                shouldRecheckRecipe = true;
-            } else if (currentStack != null && lastStack != null &&
-                    currentStack.amount != lastStack.amount) {
-                lastStack.amount = currentStack.amount;
-                shouldRecheckRecipe = true;
-            }
-        }
-        return shouldRecheckRecipe;
+        return matchingRecipe;
     }
 
-    protected boolean setupAndConsumeRecipeInputs(Recipe recipe, int index) {
-        RecipeMapMultiblockController controller = (RecipeMapMultiblockController) metaTileEntity;
-        if (controller.checkRecipe(recipe, false)) {
+    protected void copyChancedItemOutputs(RecipeBuilder<?> newRecipe, Recipe oldRecipe, int multiplier) {
+        for (Recipe.ChanceEntry s : oldRecipe.getChancedOutputs()) {
+            int chance = Math.min(10000, s.getChance() * getChancePercentage() / 100);
+            int boost = s.getBoostPerTier() * getChancePercentage() / 100;
+            IntStream.range(0, multiplier).forEach(value -> {
+                ItemStack itemStack = s.getItemStack().copy();
+                newRecipe.chancedOutput(itemStack, chance, boost);
+            });
+        }
+    }
 
-            int[] resultOverclock = calculateOverclock(recipe.getEUt(), recipe.getDuration());
-            int totalEUt = resultOverclock[0] * resultOverclock[1];
-            IItemHandlerModifiable importInventory = getInputBuses().get(index);
-            IItemHandlerModifiable exportInventory = getOutputInventory();
-            IMultipleTankHandler importFluids = getInputTank();
-            IMultipleTankHandler exportFluids = getOutputTank();
-            boolean setup = (totalEUt >= 0 ? getEnergyStored() >= (totalEUt > getEnergyCapacity() / 2 ? resultOverclock[0] : totalEUt) :
-                    (getEnergyStored() - resultOverclock[0] <= getEnergyCapacity())) &&
-                    MetaTileEntity.addItemsToItemHandler(exportInventory, true, recipe.getAllItemOutputs(exportInventory.getSlots())) &&
-                    MetaTileEntity.addFluidsToFluidHandler(exportFluids, true, recipe.getFluidOutputs()) &&
-                    recipe.matches(true, importInventory, importFluids);
 
-            if (setup) {
-                controller.checkRecipe(recipe, true);
-                return true;
+    protected void findIngredients(Set<ItemStack> countIngredients, IItemHandlerModifiable inputs) {
+        for (int slot = 0; slot < inputs.getSlots(); slot++) {
+            ItemStack wholeItemStack = inputs.getStackInSlot(slot);
+            // skip empty slots
+            String name = wholeItemStack.getItem().getUnlocalizedNameInefficiently(wholeItemStack);
+            if (name.equals("tile.air"))
+                continue;
+            boolean found = false;
+            for (ItemStack i : countIngredients) {
+                if (i.isItemEqual(wholeItemStack)) {
+                    i.setCount(i.getCount() + wholeItemStack.getCount());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                countIngredients.add(wholeItemStack.copy());
             }
         }
-        return false;
+    }
+
+    protected int getMinRatioItem(Set<ItemStack> countIngredients, Recipe r, int maxItemsLimit) {
+        int minMultiplier = Integer.MAX_VALUE;
+        for (CountableIngredient ci : r.getInputs()) {
+            if (ci.getCount() == 0) {
+                continue;
+            }
+            for (ItemStack wholeItemStack : countIngredients) {
+                if (ci.getIngredient().apply(wholeItemStack)) {
+                    int ratio = Math.min(maxItemsLimit, wholeItemStack.getCount() / ci.getCount());
+                    if (ratio < minMultiplier) {
+                        minMultiplier = ratio;
+                    }
+                    break;
+                }
+            }
+        }
+        return minMultiplier;
+    }
+
+    protected int getMinRatioFluid(Map<String, Integer> countFluid, Recipe r, int maxItemsLimit) {
+        int minMultiplier = Integer.MAX_VALUE;
+        for (FluidStack fs : r.getFluidInputs()) {
+            if (fs.amount != 0) { // skip notConsumable fluids
+                String name = fs.getFluid().getUnlocalizedName();
+                int ratio = Math.min(maxItemsLimit, countFluid.get(name) / fs.amount);
+                if (ratio < minMultiplier) {
+                    minMultiplier = ratio;
+                }
+            }
+        }
+        return minMultiplier;
+    }
+
+    protected void findFluid(Map<String, Integer> countFluid, IMultipleTankHandler fluidInputs) {
+        for (IFluidTank tank : fluidInputs) {
+            if (tank.getFluid() != null) {
+                String name = tank.getFluid().getUnlocalizedName();
+                if (countFluid.containsKey(name)) {
+                    int existingValue = countFluid.get(name);
+                    countFluid.put(name, existingValue + tank.getFluidAmount());
+                } else {
+                    countFluid.put(name, tank.getFluidAmount());
+                }
+            }
+        }
+    }
+
+    protected void multiplyInputsAndOutputs(List<CountableIngredient> newRecipeInputs, List<FluidStack> newFluidInputs, List<ItemStack> outputI, List<FluidStack> outputF, Recipe r, int multiplier) {
+        for (CountableIngredient ci : r.getInputs()) {
+            CountableIngredient newIngredient = new CountableIngredient(ci.getIngredient(), ci.getCount() * multiplier);
+            newRecipeInputs.add(newIngredient);
+        }
+        for (FluidStack fs : r.getFluidInputs()) {
+            FluidStack newFluid = new FluidStack(fs.getFluid(), fs.amount * multiplier);
+            newFluidInputs.add(newFluid);
+        }
+        for (ItemStack s : r.getOutputs()) {
+            int num = s.getCount() * multiplier;
+            ItemStack itemCopy = s.copy();
+            itemCopy.setCount(num);
+            outputI.add(itemCopy);
+        }
+        for (FluidStack f : r.getFluidOutputs()) {
+            int fluidNum = f.amount * multiplier;
+            FluidStack fluidCopy = f.copy();
+            fluidCopy.amount = fluidNum;
+            outputF.add(fluidCopy);
+        }
     }
 }

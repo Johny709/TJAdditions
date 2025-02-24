@@ -23,7 +23,7 @@ tj.machine.large_alloy_smelter.name=Large Alloy Smelter
 tj.machine.industrial_fusion_reactor.luv.name=Industrial Fusion Reactor MK1
 tj.machine.industrial_fusion_reactor.zpm.name=Industrial Fusion Reactor MK2
 tj.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor MK3
-tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor
+tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor (PLCR)
 tj.machine.large_greenhouse.name=Large Green House
 tj.machine.large_architect_workbench.name=Large Architect Workbench
 tj.machine.machine_controller.name=Machine Controller
@@ -37,6 +37,7 @@ tj.machine.gas_air_collector_turbine.name=Large Atmosphere Collector (Gas)
 tj.machine.plasma_air_collector_turbine.name=Large Atmosphere Collector (Plasma)
 tj.machine.infinite_fluid_drill.name=Infinite Fluid Drilling Plant
 tj.machine.industrial_steam_engine.name=Industrial Steam Engine
+tj.machine.advanced_parallel_chemical_reactor.name=Advanced Parallel Large Chemical Reactor (APLCR)
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -121,6 +122,9 @@ tj.multiblock.parallel.advanced.itemInputs=Item Inputs:
 tj.multiblock.parallel.advanced.itemOutputs=Item Outputs:
 tj.multiblock.parallel.advanced.fluidInput=Fluid Inputs:
 tj.multiblock.parallel.advanced.fluidOutput=Fluid Outputs:
+tj.multiblock.parallel.description=Capable of running multiple recipes in parallel.
+tj.multiblock.parallel.chemical_plant.description=Does not run recipes in batches when running chemical plant recipes.
+tj.multiblock.parallel.tooltip.1=Max Batch: §e%d§7 Per Overclocking Tier
 
 tj.multiblock.elite_large_miner.restart=Can Restart:
 tj.multiblock.elite_large_miner.restart.true=Yes
