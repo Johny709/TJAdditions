@@ -218,15 +218,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     protected void checkStructurePattern() {
-        try {
-            if (!getWorld().isRemote && getWorld() != null) {
-                if (this.structurePattern == null)
-                    this.structurePattern = createStructurePattern();
-                super.checkStructurePattern();
-            }
-        } catch (Exception ignored) {
-
-        }
+        if (getWorld() == null)
+            return;
+        if (this.structurePattern == null)
+            this.structurePattern = createStructurePattern();
+        super.checkStructurePattern();
     }
 
     @Override
