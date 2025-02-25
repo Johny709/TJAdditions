@@ -9,6 +9,7 @@ import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNucle
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityTJMultiFluidHatch;
+import com.johny.tj.multiblockpart.utility.MetaTileEntityWaterReservoirHatch;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityEnergyHatch;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
@@ -58,6 +59,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityInfiniteFluidDrill INFINITE_FLUID_DRILL;
     public static MetaTileEntityIndustrialSteamEngine INDUSTRIAL_STEAM_ENGINE;
     public static MetaTileEntityAdvancedParallelLargeChemicalReactor ADVANCED_PARALLEL_CHEMICAL_REACTOR;
+    public static MetaTileEntityWaterReservoirHatch WATER_RESERVOIR_HATCH;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -114,6 +116,7 @@ public class TJMetaTileEntities {
         INFINITE_FLUID_DRILL = GregTechAPI.registerMetaTileEntity(5081, new MetaTileEntityInfiniteFluidDrill(TJId("infinite_fluid_drill")));
         INDUSTRIAL_STEAM_ENGINE = GregTechAPI.registerMetaTileEntity(5082, new MetaTileEntityIndustrialSteamEngine(TJId("industrial_steam_engine")));
         ADVANCED_PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5083, new MetaTileEntityAdvancedParallelLargeChemicalReactor(TJId("advanced_parallel_chemical_reactor")));
+        WATER_RESERVOIR_HATCH = GregTechAPI.registerMetaTileEntity(5084, new MetaTileEntityWaterReservoirHatch(TJId("water_reservoir"), 9));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

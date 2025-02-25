@@ -15,15 +15,17 @@ import gregtech.api.unification.ore.OrePrefix;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+
+import java.util.Objects;
 
 import static com.johny.tj.machines.TJMetaTileEntities.COKE_OVEN;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static com.johny.tj.materials.TJMaterials.PahoehoeLava;
 import static gregicadditions.GAMaterials.*;
-import static gregicadditions.machines.GATileEntities.ENERGY_INPUT_HATCH_128_AMPS;
-import static gregicadditions.machines.GATileEntities.ENERGY_OUTPUT_HATCH_128_AMPS;
+import static gregicadditions.machines.GATileEntities.*;
 import static gregicadditions.recipes.GARecipeMaps.ASSEMBLY_LINE_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
@@ -155,6 +157,16 @@ public class AssemblingRecipes {
                 .outputs(MACHINE_CONTROLLER.getStackForm())
                 .duration(200)
                 .EUt(16)
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(new ItemStack(Objects.requireNonNull(Block.getBlockFromName("enderio:block_reservoir")), 64))
+                .inputs(GAMetaItems.UV_INFINITE_WATER_SOURCE.getStackForm())
+                .inputs(GA_HULLS[0].getStackForm())
+                .fluidInputs(Water.getFluid(4096000))
+                .outputs(WATER_RESERVOIR_HATCH.getStackForm())
+                .duration(1200)
+                .EUt(GAValues.VA[9])
                 .buildAndRegister();
 
         if (TJConfig.machines.replaceCTMultis) {

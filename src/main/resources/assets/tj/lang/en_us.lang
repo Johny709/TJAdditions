@@ -38,6 +38,7 @@ tj.machine.plasma_air_collector_turbine.name=Large Atmosphere Collector (Plasma)
 tj.machine.infinite_fluid_drill.name=Infinite Fluid Drilling Plant
 tj.machine.industrial_steam_engine.name=Industrial Steam Engine
 tj.machine.advanced_parallel_chemical_reactor.name=Advanced Parallel Large Chemical Reactor (APLCR)
+tj.machine.water_reservoir.name=Water Reservoir Hatch (Infinite Water Source)
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
