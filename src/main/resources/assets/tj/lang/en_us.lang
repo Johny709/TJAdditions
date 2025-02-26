@@ -109,6 +109,7 @@ tj.multiblock.industrial_fusion_reactor.slices=Number of slices
 tj.multiblock.industrial_fusion_reactor.overclock.1=Duration / 2
 tj.multiblock.industrial_fusion_reactor.overclock.2=Energy * 2
 tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
+tj.multiblock.industrial_fusion_reactor.required_energy=Required Energy to run recipe: §e%d§7 EU
 
 tj.multiblock.parallel.eu=EU/t:
 tj.multiblock.parallel.progress=Progress:
