@@ -2,8 +2,8 @@ package com.johny.tj.machines.multi.electric;
 
 import com.johny.tj.TJConfig;
 import com.johny.tj.builder.MultiRecipeMap;
-import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
-import com.johny.tj.capability.impl.MultiGAMultiblockRecipeLogic;
+import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -45,14 +45,14 @@ import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import static com.johny.tj.TJRecipeMaps.MULTI_CHEMICAL_PLANT_RECIPES;
+import static com.johny.tj.TJRecipeMaps.MULTI_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
-import static com.johny.tj.recipes.RecipeLoader.LARGE_CHEMICAL_PLANT_RECIPES;
-import static com.johny.tj.recipes.RecipeLoader.LARGE_CHEMICAL_REACTOR_RECIPES;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
-public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends MultipleRecipeMapMultiblockController {
+public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
     private final MultiRecipeMap chemicalPlantMap;
     private int recipeMapIndex;
@@ -62,9 +62,9 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Multiple
     private final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityAdvancedParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, LARGE_CHEMICAL_REACTOR_RECIPES);
-        this.chemicalPlantMap = LARGE_CHEMICAL_PLANT_RECIPES;
-        this.recipeMapWorkable = new AdvancedParallelChemicalReactorWorkableHandler(this);
+        super(metaTileEntityId, MULTI_CHEMICAL_REACTOR_RECIPES);
+        this.chemicalPlantMap = MULTI_CHEMICAL_PLANT_RECIPES;
+        this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this);
     }
 
     @Override
@@ -216,9 +216,9 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Multiple
         this.recipeMapIndex = data.getInteger("RecipeMapIndex");
     }
 
-    private static class AdvancedParallelChemicalReactorWorkableHandler extends MultiGAMultiblockRecipeLogic {
+    private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {
 
-        public AdvancedParallelChemicalReactorWorkableHandler(MultipleRecipeMapMultiblockController tileEntity) {
+        public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity) {
             super(tileEntity, TJConfig.advancedParallelChemicalReactor.eutPercentage, TJConfig.advancedParallelChemicalReactor.durationPercentage,
                     TJConfig.advancedParallelChemicalReactor.chancePercentage, TJConfig.advancedParallelChemicalReactor.stack);
         }

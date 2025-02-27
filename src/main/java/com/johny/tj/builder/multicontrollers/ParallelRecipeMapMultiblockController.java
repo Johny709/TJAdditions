@@ -6,7 +6,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
 import com.johny.tj.builder.MultiRecipeMap;
-import com.johny.tj.capability.impl.MultiblockMultiRecipeLogic;
+import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
@@ -49,13 +49,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.johny.tj.recipes.RecipeLoader.LARGE_CHEMICAL_REACTOR_RECIPES;
+import static com.johny.tj.TJRecipeMaps.MULTI_CHEMICAL_REACTOR_RECIPES;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-public abstract class MultipleRecipeMapMultiblockController extends TJMultiblockDisplayBase {
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase {
 
     public final MultiRecipeMap multiRecipeMap;
-    public MultiblockMultiRecipeLogic recipeMapWorkable;
+    public ParallelMultiblockRecipeLogic recipeMapWorkable;
     protected int parallelLayer = 1;
     protected long maxVoltage = 0;
     protected int pageIndex = 0;
@@ -68,7 +68,7 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
     protected IMultipleTankHandler outputFluidInventory;
     protected IEnergyContainer energyContainer;
 
-    public MultipleRecipeMapMultiblockController(ResourceLocation metaTileEntityId, MultiRecipeMap recipeMap) {
+    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, MultiRecipeMap recipeMap) {
         super(metaTileEntityId);
         this.multiRecipeMap = recipeMap;
     }
@@ -322,8 +322,8 @@ public abstract class MultipleRecipeMapMultiblockController extends TJMultiblock
         //noinspection SuspiciousMethodCalls
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         //noinspection SuspiciousMethodCalls
-        return itemInputsCount >= LARGE_CHEMICAL_REACTOR_RECIPES.getMinInputs() &&
-                fluidInputsCount >= LARGE_CHEMICAL_REACTOR_RECIPES.getMinFluidInputs() &&
+        return itemInputsCount >= MULTI_CHEMICAL_REACTOR_RECIPES.getMinInputs() &&
+                fluidInputsCount >= MULTI_CHEMICAL_REACTOR_RECIPES.getMinFluidInputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
 

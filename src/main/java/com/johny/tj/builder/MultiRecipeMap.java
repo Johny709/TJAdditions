@@ -1,6 +1,5 @@
 package com.johny.tj.builder;
 
-import gregicadditions.recipes.impl.LargeRecipeBuilder;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.MatchingMode;
@@ -28,7 +27,7 @@ public final class MultiRecipeMap {
     private final Map<MapItemStackIngredient, Collection<Recipe>> recipeItemMap;
     private final Map<Recipe, Byte> recipeIngredientCountMap = new HashMap<>();
 
-    public MultiRecipeMap(int minInputs, int maxInputs, int minOutputs, int maxOutputs, int minFluidInputs, int maxFluidInputs, int minFluidOutputs, int maxFluidOutputs, LargeRecipeBuilder defaultRecipe, Collection<Recipe> listOfRecipes) {
+    public MultiRecipeMap(int minInputs, int maxInputs, int minOutputs, int maxOutputs, int minFluidInputs, int maxFluidInputs, int minFluidOutputs, int maxFluidOutputs, Collection<Recipe> listOfRecipes) {
         this.minInputs = minInputs;
         this.minFluidInputs = minFluidInputs;
         this.minOutputs = minOutputs;

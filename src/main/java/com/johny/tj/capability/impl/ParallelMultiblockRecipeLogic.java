@@ -1,6 +1,6 @@
 package com.johny.tj.capability.impl;
 
-import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-public class MultiblockMultiRecipeLogic extends MultiAbstractRecipeLogic {
+public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     // Field used for maintenance
     protected int previousRecipeDuration;
@@ -27,42 +27,42 @@ public class MultiblockMultiRecipeLogic extends MultiAbstractRecipeLogic {
     protected int lastRecipeIndex = 0;
     protected ItemStack[][] lastItemInputsMatrix;
 
-    public MultiblockMultiRecipeLogic(MultipleRecipeMapMultiblockController tileEntity, int recipeCacheSize) {
+    public ParallelMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, int recipeCacheSize) {
         super(tileEntity, recipeCacheSize);
     }
 
     public IEnergyContainer getEnergyContainer() {
-        MultipleRecipeMapMultiblockController controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         return controller.getEnergyContainer();
     }
 
     @Override
     protected IItemHandlerModifiable getInputInventory() {
-        MultipleRecipeMapMultiblockController controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         return controller.getInputInventory();
     }
 
     @Override
     protected IItemHandlerModifiable getOutputInventory() {
-        MultipleRecipeMapMultiblockController controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         return controller.getOutputInventory();
     }
 
     @Override
     protected IMultipleTankHandler getInputTank() {
-        MultipleRecipeMapMultiblockController controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         return controller.getInputFluidInventory();
     }
 
     @Override
     protected IMultipleTankHandler getOutputTank() {
-        MultipleRecipeMapMultiblockController controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         return controller.getOutputFluidInventory();
     }
 
     @Override
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe) {
-        MultipleRecipeMapMultiblockController controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         if (controller.checkRecipe(recipe, false) &&
                 super.setupAndConsumeRecipeInputs(recipe)) {
             controller.checkRecipe(recipe, true);
@@ -107,8 +107,8 @@ public class MultiblockMultiRecipeLogic extends MultiAbstractRecipeLogic {
 
     @Override
     protected int[] calculateOverclock(int EUt, long voltage, int duration) {
-        int numMaintenanceProblems = (this.metaTileEntity instanceof MultipleRecipeMapMultiblockController) ?
-                ((MultipleRecipeMapMultiblockController) metaTileEntity).getNumProblems() : 0;
+        int numMaintenanceProblems = (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) ?
+                ((ParallelRecipeMapMultiblockController) metaTileEntity).getNumProblems() : 0;
 
         double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
         int durationModified = (int) (duration * maintenanceDurationMultiplier);
@@ -141,7 +141,7 @@ public class MultiblockMultiRecipeLogic extends MultiAbstractRecipeLogic {
     @Override
     protected void completeRecipe(int i) {
         super.completeRecipe(i);
-        if (metaTileEntity instanceof MultipleRecipeMapMultiblockController gaController) {
+        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController gaController) {
             //if (gaController.hasMufflerHatch()) {
             //    gaController.outputRecoveryItems();
             //}
@@ -154,7 +154,7 @@ public class MultiblockMultiRecipeLogic extends MultiAbstractRecipeLogic {
 
     @Override
     protected boolean trySearchNewRecipe(int i) {
-        if (metaTileEntity instanceof MultipleRecipeMapMultiblockController controller) {
+        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController controller) {
             if (controller.getNumProblems() > 5)
                 return false;
 

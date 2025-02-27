@@ -1,6 +1,6 @@
 package com.johny.tj.capability.impl;
 
-import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.GAUtility;
 import gregicadditions.utils.GALog;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class MultiGAMultiblockRecipeLogic extends MultiblockMultiRecipeLogic {
+public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLogic {
 
     private final int EUtPercentage;
     private final int durationPercentage;
     private final int chancePercentage;
     private final int stack;
-    public MultiGAMultiblockRecipeLogic(MultipleRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
         super(tileEntity, 64);
         this.EUtPercentage = EUtPercentage;
         this.durationPercentage = durationPercentage;

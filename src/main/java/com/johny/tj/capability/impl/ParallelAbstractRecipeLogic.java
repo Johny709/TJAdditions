@@ -1,6 +1,6 @@
 package com.johny.tj.capability.impl;
 
-import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.IMultipleWorkable;
 import com.johny.tj.capability.TJCapabilities;
 import gregtech.api.GTValues;
@@ -28,19 +28,19 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import java.util.*;
 import java.util.function.LongSupplier;
 
-public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMultipleWorkable {
+public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IMultipleWorkable {
 
     private static final String ALLOW_OVERCLOCKING = "AllowOverclocking";
     private static final String OVERCLOCK_VOLTAGE = "OverclockVoltage";
 
-    protected MultipleRecipeMapMultiblockController controller;
+    protected ParallelRecipeMapMultiblockController controller;
     protected RecipeMap<?> recipeMap;
     private int size;
 
     protected boolean[] forceRecipeRecheck;
     protected ItemStack[] lastItemInputs;
     protected FluidStack[] lastFluidInputs;
-    public MultiRecipeLRUCache previousRecipe;
+    public ParallelRecipeLRUCache previousRecipe;
     public int recipeCacheSize;
     protected boolean useOptimizedRecipeLookUp = true;
     protected boolean allowOverclocking = true;
@@ -69,13 +69,13 @@ public abstract class MultiAbstractRecipeLogic extends MTETrait implements IMult
     private int[] failCount;
     protected int[] timeToStop;
 
-    public MultiAbstractRecipeLogic(MetaTileEntity metaTileEntity, int recipeCacheSize) {
+    public ParallelAbstractRecipeLogic(MetaTileEntity metaTileEntity, int recipeCacheSize) {
         super(metaTileEntity);
-        this.controller = (MultipleRecipeMapMultiblockController) metaTileEntity;
+        this.controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         this.size = 1;
         this.recipeCacheSize = recipeCacheSize;
         this.forceRecipeRecheck = new boolean[this.size];
-        this.previousRecipe = new MultiRecipeLRUCache(this.recipeCacheSize);
+        this.previousRecipe = new ParallelRecipeLRUCache(this.recipeCacheSize);
         this.progressTime = new int[this.size];
         this.maxProgressTime = new int[this.size];
         this.recipeEUt = new int[this.size];

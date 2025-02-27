@@ -52,7 +52,7 @@ public class CommonProxy {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerMultiRecipes(RegistryEvent.Register<IRecipe> event) {
-        RecipeLoader.multiRecipesInit();
+        TJRecipeMaps.multiRecipesInit();
     }
 
 

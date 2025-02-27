@@ -1,11 +1,14 @@
 package com.johny.tj;
 
 
+import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.builder.SteamRecipeBuilder;
 import crafttweaker.annotations.ZenRegister;
+import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.recipes.RecipeMap;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.builders.SimpleRecipeBuilder;
 import stanhebben.zenscript.annotations.ZenProperty;
 
@@ -41,5 +44,40 @@ public class TJRecipeMaps {
     public static final RecipeMap<SimpleRecipeBuilder> ARCHITECT_RECIPES = new RecipeMap<>("architect", 2, 2, 0, 1, 0, 0, 0, 0, new SimpleRecipeBuilder().EUt(30)).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
 
     public static final RecipeMap<SimpleRecipeBuilder> ROCK_BREAKER_RECIPES = new RecipeMap<>("rock_breaker", 1, 1, 1, 1, 0, 2, 0, 0, new SimpleRecipeBuilder()).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
+
+    public static MultiRecipeMap MULTI_CHEMICAL_REACTOR_RECIPES;
+    public static MultiRecipeMap MULTI_CHEMICAL_PLANT_RECIPES;
+    public static MultiRecipeMap MULTI_MACERATOR_RECIPES;
+    public static MultiRecipeMap MULTI_ORE_WASHER_RECIPES;
+    public static MultiRecipeMap MULTI_CENTRIFUGE_RECIPES;
+    public static MultiRecipeMap MULTI_THERMAL_CENTRIFUGE_RECIPES;
+    public static MultiRecipeMap MULTI_SIFTER_RECIPES;
+    public static MultiRecipeMap MULTI_ELECTROLYZER_RECIPES;
+
+    public static void multiRecipesInit() {
+        MULTI_CHEMICAL_REACTOR_RECIPES = new MultiRecipeMap(
+                0, 3, 0, 3, 0, 5, 0, 4, GARecipeMaps.LARGE_CHEMICAL_RECIPES.getRecipeList());
+
+        MULTI_CHEMICAL_PLANT_RECIPES = new MultiRecipeMap(
+                0, 6, 0, 4, 0, 5, 0, 4, GARecipeMaps.CHEMICAL_PLANT_RECIPES.getRecipeList());
+
+        MULTI_MACERATOR_RECIPES = new MultiRecipeMap(
+                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.MACERATOR_RECIPES.getRecipeList());
+
+        MULTI_ORE_WASHER_RECIPES = new MultiRecipeMap(
+                1, 1, 1, 3, 0, 1, 0, 0, RecipeMaps.ORE_WASHER_RECIPES.getRecipeList());
+
+        MULTI_CENTRIFUGE_RECIPES = new MultiRecipeMap(
+                0, 1, 0, 6, 0, 1, 0, 6, RecipeMaps.CENTRIFUGE_RECIPES.getRecipeList());
+
+        MULTI_THERMAL_CENTRIFUGE_RECIPES = new MultiRecipeMap(
+                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES.getRecipeList());
+
+        MULTI_SIFTER_RECIPES = new MultiRecipeMap(
+                1, 1, 0, 6, 0, 0, 0, 0, RecipeMaps.SIFTER_RECIPES.getRecipeList());
+
+        MULTI_ELECTROLYZER_RECIPES = new MultiRecipeMap(
+                0, 1, 0, 6, 0, 1, 0, 6, RecipeMaps.ELECTROLYZER_RECIPES.getRecipeList());
+    }
 
 }

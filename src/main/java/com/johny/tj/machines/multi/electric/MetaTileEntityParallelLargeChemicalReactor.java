@@ -1,9 +1,8 @@
 package com.johny.tj.machines.multi.electric;
 
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
-import com.johny.tj.capability.impl.MultiblockMultiRecipeLogic;
-import com.johny.tj.recipes.RecipeLoader;
+import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import gregicadditions.GAConfig;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -40,17 +39,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.johny.tj.TJRecipeMaps.MULTI_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregtech.api.unification.material.Materials.Steel;
 
-public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private int energyBonus;
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeLoader.LARGE_CHEMICAL_REACTOR_RECIPES);
-        this.recipeMapWorkable = new ParallelChemicalReactorWorkableHandler(this);
+        super(metaTileEntityId, MULTI_CHEMICAL_REACTOR_RECIPES);
+        this.recipeMapWorkable = new ParallelMultiblockChemicalReactorWorkableHandler(this);
         this.isWorkingEnabled = false;
     }
 
@@ -188,9 +188,9 @@ public class MetaTileEntityParallelLargeChemicalReactor extends MultipleRecipeMa
         return TJConfig.parallelChemicalReactor.maximumParallel;
     }
 
-    private static class ParallelChemicalReactorWorkableHandler extends MultiblockMultiRecipeLogic {
+    private static class ParallelMultiblockChemicalReactorWorkableHandler extends ParallelMultiblockRecipeLogic {
 
-        public ParallelChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity) {
+        public ParallelMultiblockChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity) {
             super(tileEntity, 64);
         }
 

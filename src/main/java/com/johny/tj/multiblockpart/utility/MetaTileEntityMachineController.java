@@ -3,7 +3,7 @@ package com.johny.tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import com.johny.tj.builder.multicontrollers.MultipleRecipeMapMultiblockController;
+import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.gui.GuiTextures;
@@ -80,8 +80,8 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
         if (!getWorld().isRemote && getOffsetTimer() % 5 == 0) {
             this.redstonePowered = getInputRedstoneSignal(getFrontFacing(), false) > 0;
             if (this.controller != null) {
-                if (this.controller instanceof MultipleRecipeMapMultiblockController) {
-                    ((MultipleRecipeMapMultiblockController) this.controller).recipeMapWorkable.setWorkingEnabled(!redstonePowered, Id);
+                if (this.controller instanceof ParallelRecipeMapMultiblockController) {
+                    ((ParallelRecipeMapMultiblockController) this.controller).recipeMapWorkable.setWorkingEnabled(!redstonePowered, Id);
                 } else {
                     this.controller.getCapability(GregtechTileCapabilities.CAPABILITY_CONTROLLABLE, null).setWorkingEnabled(!redstonePowered);
                 }

@@ -6,7 +6,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import java.util.*;
 
-public class MultiRecipeLRUCache {
+public class ParallelRecipeLRUCache {
     private final int capacity;
     private Recipe[] lastAccessedRecipe;
     private final Map<Integer, LinkedList<Recipe>> recipeCaches;
@@ -14,7 +14,7 @@ public class MultiRecipeLRUCache {
     private int cacheMiss = 0;
     private boolean isReadAscending = true;
 
-    public MultiRecipeLRUCache(int capacity) {
+    public ParallelRecipeLRUCache(int capacity) {
         this.capacity = capacity;
         this.lastAccessedRecipe = new Recipe[1];
         this.recipeCaches = new HashMap<>();
