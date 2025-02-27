@@ -1,11 +1,12 @@
 package com.johny.tj.integration.jei.multi;
 
 import com.google.common.collect.Lists;
+import com.johny.tj.blocks.BlockSolidCasings;
+import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
-import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockBoilerCasing;
@@ -18,7 +19,7 @@ import net.minecraft.util.EnumFacing;
 
 import java.util.List;
 
-import static gregtech.api.unification.material.Materials.Tritanium;
+import static gregicadditions.GAMaterials.Seaborgium;
 
 public class InfiniteFluidDrillInfo extends MultiblockInfoPage {
 
@@ -36,8 +37,8 @@ public class InfiniteFluidDrillInfo extends MultiblockInfoPage {
                 .aisle("F~~~F", "F~~~F", "CCMCC", "I###O", "~C#C~", "~C#C~" ,"~C#C~", "~FCF~", "~FFF~", "~FFF~", "~~F~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CF~FC", "CF~FC", "CCCCC", "~CCC~", "~~C~~", "~~C~~", "~~C~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', TJMetaTileEntities.INFINITE_FLUID_DRILL, EnumFacing.WEST)
-                .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM))
-                .where('F', MetaBlocks.FRAMES.get(Tritanium).getDefaultState())
+                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING))
+                .where('F', MetaBlocks.FRAMES.get(Seaborgium).getDefaultState())
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('M', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.MOTOR_UHV))
                 .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.PUMP_UHV))

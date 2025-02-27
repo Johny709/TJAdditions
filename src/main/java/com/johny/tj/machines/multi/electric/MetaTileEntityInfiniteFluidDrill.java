@@ -3,14 +3,14 @@ package com.johny.tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.blocks.BlockSolidCasings;
+import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.textures.TJTextures;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.client.ClientHandler;
-import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
-import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregicadditions.worldgen.PumpjackHandler;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -46,9 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static gregicadditions.GAMaterials.DrillingMud;
-import static gregicadditions.GAMaterials.UsedDrillingMud;
-import static gregtech.api.unification.material.Materials.Tritanium;
+import static gregicadditions.GAMaterials.*;
 import static gregtech.api.util.GTFluidUtils.simulateFluidStackMerge;
 
 public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
@@ -176,7 +174,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
                 .where('S', selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('F', statePredicate(MetaBlocks.FRAMES.get(Tritanium).getDefaultState()))
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(Seaborgium).getDefaultState()))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('P', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
@@ -186,12 +184,12 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     }
 
     private IBlockState getCasingState() {
-        return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM);
+        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING);
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return ClientHandler.TRITANIUM_CASING;
+        return TJTextures.SEABORGIUM;
     }
 
     private boolean hasEnoughEnergy(long amount) {

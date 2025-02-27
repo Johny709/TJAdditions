@@ -394,7 +394,7 @@ public class AssemblingRecipes {
                 .input(OrePrefix.gearSmall, TitanSteel, 32)
                 .input(OrePrefix.gear, Taranium, 16)
                 .input(OrePrefix.plate, Dubnium, 32)
-                .input(OrePrefix.plate, Tritanium, 32)
+                .input(OrePrefix.plate, Seaborgium, 32)
                 .input(OrePrefix.foil, Pikyonium, 64)
                 .input(OrePrefix.foil, Pikyonium, 64)
                 .input(OrePrefix.pipeLarge, EnrichedNaquadahAlloy, 64)
