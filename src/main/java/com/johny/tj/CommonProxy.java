@@ -3,7 +3,6 @@ package com.johny.tj;
 
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.recipes.RecipeLoader;
-import gregtech.api.items.metaitem.MetaItem;
 import gregtech.common.blocks.VariantItemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -36,10 +35,6 @@ public class CommonProxy {
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         IForgeRegistry<Item> registry = event.getRegistry();
-
-        for (MetaItem<?> item : TJMetaItems.ITEMS) {
-            registry.register(item);
-        }
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(ABILITY_CASING, VariantItemBlock::new));

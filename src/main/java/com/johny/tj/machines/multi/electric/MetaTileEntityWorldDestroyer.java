@@ -12,7 +12,6 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
@@ -39,9 +38,9 @@ import net.minecraft.world.chunk.Chunk;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static gregicadditions.GAMaterials.TungstenTitaniumCarbide;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
 import static gregtech.api.unification.material.Materials.DrillingFluid;
 
 public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner {
@@ -86,19 +85,6 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                 .where('F', statePredicate(getFrameState()))
                 .where('#', blockWorldState -> true)
                 .build();
-    }
-
-    public static Predicate<BlockWorldState> motorPredicate() {
-        return (blockWorldState) -> {
-            IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof MotorCasing motorCasing)) {
-                return false;
-            } else {
-                MotorCasing.CasingType tieredCasingType = motorCasing.getState(blockState);
-                MotorCasing.CasingType currentCasing = blockWorldState.getMatchContext().getOrPut("Motor", tieredCasingType);
-                return currentCasing.getName().equals(tieredCasingType.getName());
-            }
-        };
     }
 
     @Override

@@ -70,12 +70,20 @@ public final class MultiRecipeMap {
         this.recipeItemMap = Collections.unmodifiableMap(recipeItemMapInit);
     }
 
+    public int getMinFluidOutputs() {
+        return minFluidOutputs;
+    }
+
     public int getMinFluidInputs() {
         return minFluidInputs;
     }
 
     public int getMinInputs() {
         return minInputs;
+    }
+
+    public int getMinOutputs() {
+        return minOutputs;
     }
 
     @Nullable

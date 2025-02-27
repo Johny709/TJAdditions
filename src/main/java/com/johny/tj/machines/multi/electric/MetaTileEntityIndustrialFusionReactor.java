@@ -138,9 +138,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof BlockAbilityCasings abilityCasings)) {
+            if (!(blockState.getBlock() instanceof BlockAbilityCasings)) {
                 return false;
             } else {
+                BlockAbilityCasings abilityCasings = (BlockAbilityCasings)blockState.getBlock();
                 BlockAbilityCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
                 List<BlockAbilityCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 currentCasing.add(tieredCasingType);

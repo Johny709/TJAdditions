@@ -49,7 +49,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.johny.tj.TJRecipeMaps.MULTI_CHEMICAL_REACTOR_RECIPES;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase {
@@ -320,10 +319,16 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         int itemInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList())
                 .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
         //noinspection SuspiciousMethodCalls
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        int itemOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList())
+                .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
         //noinspection SuspiciousMethodCalls
-        return itemInputsCount >= MULTI_CHEMICAL_REACTOR_RECIPES.getMinInputs() &&
-                fluidInputsCount >= MULTI_CHEMICAL_REACTOR_RECIPES.getMinFluidInputs() &&
+        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+
+        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        return itemInputsCount >= multiRecipeMap.getMinInputs() &&
+                itemOutputsCount >= multiRecipeMap.getMinOutputs() &&
+                fluidInputsCount >= multiRecipeMap.getMinFluidInputs() &&
+                fluidOutputsCount >= multiRecipeMap.getMinFluidOutputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
 

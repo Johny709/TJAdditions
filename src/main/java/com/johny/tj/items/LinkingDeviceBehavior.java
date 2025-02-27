@@ -35,7 +35,8 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                 if (!player.isSneaking()) {
                     if (!name.equals("Null")) {
                         MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(world, new BlockPos(x, y, z));
-                        if (linkedGTTE instanceof LinkPos linkPos) {
+                        if (linkedGTTE instanceof LinkPos) {
+                            LinkPos linkPos = (LinkPos)linkedGTTE;
                             double linkX = 0;
                             double linkY = 0;
                             double linkZ = 0;
@@ -82,7 +83,8 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                         return EnumActionResult.SUCCESS;
                     }
                 } else {
-                    if (targetGTTE instanceof LinkPos linkPos) {
+                    if (targetGTTE instanceof LinkPos) {
+                        LinkPos linkPos = (LinkPos)targetGTTE;
                         if (name.equals("Null")) {
                             nbt.setString("Name", targetGTTE.getMetaFullName());
                             nbt.setDouble("X", targetGTTE.getPos().getX());

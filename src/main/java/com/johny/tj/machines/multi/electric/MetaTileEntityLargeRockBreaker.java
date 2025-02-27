@@ -111,9 +111,10 @@ public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultib
     public Predicate<BlockWorldState> pumpPredicateList() {
         return (blockWorldState) -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof PumpCasing pumpCasing)) {
+            if (!(blockState.getBlock() instanceof PumpCasing)) {
                 return false;
             } else {
+                PumpCasing pumpCasing = (PumpCasing)blockState.getBlock();
                 PumpCasing.CasingType tieredCasingType = pumpCasing.getState(blockState);
                 PumpCasing.CasingType currentCasing = blockWorldState.getMatchContext().getOrPut("Pump", tieredCasingType);
                 List<PumpCasing.CasingType> casingTypeList = blockWorldState.getMatchContext().getOrCreate("Pumps", ArrayList::new);

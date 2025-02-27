@@ -61,45 +61,90 @@ public class ArchitectureRecipes {
 
     public static void getQuantity(int shape) {
         switch (shape) {
-            case 0, 4, 5, 7, 14, 29, 31, 32, 34, 39, 46, 47, 48, 49, 57, 58, 59, 62, 63, 66, 68, 69, 74, 81, 87:
-                inputQuantity = 1;
-                outputQuantity = 2;
-                return;
-            case 1, 8, 18, 75:
-                inputQuantity = 1;
-                outputQuantity = 3;
-                return;
-            case 2, 9:
-                inputQuantity = 2;
-                outputQuantity = 3;
-                return;
-            case 3, 16, 30, 35, 40, 41, 42, 43, 45, 44, 52, 50, 51, 56, 54, 53, 55, 76, 78:
-                inputQuantity = 1;
-                outputQuantity = 4;
-                return;
-            case 6, 10, 11, 12, 13, 15, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 33, 37, 38, 61, 64, 65, 67:
-                inputQuantity = 1;
-                outputQuantity = 1;
-                return;
-            case 17, 60:
-                inputQuantity = 1;
-                outputQuantity = 16;
-                return;
-            case 36, 80, 83, 82:
-                inputQuantity = 1;
-                outputQuantity = 8;
-                return;
-            case 70, 71, 72, 77:
-                inputQuantity = 1;
-                outputQuantity = 10;
-                return;
-            case 73, 86, 84, 85:
-                inputQuantity = 1;
-                outputQuantity = 5;
-                return;
-            case 79, 88:
-                inputQuantity = 1;
-                outputQuantity = 6;
+            case 0: inputQuantity = 1; outputQuantity = 2; return;
+            case 1: inputQuantity = 1; outputQuantity = 3; return;
+            case 2: inputQuantity = 2; outputQuantity = 3; return;
+            case 3: inputQuantity = 1; outputQuantity = 4; return;
+            case 4: inputQuantity = 1; outputQuantity = 2; return;
+            case 5: inputQuantity = 1; outputQuantity = 2; return;
+            case 6: inputQuantity = 1; outputQuantity = 1; return;
+            case 7: inputQuantity = 1; outputQuantity = 2; return;
+            case 8: inputQuantity = 1; outputQuantity = 3; return;
+            case 9: inputQuantity = 2; outputQuantity = 3; return;
+            case 10: inputQuantity = 1; outputQuantity = 1; return;
+            case 11: inputQuantity = 1; outputQuantity = 1; return;
+            case 12: inputQuantity = 1; outputQuantity = 1; return;
+            case 13: inputQuantity = 1; outputQuantity = 1; return;
+            case 14: inputQuantity = 1; outputQuantity = 2; return;
+            case 15: inputQuantity = 1; outputQuantity = 1; return;
+            case 16: inputQuantity = 1; outputQuantity = 4; return;
+            case 17: inputQuantity = 1; outputQuantity = 16; return;
+            case 18: inputQuantity = 1; outputQuantity = 3; return;
+            case 19: inputQuantity = 1; outputQuantity = 1; return;
+            case 20: inputQuantity = 1; outputQuantity = 1; return;
+            case 21: inputQuantity = 1; outputQuantity = 1; return;
+            case 22: inputQuantity = 1; outputQuantity = 1; return;
+            case 23: inputQuantity = 1; outputQuantity = 1; return;
+            case 24: inputQuantity = 1; outputQuantity = 1; return;
+            case 25: inputQuantity = 1; outputQuantity = 1; return;
+            case 26: inputQuantity = 1; outputQuantity = 1; return;
+            case 27: inputQuantity = 1; outputQuantity = 1; return;
+            case 28: inputQuantity = 1; outputQuantity = 1; return;
+            case 30: inputQuantity = 1; outputQuantity = 4; return;
+            case 31: inputQuantity = 1; outputQuantity = 2; return;
+            case 32: inputQuantity = 1; outputQuantity = 2; return;
+            case 33: inputQuantity = 1; outputQuantity = 1; return;
+            case 34: inputQuantity = 1; outputQuantity = 2; return;
+            case 35: inputQuantity = 1; outputQuantity = 4; return;
+            case 36: inputQuantity = 1; outputQuantity = 8; return;
+            case 37: inputQuantity = 1; outputQuantity = 1; return;
+            case 38: inputQuantity = 1; outputQuantity = 1; return;
+            case 40: inputQuantity = 1; outputQuantity = 4; return;
+            case 41: inputQuantity = 1; outputQuantity = 4; return;
+            case 42: inputQuantity = 1; outputQuantity = 4; return;
+            case 43: inputQuantity = 1; outputQuantity = 4; return;
+            case 44: inputQuantity = 1; outputQuantity = 4; return;
+            case 45: inputQuantity = 1; outputQuantity = 4; return;
+            case 50: inputQuantity = 1; outputQuantity = 4; return;
+            case 51: inputQuantity = 1; outputQuantity = 4; return;
+            case 52: inputQuantity = 1; outputQuantity = 4; return;
+            case 53: inputQuantity = 1; outputQuantity = 4; return;
+            case 54: inputQuantity = 1; outputQuantity = 4; return;
+            case 55: inputQuantity = 1; outputQuantity = 4; return;
+            case 56: inputQuantity = 1; outputQuantity = 4; return;
+            case 60: inputQuantity = 1; outputQuantity = 16; return;
+            case 61: inputQuantity = 1; outputQuantity = 1; return;
+            case 62: inputQuantity = 1; outputQuantity = 2; return;
+            case 63: inputQuantity = 1; outputQuantity = 2; return;
+            case 64: inputQuantity = 1; outputQuantity = 1; return;
+            case 65: inputQuantity = 1; outputQuantity = 1; return;
+            case 66: inputQuantity = 1; outputQuantity = 2; return;
+            case 67: inputQuantity = 1; outputQuantity = 1; return;
+            case 68: inputQuantity = 1; outputQuantity = 2; return;
+            case 70: inputQuantity = 1; outputQuantity = 10; return;
+            case 71: inputQuantity = 1; outputQuantity = 10; return;
+            case 72: inputQuantity = 1; outputQuantity = 10; return;
+            case 73: inputQuantity = 1; outputQuantity = 5; return;
+            case 74: inputQuantity = 1; outputQuantity = 2; return;
+            case 75: inputQuantity = 1; outputQuantity = 3; return;
+            case 76: inputQuantity = 1; outputQuantity = 4; return;
+            case 77: inputQuantity = 1; outputQuantity = 10; return;
+            case 78: inputQuantity = 1; outputQuantity = 4; return;
+            case 79: inputQuantity = 1; outputQuantity = 6; return;
+            case 80: inputQuantity = 1; outputQuantity = 8; return;
+            case 81: inputQuantity = 1; outputQuantity = 2; return;
+            case 82: inputQuantity = 1; outputQuantity = 8; return;
+            case 83: inputQuantity = 1; outputQuantity = 8; return;
+            case 84: inputQuantity = 1; outputQuantity = 5; return;
+            case 85: inputQuantity = 1; outputQuantity = 5; return;
+            case 86: inputQuantity = 1; outputQuantity = 5; return;
+            case 87: inputQuantity = 1; outputQuantity = 2; return;
+            case 88: inputQuantity = 1; outputQuantity = 6; return;
+            case 89: inputQuantity = 1; outputQuantity = 6; return;
+            case 90: inputQuantity = 1; outputQuantity = 6; return;
+            case 91: inputQuantity = 1; outputQuantity = 6; return;
+            case 92: inputQuantity = 1; outputQuantity = 6; return;
+            case 93: inputQuantity = 1; outputQuantity = 6;
         }
     }
 }

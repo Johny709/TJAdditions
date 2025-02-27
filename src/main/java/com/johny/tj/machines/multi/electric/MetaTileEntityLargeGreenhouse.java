@@ -109,8 +109,9 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
     public static Predicate<BlockWorldState> glassPredicate() {
         return blockWorldState -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof GATransparentCasing glassCasing))
+            if (!(blockState.getBlock() instanceof GATransparentCasing))
                 return false;
+            GATransparentCasing glassCasing = (GATransparentCasing)blockState.getBlock();
             GATransparentCasing.CasingType tieredCasingType = glassCasing.getState(blockState);
             GATransparentCasing.CasingType currentCasing = blockWorldState.getMatchContext().getOrPut("Glass", tieredCasingType);
             return currentCasing.getName().equals(tieredCasingType.getName());

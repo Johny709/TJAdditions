@@ -141,7 +141,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     @Override
     protected void completeRecipe(int i) {
         super.completeRecipe(i);
-        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController gaController) {
+        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
+            ParallelRecipeMapMultiblockController gaController = (ParallelRecipeMapMultiblockController)metaTileEntity;
             //if (gaController.hasMufflerHatch()) {
             //    gaController.outputRecoveryItems();
             //}
@@ -154,7 +155,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     @Override
     protected boolean trySearchNewRecipe(int i) {
-        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController controller) {
+        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
+            ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController)metaTileEntity;
             if (controller.getNumProblems() > 5)
                 return false;
 
