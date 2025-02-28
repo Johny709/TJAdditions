@@ -23,12 +23,10 @@ import java.util.Objects;
 
 import static com.johny.tj.machines.TJMetaTileEntities.COKE_OVEN;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
-import static com.johny.tj.materials.TJMaterials.PahoehoeLava;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.*;
 import static gregicadditions.recipes.GARecipeMaps.ASSEMBLY_LINE_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Master;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
@@ -170,15 +168,6 @@ public class AssemblingRecipes {
                 .buildAndRegister();
 
         if (TJConfig.machines.replaceCTMultis) {
-            ELECTROLYZER_RECIPES.recipeBuilder()
-                    .fluidInputs(PahoehoeLava.getFluid(10000))
-                    .output(Blocks.OBSIDIAN)
-                    .output(OrePrefix.dust, Sulfur)
-                    .output(OrePrefix.dust, Carbon)
-                    .duration(20)
-                    .EUt(7000)
-                    .buildAndRegister();
-
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(COKE_OVEN.getStackForm(64))
                     .inputs(COKE_OVEN.getStackForm(64))

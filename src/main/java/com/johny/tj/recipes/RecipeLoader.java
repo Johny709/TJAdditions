@@ -1,8 +1,10 @@
 package com.johny.tj.recipes;
 
+import com.johny.tj.TJConfig;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.items.TJMetaItems;
+import com.johny.tj.recipes.ct.*;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
@@ -38,6 +40,16 @@ public class RecipeLoader {
         AssemblingRecipes.assemblyLineRecipes();
         RockBreakerRecipes.init();
 
+        if (TJConfig.machines.replaceCTMultis) {
+            CokeOvenRecipes.init();
+            PrimitiveAlloySmelterRecipes.init();
+            HeatExchangerRecipes.init();
+            LargePoweredSpawnerRecipes.init();
+            LargeVialProcessorRecipes.init();
+            ArmorInfuserRecipes.init();
+            DragonEggReplicatorRecipes.init();
+            ChaosReplicatorRecipes.init();
+        }
     }
     private static void craftingRecipes() {
 
