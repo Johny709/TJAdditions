@@ -3,6 +3,7 @@ package com.johny.tj.recipes.ct;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,11 +38,15 @@ public class ArmorInfuserRecipes {
 
         armorInfuserMap.forEach((output, input) -> {
             if (output.contains("chaotic")) {
+                NBTTagCompound compound = new NBTTagCompound();
+                compound.setBoolean("isStable", true);
+                ItemStack stack = new ItemStack(Item.getByNameOrId(output));
+                stack.setTagCompound(compound);
                 ARMOR_INFUSER_RECIPES.recipeBuilder()
                         .inputs(new ItemStack(Item.getByNameOrId("contenttweaker:refinedchaoscrystal"), 4), new ItemStack(Item.getByNameOrId("draconicevolution:chaotic_core"), 2),
                                 new ItemStack(Item.getByNameOrId("draconicadditions:chaotic_energy_core"), 2))
                         .inputs(input)
-                        .outputs(new ItemStack(Item.getByNameOrId(output)))
+                        .outputs(stack)
                         .fluidInputs(SupercooledCryotheum.getFluid(4000))
                         .fluidOutputs(Cryotheum.getFluid(4000))
                         .EUt(33554432)

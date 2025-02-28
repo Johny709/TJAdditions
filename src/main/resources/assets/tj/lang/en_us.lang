@@ -144,9 +144,14 @@ tj.multiblock.drilling_rig_drilling_mud.input=Fluid Input: %dmB/sec
 tj.multiblock.drilling_rig_drilling_mud.output=Fluid Output: %dmB/sec
 tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%dmB§7 Drilling Mud and outputs §c%dmB§7 Used Drilling Mud per second.
 
-recipemap.primitive_alloy.name=Primitive Alloy Smelter
-recipemap.heat_exchanger.name=Heat Exchanger
-recipemap.coke_oven_2.name=Coke Oven
+recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
+recipemap.coke_oven_2.tj.name=Coke Oven
+recipemap.heat_exchanger.tj.name=Heat Exchanger
+recipemap.armor_infuser.tj.name=Armor Infusion
+recipemap.dragon_egg_replicator.tj.name=Dragon Egg Replicator
+recipemap.chaos_replicator.tj.name=Chaotic Replication
+recipemap.large_powered_spawner.tj.name=Large Powered Spawner
+recipemap.large_vial_processor.tj.name=Large Vial Processor
 recipemap.greenhouse_tree.name=Green House Tree Recipes
 recipemap.architect.name=Architecture Recipes
 recipemap.rock_breaker.name=Rock Breaker
