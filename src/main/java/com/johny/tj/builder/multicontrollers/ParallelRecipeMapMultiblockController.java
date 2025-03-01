@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
+import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
@@ -270,14 +271,16 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         super.formStructure(context);
         initializeAbilities();
         for (int i = 0; i < getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
-            getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i).setID(this, i);
+            MetaTileEntityMachineController controller = getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
+            if (controller.isAutomatic() || controller.getId() >= recipeMapWorkable.getSize())
+                controller.setID(i).setController(this);
         }
     }
 
     @Override
     public void invalidateStructure() {
-        for (int i = 0; i < getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
-            getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i).setID(null, 0);
+        for (MetaTileEntityMachineController controller : getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER)) {
+            controller.setID(0).setController(null);
         }
         super.invalidateStructure();
         resetTileAbilities();
@@ -319,16 +322,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         int itemInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList())
                 .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
         //noinspection SuspiciousMethodCalls
-        int itemOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList())
-                .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
-        //noinspection SuspiciousMethodCalls
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-
-        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        //noinspection SuspiciousMethodCalls
         return itemInputsCount >= multiRecipeMap.getMinInputs() &&
-                itemOutputsCount >= multiRecipeMap.getMinOutputs() &&
                 fluidInputsCount >= multiRecipeMap.getMinFluidInputs() &&
-                fluidOutputsCount >= multiRecipeMap.getMinFluidOutputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
 

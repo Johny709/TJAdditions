@@ -39,6 +39,7 @@ tj.machine.infinite_fluid_drill.name=Infinite Fluid Drilling Plant
 tj.machine.industrial_steam_engine.name=Industrial Steam Engine
 tj.machine.advanced_parallel_chemical_reactor.name=Advanced Parallel Large Chemical Reactor (APLCR)
 tj.machine.water_reservoir.name=Water Reservoir Hatch (Infinite Water Source)
+tj.machine.parallel_large_macerator.name=Parallel Large Macerator
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -79,6 +80,12 @@ tj.machine.energy_output_256_uiv.name=Energy Output Hatch 256 Amps (UIV)
 tj.machine.energy_output_256_umv.name=Energy Output Hatch 256 Amps (UMV)
 tj.machine.energy_output_256_uxv.name=Energy Output Hatch 256 Amps (UXV)
 tj.machine.energy_output_256_max.name=Energy Output Hatch 256 Amps (MAX)
+
+tj.machine.machine_controller.index=Workable ID: §e%d§7
+tj.machine.machine_controller.automatic=Automatic
+tj.machine.machine_controller.automatic.not=Manual
+tj.machine.machine_controller.automatic.description=When set to automatic, Workable ID will be automatically assigned when multiblock forms
+tj.machine.machine_controller.automatic.tooltip=Turns Workable Instances ON/OFF
 
 tj.multiblock.large_boiler.item_display=Current Item Processed:
 tj.multiblock.large_boiler.clear_item=Clear Item:
