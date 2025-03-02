@@ -87,32 +87,12 @@ public final class MultiRecipeMap {
     }
 
     @Nullable
-    public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, Recipe[] occupiedRecipes) {
-        return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, MatchingMode.DEFAULT, false, occupiedRecipes);
+    public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp, Recipe[] occupiedRecipes, boolean distinct) {
+        return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp, occupiedRecipes, distinct);
     }
 
     @Nullable
-    public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, Recipe[] occupiedRecipes) {
-        return this.findRecipe(voltage, inputs, fluidInputs, outputFluidTankCapacity, MatchingMode.DEFAULT, false, occupiedRecipes);
-    }
-
-    @Nullable
-    public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp, Recipe[] occupiedRecipes) {
-        return this.findRecipe(voltage, inputs, fluidInputs, outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp, occupiedRecipes);
-    }
-
-    @Nullable
-    public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode, Recipe[] occupiedRecipes) {
-        return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, matchingMode, false, occupiedRecipes);
-    }
-
-    @Nullable
-    public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp, Recipe[] occupiedRecipes) {
-        return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp, occupiedRecipes);
-    }
-
-    @Nullable
-    public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode, boolean useOptimizedRecipeLookUp, Recipe[] occupiedRecipes) {
+    public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode, boolean useOptimizedRecipeLookUp, Recipe[] occupiedRecipes, boolean distinct) {
 
         if (recipeList.isEmpty())
             return null;
@@ -124,26 +104,28 @@ public final class MultiRecipeMap {
         }
 
         if (useOptimizedRecipeLookUp) {
-            return findWithHashMap(voltage, inputs, fluidInputs, matchingMode, occupiedRecipes);
+            return findWithHashMap(voltage, inputs, fluidInputs, matchingMode, occupiedRecipes, distinct);
         }
 
         if (maxInputs > 0) {
-            return findByInputs(voltage, inputs, fluidInputs, matchingMode, occupiedRecipes);
+            return findByInputs(voltage, inputs, fluidInputs, matchingMode, occupiedRecipes, distinct);
         } else {
-            return findByFluidInputs(voltage, inputs, fluidInputs, matchingMode, occupiedRecipes);
+            return findByFluidInputs(voltage, inputs, fluidInputs, matchingMode, occupiedRecipes, distinct);
         }
     }
 
     @Nullable
-    private Recipe findByFluidInputs(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, Recipe[] occupiedRecipes) {
+    private Recipe findByFluidInputs(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, Recipe[] occupiedRecipes, boolean distinct) {
         for (FluidStack fluid : fluidInputs) {
             if (fluid == null) continue;
             Collection<Recipe> recipes = recipeFluidMap.get(new MapFluidIngredient(fluid));
             if (recipes == null) continue;
             for (Recipe tmpRecipe : recipes) {
                 if (tmpRecipe.matches(false, inputs, fluidInputs, matchingMode)) {
-                    if (Arrays.asList(occupiedRecipes).contains(tmpRecipe))
-                        continue;
+                    if (distinct) {
+                        if (Arrays.asList(occupiedRecipes).contains(tmpRecipe))
+                            continue;
+                    }
                     return voltage >= tmpRecipe.getEUt() ? tmpRecipe : null;
                 }
             }
@@ -152,11 +134,13 @@ public final class MultiRecipeMap {
     }
 
     @Nullable
-    private Recipe findByInputs(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, Recipe[] occupiedRecipes) {
+    private Recipe findByInputs(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, Recipe[] occupiedRecipes, boolean distinct) {
         for (Recipe recipe : recipeList) {
             if (recipe.matches(false, inputs, fluidInputs, matchingMode)) {
-                if (Arrays.asList(occupiedRecipes).contains(recipe))
-                    continue;
+                if (distinct) {
+                    if (Arrays.asList(occupiedRecipes).contains(recipe))
+                        continue;
+                }
                 return voltage >= recipe.getEUt() ? recipe : null;
             }
         }
@@ -164,7 +148,7 @@ public final class MultiRecipeMap {
     }
 
     @Nullable
-    private Recipe findWithHashMap(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, Recipe[] occupiedRecipes) {
+    private Recipe findWithHashMap(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, Recipe[] occupiedRecipes, boolean distinct) {
         HashSet<MapItemStackIngredient> uniqueItems = new HashSet<>();
         HashSet<MapFluidIngredient> uniqueFluids = new HashSet<>();
 
@@ -195,8 +179,10 @@ public final class MultiRecipeMap {
                 }
                 boolean isMatch = recipe.matches(false, inputs, fluidInputs, matchingMode);
                 if (isMatch) {
-                    if (Arrays.asList(occupiedRecipes).contains(recipe))
-                        continue;
+                    if (distinct) {
+                        if (Arrays.asList(occupiedRecipes).contains(recipe))
+                            continue;
+                    }
                     return recipe;
                 }
             }
@@ -219,8 +205,10 @@ public final class MultiRecipeMap {
                 }
                 boolean isMatch = recipe.matches(false, inputs, fluidInputs, matchingMode);
                 if (isMatch) {
-                    if (Arrays.asList(occupiedRecipes).contains(recipe))
-                        continue;
+                    if (distinct) {
+                        if (Arrays.asList(occupiedRecipes).contains(recipe))
+                            continue;
+                    }
                     return recipe;
                 }
             }

@@ -9,7 +9,6 @@ import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.util.GTUtility;
 import gregtech.common.ConfigHolder;
 import net.minecraft.item.ItemStack;
@@ -34,7 +33,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     private static final String OVERCLOCK_VOLTAGE = "OverclockVoltage";
 
     protected ParallelRecipeMapMultiblockController controller;
-    protected RecipeMap<?> recipeMap;
     private int size;
 
     protected boolean[] forceRecipeRecheck;
@@ -56,6 +54,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected final Random random = new Random();
 
     protected boolean isActive;
+    protected boolean distinct;
     protected boolean[] isInstanceActive;
     protected boolean[] workingEnabled;
     protected boolean[] hasNotEnoughEnergy;
@@ -240,7 +239,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         if (lockRecipe[i]) {
             foundRecipe = occupiedRecipes[i];
         } else {
-            foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes);
+            foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes, distinct);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -297,7 +296,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected Recipe findRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, boolean useOptimizedRecipeLookUp) {
-        return controller.multiRecipeMap.findRecipe(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp, occupiedRecipes);
+        return controller.multiRecipeMap.findRecipe(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp, occupiedRecipes, distinct);
     }
 
     protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs) {
@@ -497,6 +496,17 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.overclockPolicy = this::getOverclockVoltage;
         this.overclockVoltage = overclockVoltage;
         this.allowOverclocking = (overclockVoltage != 0);
+        metaTileEntity.markDirty();
+    }
+
+    public boolean isDistinct() {
+        return distinct;
+    }
+
+    public void setDistinct(boolean distinct) {
+        this.distinct = distinct;
+        Arrays.fill(occupiedRecipes, null);
+        this.previousRecipe.clear();
         metaTileEntity.markDirty();
     }
 
@@ -731,6 +741,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         mainCompound.setBoolean(ALLOW_OVERCLOCKING, allowOverclocking);
         mainCompound.setLong(OVERCLOCK_VOLTAGE, overclockVoltage);
         mainCompound.setBoolean("IsActive", isActive);
+        mainCompound.setBoolean("Distinct", distinct);
         mainCompound.setTag("ItemOutputs", totalOutputItemsList);
         mainCompound.setTag("FluidOutputs", totalOutputFluidsList);
         mainCompound.setTag("WorkingEnabled", workingList);
@@ -776,6 +787,9 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 recipeEnergyList = compound.getTagList("RecipeEnergy", Constants.NBT.TAG_COMPOUND),
                 recipeDurationList = compound.getTagList("RecipeDuration", Constants.NBT.TAG_COMPOUND),
                 recipeIndexList = compound.getTagList("RecipeIndex", Constants.NBT.TAG_COMPOUND);
+        if (compound.hasKey("Distinct")) {
+            distinct = compound.getBoolean("Distinct");
+        }
         if (compound.hasKey("IsActive")) {
             isActive = compound.getBoolean("IsActive");
         }

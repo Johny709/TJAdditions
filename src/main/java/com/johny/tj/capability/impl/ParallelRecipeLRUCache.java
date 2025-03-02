@@ -62,15 +62,17 @@ public class ParallelRecipeLRUCache {
         this.recipeCaches.forEach((key, value) -> value.clear());
     }
 
-    public Recipe get(IItemHandlerModifiable inputItems, IMultipleTankHandler inputFluids, int i, Recipe[] occupiedRecipes) {
+    public Recipe get(IItemHandlerModifiable inputItems, IMultipleTankHandler inputFluids, int i, Recipe[] occupiedRecipes, boolean distinct) {
         if (!this.isReadAscending) {
             return getReverse(inputItems, inputFluids, i);
         }
         for (Recipe recipeCache : this.recipeCaches.get(i)) {
             boolean foundMatches = recipeCache.matches(false, inputItems, inputFluids);
             if (foundMatches) {
-                if (Arrays.asList(occupiedRecipes).contains(recipeCache) && recipeCache != occupiedRecipes[i])
-                    continue;
+                if (distinct) {
+                    if (Arrays.asList(occupiedRecipes).contains(recipeCache) && recipeCache != occupiedRecipes[i])
+                        continue;
+                }
                 this.lastAccessedRecipe[i] = recipeCache;
                 return recipeCache;
             }

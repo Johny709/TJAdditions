@@ -192,6 +192,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     private void addWorkableDisplayText(List<ITextComponent> textList) {
         textList.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer));
+        textList.add(new TextComponentTranslation("tj.multiblock.parallel.distinct")
+                .appendText(" ")
+                .appendSibling(recipeMapWorkable.isDistinct() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "isDistinct")
+                        : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));
         textList.add(new TextComponentTranslation("tj.multiblock.parallel.advanced")
                 .appendText(" ")
                 .appendSibling(advancedText ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "advanced")
@@ -255,6 +259,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             case "advanced":
                 advancedText = false;
                 return;
+            case "isDistinct":
+                recipeMapWorkable.setDistinct(false);
+                return;
+            case "notDistinct":
+                recipeMapWorkable.setDistinct(true);
         }
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
             if (componentData.equals("lock" + i)) {

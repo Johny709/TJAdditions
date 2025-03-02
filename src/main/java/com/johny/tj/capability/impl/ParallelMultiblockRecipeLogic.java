@@ -181,7 +181,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes);
+        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes, distinct);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
@@ -197,7 +197,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (j == lastRecipeIndex) {
                 continue;
             }
-            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes);
+            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes, distinct);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 if (setupAndConsumeRecipeInputs(currentRecipe, j)) {

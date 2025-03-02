@@ -26,8 +26,11 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     private final int durationPercentage;
     private final int chancePercentage;
     private final int stack;
-    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+    private final RecipeMap<?> recipeMap;
+
+    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, RecipeMap<?> recipeMap, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
         super(tileEntity, 64);
+        this.recipeMap = recipeMap;
         this.EUtPercentage = EUtPercentage;
         this.durationPercentage = durationPercentage;
         this.chancePercentage = chancePercentage;
@@ -64,7 +67,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         Recipe currentRecipe = null;
         IItemHandlerModifiable importInventory = getInputInventory();
         IMultipleTankHandler importFluids = getInputTank();
-        Recipe foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes);
+        Recipe foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes, distinct);
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
         } else {
@@ -105,7 +108,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes);
+        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes, distinct);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
@@ -122,7 +125,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             if (j == lastRecipeIndex) {
                 continue;
             }
-            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes);
+            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes, distinct);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 currentRecipe = createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe);
