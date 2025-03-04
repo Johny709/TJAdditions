@@ -22,6 +22,7 @@ public class TJMetaBlocks {
 
     public static BlockSolidCasings SOLID_CASING;
     public static BlockAbilityCasings ABILITY_CASING;
+    public static BlockPipeCasings PIPE_CASING;
 
     public static void init() {
         SOLID_CASING = new BlockSolidCasings();
@@ -29,12 +30,16 @@ public class TJMetaBlocks {
 
         ABILITY_CASING = new BlockAbilityCasings();
         ABILITY_CASING.setRegistryName("ability_casing");
+
+        PIPE_CASING = new BlockPipeCasings();
+        PIPE_CASING.setRegistryName("pipe_casing");
     }
 
     @SideOnly(Side.CLIENT)
     public static void registerItemModels() {
         registerItemModel(SOLID_CASING);
         registerItemModel(ABILITY_CASING);
+        registerItemModel(PIPE_CASING);
     }
 
     @SideOnly(Side.CLIENT)

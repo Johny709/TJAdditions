@@ -13,6 +13,8 @@ import net.minecraft.util.EnumFacing;
 
 import java.util.List;
 
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+
 public class LargeAtmosphereCollectorInfo extends MultiblockInfoPage {
 
     private final MetaTileEntityLargeTurbine.TurbineType turbineType;
@@ -30,17 +32,17 @@ public class LargeAtmosphereCollectorInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        GAMultiblockShapeInfo builder = GAMultiblockShapeInfo.builder()
+        GAMultiblockShapeInfo builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN)
                 .aisle("CCC", "CfC", "PPP", "PPP", "PPP", "CCC")
-                .aisle("CFC", "SCC", "PPP", "PPP", "PPP", "CRC")
+                .aisle("CFC", "C#S", "P#P", "P#P", "P#P", "CRC")
                 .aisle("CCC", "CoC", "PPP", "PPP", "PPP", "CCC")
                 .where('S', tileEntity, EnumFacing.WEST)
                 .where('C', turbineType.casingState)
                 .where('P', tileEntity.getPipeState())
-                .where('R', MetaTileEntities.ROTOR_HOLDER[0], EnumFacing.UP)
-                .where('F', MetaTileEntities.FLUID_EXPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.DOWN)
-                .where('f', MetaTileEntities.FLUID_IMPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.NORTH)
-                .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.SOUTH)
+                .where('R', MetaTileEntities.ROTOR_HOLDER[0], EnumFacing.SOUTH)
+                .where('F', MetaTileEntities.FLUID_EXPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.NORTH)
+                .where('f', MetaTileEntities.FLUID_IMPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.UP)
+                .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.DOWN)
                 .build();
         return Lists.newArrayList(builder);
     }

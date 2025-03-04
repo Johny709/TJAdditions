@@ -219,6 +219,7 @@ tile.solid_casing.tungsten_titanium_carbide.name=Tungsten Titanium Carbide Casin
 tile.ability_casing.energy_port_luv.name=Fusion Energy Port (LUV)
 tile.ability_casing.energy_port_zpm.name=Fusion Energy Port (ZPM)
 tile.ability_casing.energy_port_uv.name=Fusion Energy Port (UV)
+tile.pipe_casing.stainless_pipe.name=Stainless Pipe Casing
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover

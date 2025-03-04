@@ -1,6 +1,7 @@
 package com.johny.tj.recipes;
 
 import com.johny.tj.TJConfig;
+import com.johny.tj.blocks.BlockPipeCasings;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.items.TJMetaItems;
@@ -115,6 +116,11 @@ public class RecipeLoader {
                 'S', GATileEntities.ROCK_BREAKER[4].getStackForm(),
                 'G', GAMetaBlocks.TRANSPARENT_CASING.getItemVariant(GATransparentCasing.CasingType.CHROME_GLASS),
                 'B', MetaItems.COMPONENT_GRINDER_TUNGSTEN.getStackForm());
+
+        ModHandler.addShapedRecipe("stainless_pipe_casing", TJMetaBlocks.PIPE_CASING.getItemVariant(BlockPipeCasings.PipeCasingType.STAINLESS_PIPE_CASING, 3), "PTP", "TFT", "PTP",
+                'P', new UnificationEntry(OrePrefix.plate, StainlessSteel),
+                'T', new UnificationEntry(OrePrefix.pipeMedium, StainlessSteel),
+                'F', new UnificationEntry(OrePrefix.frameGt, StainlessSteel));
 
         for (int i = 0; i < AIR_COLLECTORS.length; i++) {
             ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTOR[i].getStackForm(), "CRC", "RSR", "PRP",

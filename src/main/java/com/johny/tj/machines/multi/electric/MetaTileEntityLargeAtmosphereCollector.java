@@ -3,6 +3,8 @@ package com.johny.tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.blocks.BlockPipeCasings;
+import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.handlers.LargeAtmosphereCollectorWorkableHandler;
 import com.johny.tj.gui.TJGuiTextures;
 import gregtech.api.capability.impl.FuelRecipeLogic;
@@ -38,6 +40,8 @@ import net.minecraftforge.fluids.FluidStack;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeTurbine {
 
@@ -115,23 +119,24 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return turbineType == null ? null : FactoryBlockPattern.start()
-                .aisle("CCC", "CXC", "PPP", "PPP", "PPP", "CCC")
-                .aisle("CFC", "XCX", "PPP", "PPP", "PPP", "CRC")
-                .aisle("CCC", "CSC", "PPP", "PPP", "PPP", "CCC")
+        return turbineType == null ? null : FactoryBlockPattern.start(LEFT, BACK, DOWN)
+                .aisle("CPPPCC", "CPPPXC", "CPPPCC")
+                .aisle("CPPPXC", "R####F", "CPPPSC")
+                .aisle("CPPPCC", "CPPPXC", "CPPPCC")
                 .where('S', selfPredicate())
                 .where('C', statePredicate(turbineType.casingState))
                 .where('P', statePredicate(getPipeState()))
                 .where('X', statePredicate(turbineType.casingState).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS))
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
+                .where('#', isAirPredicate())
                 .build();
     }
 
     public IBlockState getPipeState() {
         switch (turbineType) {
             case STEAM: return MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE);
-            case GAS: return MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE);
+            case GAS: return TJMetaBlocks.PIPE_CASING.getState(BlockPipeCasings.PipeCasingType.STAINLESS_PIPE_CASING);
             default: return MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE);
         }
     }
