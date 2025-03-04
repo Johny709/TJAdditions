@@ -45,8 +45,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                                 .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
                     }
 
-                    multiblockRecipes
-                            .put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
+                    multiblockRecipes.put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
                             .put("mega_steel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.STEEL, TJMetaTileEntities.MEGA_BOILER[1])))
                             .put("mega_titanium_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.TITANIUM, TJMetaTileEntities.MEGA_BOILER[2])))
                             .put("mega_tungstensteel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.TUNGSTENSTEEL, TJMetaTileEntities.MEGA_BOILER[3])))
@@ -73,7 +72,11 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("infinite_fluid_drill", new MultiblockInfoRecipeWrapper(new InfiniteFluidDrillInfo()))
                             .put("industrial_steam_engine", new MultiblockInfoRecipeWrapper(new IndustrialSteamEngineInfo()))
                             .put("advanced_parallel_chemical_reactor", new MultiblockInfoRecipeWrapper(new AdvancedParallelChemicalReactorInfo()))
-                            .put("parallel_large_macerator", new MultiblockInfoRecipeWrapper(new ParallelLargeMaceratorInfo()));
+                            .put("parallel_large_macerator", new MultiblockInfoRecipeWrapper(new ParallelLargeMaceratorInfo()))
+                            .put("parallel_large_washing_machine", new MultiblockInfoRecipeWrapper(new ParallelLargeWashingMachineInfo()))
+                            .put("parallel_large_centrifuge", new MultiblockInfoRecipeWrapper(new ParallelLargeCentrifugeInfo()))
+                            .put("parallel_large_electrolyzer", new MultiblockInfoRecipeWrapper(new ParallelLargeElectrolyzerInfo()))
+                            .put("parallel_large_sifter", new MultiblockInfoRecipeWrapper(new ParallelLargeSifterInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

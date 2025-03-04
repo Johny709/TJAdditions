@@ -6,8 +6,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.items.TJMetaItems;
+import com.johny.tj.machines.AcceleratorBlacklist;
 import com.johny.tj.machines.LinkPos;
-import com.johny.tj.machines.acceleratorBlacklist;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -61,7 +61,7 @@ import java.util.stream.IntStream;
 
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements acceleratorBlacklist, LinkPos {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -211,7 +211,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                                     importFluidHandler.drain(UUMatter.getFluid(fluidConsumption), true);
                                     if (entityLinkBlockPos[0] != null) {
                                         MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[0]);
-                                        if (targetGTTE == null || targetGTTE instanceof acceleratorBlacklist) {
+                                        if (targetGTTE == null || targetGTTE instanceof AcceleratorBlacklist) {
                                             return;
                                         }
                                         IntStream.range(0, (int) Math.pow(2, gtAcceleratorTier)).forEach(value -> targetGTTE.update());

@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.johny.tj.TJRecipeMaps.MULTI_CHEMICAL_REACTOR_RECIPES;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregtech.api.unification.material.Materials.Steel;
 
@@ -49,7 +49,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     private int energyBonus;
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, MULTI_CHEMICAL_REACTOR_RECIPES);
+        super(metaTileEntityId, PARALLEL_CHEMICAL_REACTOR_RECIPES);
         this.recipeMapWorkable = new ParallelMultiblockChemicalReactorWorkableHandler(this);
         this.isWorkingEnabled = false;
     }

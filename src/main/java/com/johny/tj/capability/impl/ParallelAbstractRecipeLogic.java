@@ -462,8 +462,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected void setActive(boolean active, int i) {
-        this.isActive = active;
         this.isInstanceActive[i] = active;
+        if (active == this.isActive)
+            return;
+        this.isActive = active;
         metaTileEntity.markDirty();
         if (!metaTileEntity.getWorld().isRemote) {
             writeCustomData(1, buf -> buf.writeBoolean(active));

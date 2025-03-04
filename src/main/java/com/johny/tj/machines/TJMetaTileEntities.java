@@ -59,6 +59,11 @@ public class TJMetaTileEntities {
     public static MetaTileEntityIndustrialSteamEngine INDUSTRIAL_STEAM_ENGINE;
     public static MetaTileEntityAdvancedParallelLargeChemicalReactor ADVANCED_PARALLEL_CHEMICAL_REACTOR;
     public static MetaTileEntityWaterReservoirHatch WATER_RESERVOIR_HATCH;
+    public static MetaTileEntityParallelLargeMacerator PARALLEL_LARGE_MACERATOR;
+    public static MetaTileEntityParallelLargeWashingMachine PARALLEL_LARGE_WASHING_MACHINE;
+    public static MetaTileEntityParallelLargeCentrifuge PARALLEL_LARGE_CENTRIFUGE;
+    public static MetaTileEntityParallelLargeElectrolyzer PARALLEL_LARGE_ELECTROLYZER;
+    public static MetaTileEntityParallelLargeSifter PARALLEL_LARGE_SIFTER;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -116,6 +121,11 @@ public class TJMetaTileEntities {
         INDUSTRIAL_STEAM_ENGINE = GregTechAPI.registerMetaTileEntity(5082, new MetaTileEntityIndustrialSteamEngine(TJId("industrial_steam_engine")));
         ADVANCED_PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5083, new MetaTileEntityAdvancedParallelLargeChemicalReactor(TJId("advanced_parallel_chemical_reactor")));
         WATER_RESERVOIR_HATCH = GregTechAPI.registerMetaTileEntity(5084, new MetaTileEntityWaterReservoirHatch(TJId("water_reservoir"), 9));
+        PARALLEL_LARGE_MACERATOR = GregTechAPI.registerMetaTileEntity(5085, new MetaTileEntityParallelLargeMacerator(TJId("parallel_large_macerator")));
+        PARALLEL_LARGE_WASHING_MACHINE = GregTechAPI.registerMetaTileEntity(5086, new MetaTileEntityParallelLargeWashingMachine(TJId("parallel_large_washing_machine")));
+        PARALLEL_LARGE_CENTRIFUGE = GregTechAPI.registerMetaTileEntity(5087, new MetaTileEntityParallelLargeCentrifuge(TJId("parallel_large_centrifuge")));
+        PARALLEL_LARGE_ELECTROLYZER = GregTechAPI.registerMetaTileEntity(5088, new MetaTileEntityParallelLargeElectrolyzer(TJId("parallel_large_electrolyzer")));
+        PARALLEL_LARGE_SIFTER = GregTechAPI.registerMetaTileEntity(5089, new MetaTileEntityParallelLargeSifter(TJId("parallel_large_sifter")));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

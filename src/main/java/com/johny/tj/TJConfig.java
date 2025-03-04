@@ -277,7 +277,107 @@ public class TJConfig {
     public static class ParallelLargeMacerator {
         @Config.Name("EU/t Percentage")
         @Config.RequiresMcRestart
-        public int eutPercentage = 20;
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 200;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
+    @Config.Comment("Parallel Large Washing Machine")
+    public static ParallelLargeWashingMachine parallelLargeWashingMachine = new ParallelLargeWashingMachine();
+
+    public static class ParallelLargeWashingMachine {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
+    @Config.Comment("Parallel Large Centrifuge")
+    public static ParallelLargeCentrifuge parallelLargeCentrifuge = new ParallelLargeCentrifuge();
+
+    public static class ParallelLargeCentrifuge {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 150;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
+    @Config.Comment("Parallel Large Sifter")
+    public static ParallelLargeSifter parallelLargeSifter = new ParallelLargeSifter();
+
+    public static class ParallelLargeSifter {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 188;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
+    @Config.Comment("Parallel Large Electrolyzer")
+    public static ParallelLargeElectrolyzer parallelLargeElectrolyzer = new ParallelLargeElectrolyzer();
+
+    public static class ParallelLargeElectrolyzer {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
 
         @Config.Name("Duration Percentage")
         @Config.RequiresMcRestart

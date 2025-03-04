@@ -2,8 +2,7 @@ package com.johny.tj.integration.jei.multi;
 
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.metal.MetalCasing2;
+import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
@@ -19,32 +18,37 @@ import net.minecraft.util.EnumFacing;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gregicadditions.GAMaterials.EglinSteel;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class ParallelLargeMaceratorInfo extends MultiblockInfoPage {
+public class ParallelLargeSifterInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.PARALLEL_LARGE_MACERATOR;
+        return TJMetaTileEntities.PARALLEL_LARGE_SIFTER;
     }
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapes = new ArrayList<>();
         for (int index = 1; index < 16; index++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
-            builder.aisle("HHHHH", "HMEMH", "HHHHH", "HHHHH");
-            for (int count = 0; count < index; count++) {
-                builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
-                builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
+            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
+            for (int count = 1; count < index; count++) {
+                builder.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
+                builder.aisle("HPHPH", "HGGGH", "HGGGH", "HGGGH", "HPHPH");
+                builder.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
+                builder.aisle("~FHF~", "F###F", "H###H", "F###F", "~FHF~");
             }
-            builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
-            builder.aisle("HHHHH", "HMSMH", "HImOH", "HHHHH")
+            builder.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
+            builder.aisle("HPHPH", "HGGGO", "EGGGS", "HGGGI", "HPHPH");
+            builder.aisle("~HHH~", "H###H", "H###m", "H###H", "~HHH~");
+            builder.aisle("~H~H~", "HHHHH", "~H~H~", "HHHHH", "~H~H~");
+            builder.aisle("~H~H~", "HHHHH", "~H~H~", "HHHHH", "~H~H~")
                     .where('S', getController(), EnumFacing.WEST)
-                    .where('H', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
-                    .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
-                    .where('B', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                    .where('M', GAMetaBlocks.MOTOR_CASING.getDefaultState())
+                    .where('H', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.EGLIN_STEEL))
+                    .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
+                    .where('F', MetaBlocks.FRAMES.get(EglinSteel).getDefaultState())
+                    .where('P', GAMetaBlocks.PISTON_CASING.getDefaultState())
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
@@ -65,3 +69,4 @@ public class ParallelLargeMaceratorInfo extends MultiblockInfoPage {
         return 0.5f;
     }
 }
+

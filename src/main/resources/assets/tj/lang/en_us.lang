@@ -40,6 +40,10 @@ tj.machine.industrial_steam_engine.name=Industrial Steam Engine
 tj.machine.advanced_parallel_chemical_reactor.name=Advanced Parallel Large Chemical Reactor (APLCR)
 tj.machine.water_reservoir.name=Water Reservoir Hatch (Infinite Water Source)
 tj.machine.parallel_large_macerator.name=Parallel Large Macerator
+tj.machine.parallel_large_washing_machine.name=Parallel Large Washing Machine
+tj.machine.parallel_large_centrifuge.name=Parallel Large Centrifuge
+tj.machine.parallel_large_electrolyzer.name=Parallel Large Electrolyzer
+tj.machine.parallel_large_sifter.name=Parallel Large Sifter
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -124,7 +128,7 @@ tj.multiblock.parallel.status=Status:
 tj.multiblock.parallel.lock=[Locked]
 tj.multiblock.parallel.unlock=[Unlocked]
 tj.multiblock.parallel.sum=Total Energy: §b%s§7 EU/t
-tj.multiblock.parallel.advanced=Advanced tooltip:
+tj.multiblock.parallel.advanced=Advanced Tooltip:
 tj.multiblock.parallel.advanced.on=Advanced tooltip ON
 tj.multiblock.parallel.advanced.off=Advanced tooltip OFF
 tj.multiblock.parallel.advanced.itemInputs=Item Inputs:
@@ -134,6 +138,7 @@ tj.multiblock.parallel.advanced.fluidOutput=Fluid Outputs:
 tj.multiblock.parallel.description=Capable of running multiple recipes in parallel.
 tj.multiblock.parallel.chemical_plant.description=Does not run recipes in batches when running chemical plant recipes.
 tj.multiblock.parallel.tooltip.1=Max Batch: §e%d§7 Per Overclocking Tier
+tj.multiblock.parallel.distinct=Distinct Recipes:
 
 tj.multiblock.elite_large_miner.restart=Can Restart:
 tj.multiblock.elite_large_miner.restart.true=Yes
