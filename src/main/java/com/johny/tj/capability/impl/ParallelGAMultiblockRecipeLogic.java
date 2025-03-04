@@ -17,7 +17,6 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLogic {
@@ -248,10 +247,10 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         for (Recipe.ChanceEntry s : oldRecipe.getChancedOutputs()) {
             int chance = Math.min(10000, s.getChance() * getChancePercentage() / 100);
             int boost = s.getBoostPerTier() * getChancePercentage() / 100;
-            IntStream.range(0, multiplier).forEach(value -> {
-                ItemStack itemStack = s.getItemStack().copy();
-                newRecipe.chancedOutput(itemStack, chance, boost);
-            });
+            ItemStack stack = s.getItemStack().copy();
+            int count = stack.getCount();
+            stack.setCount(count * multiplier);
+            newRecipe.chancedOutput(stack, chance, boost);
         }
     }
 
