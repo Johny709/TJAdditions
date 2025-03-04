@@ -85,7 +85,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        int drillingMud = (int) Math.pow(4, (9 - GAValues.EV)) * 20;
+        int drillingMud = (int) Math.pow(4, (9 - GAValues.EV)) * 10;
         int outputFluid = (int) Math.pow(4, (9 - GAValues.EV)) * 1000;
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.1"));
         tooltip.add(I18n.format("tj.multiblock.drilling_rig.voltage", GAValues.VN[9], GAValues.VN[14]));
@@ -134,7 +134,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
         maxVoltage = (long) (Math.pow(4, tier) * 8);
         outputVeinFluidAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 1000;
-        drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 20;
+        drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
     }
 
 
