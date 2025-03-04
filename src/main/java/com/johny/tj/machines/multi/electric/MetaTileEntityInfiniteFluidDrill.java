@@ -140,7 +140,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     @Override
     protected void updateFormedValid() {
-        if (!isWorkingEnabled && tier >= GAValues.UHV) {
+        if (!isWorkingEnabled && tier >= GAValues.UHV || getNumProblems() >= 6) {
             if (isActive)
                 setActive(false);
             return;
@@ -151,7 +151,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
                 setActive(true);
             }
             energyContainer.removeEnergy(maxVoltage);
-            if (getOffsetTimer() % 20 == 0) {
+            if (getOffsetTimer() % (20 + getNumProblems()) == 0) {
+                calculateMaintenance(20 + getNumProblems());
                 inputFluid.drain(DrillingMud.getFluid(drillingMudAmount), true);
                 outputFluid.fill(new FluidStack(veinFluid, outputVeinFluidAmount), true);
                 outputFluid.fill(UsedDrillingMud.getFluid(drillingMudAmount), true);

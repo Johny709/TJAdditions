@@ -180,6 +180,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                         if (!isActive)
                             setActive(true);
 
+                        calculateMaintenance(1 + getNumProblems());
                         energyContainer.removeEnergy(energyPerTick);
                         WorldServer world = (WorldServer) this.getWorld();
                         switch (acceleratorMode) {
