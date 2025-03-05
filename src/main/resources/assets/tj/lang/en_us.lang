@@ -241,6 +241,7 @@ metaitem.linking.device.message.capable=Not A Linkable Entity!
 metaitem.linking.device.message.remaining=Links Remaining: §e%.1f§r
 metaitem.linking.device.message.no_remaining=Used up all remaining links
 
+machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF
 machine.universal.toggle.run.mode.enabled=ON
 machine.universal.toggle.check.mode.enabled=Initiating Structure Check

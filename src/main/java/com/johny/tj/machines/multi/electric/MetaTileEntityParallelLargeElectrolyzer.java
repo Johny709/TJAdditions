@@ -120,10 +120,16 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (isStructureFormed()) {
-            textList.add(new TextComponentString(I18n.format("gregtech.universal.tooltip.voltage_in", maxVoltage, GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])));
+            Style style = new Style().setColor(TextFormatting.GREEN);
+            textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                    .appendText(" ")
+                    .appendSibling(new TextComponentString(String.valueOf(maxVoltage)).setStyle(style))
+                    .appendText(" (")
+                    .appendSibling(new TextComponentString(String.valueOf(GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])).setStyle(style))
+                    .appendText(")"));
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(new TextComponentString(RecipeMaps.ELECTROLYZER_RECIPES.getLocalizedName())
+                .appendSibling(new TextComponentTranslation("recipemap." + RecipeMaps.ELECTROLYZER_RECIPES.getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.YELLOW))));
     }
 

@@ -28,7 +28,6 @@ import gregtech.api.recipes.Recipe;
 import gregtech.common.blocks.BlockTurbineCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -227,10 +226,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                                     .appendSibling(displayFluidOutputs(recipe).setStyle(new Style().setBold(true)));
                         }
                     }
-                    recipeInstance.appendSibling(new TextComponentString("[" + recipeHandlerPos + "] " + (recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? I18n.format("gregtech.multiblock.running") + " " : I18n.format("gregtech.multiblock.idling") + " ") : I18n.format("gregtech.multiblock.work_paused") + " "))
+                    recipeInstance.appendSibling(new TextComponentString("[" + recipeHandlerPos + "] ").appendSibling(new TextComponentTranslation((recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? "gregtech.multiblock.running" : "gregtech.multiblock.idling") : "gregtech.multiblock.work_paused")).appendText(" "))
                                     .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.status")
-                                                    .appendSibling(new TextComponentString(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? " " + I18n.format("gregtech.multiblock.running") + "\n" : " " + I18n.format("gregtech.multiblock.idling") + "\n") : " " + I18n.format("gregtech.multiblock.work_paused") + "\n")
+                                                    .appendText(" ")
+                                                    .appendSibling(new TextComponentTranslation(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? "gregtech.multiblock.running" : "gregtech.multiblock.idling") : "gregtech.multiblock.work_paused")
                                                             .setStyle(new Style().setColor(recipeMapWorkable.isWorkingEnabled(i) ? (recipeMapWorkable.isInstanceActive(i) ? TextFormatting.GREEN : TextFormatting.WHITE) : TextFormatting.YELLOW)))
+                                                    .appendText("\n")
                                                     .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.eu").appendSibling(new TextComponentString(" " + recipeMapWorkable.getRecipeEUt(i) + "\n")))
                                                     .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.progress").appendSibling(new TextComponentString(" " + (int) progressPercent + "%\n")))
                                                     .appendText("\n")

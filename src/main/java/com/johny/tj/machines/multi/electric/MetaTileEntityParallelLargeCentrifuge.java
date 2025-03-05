@@ -144,7 +144,13 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
         super.addDisplayText(textList);
         if (isStructureFormed()) {
             textList.add(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus).setStyle(new Style().setColor(TextFormatting.AQUA)));
-            textList.add(new TextComponentString(I18n.format("gregtech.universal.tooltip.voltage_in", maxVoltage, GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])));
+            Style style = new Style().setColor(TextFormatting.GREEN);
+            textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                    .appendText(" ")
+                    .appendSibling(new TextComponentString(String.valueOf(maxVoltage)).setStyle(style))
+                    .appendText(" (")
+                    .appendSibling(new TextComponentString(String.valueOf(GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])).setStyle(style))
+                    .appendText(")"));
         }
         RecipeMap<?> recipeMap;
         switch (getRecipeMapIndex()) {
@@ -158,7 +164,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
                 recipeMap = RecipeMaps.CENTRIFUGE_RECIPES;
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(withButton(new TextComponentString(recipeMap.getLocalizedName()), recipeMap.getUnlocalizedName())));
+                .appendSibling(withButton(new TextComponentTranslation("recipemap." + recipeMap.getUnlocalizedName() + ".name"), recipeMap.getUnlocalizedName())));
     }
 
     @Override
