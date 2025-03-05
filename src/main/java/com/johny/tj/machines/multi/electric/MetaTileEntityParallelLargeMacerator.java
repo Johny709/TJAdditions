@@ -45,7 +45,6 @@ import static com.johny.tj.TJRecipeMaps.PARALLEL_MACERATOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-//TODO WIP
 public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};

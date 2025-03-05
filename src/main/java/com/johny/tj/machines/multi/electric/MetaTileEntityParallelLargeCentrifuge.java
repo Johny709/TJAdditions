@@ -57,7 +57,6 @@ import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-//TODO WIP
 public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMultiblockController {
 
     private int recipeMapIndex;

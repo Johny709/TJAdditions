@@ -46,7 +46,6 @@ import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLE
 import static gregicadditions.GAMaterials.EglinSteel;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-//TODO WIP
 public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY,
