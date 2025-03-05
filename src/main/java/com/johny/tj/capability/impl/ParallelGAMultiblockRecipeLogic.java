@@ -66,13 +66,22 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         Recipe currentRecipe = null;
         IItemHandlerModifiable importInventory = getInputInventory();
         IMultipleTankHandler importFluids = getInputTank();
-        Recipe foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes, distinct);
+        Recipe foundRecipe;
+        if (lockRecipe[i] && occupiedRecipes[i] != null) {
+            if (!occupiedRecipes[i].matches(false, importInventory, importFluids))
+                return false;
+            foundRecipe = occupiedRecipes[i];
+        } else {
+            foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes, distinct);
+        }
         if (foundRecipe != null) {
+            //if previous recipe still matches inputs, try to use it
             currentRecipe = foundRecipe;
         } else {
             boolean dirty = checkRecipeInputsDirty(importInventory, importFluids);
-            if (dirty || this.forceRecipeRecheck[i]) {
+            if (dirty || forceRecipeRecheck[i]) {
                 this.forceRecipeRecheck[i] = false;
+                //else, try searching new recipe for given inputs
                 currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
                 if (currentRecipe != null) {
                     this.occupiedRecipes[i] = currentRecipe;
@@ -81,7 +90,6 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 }
             }
         }
-
         if (currentRecipe == null) {
             return false;
         }

@@ -191,7 +191,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 if (sleepTimer[i] > 0) {
                     sleepTimer[i]--;
                 }
-                if (timeToStop[i] > 0) {
+                if (timeToStop[i] > 0 && distinct) {
                     if (!lockRecipe[i]) {
                         if (progressTime[i] <= 0) {
                             if (--timeToStop[i] % 20 == 0) {
@@ -236,7 +236,9 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         IItemHandlerModifiable importInventory = getInputInventory();
         IMultipleTankHandler importFluids = getInputTank();
         Recipe foundRecipe;
-        if (lockRecipe[i]) {
+        if (lockRecipe[i] && occupiedRecipes[i] != null) {
+            if (!occupiedRecipes[i].matches(false, importInventory, importFluids))
+                return false;
             foundRecipe = occupiedRecipes[i];
         } else {
             foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes, distinct);
