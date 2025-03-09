@@ -69,6 +69,13 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     }
 
     @Override
+    public void update() {
+        if (this.structurePattern == null)
+            this.structurePattern = createStructurePattern();
+        super.update();
+    }
+
+    @Override
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
 
@@ -163,20 +170,6 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     public void invalidateStructure() {
         super.invalidateStructure();
         this.maxVoltage = 0;
-    }
-
-    @Override
-    protected void checkStructurePattern() {
-        if (getWorld() == null)
-            return;
-        if (this.structurePattern == null)
-            this.structurePattern = createStructurePattern();
-        super.checkStructurePattern();
-    }
-
-    @Override
-    protected void reinitializeStructurePattern() {
-        this.structurePattern = null;
     }
 
     public int getEnergyBonus() {

@@ -23,18 +23,22 @@ import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 
 import javax.annotation.Nonnull;
 
+import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
+
 public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private int slices = 1;
+    private int parallelLayer = 1;
 
     public MetaTileEntityLargeArchitectWorkbench(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
         super(metaTileEntityId, recipeMap, TJConfig.largeArchitectWorkbench.eutPercentage, TJConfig.largeArchitectWorkbench.durationPercentage, TJConfig.largeArchitectWorkbench.chancePercentage, TJConfig.largeArchitectWorkbench.stack);
@@ -44,7 +48,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(BlockPattern.RelativeDirection.LEFT, BlockPattern.RelativeDirection.DOWN, BlockPattern.RelativeDirection.BACK);
 
-        for (int count = 0; count < this.slices; count++) {
+        for (int count = 0; count < this.parallelLayer; count++) {
             factoryPattern.aisle("~~~", "~~~", "HHH", "HHH");
             factoryPattern.aisle("CrC", "C#C", "HcH", "HHH");
         }
@@ -72,14 +76,6 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
         maxVoltage = (long) (Math.pow(4, min) * 8);
     }
 
-    @Override
-    protected void checkStructurePattern() {
-        if (getWorld() == null)
-            return;
-        if (this.structurePattern == null)
-            this.structurePattern = createStructurePattern();
-        super.checkStructurePattern();
-    }
 
     @Override
     protected void reinitializeStructurePattern() {
@@ -116,36 +112,60 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        if (!getWorld().isRemote) {
-            if (!playerIn.isSneaking()) {
-                if (this.slices < TJConfig.largeArchitectWorkbench.maximumSlices) {
-                    this.slices++;
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.slices)));
-                } else {
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.slices)));
-                }
-            } else {
-                if (this.slices > 1) {
-                    this.slices--;
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.slices)));
-                } else
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.slices)));
-            }
-            this.resetStructure();
+        ITextComponent textComponent;
+        if (!playerIn.isSneaking()) {
+            if (parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
+                this.parallelLayer++;
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
+            } else
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
+        } else {
+            if (parallelLayer > 1) {
+                this.parallelLayer--;
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
+            } else
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
         }
+        if (getWorld().isRemote)
+            playerIn.sendMessage(textComponent);
+        else {
+            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(parallelLayer));
+        }
+        this.resetStructure();
         return true;
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("Slices", this.slices);
+        data.setInteger("Slices", this.parallelLayer);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.slices = data.getInteger("Slices");
+        this.parallelLayer = data.getInteger("Slices");
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == PARALLEL_LAYER) {
+            this.parallelLayer = buf.readInt();
+            scheduleRenderUpdate();
+        }
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeInt(parallelLayer);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.parallelLayer = buf.readInt();
     }
 }

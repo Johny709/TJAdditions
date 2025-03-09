@@ -81,6 +81,13 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     }
 
     @Override
+    public void update() {
+        if (this.structurePattern == null)
+            this.structurePattern = createStructurePattern();
+        super.update();
+    }
+
+    @Override
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, DOWN, BACK);
@@ -146,20 +153,6 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     public void invalidateStructure() {
         super.invalidateStructure();
         maxVoltage = 0;
-    }
-
-    @Override
-    protected void checkStructurePattern() {
-        if (getWorld() == null)
-            return;
-        if (this.structurePattern == null)
-            this.structurePattern = createStructurePattern();
-        super.checkStructurePattern();
-    }
-
-    @Override
-    protected void reinitializeStructurePattern() {
-        this.structurePattern = null;
     }
 
     @Override

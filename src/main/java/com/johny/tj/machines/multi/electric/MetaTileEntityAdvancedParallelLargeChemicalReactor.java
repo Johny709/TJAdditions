@@ -89,6 +89,13 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     }
 
     @Override
+    public void update() {
+        if (this.structurePattern == null)
+            this.structurePattern = createStructurePattern();
+        super.update();
+    }
+
+    @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
         if (!(parallelLayer % 2 == 0)) {
@@ -180,20 +187,6 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     public void invalidateStructure() {
         super.invalidateStructure();
         this.maxVoltage = 0;
-    }
-
-    @Override
-    protected void checkStructurePattern() {
-        if (getWorld() == null)
-            return;
-        if (this.structurePattern == null)
-            this.structurePattern = createStructurePattern();
-        super.checkStructurePattern();
-    }
-
-    @Override
-    protected void reinitializeStructurePattern() {
-        this.structurePattern = null;
     }
 
     public int getEnergyBonus() {

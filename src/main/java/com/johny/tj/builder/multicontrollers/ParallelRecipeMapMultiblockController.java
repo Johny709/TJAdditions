@@ -31,6 +31,7 @@ import gregtech.common.items.MetaItems;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -49,6 +50,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase {
@@ -352,6 +354,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
+    protected void reinitializeStructurePattern() {
+        this.structurePattern = null;
+    }
+
+    @Override
     public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (playerIn.getHeldItemMainhand().isItemEqual(MetaItems.SCREWDRIVER.getStackForm()))
             return false;
@@ -360,24 +367,33 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        if (!getWorld().isRemote) {
-            if (!playerIn.isSneaking()) {
-                if (this.parallelLayer < getMaxParallel()) {
-                    this.recipeMapWorkable.setLayer(++parallelLayer, false);
-                    this.resetStructure();
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-                } else {
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-                }
-            } else {
-                if (this.parallelLayer > 1) {
-                    this.recipeMapWorkable.setLayer(--parallelLayer, true);
-                    this.resetStructure();
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-                } else
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-            }
+        boolean removeLayer = false;
+        boolean actionSuccess = false;
+        ITextComponent textComponent;
+        if (!playerIn.isSneaking()) {
+            if (parallelLayer < getMaxParallel()) {
+                this.parallelLayer++;
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
+                actionSuccess = true;
+            } else
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
+        } else {
+            if (parallelLayer > 1) {
+                this.parallelLayer--;
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
+                removeLayer = true;
+                actionSuccess = true;
+            } else
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
         }
+        if (getWorld().isRemote)
+            playerIn.sendMessage(textComponent);
+        else {
+            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(parallelLayer));
+            if (actionSuccess)
+                this.recipeMapWorkable.setLayer(parallelLayer, removeLayer);
+        }
+        this.resetStructure();
         return true;
     }
 
@@ -398,6 +414,27 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             playerIn.sendMessage(new TextComponentString("Using unoptimized recipe lookup, can detects all of the recipes but with poor performance"));
         }
         return true;
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == PARALLEL_LAYER) {
+            this.parallelLayer = buf.readInt();
+            scheduleRenderUpdate();
+        }
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeInt(parallelLayer);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.parallelLayer = buf.readInt();
     }
 
     @Override

@@ -42,6 +42,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -55,6 +56,8 @@ import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Predicate;
+
+import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController {
 
@@ -102,6 +105,13 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityIndustrialFusionReactor(metaTileEntityId, tier);
+    }
+
+    @Override
+    public void update() {
+        if (this.structurePattern == null)
+            this.structurePattern = createStructurePattern();
+        super.update();
     }
 
     @Override
@@ -217,15 +227,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    protected void checkStructurePattern() {
-        if (getWorld() == null)
-            return;
-        if (this.structurePattern == null)
-            this.structurePattern = createStructurePattern();
-        super.checkStructurePattern();
-    }
-
-    @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         textList.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer));
         if (!this.isStructureFormed()) {
@@ -271,23 +272,26 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        if (!getWorld().isRemote) {
-            if (!playerIn.isSneaking()) {
-                if (this.parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
-                    this.parallelLayer++;
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.1").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-                } else {
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.4").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-                }
-            } else {
-                if (this.parallelLayer > 1) {
-                    this.parallelLayer--;
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.2").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-                } else
-                    playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message.3").appendSibling(new TextComponentString(" " + this.parallelLayer)));
-            }
-            this.resetStructure();
+        ITextComponent textComponent;
+        if (!playerIn.isSneaking()) {
+            if (parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
+                this.parallelLayer++;
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
+            } else
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
+        } else {
+            if (parallelLayer > 1) {
+                this.parallelLayer--;
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
+            } else
+                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
         }
+        if (getWorld().isRemote)
+            playerIn.sendMessage(textComponent);
+        else {
+            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(parallelLayer));
+        }
+        this.resetStructure();
         return true;
     }
 
@@ -307,14 +311,26 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.energyToStart));
     }
 
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == PARALLEL_LAYER) {
+            this.parallelLayer = buf.readInt();
+            scheduleRenderUpdate();
+        }
+    }
 
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeInt(parallelLayer);
+    }
 
-
-
-
-
-
-
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.parallelLayer = buf.readInt();
+    }
 
 
     private class IndustrialFusionRecipeLogic extends LargeSimpleRecipeMapMultiblockController.LargeSimpleMultiblockRecipeLogic {
