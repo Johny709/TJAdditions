@@ -190,6 +190,9 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
 
                     Chunk chunk = chunks.get(currentChunk.intValue());
 
+                    if (maxY.get() == Integer.MAX_VALUE) {
+                        maxY.set(getPos().getY());
+                    }
                     if (x.get() == Long.MAX_VALUE) {
                         x.set(chunk.getPos().getXStart());
                     }
@@ -197,7 +200,7 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                         z.set(chunk.getPos().getZStart());
                     }
                     if (y.get() == Long.MAX_VALUE) {
-                        y.set(getPos().getY() - 5);
+                        y.set(maxY.get());
                     }
 
                     List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
@@ -231,7 +234,7 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                         }
                     });
 
-                    if (y.get() < 0) {
+                    if (y.get() < minY.get()) {
                         if (type != Type.CREATIVE) {
                             currentChunk.incrementAndGet();
                             if (currentChunk.get() >= chunks.size()) {

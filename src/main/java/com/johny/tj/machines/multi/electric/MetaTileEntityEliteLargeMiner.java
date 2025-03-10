@@ -21,10 +21,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
-import gregtech.api.gui.widgets.ImageWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -51,6 +48,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -80,7 +78,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
 
     public final Type type;
     protected AtomicLong x = new AtomicLong(Long.MAX_VALUE), y = new AtomicLong(Long.MAX_VALUE), z = new AtomicLong(Long.MAX_VALUE);
-    protected AtomicInteger currentChunk = new AtomicInteger(0);
+    protected AtomicInteger currentChunk = new AtomicInteger(0), minY = new AtomicInteger(0), maxY = new AtomicInteger(Integer.MAX_VALUE);
     protected IEnergyContainer energyContainer;
     protected IMultipleTankHandler importFluidHandler;
     protected IItemHandlerModifiable outputInventory;
@@ -93,7 +91,6 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     public Map<Integer, IBlockState> blocksToFilter;
     protected boolean enableFilter;
     protected boolean blackListFilter;
-
 
     public MetaTileEntityEliteLargeMiner(ResourceLocation metaTileEntityId, Type type) {
         super(metaTileEntityId);
@@ -196,6 +193,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
 
                     Chunk chunk = chunks.get(currentChunk.intValue());
 
+                    if (maxY.get() == Integer.MAX_VALUE) {
+                        maxY.set(getPos().getY());
+                    }
                     if (x.get() == Long.MAX_VALUE) {
                         x.set(chunk.getPos().getXStart());
                     }
@@ -203,7 +203,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                         z.set(chunk.getPos().getZStart());
                     }
                     if (y.get() == Long.MAX_VALUE) {
-                        y.set(getPos().getY());
+                        y.set(maxY.get());
                     }
                     List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
                     blockPos.forEach(blockPos1 -> {
@@ -236,7 +236,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                         }
                     });
 
-                    if (y.get() < 0) {
+                    if (y.get() < minY.get()) {
                         if (type != Type.CREATIVE) {
                             currentChunk.incrementAndGet();
                             if (currentChunk.get() >= chunks.size()) {
@@ -322,12 +322,13 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     @Override
     protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab()));
+        WidgetGroup widgetFilterGroup = new WidgetGroup(), widgetSettingsGroup = new WidgetGroup();
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab(widgetFilterGroup)));
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab(widgetSettingsGroup)));
         return tabs;
     }
 
-    protected AbstractWidgetGroup filterTab() {
-        WidgetGroup widgetGroup = new WidgetGroup();
+    protected AbstractWidgetGroup filterTab(WidgetGroup widgetGroup) {
         this.blockFilter.initUI(widgetGroup::addWidget);
         widgetGroup.addWidget(new ToggleButtonWidget(172, 132, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                 .setTooltipText("machine.universal.toggle.filter"));
@@ -335,6 +336,43 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         widgetGroup.addWidget(new ToggleButtonWidget(172, 150, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                 .setTooltipText("cover.filter.blacklist"));
         return widgetGroup;
+    }
+
+    protected AbstractWidgetGroup settingsTab(WidgetGroup widgetGroup) {
+        widgetGroup.addWidget(new AdvancedTextWidget(10,18, this::addSettingsDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180)
+                .setClickHandler(this::handleSettingDisplayText));
+        return widgetGroup;
+    }
+
+    protected void addSettingsDisplayText(List<ITextComponent> textList) {
+        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.maximum.y", maxY.get())
+                .appendSibling(withButton(new TextComponentString(" [+]"), "maxYIncrement"))
+                .appendSibling(withButton(new TextComponentString(" [-]"), "maxYDecrement")));
+        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.minimum.y", minY.get())
+                .appendSibling(withButton(new TextComponentString(" [+]"), "minYIncrement"))
+                .appendSibling(withButton(new TextComponentString(" [-]"), "minYDecrement")));
+        textList.add(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.reset.y"), "reset"));
+    }
+
+    private void handleSettingDisplayText(String componentData, Widget.ClickData clickData) {
+        switch (componentData) {
+            case "maxYIncrement":
+                maxY.set(MathHelper.clamp(maxY.get() +1, 0, getPos().getY()));
+                return;
+            case "maxYDecrement":
+                maxY.set(MathHelper.clamp(maxY.get() -1, minY.get() +1, getPos().getY()));
+                return;
+            case "minYIncrement":
+                minY.set(MathHelper.clamp(minY.get() +1, 0, maxY.get() -1));
+                return;
+            case "minYDecrement":
+                minY.set(MathHelper.clamp(minY.get() -1, 0, maxY.get() -1));
+                return;
+            default:
+                maxY.set(getPos().getY());
+                minY.set(0);
+        }
     }
 
     public void setEnableFilter(boolean enableFilter) {
@@ -438,6 +476,8 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         data.setTag("silktouch", new NBTTagInt(silktouch ? 1 : 0));
         data.setTag("restart", new NBTTagInt(canRestart ? 1 : 0));
         data.setTag("working", new NBTTagInt(isWorkingEnabled ? 1 : 0));
+        data.setTag("minY", new NBTTagInt(minY.get()));
+        data.setTag("maxY", new NBTTagInt(maxY.get()));
         return data;
     }
 
@@ -461,6 +501,8 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         silktouch = data.getInteger("silktouch") != 0;
         canRestart = data.getInteger("restart") != 0;
         isWorkingEnabled = data.getInteger("working") != 0;
+        minY.set(data.getInteger("minY"));
+        maxY.set(data.getInteger("maxY"));
     }
 
     @Override
