@@ -15,6 +15,10 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public boolean replaceCTMultis = false;
 
+        @Config.Name("Load Architecture Recipes")
+        @Config.Comment("Loads the recipes for Large Architecture multiblock")
+        @Config.RequiresMcRestart
+        public boolean loadArchitectureRecipes = false;
     }
 
     @Config.Comment("Industrial Fusion Reactor")

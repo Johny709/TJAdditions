@@ -21,7 +21,9 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
@@ -30,8 +32,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
@@ -48,6 +53,13 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     protected void reinitializeStructurePattern() {
         this.parallelLayer = 1;
         super.reinitializeStructurePattern();
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        if (!TJConfig.machines.loadArchitectureRecipes)
+            tooltip.add(I18n.format("tj.multiblock.large_architect_workbench.recipes.disabled"));
     }
 
     @Override

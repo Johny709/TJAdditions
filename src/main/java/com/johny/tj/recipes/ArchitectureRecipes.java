@@ -1,6 +1,7 @@
 package com.johny.tj.recipes;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,22 +24,21 @@ public class ArchitectureRecipes {
             if (excludeShapeNumber.contains(i))
                 continue;
 
-            int finalI = i;
             getQuantity(i);
             NBTTagCompound nbtTagCompound = new NBTTagCompound();
-            nbtTagCompound.setInteger("Shape", finalI);
+            nbtTagCompound.setInteger("Shape", i);
             nbtTagCompound.setString("BaseName", Blocks.PLANKS.getRegistryName().toString());
             nbtTagCompound.setInteger("BaseData", new ItemStack(Blocks.PLANKS).getMetadata());
             ItemStack oakCatalyst = new ItemStack(Item.getByNameOrId("architecturecraft:shape"));
             oakCatalyst.setTagCompound(nbtTagCompound);
 
-            Block.REGISTRY.forEach(block -> {
+            for (Block block : Block.REGISTRY) {
                 String blockName = block.getRegistryName().toString();
 
-                block.getBlockState().getValidStates().forEach(state -> {
+                for (IBlockState state : block.getBlockState().getValidStates()) {
 
                     NBTTagCompound tagCompound = new NBTTagCompound();
-                    tagCompound.setInteger("Shape", finalI);
+                    tagCompound.setInteger("Shape", i);
                     tagCompound.setString("BaseName", blockName);
                     tagCompound.setInteger("BaseData", state.getBlock().getMetaFromState(state));
 
@@ -46,7 +46,7 @@ public class ArchitectureRecipes {
                     architectStack.setTagCompound(tagCompound);
                     ItemStack item = new ItemStack(block, inputQuantity, state.getBlock().getMetaFromState(state));
                     if (item.isEmpty())
-                        return;
+                        continue;
 
                     ARCHITECT_RECIPES.recipeBuilder()
                             .notConsumable(oakCatalyst)
@@ -56,7 +56,9 @@ public class ArchitectureRecipes {
                             .duration(20)
                             .hidden()
                             .buildAndRegister();
-                });});}
+                }
+            }
+        }
     }
 
     public static void getQuantity(int shape) {

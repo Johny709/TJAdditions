@@ -29,22 +29,23 @@ public class LargeArchitectWorkbenchInfo extends MultiblockInfoPage {
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapes = new ArrayList<>();
         for (int index = 1; index < 16; index++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, DOWN, BACK);
-            builder.aisle("~~~", "~~~", "CEC", "CCC");
-            builder.aisle("CrC", "C#C", "CcC", "CCC");
-            for (int num = 1; num < index; num++) {
-                builder.aisle("~~~", "~~~", "CCC", "CCC");
-                builder.aisle("CrC", "C#C", "CcC", "CCC");
+            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+            for (int num = 0; num < index; num++) {
+                if (num == (index -1))
+                    builder.aisle("CCC", "CEC", "~~~", "~~~");
+                else
+                    builder.aisle("CCC", "CCC", "~~~", "~~~");
+                builder.aisle("CCC", "CcC", "C~C", "CrC");
             }
-            builder.aisle("~~~", "~~~","ISO", "CMC");
-            builder.where('S', TJMetaTileEntities.LARGE_ARCHITECT_WORKBENCH, EnumFacing.NORTH)
+            builder.aisle("CMC", "ISO", "~~~", "~~~");
+            builder.where('S', TJMetaTileEntities.LARGE_ARCHITECT_WORKBENCH, EnumFacing.WEST)
                     .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                     .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
                     .where('r', GAMetaBlocks.ROBOT_ARM_CASING.getDefaultState())
-                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.NORTH)
-                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.SOUTH)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.NORTH)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.NORTH);
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST);
             shapes.add(builder.build());
         }
         return shapes;

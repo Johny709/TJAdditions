@@ -208,6 +208,7 @@ tj.multiblock.world_accelerator.mode.tile.description=Accelerates tile entities 
 tj.multiblock.large_world_accelerator.mode.GT.description=Accelerates GT machines. This modes unlocks at UEV tier. Only has 1 link
 tj.multiblock.large_world_accelerator.linked=Linked Tile Entities
 tj.multiblock.large_world_accelerator.tier=Tier is not sufficient to run this mode. Need At least: §e%s§r
+tj.multiblock.large_architect_workbench.recipes.disabled=§cRecipes Are Disabled. Enable in config
 
 tile.solid_casing.draconium.name=Draconic Casing
 tile.solid_casing.awakened.name=Awakened Draconium Casing

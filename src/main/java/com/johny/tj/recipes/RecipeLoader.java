@@ -36,10 +36,12 @@ public class RecipeLoader {
 
         craftingRecipes();
         GreenhouseRecipes.init();
-        ArchitectureRecipes.init();
         AssemblingRecipes.assemblerRecipes();
         AssemblingRecipes.assemblyLineRecipes();
         RockBreakerRecipes.init();
+
+        if (TJConfig.machines.loadArchitectureRecipes)
+            ArchitectureRecipes.init();
 
         if (TJConfig.machines.replaceCTMultis) {
             CokeOvenRecipes.init();
