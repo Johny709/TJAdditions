@@ -38,10 +38,16 @@ import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private int parallelLayer = 1;
+    private int parallelLayer;
 
     public MetaTileEntityLargeArchitectWorkbench(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
         super(metaTileEntityId, recipeMap, TJConfig.largeArchitectWorkbench.eutPercentage, TJConfig.largeArchitectWorkbench.durationPercentage, TJConfig.largeArchitectWorkbench.chancePercentage, TJConfig.largeArchitectWorkbench.stack);
+    }
+
+    @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 1;
+        super.reinitializeStructurePattern();
     }
 
     @Override
@@ -74,12 +80,6 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
         RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
         int min = Math.min(conveyor.getTier(), robotArm.getTier());
         maxVoltage = (long) (Math.pow(4, min) * 8);
-    }
-
-
-    @Override
-    protected void reinitializeStructurePattern() {
-        this.structurePattern = null;
     }
 
     public void resetStructure() {
@@ -136,23 +136,11 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setInteger("Slices", this.parallelLayer);
-        return data;
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.parallelLayer = data.getInteger("Slices");
-    }
-
-    @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
+            this.structurePattern = createStructurePattern();
             scheduleRenderUpdate();
         }
     }
@@ -167,5 +155,21 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
+        this.structurePattern = createStructurePattern();
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        NBTTagCompound tagCompound = super.writeToNBT(data);
+        tagCompound.setInteger("Parallel", this.parallelLayer);
+        return tagCompound;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.parallelLayer = data.getInteger("Parallel");
+        if (data.hasKey("Parallel"))
+            this.structurePattern = createStructurePattern();
     }
 }

@@ -76,7 +76,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("parallel_large_washing_machine", new MultiblockInfoRecipeWrapper(new ParallelLargeWashingMachineInfo()))
                             .put("parallel_large_centrifuge", new MultiblockInfoRecipeWrapper(new ParallelLargeCentrifugeInfo()))
                             .put("parallel_large_electrolyzer", new MultiblockInfoRecipeWrapper(new ParallelLargeElectrolyzerInfo()))
-                            .put("parallel_large_sifter", new MultiblockInfoRecipeWrapper(new ParallelLargeSifterInfo()));
+                            .put("parallel_large_sifter", new MultiblockInfoRecipeWrapper(new ParallelLargeSifterInfo()))
+                            .put("parallel_large_brewery", new MultiblockInfoRecipeWrapper(new ParallelLargeBreweryInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

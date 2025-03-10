@@ -61,7 +61,7 @@ import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController {
 
-    private int parallelLayer = 1;
+    private int parallelLayer;
     private long energyToStart;
     private final int tier;
     private long euCapacity;
@@ -108,15 +108,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public void update() {
-        if (this.structurePattern == null)
-            this.structurePattern = createStructurePattern();
-        super.update();
-    }
-
-    @Override
     protected void reinitializeStructurePattern() {
-        this.structurePattern = null;
+        this.parallelLayer = 1;
+        super.reinitializeStructurePattern();
     }
 
     @Override
@@ -316,6 +310,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
+            this.structurePattern = createStructurePattern();
             scheduleRenderUpdate();
         }
     }
@@ -330,6 +325,22 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
+        this.structurePattern = createStructurePattern();
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        NBTTagCompound tagCompound = super.writeToNBT(data);
+        tagCompound.setInteger("Parallel", this.parallelLayer);
+        return tagCompound;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.parallelLayer = data.getInteger("Parallel");
+        if (data.hasKey("Parallel"))
+            this.structurePattern = createStructurePattern();
     }
 
 
@@ -388,7 +399,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         public NBTTagCompound serializeNBT() {
             NBTTagCompound tag = super.serializeNBT();
             tag.setLong("Heat", heat);
-            tag.setInteger("Parallel", parallelLayer);
             return tag;
         }
 
@@ -396,7 +406,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
             heat = compound.getLong("Heat");
-            parallelLayer = compound.getInteger("Parallel");
         }
 
         @Override

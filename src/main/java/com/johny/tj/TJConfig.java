@@ -395,4 +395,29 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int maximumParallel = 64;
     }
+
+    @Config.Comment("Parallel Large Brewery")
+    public static ParallelLargeBrewery parallelLargeBrewery = new ParallelLargeBrewery();
+
+    public static class ParallelLargeBrewery {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 200;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
 }

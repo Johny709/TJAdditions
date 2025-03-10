@@ -64,6 +64,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityParallelLargeCentrifuge PARALLEL_LARGE_CENTRIFUGE;
     public static MetaTileEntityParallelLargeElectrolyzer PARALLEL_LARGE_ELECTROLYZER;
     public static MetaTileEntityParallelLargeSifter PARALLEL_LARGE_SIFTER;
+    public static MetaTileEntityParallelLargeBrewery PARALLEL_LARGE_BREWERY;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -126,6 +127,7 @@ public class TJMetaTileEntities {
         PARALLEL_LARGE_CENTRIFUGE = GregTechAPI.registerMetaTileEntity(5087, new MetaTileEntityParallelLargeCentrifuge(TJId("parallel_large_centrifuge")));
         PARALLEL_LARGE_ELECTROLYZER = GregTechAPI.registerMetaTileEntity(5088, new MetaTileEntityParallelLargeElectrolyzer(TJId("parallel_large_electrolyzer")));
         PARALLEL_LARGE_SIFTER = GregTechAPI.registerMetaTileEntity(5089, new MetaTileEntityParallelLargeSifter(TJId("parallel_large_sifter")));
+        PARALLEL_LARGE_BREWERY = GregTechAPI.registerMetaTileEntity(5090, new MetaTileEntityParallelLargeBrewery(TJId("parallel_large_brewery")));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

@@ -543,5 +543,27 @@ public class AssemblingRecipes {
                 .EUt(GAValues.VA[9])
                 .duration(3000)
                 .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(Grisium.getFluid(18432))
+                .fluidInputs(Polybenzimidazole.getFluid(9216))
+                .inputs(LARGE_BREWERY.getStackForm(16))
+                .input(OrePrefix.pipeLarge, Zeron100, 64)
+                .inputs(MetaItems.ELECTRIC_MOTOR_UV.getStackForm(32))
+                .inputs(MetaItems.ELECTRIC_PUMP_UV.getStackForm(32))
+                .input(OrePrefix.gear, Ultimet, 16)
+                .input(OrePrefix.cableGtQuadruple, Duranium, 64)
+                .input(OrePrefix.frameGt, Grisium, 16)
+                .input(OrePrefix.plateDense, Grisium, 8)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .outputs(PARALLEL_LARGE_BREWERY.getStackForm())
+                .EUt(GAValues.VA[9])
+                .duration(3000)
+                .buildAndRegister();
     }
 }

@@ -57,7 +57,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     public final MultiRecipeMap multiRecipeMap;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
-    protected int parallelLayer = 1;
+    protected int parallelLayer;
     protected long maxVoltage = 0;
     protected int pageIndex = 0;
     protected final int pageSize = 6;
@@ -108,6 +108,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     public int getMaxParallel() {
         return 1;
+    }
+
+    @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 1;
+        super.reinitializeStructurePattern();
     }
 
     @Override
@@ -354,11 +360,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    protected void reinitializeStructurePattern() {
-        this.structurePattern = null;
-    }
-
-    @Override
     public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (playerIn.getHeldItemMainhand().isItemEqual(MetaItems.SCREWDRIVER.getStackForm()))
             return false;
@@ -421,6 +422,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
+            this.structurePattern = createStructurePattern();
             scheduleRenderUpdate();
         }
     }
@@ -435,6 +437,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
+        this.structurePattern = createStructurePattern();
     }
 
     @Override
@@ -449,6 +452,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.parallelLayer = data.getInteger("Parallel");
+        if (data.hasKey("Parallel"))
+            this.structurePattern = createStructurePattern();
         if (data.hasKey("UseOptimizedRecipeLookUp")) {
             this.recipeMapWorkable.setUseOptimizedRecipeLookUp(data.getBoolean("UseOptimizedRecipeLookUp"));
         }
