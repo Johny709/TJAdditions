@@ -32,7 +32,7 @@ public class TJRecipeMaps {
 
     public static final RecipeMap<SimpleRecipeBuilder> GREENHOUSE_TREE_RECIPES = new RecipeMap<>("greenhouse_tree", 0, 1, 0, 8, 0, 1, 0, 0, new SimpleRecipeBuilder().EUt(7680)).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
 
-    public static final RecipeMap<SimpleRecipeBuilder> ARCHITECT_RECIPES = new RecipeMap<>("architect", 2, 2, 0, 1, 0, 0, 0, 0, new SimpleRecipeBuilder().EUt(30)).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
+    public static final RecipeMap<SimpleRecipeBuilder> ARCHITECT_RECIPES = new RecipeMap<>("architect", 1, 2, 0, 1, 0, 0, 0, 0, new SimpleRecipeBuilder().EUt(30)).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
 
     public static final RecipeMap<SimpleRecipeBuilder> ROCK_BREAKER_RECIPES = new RecipeMap<>("rock_breaker", 1, 1, 1, 1, 0, 2, 0, 0, new SimpleRecipeBuilder()).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
 
@@ -48,6 +48,10 @@ public class TJRecipeMaps {
     public static MultiRecipeMap PARALLEL_GAS_CENTRIFUGE_RECIPES;
     public static MultiRecipeMap PARALLEL_SIFTER_RECIPES;
     public static MultiRecipeMap PARALLEL_ELECTROLYZER_RECIPES;
+    public static MultiRecipeMap PARALLEL_BREWING_MACHINE_RECIPES;
+    public static MultiRecipeMap PARALLEL_FERMENTING_RECIPES;
+    public static MultiRecipeMap PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES;
+    public static MultiRecipeMap PARALLEL_CRACKING_UNIT_RECIPES;
 
     public static void multiRecipesInit() {
         PARALLEL_CHEMICAL_REACTOR_RECIPES = new MultiRecipeMap(
@@ -85,6 +89,17 @@ public class TJRecipeMaps {
 
         PARALLEL_ELECTROLYZER_RECIPES = new MultiRecipeMap(
                 0, 1, 0, 6, 0, 1, 0, 6, RecipeMaps.ELECTROLYZER_RECIPES.getRecipeList());
-    }
 
+        PARALLEL_BREWING_MACHINE_RECIPES = new MultiRecipeMap(
+                1, 1, 0, 0, 1, 1, 1, 1, RecipeMaps.BREWING_RECIPES.getRecipeList());
+
+        PARALLEL_FERMENTING_RECIPES = new MultiRecipeMap(
+                0, 0, 0, 0, 1, 1, 1, 1, RecipeMaps.FERMENTING_RECIPES.getRecipeList());
+
+        PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES = new MultiRecipeMap(
+                0, 2, 0, 9, 0, 2, 0, 2, GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES.getRecipeList());
+
+        PARALLEL_CRACKING_UNIT_RECIPES = new MultiRecipeMap(
+                0, 0, 0, 0, 2, 2, 1, 2, RecipeMaps.CRACKING_RECIPES.getRecipeList());
+    }
 }
