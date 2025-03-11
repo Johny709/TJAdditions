@@ -13,13 +13,9 @@ import net.minecraft.util.text.event.HoverEvent;
 
 import java.util.List;
 
-public class MultiblockDisplaysBuilder {
+public class MultiblockDisplaysUtility {
 
-    public static MultiblockDisplaysBuilder start() {
-        return new MultiblockDisplaysBuilder();
-    }
-
-    public MultiblockDisplaysBuilder maintenanceDisplay(List<ITextComponent> textList, byte maintenanceProblems, boolean hasProblems) {
+    public static void maintenanceDisplay(List<ITextComponent> textList, byte maintenanceProblems, boolean hasProblems) {
         if (hasProblems) {
             textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.has_problems")
                     .setStyle(new Style().setColor(TextFormatting.DARK_RED)));
@@ -75,19 +71,17 @@ public class MultiblockDisplaysBuilder {
             textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.no_problems")
                     .setStyle(new Style().setColor(TextFormatting.GREEN)));
         }
-        return this;
     }
 
-    public MultiblockDisplaysBuilder mufflerDisplay(List < ITextComponent > textList,boolean isMufflerFaceFree) {
+    public static void mufflerDisplay(List<ITextComponent> textList, boolean isMufflerFaceFree) {
         if (!isMufflerFaceFree)
             textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.muffler_obstructed")
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                     new TextComponentTranslation("gtadditions.multiblock.universal.muffler_obstructed.tooltip")))));
-        return this;
     }
 
-    public MultiblockDisplaysBuilder isInvalid(List < ITextComponent > textList,boolean isStructureFormed) {
+    public static void isInvalid(List<ITextComponent> textList, boolean isStructureFormed) {
         if (!isStructureFormed) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
@@ -95,10 +89,9 @@ public class MultiblockDisplaysBuilder {
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip))));
         }
-        return this;
     }
 
-    public MultiblockDisplaysBuilder recipeMapWorkable(List < ITextComponent > textList, boolean isStructureFormed, MultiblockRecipeLogic recipeLogic) {
+    public static void recipeMapWorkable(List<ITextComponent> textList, boolean isStructureFormed, MultiblockRecipeLogic recipeLogic) {
         if (isStructureFormed) {
             IEnergyContainer energyContainer = recipeLogic.getEnergyContainer();
             if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
@@ -110,22 +103,22 @@ public class MultiblockDisplaysBuilder {
             textList.add(recipeLogic.isWorkingEnabled() ? (recipeLogic.isActive() ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
                     : new TextComponentTranslation("gregtech.multiblock.idling"))
                     : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
-            int currentProgress = (int) (recipeLogic.getProgressPercent() * 100);
-            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            if (recipeLogic.isActive()) {
+                int currentProgress = (int) (recipeLogic.getProgressPercent() * 100);
+                textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            }
 
             if (recipeLogic.isHasNotEnoughEnergy()) {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
             }
         }
-        return this;
     }
 
-    public MultiblockDisplaysBuilder recipeMapWorkable (List < ITextComponent > textList, boolean isStructureFormed, FuelRecipeLogic recipeLogic) {
+    public static void recipeMapWorkable(List<ITextComponent> textList, boolean isStructureFormed, FuelRecipeLogic recipeLogic) {
         if (isStructureFormed) {
             textList.add(recipeLogic.isWorkingEnabled() ? (recipeLogic.isActive() ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
                     : new TextComponentTranslation("gregtech.multiblock.idling"))
                     : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
         }
-        return this;
     }
 }

@@ -99,20 +99,20 @@ public abstract class TJRecipeMapMultiblockController extends RecipeMapMultibloc
     }
 
     protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab()));
+        WidgetGroup widgetDisplayGroup = new WidgetGroup();
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widgetDisplayGroup)));
         return tabs;
     }
 
-    protected AbstractWidgetGroup mainDisplayTab() {
-        WidgetGroup widgetGroup = new WidgetGroup();
+    protected AbstractWidgetGroup mainDisplayTab(WidgetGroup widgetGroup) {
         widgetGroup.addWidget(new AdvancedTextWidget(10, 19, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(new SlotWidget(this.importItems, 0, 172, 192));
-        widgetGroup.addWidget(new ImageWidget(171, 191, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 170, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
+        widgetGroup.addWidget(new SlotWidget(this.importItems, 0, 172, 191));
+        widgetGroup.addWidget(new ImageWidget(171, 190, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY));
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 134, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
         return widgetGroup;
     }

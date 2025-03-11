@@ -58,9 +58,9 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
     protected AbstractWidgetGroup mainDisplayTab(WidgetGroup widgetGroup) {
         widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 168, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 132, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
         return widgetGroup;
     }
@@ -73,14 +73,12 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        MultiblockDisplaysBuilder.start()
-                .isInvalid(textList, isStructureFormed());
+        MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
     }
 
     protected void addMaintenanceDisplayText(List<ITextComponent> textList) {
-        MultiblockDisplaysBuilder.start()
-                .mufflerDisplay(textList, !hasMufflerHatch() || isMufflerFaceFree())
-                .maintenanceDisplay(textList, maintenance_problems, hasProblems());
+        MultiblockDisplaysUtility.mufflerDisplay(textList, !hasMufflerHatch() || isMufflerFaceFree());
+        MultiblockDisplaysUtility.maintenanceDisplay(textList, maintenance_problems, hasProblems());
     }
 
     @Override

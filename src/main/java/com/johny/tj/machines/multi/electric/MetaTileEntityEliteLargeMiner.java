@@ -334,7 +334,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     @Override
     protected AbstractWidgetGroup mainDisplayTab(WidgetGroup widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 150, 18, 18, TJGuiTextures.RESET_BUTTON, this::isDone, this::setDone)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isDone, this::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
         return widgetGroup;
     }
@@ -359,10 +359,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
 
     protected AbstractWidgetGroup filterTab(WidgetGroup widgetGroup) {
         this.blockFilter.initUI(widgetGroup::addWidget);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 132, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                 .setTooltipText("machine.universal.toggle.filter"));
-        widgetGroup.addWidget(new ImageWidget(172, 132, 18, 18, GuiTextures.FILTER_SLOT_OVERLAY));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 150, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+        widgetGroup.addWidget(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                 .setTooltipText("cover.filter.blacklist"));
         return widgetGroup;
     }
