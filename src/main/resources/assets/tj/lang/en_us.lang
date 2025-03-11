@@ -152,6 +152,8 @@ tj.multiblock.elite_large_miner.chunk.min=Already reached minimum chunk area at:
 tj.multiblock.elite_large_miner.description=Mines all blocks in an area of %dx%d Chunks base. Can creatively mine ore as if it was using a pickaxe with fortune %s
 tj.multiblock.elite_large_miner.maximum.y=Set Max Y: §b%s§7
 tj.multiblock.elite_large_miner.minimum.y=Set Min Y: §b%s§7
+tj.multiblock.elite_large_miner.running=§cMiner is Running!
+tj.multiblock.elite_large_miner.mining.level=Set Mining Level |
 tj.multiblock.elite_large_miner.reset.y=[Reset]
 
 tj.mulitblock.greenhouse.treemode=[Tree Mode]
@@ -256,3 +258,5 @@ machine.universal.toggle.distinct.mode.enabled=Distinct Mode: ON
 machine.universal.toggle.distinct.mode.disabled=Distinct Mode: OFF
 machine.universal.toggle.filter.enabled=Filter ON
 machine.universal.toggle.filter.disabled=Filter OFF
+machine.universal.toggle.reset.enabled=Resetting
+machine.universal.toggle.reset.disabled=Reset

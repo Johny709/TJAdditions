@@ -49,13 +49,13 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
     }
 
     protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab()));
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab()));
+        WidgetGroup widgetDisplayGroup = new WidgetGroup(), widgetMaintenanceGroup = new WidgetGroup();
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widgetDisplayGroup)));
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab(widgetMaintenanceGroup)));
         return tabs;
     }
 
-    protected AbstractWidgetGroup mainDisplayTab() {
-        WidgetGroup widgetGroup = new WidgetGroup();
+    protected AbstractWidgetGroup mainDisplayTab(WidgetGroup widgetGroup) {
         widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 168, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
@@ -65,8 +65,7 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
         return widgetGroup;
     }
 
-    protected AbstractWidgetGroup maintenanceTab() {
-        WidgetGroup widgetGroup = new WidgetGroup();
+    protected AbstractWidgetGroup maintenanceTab(WidgetGroup widgetGroup) {
         widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addMaintenanceDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
         return widgetGroup;

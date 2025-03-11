@@ -128,7 +128,7 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                     currentChunk.set(0);
                     x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                     z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                    y.set(getPos().getY() - 5);
+                    y.set(maxY.get());
                     chunks.clear();
                 }
             }
@@ -242,18 +242,18 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
                                     currentChunk.set(0);
                                     x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                                     z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                                    y.set(getPos().getY() - 5);
+                                    y.set(maxY.get());
                                 } else
                                     done = true;
                             } else {
                                 x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                                 z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                                y.set(getPos().getY() - 5);
+                                y.set(maxY.get());
                             }
                         } else {
                             x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                             z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                            y.set(getPos().getY() - 5);
+                            y.set(maxY.get());
                         }
                     }
 

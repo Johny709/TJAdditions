@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.machines.ExtendedItemFilter;
 import com.johny.tj.machines.TJMiner;
 import com.johny.tj.textures.TJTextures;
@@ -244,18 +245,18 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                                     currentChunk.set(0);
                                     x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                                     z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                                    y.set(getPos().getY());
+                                    y.set(maxY.get());
                                 } else
                                     done = true;
                             } else {
                                 x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                                 z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                                y.set(getPos().getY());
+                                y.set(maxY.get());
                             }
                         } else {
                             x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                             z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                            y.set(getPos().getY());
+                            y.set(maxY.get());
                         }
                     }
 
@@ -264,7 +265,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                     }
                 }
             }
-        }
+        } else
+        if (isActive)
+            setActive(false);
     }
 
     @Override
@@ -328,6 +331,32 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         return tabs;
     }
 
+    @Override
+    protected AbstractWidgetGroup mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 150, 18, 18, TJGuiTextures.RESET_BUTTON, this::isDone, this::setDone)
+                .setTooltipText("machine.universal.toggle.reset"));
+        return widgetGroup;
+    }
+
+    private boolean isDone() {
+        return false;
+    }
+
+    private void setDone(boolean reset) {
+        this.done = false;
+        this.isWorkingEnabled = false;
+        if (isActive)
+            setActive(false);
+        if (!chunks.isEmpty()) {
+            currentChunk.set(0);
+            x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
+            z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
+            y.set(maxY.get());
+            chunks.clear();
+        }
+    }
+
     protected AbstractWidgetGroup filterTab(WidgetGroup widgetGroup) {
         this.blockFilter.initUI(widgetGroup::addWidget);
         widgetGroup.addWidget(new ToggleButtonWidget(172, 132, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
@@ -346,28 +375,36 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     protected void addSettingsDisplayText(List<ITextComponent> textList) {
+        if (isActive)
+            textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.running"));
+        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.mining.level")
+                .appendText(" ")
+                .appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.reset.y"), "reset")));
         textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.maximum.y", maxY.get())
                 .appendSibling(withButton(new TextComponentString(" [+]"), "maxYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "maxYDecrement")));
         textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.minimum.y", minY.get())
                 .appendSibling(withButton(new TextComponentString(" [+]"), "minYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "minYDecrement")));
-        textList.add(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.reset.y"), "reset"));
     }
 
     private void handleSettingDisplayText(String componentData, Widget.ClickData clickData) {
+        if (isActive) return;
+        int value = clickData.isCtrlClick ? 100
+                : clickData.isShiftClick ? 10
+                : 1;
         switch (componentData) {
             case "maxYIncrement":
-                maxY.set(MathHelper.clamp(maxY.get() +1, 0, getPos().getY()));
+                maxY.set(MathHelper.clamp(maxY.get() + value, minY.get(), getPos().getY()));
                 return;
             case "maxYDecrement":
-                maxY.set(MathHelper.clamp(maxY.get() -1, minY.get() +1, getPos().getY()));
+                maxY.set(MathHelper.clamp(maxY.get() - value, minY.get(), getPos().getY()));
                 return;
             case "minYIncrement":
-                minY.set(MathHelper.clamp(minY.get() +1, 0, maxY.get() -1));
+                minY.set(MathHelper.clamp(minY.get() + value, 0, maxY.get()));
                 return;
             case "minYDecrement":
-                minY.set(MathHelper.clamp(minY.get() -1, 0, maxY.get() -1));
+                minY.set(MathHelper.clamp(minY.get() - value, 0, maxY.get()));
                 return;
             default:
                 maxY.set(getPos().getY());
