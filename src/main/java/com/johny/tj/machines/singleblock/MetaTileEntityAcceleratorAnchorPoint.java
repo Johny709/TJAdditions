@@ -130,8 +130,16 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
                 writeCustomData(2, buf -> buf.writeInt(tier));
                 markDirty();
             }
-        } else
+        } else {
             this.tier = 0;
+            writeCustomData(2, buf -> buf.writeInt(tier));
+            markDirty();
+        }
+    }
+
+    @Override
+    public MetaTileEntity getLink() {
+        return this;
     }
 
     public boolean isRedStonePowered() {

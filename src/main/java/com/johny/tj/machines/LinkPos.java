@@ -4,6 +4,8 @@ import net.minecraft.util.math.BlockPos;
 
 public interface LinkPos {
 
+    int getRange();
+
     int getBlockPosSize();
 
     BlockPos getBlockPos(int i);
