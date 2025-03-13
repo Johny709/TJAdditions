@@ -35,7 +35,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -100,7 +99,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
                 textList.add(new TextComponentTranslation("gregtech.multiblock.work_paused"));
             } else if (workableHandler.isActive()) {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.running"));
-                textList.add(new TextComponentTranslation("tj.multiblock.large_atmosphere_collector.air", workableHandler.getRecipeOutputVoltage(), FluidRegistry.getFluidStack("air", 1000).getUnlocalizedName()));
+                textList.add(new TextComponentTranslation("tj.multiblock.large_atmosphere_collector.air", workableHandler.getRecipeOutputVoltage()));
             } else {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.idling"));
             }
@@ -121,9 +120,9 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
     @Override
     protected BlockPattern createStructurePattern() {
         return turbineType == null ? null : FactoryBlockPattern.start(LEFT, BACK, DOWN)
-                .aisle("CPPPCC", "CPPPXC", "CPPPCC")
-                .aisle("CPPPXC", "R####F", "CPPPSC")
-                .aisle("CPPPCC", "CPPPXC", "CPPPCC")
+                .aisle("CPPPCCC", "CPPPXXC", "CPPPCCC")
+                .aisle("CPPPXXC", "R#####F", "CPPPSXC")
+                .aisle("CPPPCCC", "CPPPXXC", "CPPPCCC")
                 .where('S', selfPredicate())
                 .where('C', statePredicate(turbineType.casingState))
                 .where('P', statePredicate(getPipeState()))

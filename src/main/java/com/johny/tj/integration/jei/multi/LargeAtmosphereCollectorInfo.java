@@ -33,9 +33,9 @@ public class LargeAtmosphereCollectorInfo extends MultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         GAMultiblockShapeInfo builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN)
-                .aisle("CCC", "CfC", "PPP", "PPP", "PPP", "CCC")
-                .aisle("CFC", "C#S", "P#P", "P#P", "P#P", "CRC")
-                .aisle("CCC", "CoC", "PPP", "PPP", "PPP", "CCC")
+                .aisle("CCC", "CCC", "CfC", "PPP", "PPP", "PPP", "CCC")
+                .aisle("CFC", "C#C", "C#S", "P#P", "P#P", "P#P", "CRC")
+                .aisle("CCC", "CCC", "CoC", "PPP", "PPP", "PPP", "CCC")
                 .where('S', tileEntity, EnumFacing.WEST)
                 .where('C', turbineType.casingState)
                 .where('P', tileEntity.getPipeState())
