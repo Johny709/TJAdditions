@@ -4,7 +4,6 @@ import com.johny.tj.machines.multi.electric.MetaTileEntityLargeAtmosphereCollect
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FuelRecipeLogic;
-import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.recipes.recipes.FuelRecipe;
 import gregtech.api.unification.material.Materials;
@@ -16,7 +15,6 @@ import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityL
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
 
 import java.util.function.Supplier;
 
@@ -26,32 +24,26 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic {
     private static final int BASE_ROTOR_DAMAGE = 22;
     private static final long BASE_EU_OUTPUT = 512;
 
-    private final MetaTileEntityLargeAtmosphereCollector largeTurbine;
+    private final MetaTileEntityLargeAtmosphereCollector airCollector;
     private int rotorCycleLength = CYCLE_LENGTH;
 
     public LargeAtmosphereCollectorWorkableHandler(MetaTileEntityLargeAtmosphereCollector metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
-        this.largeTurbine = metaTileEntity;
+        this.airCollector = metaTileEntity;
     }
 
     @Override
     public void update() {
         super.update();
-        MetaTileEntityRotorHolder rotorHolder = largeTurbine.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         if (!rotorHolder.isHasRotor()) {
             setActive(false);
         }
         long totalAirOutput = getRecipeOutputVoltage();
-        IFluidTank fluidTank;
-        if (largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).size() > 1) {
-            fluidTank = largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).get(1);
-        } else {
-            fluidTank = largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).get(0);
-        }
         if (totalAirOutput > 0) {
             FluidStack fluidStack = Materials.Air.getFluid((int) totalAirOutput);
-            if (fluidTank != null) {
-                fluidTank.fill(fluidStack, true);
+            if (airCollector.exportFluidHandler != null) {
+                airCollector.exportFluidHandler.fill(fluidStack, true);
             }
         }
     }
@@ -65,10 +57,10 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic {
 
     @Override
     public boolean checkRecipe(FuelRecipe recipe) {
-        MetaTileEntityRotorHolder rotorHolder = largeTurbine.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         int baseRotorDamage = BASE_ROTOR_DAMAGE;
         if (++rotorCycleLength >= CYCLE_LENGTH) {
-            if (largeTurbine.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM) baseRotorDamage = 150;
+            if (airCollector.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM) baseRotorDamage = 150;
             int damageToBeApplied = (int) Math.round(baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1;
             if (rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                 this.rotorCycleLength = 0;
@@ -80,18 +72,18 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic {
 
     @Override
     public long getMaxVoltage() {
-        MetaTileEntityRotorHolder rotorHolder = largeTurbine.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         if (rotorHolder.hasRotorInInventory()) {
             double rotorEfficiency = rotorHolder.getRotorEfficiency();
-            double totalEnergyOutput = (BASE_EU_OUTPUT + getBonusForTurbineType(largeTurbine) * rotorEfficiency);
+            double totalEnergyOutput = (BASE_EU_OUTPUT + getBonusForTurbineType(airCollector) * rotorEfficiency);
             return MathHelper.ceil(totalEnergyOutput);
         }
-        return BASE_EU_OUTPUT + getBonusForTurbineType(largeTurbine);
+        return BASE_EU_OUTPUT + getBonusForTurbineType(airCollector);
     }
 
     @Override
     protected boolean isReadyForRecipes() {
-        MetaTileEntityRotorHolder rotorHolder = largeTurbine.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         return rotorHolder.isHasRotor();
     }
 
@@ -102,23 +94,19 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic {
     }
 
     private void addOutputFluids(FuelRecipe currentRecipe, int fuelAmountUsed) {
-        IFluidTank fluidTank = null;
-        if (largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).size() > 1) {
-            fluidTank = largeTurbine.getAbilities(MultiblockAbility.EXPORT_FLUIDS).get(0);
-        }
-        if (largeTurbine.turbineType == MetaTileEntityLargeAtmosphereCollector.TurbineType.STEAM) {
+        if (airCollector.turbineType == MetaTileEntityLargeAtmosphereCollector.TurbineType.STEAM) {
             int waterFluidAmount = fuelAmountUsed / 15;
             if (waterFluidAmount > 0) {
                 FluidStack waterStack = Materials.Water.getFluid(waterFluidAmount);
-                if (fluidTank != null) {
-                    fluidTank.fill(waterStack, true);
+                if (airCollector.exportFluidHandler != null) {
+                    airCollector.exportFluidHandler.fill(waterStack, true);
                 }
             }
-        } else if (largeTurbine.turbineType == MetaTileEntityLargeAtmosphereCollector.TurbineType.PLASMA) {
+        } else if (airCollector.turbineType == MetaTileEntityLargeAtmosphereCollector.TurbineType.PLASMA) {
             FluidMaterial material = MetaFluids.getMaterialFromFluid(currentRecipe.getRecipeFluid().getFluid());
             if (material != null) {
-                if (fluidTank != null) {
-                    fluidTank.fill(material.getFluid(fuelAmountUsed), true);
+                if (airCollector.exportFluidHandler != null) {
+                    airCollector.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
                 }
             }
         }
@@ -135,11 +123,11 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic {
 
     @Override
     public long getRecipeOutputVoltage() {
-        MetaTileEntityRotorHolder rotorHolder = largeTurbine.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
         if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
             double rotorEfficiency = rotorHolder.getRotorEfficiency();
-            double totalEnergyOutput = ((BASE_EU_OUTPUT + getBonusForTurbineType(largeTurbine)) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
+            double totalEnergyOutput = ((BASE_EU_OUTPUT + getBonusForTurbineType(airCollector)) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
             return MathHelper.ceil(totalEnergyOutput);
         }
         return 0L;
