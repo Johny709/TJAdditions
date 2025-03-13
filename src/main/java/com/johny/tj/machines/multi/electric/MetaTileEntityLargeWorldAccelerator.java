@@ -4,10 +4,14 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.machines.AcceleratorBlacklist;
+import com.johny.tj.machines.LinkEvent;
 import com.johny.tj.machines.LinkPos;
+import com.johny.tj.machines.LinkSet;
+import com.johny.tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -21,6 +25,7 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -47,6 +52,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.FluidStack;
@@ -59,9 +65,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -75,6 +82,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     private int energyMultiplier = 1;
     private BlockPos[] entityLinkBlockPos;
     private int fluidConsumption;
+    private final int pageSize = 6;
+    private int pageIndex;
 
     public MetaTileEntityLargeWorldAccelerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -98,8 +107,10 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         if (isStructureFormed()) {
-            long maxVoltage = energyContainer.getInputVoltage();
-            textList.add(hasEnoughEnergy(energyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage)
+            long inputVoltage = energyContainer.getInputVoltage();
+            textList.add(hasEnoughEnergy(energyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", inputVoltage)
+                    .appendText("\n")
+                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.sum", energyPerTick))
                     : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
                         .setStyle(new Style().setColor(TextFormatting.RED)));
             textList.add(isWorkingEnabled ? (isActive ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
@@ -129,25 +140,36 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     private void addDisplayLinkedEntities(List<ITextComponent> textList) {
         WorldServer world = (WorldServer) this.getWorld();
-        if (acceleratorMode == AcceleratorMode.TILE_ENTITY) {
-            textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
-                    .setStyle(new Style().setBold(true).setUnderlined(true)));
-            Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).forEach(blockPos -> textList.add(new TextComponentString(world.getTileEntity(blockPos).getBlockType().getLocalizedName())
-                    .appendSibling(new TextComponentString(" X: ").appendSibling(new TextComponentString("" + blockPos.getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                    .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + blockPos.getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                    .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + blockPos.getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))));
-            return;
-        }
-        if (acceleratorMode == AcceleratorMode.GT_TILE_ENTITY) {
-            if (gtAcceleratorTier > 0) {
-                textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
-                        .setStyle(new Style().setBold(true).setUnderlined(true)));
-                Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).forEach(blockPos -> textList.add(new TextComponentTranslation(BlockMachine.getMetaTileEntity(world, blockPos).getMetaFullName())
-                        .appendSibling(new TextComponentString(" X: ").appendSibling(new TextComponentString("" + blockPos.getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                        .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + blockPos.getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                        .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + blockPos.getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))));
-            } else {
-                textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.tier", GAValues.VN[10]));
+        textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
+                .setStyle(new Style().setBold(true).setUnderlined(true)));
+        textList.add(new TextComponentString(":")
+                .appendText(" ")
+                .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))
+                .appendText(" ")
+                .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
+        for (int i = pageIndex, linkedEntitiesPos = i + 1; i < pageIndex + pageSize; i++, linkedEntitiesPos++) {
+            if (i < entityLinkBlockPos.length) {
+                textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
+                        .appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.null"
+                                : acceleratorMode == AcceleratorMode.TILE_ENTITY ? world.getTileEntity(entityLinkBlockPos[i]).getBlockType().getTranslationKey() + ".name"
+                                : BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]).getMetaFullName())).setStyle(new Style()
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.null"
+                                : acceleratorMode == AcceleratorMode.TILE_ENTITY ? world.getTileEntity(entityLinkBlockPos[i]).getBlockType().getTranslationKey() + ".name"
+                                : BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]).getMetaFullName())
+                                .appendText("\n")
+                                .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius",
+                                        entityLinkBlockPos[i] != null && BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]) instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0,
+                                        entityLinkBlockPos[i] != null && BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]) instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getX()))
+                                        .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString("Y: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getY()))
+                                        .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getZ()))
+                                        .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))))));
+
             }
         }
     }
@@ -155,15 +177,25 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab()));
+        WidgetGroup widgetLinkedEntitiesGroup = new WidgetGroup();
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widgetLinkedEntitiesGroup)));
         return tabs;
     }
 
-    private AbstractWidgetGroup linkedEntitiesDisplayTab() {
-        WidgetGroup widgetGroup = new WidgetGroup();
+    private AbstractWidgetGroup linkedEntitiesDisplayTab(WidgetGroup widgetGroup) {
         widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntities, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
         return widgetGroup;
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        if (componentData.equals("leftPage") && pageIndex > 0) {
+            pageIndex -= pageSize;
+            return;
+        }
+        if (componentData.equals("rightPage") && pageIndex < entityLinkBlockPos.length - pageSize)
+            pageIndex += pageSize;
     }
 
     @Override
@@ -215,26 +247,34 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                                         if (targetGTTE == null || targetGTTE instanceof AcceleratorBlacklist) {
                                             return;
                                         }
-                                        IntStream.range(0, (int) Math.pow(2, gtAcceleratorTier)).forEach(value -> targetGTTE.update());
+                                        IntStream.range(0, (int) Math.pow(4, gtAcceleratorTier)).forEach(value -> targetGTTE.update());
                                     }
                                 }
                                 return;
 
                             case RANDOM_TICK:
-                                BlockPos worldAcceleratorPos = getPos().offset(getFrontFacing().getOpposite());
-                                BlockPos upperConner = worldAcceleratorPos.north(tier).east(tier);
-                                for (int x = 0; x < getArea(); x++) {
-                                    BlockPos row = upperConner.south(x);
-                                    for (int y = 0; y < getArea(); y++) {
-                                        BlockPos cell = row.west(y);
-                                        IBlockState targetBlock = world.getBlockState(cell);
-                                        IntStream.range(0, (int) Math.pow(2, tier)).forEach(value -> {
-                                            if (world.rand.nextInt(100) == 0) {
-                                                if (targetBlock.getBlock().getTickRandomly()) {
-                                                    targetBlock.getBlock().randomTick(world, cell, targetBlock, world.rand);
+                                for (BlockPos blockPos : entityLinkBlockPos) {
+                                    if (blockPos == null)
+                                        continue;
+                                    MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, blockPos);
+                                    if (targetGTTE instanceof MetaTileEntityAcceleratorAnchorPoint) {
+                                        if (((MetaTileEntityAcceleratorAnchorPoint) targetGTTE).isRedStonePowered())
+                                            continue;
+                                    }
+                                    BlockPos upperConner = blockPos.north(tier).east(tier);
+                                    for (int x = 0; x < getArea(); x++) {
+                                        BlockPos row = upperConner.south(x);
+                                        for (int y = 0; y < getArea(); y++) {
+                                            BlockPos cell = row.west(y);
+                                            IBlockState targetBlock = world.getBlockState(cell);
+                                            IntStream.range(0, (int) Math.pow(2, tier)).forEach(value -> {
+                                                if (world.rand.nextInt(100) == 0) {
+                                                    if (targetBlock.getBlock().getTickRandomly()) {
+                                                        targetBlock.getBlock().randomTick(world, cell, targetBlock, world.rand);
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
                                     }
                                 }
                         }
@@ -271,6 +311,25 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
+    public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
+        ItemStack stack = playerIn.getHeldItemMainhand();
+        if (!getWorld().isRemote && stack.isItemEqual(TJMetaItems.LINKING_DEVICE.getStackForm())) {
+            setLinkedEntitiesPos(null);
+            Arrays.fill(entityLinkBlockPos, null);
+        }
+        return super.onRightClick(playerIn, hand, facing, hitResult);
+    }
+
+    private void setLinkedEntitiesPos(MetaTileEntity metaTileEntity) {
+        if (entityLinkBlockPos != null)
+            Arrays.stream(entityLinkBlockPos)
+                    .filter(Objects::nonNull)
+                    .map(blockPos -> BlockMachine.getMetaTileEntity(getWorld(), blockPos))
+                    .filter(entity -> entity instanceof LinkSet)
+                    .forEach(entity -> ((LinkSet) entity).setLink(() -> metaTileEntity));
+    }
+
+    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
@@ -281,6 +340,15 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         gtAcceleratorTier = tier - GAValues.UHV;
         energyPerTick = (long) (Math.pow(4, tier) * 8) * energyMultiplier;
         fluidConsumption = (int) Math.pow(4, gtAcceleratorTier - 1) * 1000;
+        entityLinkBlockPos = entityLinkBlockPos != null ? entityLinkBlockPos : new BlockPos[tier];
+        setLinkedEntitiesPos(this);
+    }
+
+    @Override
+    public void onRemoval() {
+        if (!getWorld().isRemote)
+            setLinkedEntitiesPos(null);
+        super.onRemoval();
     }
 
     @Override
@@ -319,27 +387,28 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        if (!getWorld().isRemote) {
-            String tileMode = "null";
-            switch (acceleratorMode) {
-                case RANDOM_TICK:
-                    acceleratorMode = AcceleratorMode.TILE_ENTITY;
-                    energyMultiplier = 6;
-                    entityLinkBlockPos = new BlockPos[tier];
-                    tileMode = "gregtech.machine.world_accelerator.mode.tile";
-                    break;
-                case TILE_ENTITY:
-                    acceleratorMode = AcceleratorMode.GT_TILE_ENTITY;
-                    energyMultiplier = 256;
-                    entityLinkBlockPos = new BlockPos[1];
-                    tileMode = "tj.multiblock.large_world_accelerator.mode.GT";
-                    break;
-                case GT_TILE_ENTITY:
-                    acceleratorMode = AcceleratorMode.RANDOM_TICK;
-                    energyMultiplier = 1;
-                    tileMode = "gregtech.machine.world_accelerator.mode.entity";
-            }
-            energyPerTick = (long) (Math.pow(4, tier) * 8) * energyMultiplier;
+        String tileMode = "null";
+        switch (acceleratorMode) {
+            case RANDOM_TICK:
+                acceleratorMode = AcceleratorMode.TILE_ENTITY;
+                energyMultiplier = 1;
+                entityLinkBlockPos = new BlockPos[tier];
+                tileMode = "gregtech.machine.world_accelerator.mode.tile";
+                break;
+             case TILE_ENTITY:
+                 acceleratorMode = AcceleratorMode.GT_TILE_ENTITY;
+                 energyMultiplier = 256;
+                 entityLinkBlockPos = new BlockPos[1];
+                 tileMode = "tj.multiblock.large_world_accelerator.mode.GT";
+                 break;
+            case GT_TILE_ENTITY:
+                acceleratorMode = AcceleratorMode.RANDOM_TICK;
+                energyMultiplier = 1;
+                entityLinkBlockPos = new BlockPos[tier];
+                tileMode = "gregtech.machine.world_accelerator.mode.entity";
+        }
+        energyPerTick = (long) (Math.pow(4, tier) * 8) * energyMultiplier;
+        if (getWorld().isRemote) {
             playerIn.sendStatusMessage(new TextComponentTranslation(tileMode), false);
         }
         return true;
@@ -383,6 +452,15 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         }
     }
 
+    public int getTier() {
+        return tier;
+    }
+
+    @Override
+    public int getRange() {
+        return TJConfig.largeWorldAccelerator.range;
+    }
+
     @Override
     public int getBlockPosSize() {
         return entityLinkBlockPos.length;
@@ -396,6 +474,12 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public void setBlockPos(double x, double y, double z, boolean connect, int i) {
         entityLinkBlockPos[i] = connect ? new BlockPos(x, y, z) : null;
+    }
+
+    @Override
+    public void onLink() {
+        int count = (int) Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
+        energyPerTick = (long) (Math.pow(4, tier) * 8) * count;
     }
 
     public enum AcceleratorMode {

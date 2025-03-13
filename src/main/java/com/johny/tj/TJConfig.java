@@ -424,4 +424,13 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int maximumParallel = 64;
     }
+
+    @Config.Comment("Large World Accelerator")
+    public static LargeWorldAccelerator largeWorldAccelerator = new LargeWorldAccelerator();
+
+    public static class LargeWorldAccelerator {
+        @Config.Name("Block Range Radius")
+        @Config.RequiresMcRestart
+        public int range = 64;
+    }
 }

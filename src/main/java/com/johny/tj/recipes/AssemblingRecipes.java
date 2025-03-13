@@ -128,6 +128,19 @@ public class AssemblingRecipes {
                 .EUt(GAValues.VA[8])
                 .buildAndRegister();
 
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(HULL[8].getStackForm())
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 4)
+                .input(OrePrefix.cableGtSingle, NaquadahAlloy, 16)
+                .inputs(MetaItems.FIELD_GENERATOR_UV.getStackForm(2))
+                .inputs(MetaItems.SENSOR_UV.getStackForm(2))
+                .inputs(MetaItems.EMITTER_UV.getStackForm(2))
+                .outputs(ACCELERATOR_ANCHOR_POINT.getStackForm())
+                .fluidInputs(SolderingAlloy.getFluid(1152))
+                .duration(200)
+                .EUt(GAValues.VA[8])
+                .buildAndRegister();
+
         for (int i = 0; i < materialTier[0].length; i++) {
 
             ASSEMBLER_RECIPES.recipeBuilder()

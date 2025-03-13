@@ -1,5 +1,6 @@
 package com.johny.tj.items;
 
+import com.johny.tj.machines.LinkEvent;
 import com.johny.tj.machines.LinkPos;
 import com.johny.tj.machines.LinkSet;
 import gregtech.api.block.machines.BlockMachine;
@@ -67,15 +68,20 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                                                     return EnumActionResult.SUCCESS;
                                                 }
                                             }
-                                            if (targetGTTE instanceof LinkSet) {
-                                                LinkSet linkSet = (LinkSet) targetGTTE;
-                                                linkSet.setLink(() -> linkedGTTE);
-                                            }
                                             linkPos.setBlockPos(linkX, linkY, linkZ, true, Math.abs(linkI - linkPos.getBlockPosSize()));
                                             nbt.setInteger("I", linkI - 1);
                                             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
                                             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
                                                     .appendSibling(new TextComponentString(" " + (linkI - 1))));
+                                            if (targetGTTE instanceof LinkSet) {
+                                                ((LinkSet) targetGTTE).setLink(() -> linkedGTTE);
+                                            }
+                                            if (linkedGTTE instanceof LinkEvent) {
+                                                ((LinkEvent) linkedGTTE).onLink();
+                                            }
+                                            if (targetGTTE instanceof LinkEvent) {
+                                                ((LinkEvent) targetGTTE).onLink();
+                                            }
                                         } else {
                                             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                                         }
@@ -125,7 +131,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
         double z = nbt.hasKey("Z") ? nbt.getDouble("Z") : 0;
         int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
         String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
-        lines.add(I18n.format("metaitem.linking.device.name", name));
+        lines.add(I18n.format("metaitem.linking.device.name") + I18n.format(name));
         lines.add(I18n.format("metaitem.linking.device.x", x));
         lines.add(I18n.format("metaitem.linking.device.y", y));
         lines.add(I18n.format("metaitem.linking.device.z", z));

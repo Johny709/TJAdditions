@@ -262,3 +262,5 @@ machine.universal.toggle.filter.disabled=Filter OFF
 machine.universal.toggle.reset.enabled=Resetting
 machine.universal.toggle.reset.disabled=Reset
 machine.universal.linked.entity.null=Not linked
+machine.universal.linked.entity.empty=Null
+machine.universal.linked.entity.radius=Radius: §e%.1f§rx§e%.1f§r

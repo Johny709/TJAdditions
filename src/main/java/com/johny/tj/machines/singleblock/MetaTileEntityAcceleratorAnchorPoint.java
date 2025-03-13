@@ -100,8 +100,8 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new ImageWidget(10, 30, 150, 30, GuiTextures.DISPLAY));
-        widgetGroup.addWidget(new AdvancedTextWidget(15, 35, this::addDisplayText, 0xFFFFFF));
+        widgetGroup.addWidget(new ImageWidget(10, 20, 150, 40, GuiTextures.DISPLAY));
+        widgetGroup.addWidget(new AdvancedTextWidget(15, 25, this::addDisplayText, 0xFFFFFF));
         widgetGroup.addWidget(new CycleButtonWidget(10, 60, 150, 20, this::isInverted, this::setInverted,
                 "cover.machine_controller.normal", "cover.machine_controller.inverted"));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
@@ -114,7 +114,9 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     private void addDisplayText(List<ITextComponent> textList) {
         textList.add(entitySupplier != null ? new TextComponentTranslation(entitySupplier.get().getMetaFullName())
                 .appendText("\n")
-                .appendSibling(new TextComponentString(" X: ").appendSibling(new TextComponentString("" + entitySupplier.get().getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius", tier, tier))
+                .appendText("\n")
+                .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentString("" + entitySupplier.get().getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
                 .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + entitySupplier.get().getPos().getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
                 .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + entitySupplier.get().getPos().getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
                 : new TextComponentTranslation("machine.universal.linked.entity.null"));
