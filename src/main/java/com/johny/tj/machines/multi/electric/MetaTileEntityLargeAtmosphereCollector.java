@@ -35,6 +35,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -99,7 +100,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
                 textList.add(new TextComponentTranslation("gregtech.multiblock.work_paused"));
             } else if (workableHandler.isActive()) {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.running"));
-                textList.add(new TextComponentTranslation("gregtech.multiblock.generation_eu", workableHandler.getRecipeOutputVoltage()));
+                textList.add(new TextComponentTranslation("tj.multiblock.large_atmosphere_collector.air", workableHandler.getRecipeOutputVoltage(), FluidRegistry.getFluidStack("air", 1000).getUnlocalizedName()));
             } else {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.idling"));
             }
