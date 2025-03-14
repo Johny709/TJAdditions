@@ -42,6 +42,7 @@ public class LargeWorldAcceleratorInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.large_world_accelerator.description")};
+                I18n.format("tj.multiblock.large_world_accelerator.description"),
+                I18n.format("metaitem.item.linking.device.link.from")};
     }
 }

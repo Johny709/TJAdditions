@@ -70,7 +70,8 @@ public class LargeMinerInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         if (largeMiner.getType() == TJMiner.Type.DESTROYER) {
-            return new String[]{I18n.format("gregtech.multiblock.elite_large_miner.description", largeMiner.type.chunk, largeMiner.type.chunk, largeMiner.type.fortuneString)};
+            return new String[]{I18n.format("tj.multiblock.elite_large_miner.description", largeMiner.type.chunk, largeMiner.type.chunk, largeMiner.type.fortuneString),
+            I18n.format("tj.multiblock.elite_large_miner.filter.warning")};
         }
         return new String[]{I18n.format("gtadditions.machine.miner.multi.description", largeMiner.type.chunk, largeMiner.type.chunk, largeMiner.type.fortuneString)};
     }

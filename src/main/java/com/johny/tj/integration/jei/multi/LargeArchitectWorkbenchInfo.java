@@ -54,6 +54,6 @@ public class LargeArchitectWorkbenchInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.industrial_fusion_reactor.description")};
+                I18n.format("tj.multiblock.large_architect_workbench.description")};
     }
 }

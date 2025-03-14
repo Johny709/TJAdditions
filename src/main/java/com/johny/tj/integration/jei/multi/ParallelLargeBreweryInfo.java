@@ -64,7 +64,8 @@ public class ParallelLargeBreweryInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.parallel_large_brewery.description"),
+                I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 
     @Override

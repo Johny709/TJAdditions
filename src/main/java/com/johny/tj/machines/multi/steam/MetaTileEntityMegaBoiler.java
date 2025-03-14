@@ -365,6 +365,10 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         return sourcePart == null ? 0 : (isActive ? 15 : 0);
     }
 
+    public int getMAX_PROCESSES() {
+        return MAX_PROCESSES;
+    }
+
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);

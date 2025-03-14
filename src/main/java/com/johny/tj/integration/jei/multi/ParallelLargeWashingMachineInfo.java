@@ -61,7 +61,8 @@ public class ParallelLargeWashingMachineInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.parallel_large_washing_machine.description"),
+                I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 
     @Override

@@ -78,7 +78,7 @@ public class LargeAlloySmelterInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.large_alloy_smelter.description")};
     }
 
     @Override

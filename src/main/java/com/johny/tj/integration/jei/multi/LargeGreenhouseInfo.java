@@ -58,7 +58,7 @@ public class LargeGreenhouseInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.large_greenhouse.description")};
     }
 
     @Override

@@ -97,6 +97,7 @@ public class MetaTileEntityWorldDestroyer extends MetaTileEntityEliteLargeMiner 
         tooltip.add(I18n.format("tj.multiblock.elite_large_miner.description", type.chunk, type.chunk, type.fortuneString));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", type.drillingFluidConsumePerTick, I18n.format(DrillingFluid.getFluid(0).getUnlocalizedName())));
         tooltip.add(I18n.format("tj.multiblock.elite_large_miner.chunk.info"));
+        tooltip.add(I18n.format("tj.multiblock.elite_large_miner.filter.warning"));
     }
 
     @Override

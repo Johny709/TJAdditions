@@ -77,7 +77,8 @@ public class AdvancedParallelChemicalReactorInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.industrial_fusion_reactor.description")};
+                I18n.format("tj.multiblock.advanced_parallel_chemical_reactor.description"),
+                I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 
     @Override

@@ -52,6 +52,6 @@ public class InfiniteFluidDrillInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("gtadditions.multiblock.drilling_rig.tooltip.1")};
     }
 }

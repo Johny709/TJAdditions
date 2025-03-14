@@ -45,6 +45,6 @@ public class IndustrialSteamEngineInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.industrial_steam_engine.description")};
     }
 }

@@ -58,7 +58,8 @@ public class ParallelLargeElectrolyzerInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.parallel_large_electrolyzer.description"),
+                I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 
     @Override

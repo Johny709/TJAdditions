@@ -57,7 +57,8 @@ public class ParallelLargeMaceratorInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.parallel_large_macerator.description"),
+                I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 
     @Override
