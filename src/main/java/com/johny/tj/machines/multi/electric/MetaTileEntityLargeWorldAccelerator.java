@@ -339,9 +339,14 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         EmitterCasing.CasingType emitter = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV);
         tier = Math.min(fieldGen.getTier(), emitter.getTier());
         gtAcceleratorTier = tier - GAValues.UHV;
-        energyPerTick = (long) (Math.pow(4, tier) * 8) * energyMultiplier;
+        if (acceleratorMode == AcceleratorMode.GT_TILE_ENTITY) {
+            entityLinkBlockPos = entityLinkBlockPos != null ? entityLinkBlockPos : new BlockPos[1];
+        } else {
+            entityLinkBlockPos = entityLinkBlockPos != null ? Arrays.copyOf(entityLinkBlockPos, tier) : new BlockPos[tier];
+        }
+        long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
+        energyPerTick = energyPerTick != 0 ? energyPerTick : (long) (Math.pow(4, tier) * 8) * energyMultiplier * count;
         fluidConsumption = (int) Math.pow(4, gtAcceleratorTier - 1) * 1000;
-        entityLinkBlockPos = entityLinkBlockPos != null ? entityLinkBlockPos : new BlockPos[tier];
         setLinkedEntitiesPos(this);
     }
 
@@ -425,6 +430,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 data.setDouble("EntityLinkZ" + i, entityLinkBlockPos[i].getZ());
             }
         }
+        data.setLong("EnergyPerTick", energyPerTick);
         data.setInteger("EnergyMultiplier", energyMultiplier);
         data.setInteger("AcceleratorMode", acceleratorMode.ordinal());
         data.setInteger("BlockPosSize", entityLinkBlockPos.length);
@@ -435,6 +441,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         energyMultiplier = data.getInteger("EnergyModifier");
+        energyPerTick = data.getLong("EnergyPerTick");
         acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
         entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
         for (int i = 0; i < entityLinkBlockPos.length; i++) {
@@ -479,8 +486,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public void onLink() {
-        int count = (int) Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
-        energyPerTick = (long) (Math.pow(4, tier) * 8) * count;
+        long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
+        energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier * count);
     }
 
     public enum AcceleratorMode {
