@@ -345,7 +345,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             entityLinkBlockPos = entityLinkBlockPos != null ? Arrays.copyOf(entityLinkBlockPos, tier) : new BlockPos[tier];
         }
         long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
-        energyPerTick = energyPerTick != 0 ? energyPerTick : (long) (Math.pow(4, tier) * 8) * energyMultiplier * count;
+        energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier) * count;
         fluidConsumption = (int) Math.pow(4, gtAcceleratorTier - 1) * 1000;
         setLinkedEntitiesPos(this);
     }
@@ -440,7 +440,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        energyMultiplier = data.getInteger("EnergyModifier");
+        energyMultiplier = data.getInteger("EnergyMultiplier");
         energyPerTick = data.getLong("EnergyPerTick");
         acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
         entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
@@ -487,7 +487,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public void onLink() {
         long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
-        energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier * count);
+        energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier) * count;
     }
 
     public enum AcceleratorMode {
