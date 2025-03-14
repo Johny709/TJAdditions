@@ -45,6 +45,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityIndustrialFusionReactor INDUSTRIAL_FUSION_REACTOR_LUV;
     public static MetaTileEntityIndustrialFusionReactor INDUSTRIAL_FUSION_REACTOR_ZPM;
     public static MetaTileEntityIndustrialFusionReactor INDUSTRIAL_FUSION_REACTOR_UV;
+    public static MetaTileEntityIndustrialFusionReactor INDUSTRIAL_FUSION_REACTOR_UHV;
     public static MetaTileEntityParallelLargeChemicalReactor PARALLEL_CHEMICAL_REACTOR;
     public static MetaTileEntityTJMultiFluidHatch QUADRUPLE_QUADRUPLE_INPUT_HATCH;
     public static MetaTileEntityTJMultiFluidHatch QUADRUPLE_QUADRUPLE_OUTPUT_HATCH;
@@ -89,6 +90,7 @@ public class TJMetaTileEntities {
         XL_GAS_TURBINE = GregTechAPI.registerMetaTileEntity(4207, new MetaTileEntityXLTurbine(TJId("xl_turbine.gas"), MetaTileEntityLargeTurbine.TurbineType.GAS));
         XL_PLASMA_TURBINE = GregTechAPI.registerMetaTileEntity(4208, new MetaTileEntityXLTurbine(TJId("xl_turbine.plasma"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
         XL_COOLANT_TURBINE = GregTechAPI.registerMetaTileEntity(4209, new MetaTileEntityXLHotCoolantTurbine(TJId("xl_turbine.coolant"), MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT));
+        // 5000 is free
         LARGE_GREENHOUSE = GregTechAPI.registerMetaTileEntity(5001, new MetaTileEntityLargeGreenhouse(TJId("large_greenhouse"), GARecipeMaps.GREEN_HOUSE_RECIPES));
         LARGE_DECAY_CHAMBER = GregTechAPI.registerMetaTileEntity(5002, new MetaTileEntityLargeDecayChamber(TJId("large_decay_chamber")));
         LARGE_ALLOY_SMELTER = GregTechAPI.registerMetaTileEntity(5003, new MetaTileEntityLargeAlloySmelter(TJId("large_alloy_smelter")));
@@ -96,6 +98,7 @@ public class TJMetaTileEntities {
         INDUSTRIAL_FUSION_REACTOR_LUV = GregTechAPI.registerMetaTileEntity(5004, new MetaTileEntityIndustrialFusionReactor(TJId("industrial_fusion_reactor.luv"), 6));
         INDUSTRIAL_FUSION_REACTOR_ZPM = GregTechAPI.registerMetaTileEntity(5005, new MetaTileEntityIndustrialFusionReactor(TJId("industrial_fusion_reactor.zpm"), 7));
         INDUSTRIAL_FUSION_REACTOR_UV = GregTechAPI.registerMetaTileEntity(5006, new MetaTileEntityIndustrialFusionReactor(TJId("industrial_fusion_reactor.uv"), 8));
+        INDUSTRIAL_FUSION_REACTOR_UHV = GregTechAPI.registerMetaTileEntity(5007, new MetaTileEntityIndustrialFusionReactor(TJId("industrial_fusion_reactor.uhv"), 9));
 
         QUADRUPLE_QUADRUPLE_INPUT_HATCH = GregTechAPI.registerMetaTileEntity(5008, new MetaTileEntityTJMultiFluidHatch(TJId("fluid_input_quad_quad_luv"), 4, false, 64000));
         QUADRUPLE_QUADRUPLE_OUTPUT_HATCH = GregTechAPI.registerMetaTileEntity(5009, new MetaTileEntityTJMultiFluidHatch(TJId("fluid_output_quad_quad_luv"), 4, true, 64000));

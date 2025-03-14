@@ -30,6 +30,7 @@ public class CommonProxy {
         registry.register(SOLID_CASING);
         registry.register(ABILITY_CASING);
         registry.register(PIPE_CASING);
+        registry.register(FUSION_CASING);
     }
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
@@ -38,6 +39,7 @@ public class CommonProxy {
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(ABILITY_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(PIPE_CASING, VariantItemBlock::new));
+        registry.register(createItemBlock(FUSION_CASING, VariantItemBlock::new));
     }
 
     @SubscribeEvent

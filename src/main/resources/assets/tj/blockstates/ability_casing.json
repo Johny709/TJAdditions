@@ -19,6 +19,11 @@
         "textures": {
           "all": "tj:blocks/casings/ability/fusion_energy_port_uv"
         }
+      },
+      "energy_port_uhv": {
+        "textures": {
+          "all": "tj:blocks/casings/ability/fusion_energy_port_uhv"
+        }
       }
     }
   }

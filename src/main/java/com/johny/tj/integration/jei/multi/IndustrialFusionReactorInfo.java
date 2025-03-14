@@ -2,6 +2,7 @@ package com.johny.tj.integration.jei.multi;
 
 import com.johny.tj.machines.multi.electric.MetaTileEntityIndustrialFusionReactor;
 import gregicadditions.jei.GAMultiblockShapeInfo;
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
@@ -42,7 +43,7 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
                     builder.where('S', fusionReactor, EnumFacing.WEST)
                     .where('C', fusionReactor.getCasingState())
                     .where('c', fusionReactor.getCoilState())
-                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[fusionReactor.getTier()], EnumFacing.WEST)
+                    .where('E', fusionReactor.getTier() < 9 ? MetaTileEntities.ENERGY_INPUT_HATCH[fusionReactor.getTier()] : GATileEntities.ENERGY_INPUT[0], EnumFacing.WEST)
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[fusionReactor.getTier()], EnumFacing.WEST)
                     .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[fusionReactor.getTier()], EnumFacing.WEST);
             shapes.add(builder.build());

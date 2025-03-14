@@ -3,11 +3,14 @@ package com.johny.tj.machines.multi.electric;
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import com.johny.tj.TJConfig;
 import com.johny.tj.blocks.BlockAbilityCasings;
+import com.johny.tj.blocks.BlockFusionCasings;
+import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GAFusionCasing;
+import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregicadditions.utils.GALog;
 import gregtech.api.GTValues;
@@ -89,6 +92,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             case 8:
                 this.energyToStart = 640_000_000;
                 break;
+            case 9:
+                this.energyToStart = 1_280_000_000;
         }
         this.energyContainer = new EnergyContainerHandler(this, Integer.MAX_VALUE, 0, 0 ,0, 0) {
             @Override
@@ -96,6 +101,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 return "EnergyContainerInternal";
             }
         };
+        reinitializeStructurePattern();
     }
 
     public int getTier() {
@@ -133,10 +139,16 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                             return true;
                     }
                     return false;
-                    })).or(energyPortPredicate(tier)))
+                    })).or(tilePredicate((state, tile) -> {
+                    for (int i = tier; i < GAValues.V.length; i++) {
+                        if (tile.metaTileEntityId.equals(GATileEntities.ENERGY_INPUT[i - 9].metaTileEntityId))
+                            return true;
+                    }
+                    return false;
+                })).or(energyPortPredicate(tier)))
             .where('I', statePredicate(getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
             .where('#', (tile) -> true);
-        return factoryPattern.build();
+        return tier != 0 ? factoryPattern.build() : null;
     }
 
     public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
@@ -166,8 +178,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             case 7:
                 return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2);
             case 8:
-            default:
                 return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_3);
+            default:
+                return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_CASING_UHV);
         }
     }
 
@@ -178,8 +191,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             case 7:
                 return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_2);
             case 8:
-            default:
                 return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_3);
+            default:
+                return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UHV);
         }
     }
 

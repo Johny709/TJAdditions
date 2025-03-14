@@ -2,12 +2,14 @@ package com.johny.tj.recipes;
 
 import com.johny.tj.TJConfig;
 import com.johny.tj.blocks.BlockAbilityCasings;
+import com.johny.tj.blocks.BlockFusionCasings;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.material.MarkerMaterials;
@@ -129,6 +131,16 @@ public class AssemblingRecipes {
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(ENERGY_INPUT[0].getStackForm())
+                .inputs(GAMetaItems.UHPIC.getStackForm(4))
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.plate, Seaborgium, 8)
+                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_UHV))
+                .duration(200)
+                .EUt(GAValues.VA[9])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(HULL[8].getStackForm())
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 4)
                 .input(OrePrefix.cableGtSingle, NaquadahAlloy, 16)
@@ -139,6 +151,14 @@ public class AssemblingRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(1152))
                 .duration(200)
                 .EUt(GAValues.VA[8])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .input(OrePrefix.plate, HastelloyK243, 6)
+                .inputs(GAMetaBlocks.FUSION_CASING.getItemVariant(GAFusionCasing.CasingType.FUSION_3))
+                .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UHV))
+                .duration(50)
+                .EUt(500000)
                 .buildAndRegister();
 
         for (int i = 0; i < materialTier[0].length; i++) {
@@ -358,6 +378,41 @@ public class AssemblingRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite,16)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_UV.getStackForm())
                 .EUt(180000)
+                .duration(1000)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(Helium.getFluid(4000))
+                .inputs(MetaItems.NEUTRON_REFLECTOR.getStackForm(8))
+                .input(OrePrefix.cableGtQuadruple, UEVSuperconductor, 4)
+                .inputs(GAMetaItems.FIELD_GENERATOR_UHV.getStackForm(2))
+                .input(OrePrefix.plate, Bohrium, 2)
+                .input(OrePrefix.circuit, UEV, 1)
+                .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UHV))
+                .duration(400)
+                .EUt(GAValues.VA[9])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(11520))
+                .fluidInputs(Lubricant.getFluid(16000))
+                .fluidInputs(SuperheavyLAlloy.getFluid(11520))
+                .fluidInputs(SuperheavyHAlloy.getFluid(11520))
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .inputs(GAMetaItems.UHPIC.getStackForm(64))
+                .input(OrePrefix.wireGtHex, UEVSuperconductor, 64)
+                .input(OrePrefix.plateDense, Quantum, 4)
+                .input(OrePrefix.plateDense, HastelloyX78, 4)
+                .inputs(GAMetaItems.FIELD_GENERATOR_UEV.getStackForm(16))
+                .inputs(GAMetaItems.EMITTER_UEV.getStackForm(16))
+                .inputs(GAMetaItems.SENSOR_UEV.getStackForm(16))
+                .inputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UHV))
+                .input(OrePrefix.circuit, UIV, 16)
+                .input(OrePrefix.circuit, UIV, 16)
+                .input(OrePrefix.circuit, UIV, 16)
+                .input(OrePrefix.circuit, UIV,16)
+                .outputs(INDUSTRIAL_FUSION_REACTOR_UHV.getStackForm())
+                .EUt(1800000)
                 .duration(1000)
                 .buildAndRegister();
 

@@ -9,16 +9,16 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public class BlockAbilityCasings extends VariantBlock<BlockAbilityCasings.AbilityType> {
+public class BlockFusionCasings extends VariantBlock<BlockFusionCasings.FusionType> {
 
-    public BlockAbilityCasings() {
+    public BlockFusionCasings() {
         super(Material.IRON);
         setHardness(5.0f);
         setResistance(10.0f);
-        setTranslationKey("ability_casing");
+        setTranslationKey("fusion_casing");
         setSoundType(SoundType.METAL);
         setHarvestLevel("wrench", 2);
-        setDefaultState(getState(AbilityType.ENERGY_PORT_LUV));
+        setDefaultState(getState(FusionType.FUSION_CASING_UHV));
     }
 
     @Override
@@ -26,28 +26,19 @@ public class BlockAbilityCasings extends VariantBlock<BlockAbilityCasings.Abilit
         return false;
     }
 
-    public enum AbilityType implements IStringSerializable {
+    public enum FusionType implements IStringSerializable {
+        FUSION_CASING_UHV("fusion_casing_uhv"),
+        FUSION_COIL_UHV("fusion_coil_uhv");
 
-        ENERGY_PORT_LUV("energy_port_luv", 6),
-        ENERGY_PORT_ZPM("energy_port_zpm", 7),
-        ENERGY_PORT_UV("energy_port_uv", 8),
-        ENERGY_PORT_UHV("energy_port_uhv", 9);
+        FusionType(String name) {
+            this.name = name;
+        }
 
         private final String name;
-        private final int tier;
-
-        AbilityType(String name, int tier) {
-            this.name = name;
-            this.tier = tier;
-        }
 
         @Override
         public String getName() {
             return this.name;
-        }
-
-        public int getTier() {
-            return this.tier;
         }
     }
 }
