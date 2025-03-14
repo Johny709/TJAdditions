@@ -32,6 +32,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -64,12 +65,11 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
         super.update();
         if (getWorld().isRemote || entitySupplier == null)
             return;
-        if (entitySupplier.get() instanceof MetaTileEntityLargeWorldAccelerator) {
+        if (getOffsetTimer() % 5 == 0 && entitySupplier.get() instanceof MetaTileEntityLargeWorldAccelerator) {
             MetaTileEntityLargeWorldAccelerator accelerator = (MetaTileEntityLargeWorldAccelerator)entitySupplier.get();
             setActive(accelerator.isActive());
             if (isActive)
-                for (EnumFacing facing : EnumFacing.VALUES)
-                    this.redStonePowered = getInputRedstoneSignal(facing, false) > 0;
+                this.redStonePowered = Arrays.stream(EnumFacing.values()).anyMatch(enumFacing -> getInputRedstoneSignal(enumFacing, true) > 0);
         }
     }
 
