@@ -76,12 +76,7 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
             @Override
             public RecipeMap<?> getRecipeMap() {
-                switch (((MetaTileEntityParallelLargeWashingMachine)this.controller).getRecipeMapIndex()) {
-                    case 1: return RecipeMaps.CHEMICAL_BATH_RECIPES;
-                    case 2: return GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
-                    case 3: return RecipeMaps.AUTOCLAVE_RECIPES;
-                    default: return RecipeMaps.ORE_WASHER_RECIPES;
-                }
+                return  this.controller.getMultiblockRecipe();
             }
 
             @Override
@@ -251,5 +246,15 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.recipeMapIndex = data.getInteger("RecipeMapIndex");
+    }
+
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        switch (getRecipeMapIndex()) {
+            case 1: return RecipeMaps.CHEMICAL_BATH_RECIPES;
+            case 2: return GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
+            case 3: return RecipeMaps.AUTOCLAVE_RECIPES;
+            default: return RecipeMaps.ORE_WASHER_RECIPES;
+        }
     }
 }

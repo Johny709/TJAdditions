@@ -150,12 +150,23 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return metaTileEntity.getExportFluids();
     }
 
+    @Override
     public int getSize() {
         return size;
     }
 
     public Recipe getRecipe(int i) {
         return occupiedRecipes[i];
+    }
+
+    @Override
+    public int getPageIndex() {
+        return this.controller.getPageIndex();
+    }
+
+    @Override
+    public int getPageSize() {
+        return this.controller.getPageSize();
     }
 
     public void setLockingMode(boolean setLockingMode, int i) {
@@ -455,6 +466,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
        return maxProgressTime[i];
     }
 
+    @Override
     public int getRecipeEUt(int i) {
         return recipeEUt[i];
     }

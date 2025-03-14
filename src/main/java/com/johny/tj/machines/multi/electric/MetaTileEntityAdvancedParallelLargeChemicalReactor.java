@@ -182,10 +182,6 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
         this.maxVoltage = 0;
     }
 
-    public int getEnergyBonus() {
-        return energyBonus;
-    }
-
     public int getRecipeMapIndex() {
         return recipeMapIndex;
     }
@@ -193,6 +189,11 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     @Override
     public int getMaxParallel() {
         return TJConfig.advancedParallelChemicalReactor.maximumParallel;
+    }
+
+    @Override
+    public int getEUBonus() {
+        return energyBonus;
     }
 
     @Override
@@ -206,6 +207,11 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.recipeMapIndex = data.getInteger("RecipeMapIndex");
+    }
+
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        return GARecipeMaps.LARGE_CHEMICAL_RECIPES;
     }
 
     private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {
@@ -241,7 +247,7 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
 
         @Override
         protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = ((MetaTileEntityAdvancedParallelLargeChemicalReactor) this.controller).getEnergyBonus();
+            int energyBonus = this.controller.getEUBonus();
             long maxVoltage = getMaxVoltage();
 
             int[] resultOverclock = calculateOverclock(recipe.getEUt(), maxVoltage, recipe.getDuration());

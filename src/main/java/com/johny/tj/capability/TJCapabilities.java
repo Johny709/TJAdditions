@@ -10,4 +10,7 @@ public class TJCapabilities {
 
     @CapabilityInject(IMultiControllable.class)
     public static Capability<IMultiControllable> CAPABILITY_MULTICONTROLLABLE = null;
+
+    @CapabilityInject(IParallelController.class)
+    public static Capability<IParallelController> CAPABILITY_PARALLEL_CONTROLLER = null;
 }

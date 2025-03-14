@@ -6,6 +6,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
 import com.johny.tj.builder.MultiRecipeMap;
+import com.johny.tj.capability.IParallelController;
+import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
@@ -37,6 +39,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -53,7 +56,7 @@ import java.util.Map;
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase {
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController {
 
     public final MultiRecipeMap multiRecipeMap;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
@@ -94,6 +97,26 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return outputFluidInventory;
     }
 
+    @Override
+    public long getMaxEUt() {
+        return energyContainer.getInputVoltage();
+    }
+
+    @Override
+    public long getTotalEnergy() {
+        return getPowerConsumptionSum();
+    }
+
+    @Override
+    public long getVoltageTier() {
+        return maxVoltage;
+    }
+
+    @Override
+    public int getEUBonus() {
+        return -1;
+    }
+
     /**
      * Performs extra checks for validity of given recipe before multiblock
      * will start it's processing.
@@ -108,6 +131,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     public int getMaxParallel() {
         return 1;
+    }
+
+    public int getPageIndex() {
+        return pageIndex;
+    }
+
+    public int getPageSize() {
+        return pageSize;
     }
 
     @Override
@@ -130,6 +161,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return widgetGroup;
     }
 
+    private int getPowerConsumptionSum() {
+        int powerConsumptionSum = 0;
+        for (int i = 0; i < recipeMapWorkable.getSize(); i++) {
+            powerConsumptionSum += recipeMapWorkable.getRecipeEUt(i);
+        }
+        return powerConsumptionSum;
+    }
+
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
@@ -138,11 +177,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             String voltageName = GAValues.VN[GAUtility.getTierByVoltage(maxVoltage)];
             textList.add(new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, voltageName));
         }
-        int powerConsumptionSum = 0;
-        for (int i = 0; i < recipeMapWorkable.getSize(); i++) {
-            powerConsumptionSum += recipeMapWorkable.getRecipeEUt(i);
-        }
-        textList.add(new TextComponentTranslation("tj.multiblock.parallel.sum", powerConsumptionSum));
+        textList.add(new TextComponentTranslation("tj.multiblock.parallel.sum", getPowerConsumptionSum()));
     }
 
     private static ITextComponent displayItemInputs(Recipe recipe) {
@@ -457,5 +492,13 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         if (data.hasKey("UseOptimizedRecipeLookUp")) {
             this.recipeMapWorkable.setUseOptimizedRecipeLookUp(data.getBoolean("UseOptimizedRecipeLookUp"));
         }
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER) {
+            return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
+        }
+        return super.getCapability(capability, side);
     }
 }

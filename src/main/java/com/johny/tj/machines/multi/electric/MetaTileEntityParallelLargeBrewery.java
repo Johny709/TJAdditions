@@ -78,12 +78,7 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
 
             @Override
             public RecipeMap<?> getRecipeMap() {
-                switch (((MetaTileEntityParallelLargeBrewery)this.controller).getRecipeMapIndex()) {
-                    case 1: return RecipeMaps.FERMENTING_RECIPES;
-                    case 2: return GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES;
-                    case 3: return RecipeMaps.CRACKING_RECIPES;
-                    default: return RecipeMaps.BREWING_RECIPES;
-                }
+                return this.controller.getMultiblockRecipe();
             }
 
             @Override
@@ -257,5 +252,15 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.recipeMapIndex = data.getInteger("RecipeMapIndex");
+    }
+
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        switch (getRecipeMapIndex()) {
+            case 1: return RecipeMaps.FERMENTING_RECIPES;
+            case 2: return GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES;
+            case 3: return RecipeMaps.CRACKING_RECIPES;
+            default: return RecipeMaps.BREWING_RECIPES;
+        }
     }
 }

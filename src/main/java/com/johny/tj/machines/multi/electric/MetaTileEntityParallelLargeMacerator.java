@@ -20,6 +20,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
@@ -150,4 +151,8 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
         return TJConfig.parallelLargeMacerator.maximumParallel;
     }
 
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        return RecipeMaps.MACERATOR_RECIPES;
+    }
 }

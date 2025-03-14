@@ -12,6 +12,7 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -21,6 +22,7 @@ import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.BlockWireCoil;
@@ -148,6 +150,9 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
             textList.add(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus).setStyle(new Style().setColor(TextFormatting.AQUA)));
             textList.add(new TextComponentString(I18n.format("gregtech.universal.tooltip.voltage_in", maxVoltage, GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])));
         }
+        textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
+                .appendSibling(new TextComponentTranslation("recipemap." + GARecipeMaps.LARGE_CHEMICAL_RECIPES.getUnlocalizedName() + ".name")
+                        .setStyle(new Style().setColor(TextFormatting.YELLOW))));
     }
 
     @Override
@@ -165,13 +170,19 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
         this.maxVoltage = 0;
     }
 
-    public int getEnergyBonus() {
+    @Override
+    public int getEUBonus() {
         return energyBonus;
     }
 
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelChemicalReactor.maximumParallel;
+    }
+
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        return GARecipeMaps.LARGE_CHEMICAL_RECIPES;
     }
 
     private static class ParallelMultiblockChemicalReactorWorkableHandler extends ParallelMultiblockRecipeLogic {
@@ -187,7 +198,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
         @Override
         protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = ((MetaTileEntityParallelLargeChemicalReactor) this.controller).getEnergyBonus();
+            int energyBonus = this.controller.getEUBonus();
             long maxVoltage = getMaxVoltage();
 
             int[] resultOverclock = calculateOverclock(recipe.getEUt(), maxVoltage, recipe.getDuration());

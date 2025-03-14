@@ -197,7 +197,8 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
         return recipeMapIndex;
     }
 
-    public int getEnergyBonus() {
+    @Override
+    public int getEUBonus() {
         return energyBonus;
     }
 
@@ -240,6 +241,15 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
         this.recipeMapIndex = data.getInteger("RecipeMapIndex");
     }
 
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        switch (getRecipeMapIndex()) {
+            case 1: return RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
+            case 2: return GARecipeMaps.GAS_CENTRIFUGE_RECIPES;
+            default: return RecipeMaps.CENTRIFUGE_RECIPES;
+        }
+    }
+
     private static class ParallelLargeCentrifugeWorkableHandler extends ParallelGAMultiblockRecipeLogic {
 
         public ParallelLargeCentrifugeWorkableHandler(ParallelRecipeMapMultiblockController tileEntity, RecipeMap<?> recipeMap, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
@@ -253,14 +263,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
         @Override
         public RecipeMap<?> getRecipeMap() {
-            switch (((MetaTileEntityParallelLargeCentrifuge) this.controller).getRecipeMapIndex()) {
-                case 1:
-                    return RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
-                case 2:
-                    return GARecipeMaps.GAS_CENTRIFUGE_RECIPES;
-                default:
-                    return RecipeMaps.CENTRIFUGE_RECIPES;
-            }
+            return  this.controller.getMultiblockRecipe();
         }
 
         @Override
@@ -271,7 +274,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
         @Override
         protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = ((MetaTileEntityParallelLargeCentrifuge) this.controller).getEnergyBonus();
+            int energyBonus = this.controller.getEUBonus();
             long maxVoltage = getMaxVoltage();
 
             int[] resultOverclock = calculateOverclock(recipe.getEUt(), maxVoltage, recipe.getDuration());

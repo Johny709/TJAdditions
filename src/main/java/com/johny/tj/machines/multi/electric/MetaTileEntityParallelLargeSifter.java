@@ -19,6 +19,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
@@ -157,5 +158,10 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeSifter.maximumParallel;
+    }
+
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        return RecipeMaps.SIFTER_RECIPES;
     }
 }
