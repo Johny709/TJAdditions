@@ -42,6 +42,7 @@ import gregtech.api.pipenet.block.material.TileEntityMaterialPipeBase;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
+import gregtech.api.util.GTUtility;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -112,9 +113,17 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         if (isStructureFormed()) {
+            Style style = new Style().setColor(TextFormatting.GREEN);
             textList.add(hasEnoughEnergy(energyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", getMaxEUt())
                     .appendText("\n")
                     .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.sum", energyPerTick))
+                    .appendText("\n")
+                    .appendSibling(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                            .appendText(" ")
+                            .appendSibling(new TextComponentString(String.valueOf(getVoltageTier())).setStyle(style))
+                            .appendText(" (")
+                            .appendSibling(new TextComponentString(String.valueOf(GAValues.VN[GTUtility.getGATierByVoltage(getVoltageTier())])).setStyle(style))
+                            .appendText(")"))
                     : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
                         .setStyle(new Style().setColor(TextFormatting.RED)));
             textList.add(isWorkingEnabled ? (isActive ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))

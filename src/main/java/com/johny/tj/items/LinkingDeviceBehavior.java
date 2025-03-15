@@ -104,6 +104,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                         nbt.setDouble("Y", targetGTTE.getPos().getY());
                         nbt.setDouble("Z", targetGTTE.getPos().getZ());
                         nbt.setInteger("I", linkPos.getBlockPosSize());
+                        nbt.setInteger("Range", linkPos.getRange());
 
                         ITextComponent textComponent = new TextComponentTranslation("metaitem.linking.device.message.link").appendText(" ");
                         player.sendMessage(textComponent.appendSibling(new TextComponentTranslation(targetGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
@@ -130,11 +131,13 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
         double y = nbt.hasKey("Y") ? nbt.getDouble("Y") : 0;
         double z = nbt.hasKey("Z") ? nbt.getDouble("Z") : 0;
         int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
+        int range = nbt.hasKey("Range") ? nbt.getInteger("Range") : 0;
         String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
         lines.add(I18n.format("metaitem.linking.device.name") + I18n.format(name));
         lines.add(I18n.format("metaitem.linking.device.x", x));
         lines.add(I18n.format("metaitem.linking.device.y", y));
         lines.add(I18n.format("metaitem.linking.device.z", z));
         lines.add(I18n.format("metaitem.linking.device.message.remaining", linkI));
+        lines.add(I18n.format("metaitem.linking.device.range", range));
     }
 }
