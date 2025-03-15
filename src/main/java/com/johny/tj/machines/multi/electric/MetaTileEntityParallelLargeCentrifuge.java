@@ -81,7 +81,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                RecipeMaps.CENTRIFUGE_RECIPES.getLocalizedName() + ", " + RecipeMaps.THERMAL_CENTRIFUGE_RECIPES.getLocalizedName()
+                GARecipeMaps.LARGE_CENTRIFUGE_RECIPES.getLocalizedName() + ", " + RecipeMaps.THERMAL_CENTRIFUGE_RECIPES.getLocalizedName()
                         + ", " + GARecipeMaps.GAS_CENTRIFUGE_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeCentrifuge.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeCentrifuge.durationPercentage / 100.0)));
@@ -246,7 +246,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
         switch (getRecipeMapIndex()) {
             case 1: return RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
             case 2: return GARecipeMaps.GAS_CENTRIFUGE_RECIPES;
-            default: return RecipeMaps.CENTRIFUGE_RECIPES;
+            default: return GARecipeMaps.LARGE_CENTRIFUGE_RECIPES;
         }
     }
 

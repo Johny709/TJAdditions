@@ -76,7 +76,7 @@ public class TJRecipeMaps {
                 1, 1, 1, 1, 1, 1, 0, 0, RecipeMaps.AUTOCLAVE_RECIPES.getRecipeList());
 
         PARALLEL_CENTRIFUGE_RECIPES = new MultiRecipeMap(
-                0, 1, 0, 6, 0, 1, 0, 6, RecipeMaps.CENTRIFUGE_RECIPES.getRecipeList());
+                0, 1, 0, 6, 0, 1, 0, 6, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES.getRecipeList());
 
         PARALLEL_THERMAL_CENTRIFUGE_RECIPES = new MultiRecipeMap(
                 1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES.getRecipeList());
