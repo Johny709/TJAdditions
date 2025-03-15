@@ -6,6 +6,11 @@ package com.johny.tj.capability;
 public interface IMultipleWorkable extends IMultiControllable {
 
     /*
+     * @return Recipe EU/t of this instance
+     */
+    int getRecipeEUt(int i);
+
+    /*
      * @return current progress of this instance
      */
     int getProgress(int i);
@@ -19,4 +24,13 @@ public interface IMultipleWorkable extends IMultiControllable {
      * @return check is this instance active
      */
     boolean isInstanceActive(int i);
+
+    /*
+     * @return total amount of instances in this recipe workable
+     */
+    int getSize();
+
+    int getPageIndex();
+
+    int getPageSize();
 }

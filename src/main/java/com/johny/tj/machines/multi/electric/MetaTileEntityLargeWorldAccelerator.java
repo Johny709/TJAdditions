@@ -6,6 +6,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.capability.IParallelController;
+import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.machines.AcceleratorBlacklist;
 import com.johny.tj.machines.LinkEvent;
@@ -37,6 +39,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.pipenet.block.material.TileEntityMaterialPipeBase;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import net.minecraft.block.state.IBlockState;
@@ -55,6 +58,7 @@ import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
@@ -68,7 +72,7 @@ import java.util.stream.IntStream;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -108,8 +112,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         if (isStructureFormed()) {
-            long inputVoltage = energyContainer.getInputVoltage();
-            textList.add(hasEnoughEnergy(energyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", inputVoltage)
+            textList.add(hasEnoughEnergy(energyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", getMaxEUt())
                     .appendText("\n")
                     .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.sum", energyPerTick))
                     : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
@@ -460,10 +463,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         }
     }
 
-    public int getTier() {
-        return tier;
-    }
-
     @Override
     public int getRange() {
         return TJConfig.largeWorldAccelerator.range;
@@ -485,9 +484,60 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
+    public World world() {
+        return getWorld();
+    }
+
+    @Override
+    public int getPageIndex() {
+        return pageIndex;
+    }
+
+    @Override
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    @Override
     public void onLink() {
         long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
         energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier) * count;
+    }
+
+    @Override
+    public long getMaxEUt() {
+        return energyContainer.getInputVoltage();
+    }
+
+    @Override
+    public int getEUBonus() {
+        return -1;
+    }
+
+    @Override
+    public long getTotalEnergy() {
+        return energyPerTick;
+    }
+
+    @Override
+    public long getVoltageTier() {
+        return GAValues.V[tier];
+    }
+
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        return null;
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_LINKPOS) {
+            return TJCapabilities.CAPABILITY_LINKPOS.cast(this);
+        }
+        if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER) {
+            return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
+        }
+        return super.getCapability(capability, side);
     }
 
     public enum AcceleratorMode {

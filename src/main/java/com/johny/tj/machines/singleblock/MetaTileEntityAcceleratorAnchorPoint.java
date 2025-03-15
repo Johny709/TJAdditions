@@ -7,6 +7,7 @@ import com.johny.tj.TJValues;
 import com.johny.tj.machines.LinkSet;
 import com.johny.tj.machines.multi.electric.MetaTileEntityLargeWorldAccelerator;
 import com.johny.tj.textures.TJTextures;
+import gregicadditions.GAUtility;
 import gregicadditions.client.ClientHandler;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -137,7 +138,7 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     public void setLink(Supplier<MetaTileEntity> entitySupplier) {
         if (entitySupplier.get() instanceof MetaTileEntityLargeWorldAccelerator) {
             MetaTileEntityLargeWorldAccelerator accelerator = (MetaTileEntityLargeWorldAccelerator) entitySupplier.get();
-            this.tier = accelerator.getTier();
+            this.tier = (int) GAUtility.getTierByVoltage(accelerator.getVoltageTier());
             this.entitySupplier = entitySupplier;
             if (!getWorld().isRemote) {
                 writeCustomData(2, buf -> buf.writeInt(tier));
