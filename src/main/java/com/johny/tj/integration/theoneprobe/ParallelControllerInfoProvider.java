@@ -32,10 +32,10 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
         controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.maxeut*}§e " + maxEUt + " §r(" + GAValues.VN[GAUtility.getTierByVoltage(maxEUt)] + ")");
         if (energyBonus != -1)
             controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_bonus*}§b " + (100 - energyBonus) + "%");
-        controllerInfo.text(TextStyleClass.INFO + "{*tj.multiblock.parallel.sum*}§e " + totalEnergy + " §7EU/t");
+        controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_consumption*}§e " + totalEnergy + " §7EU/t");
         controllerInfo.text(TextStyleClass.INFO + "{*machine.universal.tooltip.voltage_tier*}§a " + voltageTier + " §r(§a" + GAValues.VN[GAUtility.getTierByVoltage(voltageTier)] + "§r)");
         if (multiblockRecipe != null)
-            controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.multiblock_recipe*}§6 " + multiblockRecipe.getLocalizedName());
+            controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.multiblock_recipe*}§6 " + "{*recipemap." + multiblockRecipe.getUnlocalizedName() + ".name*}");
     }
 
     @Override

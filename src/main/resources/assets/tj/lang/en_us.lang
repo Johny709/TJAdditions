@@ -297,4 +297,5 @@ machine.universal.linked.entity.radius=Radius: §e%.1f§rx§e%.1f§r
 
 tj.top.parallel_controller.maxeut=Max EU/t:
 tj.top.parallel_controller.energy_bonus=Current Energy Usage:
+tj.top.parallel_controller.energy_consumption=Energy Consumption:
 tj.top.parallel_controller.multiblock_recipe=Multiblock Recipe:

@@ -43,7 +43,7 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
                 if (entity != null || gregEntity != null) {
                     nameInfo.item(gregEntity != null ? gregEntity.getStackForm() : new ItemStack(entity.getBlockType()));
-                    nameInfo.text(TextStyleClass.INFO + (gregEntity != null ? " {*" + gregEntity.getMetaFullName() + "*}" : entity.getBlockType().getLocalizedName()));
+                    nameInfo.text(TextStyleClass.INFO + (gregEntity != null ? " {*" + gregEntity.getMetaFullName() + "*}" : "{*" + entity.getBlockType().getTranslationKey() + ".name*}"));
 
                     IProbeInfo posInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                     posInfo.text(TextStyleClass.INFO + (gregEntity != null ? "X:§e " + gregEntity.getPos().getX() + ", §rY:§e " + gregEntity.getPos().getY() + ", §rZ:§e " + gregEntity.getPos().getZ()
