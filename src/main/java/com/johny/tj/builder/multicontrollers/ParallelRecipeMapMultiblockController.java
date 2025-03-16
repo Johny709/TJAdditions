@@ -27,6 +27,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.common.blocks.BlockTurbineCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
@@ -116,6 +117,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public int getEUBonus() {
         return -1;
     }
+
+    public abstract RecipeMap<?>[] getRecipeMaps();
 
     /**
      * Performs extra checks for validity of given recipe before multiblock

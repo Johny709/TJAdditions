@@ -21,7 +21,6 @@ import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.util.GTUtility;
@@ -45,6 +44,7 @@ import java.util.function.Predicate;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_MACERATOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.MACERATOR_RECIPES;
 
 public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMultiblockController {
 
@@ -53,7 +53,7 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
 
     public MetaTileEntityParallelLargeMacerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, PARALLEL_MACERATOR_RECIPES);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, RecipeMaps.MACERATOR_RECIPES, TJConfig.parallelLargeMacerator.eutPercentage,
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, MACERATOR_RECIPES, TJConfig.parallelLargeMacerator.eutPercentage,
                 TJConfig.parallelLargeMacerator.durationPercentage, TJConfig.parallelLargeMacerator.chancePercentage, TJConfig.parallelLargeMacerator.stack) {
             @Override
             public long getMaxVoltage() {
@@ -71,7 +71,7 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                RecipeMaps.MACERATOR_RECIPES.getLocalizedName()));
+                MACERATOR_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeMacerator.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeMacerator.durationPercentage / 100.0)));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeMacerator.stack));
@@ -129,7 +129,7 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
                     .appendText(")"));
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(new TextComponentTranslation("recipemap." + RecipeMaps.MACERATOR_RECIPES.getUnlocalizedName() + ".name")
+                .appendSibling(new TextComponentTranslation("recipemap." + MACERATOR_RECIPES.getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.YELLOW))));
     }
 
@@ -147,12 +147,17 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     }
 
     @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{MACERATOR_RECIPES};
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeMacerator.maximumParallel;
     }
 
     @Override
     public RecipeMap<?> getMultiblockRecipe() {
-        return RecipeMaps.MACERATOR_RECIPES;
+        return MACERATOR_RECIPES;
     }
 }

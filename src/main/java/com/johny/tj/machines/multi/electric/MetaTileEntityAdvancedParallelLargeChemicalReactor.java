@@ -12,7 +12,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -48,6 +47,8 @@ import java.util.List;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_PLANT_RECIPES;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_PLANT_RECIPES;
+import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
@@ -76,7 +77,7 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                GARecipeMaps.LARGE_CHEMICAL_RECIPES.getLocalizedName() + ", " + GARecipeMaps.CHEMICAL_PLANT_RECIPES.getLocalizedName()));
+                LARGE_CHEMICAL_RECIPES.getLocalizedName() + ", " + CHEMICAL_PLANT_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.advancedParallelChemicalReactor.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.advancedParallelChemicalReactor.durationPercentage / 100.0)));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.advancedParallelChemicalReactor.stack));
@@ -156,8 +157,8 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
                     .appendText(")"));
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(getRecipeMapIndex() == 0 ? withButton(new TextComponentTranslation("recipemap." + GARecipeMaps.LARGE_CHEMICAL_RECIPES.getUnlocalizedName() + ".name"), "chemicalReactor")
-                        : withButton(new TextComponentTranslation("recipemap." + GARecipeMaps.CHEMICAL_PLANT_RECIPES.getUnlocalizedName() + ".name"), "chemicalPlant")));
+                .appendSibling(getRecipeMapIndex() == 0 ? withButton(new TextComponentTranslation("recipemap." + LARGE_CHEMICAL_RECIPES.getUnlocalizedName() + ".name"), "chemicalReactor")
+                        : withButton(new TextComponentTranslation("recipemap." + CHEMICAL_PLANT_RECIPES.getUnlocalizedName() + ".name"), "chemicalPlant")));
     }
 
     @Override
@@ -197,6 +198,11 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     }
 
     @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{LARGE_CHEMICAL_RECIPES, CHEMICAL_PLANT_RECIPES};
+    }
+
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         NBTTagCompound tagCompound = super.writeToNBT(data);
         tagCompound.setInteger("RecipeMapIndex", this.recipeMapIndex);
@@ -211,13 +217,13 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
 
     @Override
     public RecipeMap<?> getMultiblockRecipe() {
-        return GARecipeMaps.LARGE_CHEMICAL_RECIPES;
+        return LARGE_CHEMICAL_RECIPES;
     }
 
     private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {
 
         public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity) {
-            super(tileEntity, GARecipeMaps.LARGE_CHEMICAL_RECIPES, TJConfig.advancedParallelChemicalReactor.eutPercentage, TJConfig.advancedParallelChemicalReactor.durationPercentage,
+            super(tileEntity, LARGE_CHEMICAL_RECIPES, TJConfig.advancedParallelChemicalReactor.eutPercentage, TJConfig.advancedParallelChemicalReactor.durationPercentage,
                     TJConfig.advancedParallelChemicalReactor.chancePercentage, TJConfig.advancedParallelChemicalReactor.stack);
         }
 
@@ -242,7 +248,7 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
         public RecipeMap<?> getRecipeMap() {
             return ((MetaTileEntityAdvancedParallelLargeChemicalReactor) this.controller).recipeMapIndex == 0
                     ? super.getRecipeMap()
-                    : GARecipeMaps.CHEMICAL_PLANT_RECIPES;
+                    : CHEMICAL_PLANT_RECIPES;
         }
 
         @Override

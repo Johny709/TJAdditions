@@ -20,7 +20,6 @@ import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -46,6 +45,7 @@ import static com.johny.tj.TJRecipeMaps.PARALLEL_SIFTER_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.GAMaterials.EglinSteel;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.SIFTER_RECIPES;
 
 public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblockController {
 
@@ -55,7 +55,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
 
     public MetaTileEntityParallelLargeSifter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, PARALLEL_SIFTER_RECIPES);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, RecipeMaps.SIFTER_RECIPES, TJConfig.parallelLargeSifter.eutPercentage,
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, SIFTER_RECIPES, TJConfig.parallelLargeSifter.eutPercentage,
                 TJConfig.parallelLargeSifter.durationPercentage, TJConfig.parallelLargeSifter.chancePercentage, TJConfig.parallelLargeSifter.stack) {
             @Override
             protected long getMaxVoltage() {
@@ -73,7 +73,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                RecipeMaps.SIFTER_RECIPES.getLocalizedName()));
+                SIFTER_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeSifter.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeSifter.durationPercentage / 100.0)));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeSifter.stack));
@@ -138,7 +138,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
                     .appendText(")"));
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(new TextComponentTranslation("recipemap." + RecipeMaps.SIFTER_RECIPES.getUnlocalizedName() + ".name")
+                .appendSibling(new TextComponentTranslation("recipemap." + SIFTER_RECIPES.getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.YELLOW))));
     }
 
@@ -156,12 +156,17 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     }
 
     @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{SIFTER_RECIPES};
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeSifter.maximumParallel;
     }
 
     @Override
     public RecipeMap<?> getMultiblockRecipe() {
-        return RecipeMaps.SIFTER_RECIPES;
+        return SIFTER_RECIPES;
     }
 }

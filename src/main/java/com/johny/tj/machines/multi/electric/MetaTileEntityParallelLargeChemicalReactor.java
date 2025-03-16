@@ -12,7 +12,6 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -43,6 +42,7 @@ import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
 public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
@@ -151,7 +151,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
             textList.add(new TextComponentString(I18n.format("gregtech.universal.tooltip.voltage_in", maxVoltage, GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])));
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(new TextComponentTranslation("recipemap." + GARecipeMaps.LARGE_CHEMICAL_RECIPES.getUnlocalizedName() + ".name")
+                .appendSibling(new TextComponentTranslation("recipemap." + LARGE_CHEMICAL_RECIPES.getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.YELLOW))));
     }
 
@@ -176,13 +176,18 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     }
 
     @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{LARGE_CHEMICAL_RECIPES};
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelChemicalReactor.maximumParallel;
     }
 
     @Override
     public RecipeMap<?> getMultiblockRecipe() {
-        return GARecipeMaps.LARGE_CHEMICAL_RECIPES;
+        return LARGE_CHEMICAL_RECIPES;
     }
 
     private static class ParallelMultiblockChemicalReactorWorkableHandler extends ParallelMultiblockRecipeLogic {

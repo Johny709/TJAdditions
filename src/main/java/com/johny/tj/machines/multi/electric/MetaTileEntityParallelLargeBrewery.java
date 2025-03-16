@@ -13,7 +13,6 @@ import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -56,9 +55,11 @@ import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLE
 import static gregicadditions.GAMaterials.Grisium;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
+import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.*;
 
 public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultiblockController {
 
@@ -98,8 +99,8 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                RecipeMaps.BREWING_RECIPES.getLocalizedName() + ", " + RecipeMaps.FERMENTING_RECIPES.getLocalizedName()
-                        + ", " + GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES.getLocalizedName() + ", " + RecipeMaps.CRACKING_RECIPES.getLocalizedName()));
+                BREWING_RECIPES.getLocalizedName() + ", " + RecipeMaps.FERMENTING_RECIPES.getLocalizedName()
+                        + ", " + CHEMICAL_DEHYDRATOR_RECIPES.getLocalizedName() + ", " + RecipeMaps.CRACKING_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeBrewery.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeBrewery.durationPercentage / 100.0)));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeBrewery.stack));
@@ -172,13 +173,13 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
                 recipeMap = RecipeMaps.FERMENTING_RECIPES;
                 break;
             case 2:
-                recipeMap = GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES;
+                recipeMap = CHEMICAL_DEHYDRATOR_RECIPES;
                 break;
             case 3:
                 recipeMap = RecipeMaps.CRACKING_RECIPES;
                 break;
             default:
-                recipeMap = RecipeMaps.BREWING_RECIPES;
+                recipeMap = BREWING_RECIPES;
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
                 .appendSibling(withButton(new TextComponentTranslation("recipemap." + recipeMap.getUnlocalizedName() + ".name"), recipeMap.getUnlocalizedName())));
@@ -213,6 +214,11 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
 
     public int getRecipeMapIndex() {
         return recipeMapIndex;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{BREWING_RECIPES, FERMENTING_RECIPES, CHEMICAL_DEHYDRATOR_RECIPES, CRACKING_RECIPES};
     }
 
     @Override
@@ -258,9 +264,9 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     public RecipeMap<?> getMultiblockRecipe() {
         switch (getRecipeMapIndex()) {
             case 1: return RecipeMaps.FERMENTING_RECIPES;
-            case 2: return GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES;
+            case 2: return CHEMICAL_DEHYDRATOR_RECIPES;
             case 3: return RecipeMaps.CRACKING_RECIPES;
-            default: return RecipeMaps.BREWING_RECIPES;
+            default: return BREWING_RECIPES;
         }
     }
 }

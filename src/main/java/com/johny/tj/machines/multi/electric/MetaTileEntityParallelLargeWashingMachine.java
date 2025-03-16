@@ -12,7 +12,6 @@ import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -54,8 +53,10 @@ import java.util.function.Predicate;
 import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
+import static gregicadditions.recipes.GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.*;
 
 public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMapMultiblockController {
 
@@ -96,8 +97,8 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                RecipeMaps.ORE_WASHER_RECIPES.getLocalizedName() + ", " + RecipeMaps.CHEMICAL_BATH_RECIPES.getLocalizedName()
-                        + ", " + GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES.getLocalizedName() + ", " + RecipeMaps.AUTOCLAVE_RECIPES.getLocalizedName()));
+                ORE_WASHER_RECIPES.getLocalizedName() + ", " + CHEMICAL_BATH_RECIPES.getLocalizedName()
+                        + ", " + SIMPLE_ORE_WASHER_RECIPES.getLocalizedName() + ", " + RecipeMaps.AUTOCLAVE_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeWashingMachine.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeWashingMachine.durationPercentage / 100.0)));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeWashingMachine.stack));
@@ -165,16 +166,16 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
         RecipeMap<?> recipeMap;
         switch (getRecipeMapIndex()) {
             case 1:
-                recipeMap = RecipeMaps.CHEMICAL_BATH_RECIPES;
+                recipeMap = CHEMICAL_BATH_RECIPES;
                 break;
             case 2:
-                recipeMap = GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
+                recipeMap = SIMPLE_ORE_WASHER_RECIPES;
                 break;
             case 3:
                 recipeMap = RecipeMaps.AUTOCLAVE_RECIPES;
                 break;
             default:
-                recipeMap = RecipeMaps.ORE_WASHER_RECIPES;
+                recipeMap = ORE_WASHER_RECIPES;
         }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
                 .appendSibling(withButton(new TextComponentTranslation("recipemap." + recipeMap.getUnlocalizedName() + ".name"), recipeMap.getUnlocalizedName())));
@@ -207,6 +208,11 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
     public int getRecipeMapIndex() {
         return recipeMapIndex;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{ORE_WASHER_RECIPES, CHEMICAL_BATH_RECIPES, SIMPLE_ORE_WASHER_RECIPES, AUTOCLAVE_RECIPES};
     }
 
     @Override
@@ -251,10 +257,10 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @Override
     public RecipeMap<?> getMultiblockRecipe() {
         switch (getRecipeMapIndex()) {
-            case 1: return RecipeMaps.CHEMICAL_BATH_RECIPES;
-            case 2: return GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
+            case 1: return CHEMICAL_BATH_RECIPES;
+            case 2: return SIMPLE_ORE_WASHER_RECIPES;
             case 3: return RecipeMaps.AUTOCLAVE_RECIPES;
-            default: return RecipeMaps.ORE_WASHER_RECIPES;
+            default: return ORE_WASHER_RECIPES;
         }
     }
 }
