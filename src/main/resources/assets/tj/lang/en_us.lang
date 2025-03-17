@@ -47,6 +47,9 @@ tj.machine.parallel_large_electrolyzer.name=Parallel Large Electrolyzer (PLE)
 tj.machine.parallel_large_sifter.name=Parallel Large Sifter (PLS)
 tj.machine.parallel_large_brewery.name=Parallel Large Brewery (PLB)
 tj.machine.accelerator_anchor_point.name=Accelerator Anchor Point (AAP)
+tj.machine.solar_boiler_bronze.name=Bronze Solar Boiler
+tj.machine.solar_boiler_steel.name=Steel Solar Boiler
+tj.machine.solar_boiler_lv.name=LV Solar Boiler
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -294,6 +297,9 @@ machine.universal.toggle.reset.disabled=Reset
 machine.universal.linked.entity.null=Not linked
 machine.universal.linked.entity.empty=Null
 machine.universal.linked.entity.radius=Radius: §e%.1f§rx§e%.1f§r
+machine.boiler.display.temperature=Current Temperature: §c%.1f°C
+machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks
+machine.boiler.display.steam.description=§7Generates Steam at 100°C
 
 tj.top.parallel_controller.maxeut=Max EU/t:
 tj.top.parallel_controller.energy_bonus=Current Energy Usage:

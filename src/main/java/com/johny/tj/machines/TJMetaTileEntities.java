@@ -6,6 +6,7 @@ import com.johny.tj.TJRecipeMaps;
 import com.johny.tj.machines.multi.electric.*;
 import com.johny.tj.machines.multi.steam.*;
 import com.johny.tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
+import com.johny.tj.machines.singleblock.MetaTileEntitySolarBoiler;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
@@ -20,6 +21,7 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.util.ResourceLocation;
 
+import static com.johny.tj.machines.singleblock.MetaTileEntitySolarBoiler.SolarBoilerType.*;
 import static gregicadditions.machines.GATileEntities.*;
 
 public class TJMetaTileEntities {
@@ -71,6 +73,7 @@ public class TJMetaTileEntities {
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
+    public static MetaTileEntitySolarBoiler[] SOLAR_BOILER = new MetaTileEntitySolarBoiler[3];
 
     public static void init() {
 
@@ -134,6 +137,10 @@ public class TJMetaTileEntities {
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5091, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
         ROTOR_HOLDER_UMV = GregTechAPI.registerMetaTileEntity(5092, new MetaTileEntityRotorHolderUHVPlus(TJId("rotor_holder.umv"), GAValues.UMV, 2.5f));
         COOLANT_ROTOR_HOLDER_UMV = GregTechAPI.registerMetaTileEntity(5093, new MetaTileEntityRotorHolderForNuclearCoolantUHVPlus(TJId("coolant_rotor_holder.umv"), GAValues.UMV, 2.5f));
+
+        SOLAR_BOILER[0] = GregTechAPI.registerMetaTileEntity(5094, new MetaTileEntitySolarBoiler(TJId("solar_boiler_bronze"), BRONZE));
+        SOLAR_BOILER[1] = GregTechAPI.registerMetaTileEntity(5095, new MetaTileEntitySolarBoiler(TJId("solar_boiler_steel"), STEEL));
+        SOLAR_BOILER[2] = GregTechAPI.registerMetaTileEntity(5096, new MetaTileEntitySolarBoiler(TJId("solar_boiler_lv"), LV));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

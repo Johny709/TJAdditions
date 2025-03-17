@@ -5,7 +5,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import com.johny.tj.TJ;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumFacing;
@@ -16,10 +15,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TJSimpleOverlayRenderer implements TextureUtils.IIconRegister {
 
     private final String basePath;
+    private final String modID;
+
     @SideOnly(Side.CLIENT)
     private TextureAtlasSprite sprite;
 
-    public TJSimpleOverlayRenderer(String basePath) {
+    public TJSimpleOverlayRenderer(String modID, String basePath) {
+        this.modID = modID;
         this.basePath = basePath;
         TJTextures.iconRegisters.add(this);
     }
@@ -27,7 +29,7 @@ public class TJSimpleOverlayRenderer implements TextureUtils.IIconRegister {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(TextureMap textureMap) {
-        this.sprite = textureMap.registerSprite(new ResourceLocation(TJ.MODID, "blocks/" + basePath));
+        this.sprite = textureMap.registerSprite(new ResourceLocation(modID, "blocks/" + basePath));
     }
 
     @SideOnly(Side.CLIENT)

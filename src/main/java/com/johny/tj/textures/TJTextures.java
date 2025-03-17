@@ -9,6 +9,8 @@ import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.TransformationList;
 import codechicken.lib.vec.uv.IconTransformation;
 import codechicken.lib.vec.uv.UVTransformationList;
+import com.johny.tj.TJ;
+import gregtech.api.GTValues;
 import gregtech.api.render.UVMirror;
 import gregtech.api.util.GTLog;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -21,24 +23,27 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.johny.tj.textures.TJOrientedOverlayRenderer.OverlayFace.FRONT;
+
 public class TJTextures {
 
     private static final ThreadLocal<BlockRenderer.BlockFace> blockFaces = ThreadLocal.withInitial(BlockRenderer.BlockFace::new);
     public static List<TextureUtils.IIconRegister> iconRegisters = new ArrayList<>();
 
-    public static TJSimpleCubeRenderer DRACONIC = new TJSimpleCubeRenderer("casings/solid/draconiccasing");
-    public static TJSimpleCubeRenderer AWAKENED = new TJSimpleCubeRenderer("casings/solid/awakenedcasing");
-    public static TJSimpleCubeRenderer CHOATIC = new TJSimpleCubeRenderer("casings/solid/chaoticcasing");
-    public static TJSimpleCubeRenderer ETERNITY = new TJSimpleCubeRenderer("casings/solid/eternityblock");
-    public static TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer("casings/solid/soulcasing");
-    public static TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer("casings/solid/duranium");
-    public static TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer("casings/solid/seaborgium");
-    public static TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer("pipe/machine_casing_pipe_stainless");
-    public static TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer("casings/solid/tungsten_titanium_carbide");
-    public static TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer("cover/creative_fluid_cover_overlay");
-    public static TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer("cover/creative_energy_cover_overlay");
-    public static TJSimpleCubeRenderer FIELD_GENERATOR_CORE = new TJSimpleCubeRenderer("items/field_generator_core");
-    public static TJSimpleOverlayRenderer FIELD_GENERATOR_SPIN = new TJSimpleOverlayRenderer("items/field_generator_overlay");
+    public static TJSimpleCubeRenderer DRACONIC = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/draconiccasing");
+    public static TJSimpleCubeRenderer AWAKENED = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/awakenedcasing");
+    public static TJSimpleCubeRenderer CHOATIC = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/chaoticcasing");
+    public static TJSimpleCubeRenderer ETERNITY = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/eternityblock");
+    public static TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/soulcasing");
+    public static TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/duranium");
+    public static TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer(TJ.MODID,"casings/solid/seaborgium");
+    public static TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer(TJ.MODID, "pipe/machine_casing_pipe_stainless");
+    public static TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/tungsten_titanium_carbide");
+    public static TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer(TJ.MODID, "cover/creative_fluid_cover_overlay");
+    public static TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer(TJ.MODID, "cover/creative_energy_cover_overlay");
+    public static TJSimpleCubeRenderer FIELD_GENERATOR_CORE = new TJSimpleCubeRenderer(TJ.MODID, "items/field_generator_core");
+    public static TJSimpleOverlayRenderer FIELD_GENERATOR_SPIN = new TJSimpleOverlayRenderer(TJ.MODID, "items/field_generator_overlay");
+    public static TJOrientedOverlayRenderer BOILER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "generators/boiler/coal", FRONT);
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {

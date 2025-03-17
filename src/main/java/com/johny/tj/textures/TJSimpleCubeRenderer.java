@@ -5,7 +5,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import com.johny.tj.TJ;
 import gregtech.api.render.ICubeRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -17,11 +16,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TJSimpleCubeRenderer implements ICubeRenderer, TextureUtils.IIconRegister {
 
     private final String basePath;
+    private final String modID;
 
     @SideOnly(Side.CLIENT)
     private TextureAtlasSprite sprite;
 
-    public TJSimpleCubeRenderer(String basePath) {
+    public TJSimpleCubeRenderer(String modID, String basePath) {
+        this.modID = modID;
         this.basePath = basePath;
         TJTextures.iconRegisters.add(this);
     }
@@ -29,7 +30,7 @@ public class TJSimpleCubeRenderer implements ICubeRenderer, TextureUtils.IIconRe
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(TextureMap textureMap) {
-        this.sprite = textureMap.registerSprite(new ResourceLocation(TJ.MODID, "blocks/" + basePath));
+        this.sprite = textureMap.registerSprite(new ResourceLocation(modID, "blocks/" + basePath));
     }
 
     @SideOnly(Side.CLIENT)
