@@ -20,8 +20,8 @@ public class TJCoverBehaviours {
     public static void init() {
         GTLog.logger.info("Registering Covers from TJ...");
 
-        registerBehavior(126, new ResourceLocation(TJ.MODID, "creative.fluid.cover"), TJMetaItems.CREATIVE_FLUID_COVER, (tile, side) -> new CoverCreativeFluid(tile, side, 2));
-        registerBehavior(127, new ResourceLocation(TJ.MODID, "creative.item.cover"), TJMetaItems.CREATIVE_ITEM_COVER, (tile, side) -> new CoverCreativeItem(tile, side, 2));
+        registerBehavior(126, new ResourceLocation(TJ.MODID, "creative.fluid.cover"), TJMetaItems.CREATIVE_FLUID_COVER, CoverCreativeFluid::new);
+        registerBehavior(127, new ResourceLocation(TJ.MODID, "creative.item.cover"), TJMetaItems.CREATIVE_ITEM_COVER, CoverCreativeItem::new);
         registerBehavior(128, new ResourceLocation(TJ.MODID, "creative.energy.cover"), TJMetaItems.CREATIVE_ENERGY_COVER, CoverCreativeEnergy::new);
     }
 
