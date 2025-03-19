@@ -24,6 +24,10 @@ public class TJGuiTextures {
     public static final TextureArea STEEL_OUT = TextureArea.fullImage("textures/gui/steam/steel/overlay_steel_out.png");
     public static final TextureArea STEEL_BACKGROUND = TextureArea.fullImage("textures/gui/steam/steel/steel_gui.png");
     public static final TextureArea STEEL_SLOT = TextureArea.fullImage("textures/gui/steam/steel/slot_steel.png");
+    public static final TextureArea BRONZE_FUEL_EMPTY = TextureArea.fullImage("textures/gui/steam/bronze/boiler_bronze_fuel.png");
+    public static final TextureArea BRONZE_FUEL_FULL = TextureArea.fullImage("textures/gui/steam/bronze/boiler_bronze_fuel_full.png");
+    public static final TextureArea STEEL_FUEL_EMPTY = TextureArea.fullImage("textures/gui/steam/steel/boiler_steel_fuel.png");
+    public static final TextureArea STEEL_FUEL_FULL = TextureArea.fullImage("textures/gui/steam/steel/boiler_steel_fuel_full.png");
 
     public static final TextureArea MULTIBLOCK_BOTTOM_TABS = TextureArea.fullImage("textures/gui/tab/multiblock_tabs_bottom.png");
 }
