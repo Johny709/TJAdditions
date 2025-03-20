@@ -13,6 +13,8 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
+import gregtech.common.blocks.BlockMachineCasing;
+import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.electric.MetaTileEntityAirCollector;
@@ -123,6 +125,27 @@ public class RecipeLoader {
                 'P', new UnificationEntry(OrePrefix.plate, StainlessSteel),
                 'T', new UnificationEntry(OrePrefix.pipeMedium, StainlessSteel),
                 'F', new UnificationEntry(OrePrefix.frameGt, StainlessSteel));
+
+        ModHandler.addShapelessRecipe("bronze_solar_boiler", SOLAR_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_SOLAR_BRONZE.getStackForm());
+        ModHandler.addShapelessRecipe("bronze_coal_boiler", COAL_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_COAL_BRONZE.getStackForm());
+        ModHandler.addShapedRecipe("steel_solar_boiler", SOLAR_BOILER[1].getStackForm(), "GGG", "SSS", "PBP",
+                'G', Blocks.GLASS,
+                'S', new UnificationEntry(OrePrefix.plate, Silver),
+                'P', new UnificationEntry(OrePrefix.pipeMedium, Steel),
+                'B', MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL));
+        ModHandler.addShapelessRecipe("steel_coal_boiler", COAL_BOILER[1].getStackForm(), MetaTileEntities.STEAM_BOILER_COAL_STEEL.getStackForm());
+
+        ModHandler.addShapedRecipe("lv_solar_boiler", SOLAR_BOILER[2].getStackForm(), "GGG", "SSS", "PBP",
+                'G', Blocks.GLASS,
+                'S', new UnificationEntry(OrePrefix.plate, Silver),
+                'P', new UnificationEntry(OrePrefix.pipeLarge, Steel),
+                'B', MetaTileEntities.HULL[1].getStackForm());
+
+        ModHandler.addShapedRecipe("lv_coal_boiler", COAL_BOILER[2].getStackForm(), "PPP", "PHP", "BFB",
+                'P', new UnificationEntry(OrePrefix.plate, Steel),
+                'H', MetaTileEntities.HULL[1].getStackForm(),
+                'B', Blocks.BRICK_BLOCK,
+                'F', Blocks.FURNACE);
 
         for (int i = 0; i < AIR_COLLECTORS.length; i++) {
             ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTOR[i].getStackForm(), "CRC", "RSR", "PRP",
