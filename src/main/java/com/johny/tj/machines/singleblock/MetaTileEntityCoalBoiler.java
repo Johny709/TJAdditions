@@ -4,8 +4,12 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.textures.TJTextures;
+import gregtech.api.capability.IFuelInfo;
+import gregtech.api.capability.IFuelable;
+import gregtech.api.capability.IWorkable;
 import gregtech.api.capability.impl.FilteredFluidHandler;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.capability.impl.ItemFuelInfo;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
@@ -25,6 +29,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
@@ -37,22 +42,27 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static com.johny.tj.gui.TJGuiTextures.BAR_HEAT;
 import static com.johny.tj.machines.singleblock.BoilerType.BRONZE;
 import static com.johny.tj.machines.singleblock.BoilerType.STEEL;
+import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_FUELABLE;
+import static gregtech.api.capability.GregtechTileCapabilities.CAPABILITY_WORKABLE;
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
 import static gregtech.api.unification.material.Materials.Steam;
 
-public class MetaTileEntityCoalBoiler extends MetaTileEntity {
+public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkable, IFuelInfo, IFuelable {
 
     private float temp;
     private boolean isActive;
     private boolean hadWater;
     private int burnTime;
     private int maxBurnTime;
+    private boolean isWorking = true;
 
     private final IFluidTank waterTank;
     private final IFluidTank steamTank;
@@ -118,7 +128,7 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity {
             @Override
             public void detectAndSendChanges() {
                 super.detectAndSendChanges();
-                int displayBurnTimeInSeconds = getBurnTime() / 20;
+                int displayBurnTimeInSeconds = getProgress() / 20;
                 writeUpdateInfo(1, buffer -> buffer.writeInt(displayBurnTimeInSeconds));
             }
 
@@ -216,7 +226,7 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity {
     public void update() {
         super.update();
         if (!getWorld().isRemote && getOffsetTimer() % boilerType.getTicks() == 0) {
-            if (canBurn()) {
+            if (isWorking && canBurn()) {
                 if (!isActive)
                     setActive(true);
                 temp = MathHelper.clamp(temp + (1.00F * boilerType.getTicks()), 0, 12000);
@@ -249,8 +259,37 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity {
         }
     }
 
-    public int getBurnTime() {
-        return burnTime;
+    @Override
+    public String getFuelName() {
+        return importItems.getStackInSlot(1).getTranslationKey();
+    }
+
+    @Override
+    public int getFuelRemaining() {
+        return importItems.getStackInSlot(1).getCount();
+    }
+
+    @Override
+    public int getFuelCapacity() {
+        return importItems.getStackInSlot(1).getMaxStackSize();
+    }
+
+    @Override
+    public int getFuelMinConsumed() {
+        return 1;
+    }
+
+    @Override
+    public int getFuelBurnTime() {
+        return maxBurnTime * importItems.getStackInSlot(1).getCount();
+    }
+
+    @Override
+    public Collection<IFuelInfo> getFuels() {
+        ItemStack stack = importItems.getStackInSlot(1);
+        if (stack.isEmpty())
+            return Collections.emptyList();
+        return Collections.singletonList(new ItemFuelInfo(stack, getFuelRemaining(), getFuelCapacity(), getFuelMinConsumed(), (long) getFuelBurnTime()));
     }
 
     public float getBurnPercent() {
@@ -261,6 +300,17 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity {
         return temp / (12000 * 1.00F);
     }
 
+    @Override
+    public int getProgress() {
+        return burnTime;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return maxBurnTime;
+    }
+
+    @Override
     public boolean isActive() {
         return isActive;
     }
@@ -322,6 +372,7 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity {
         data.setFloat("Temp", temp);
         data.setBoolean("HadWater", hadWater);
         data.setBoolean("IsActive", isActive);
+        data.setBoolean("IsWorking", isWorking);
         data.setInteger("BurnTime", burnTime);
         data.setInteger("MaxBurnTime", maxBurnTime);
         return data;
@@ -335,5 +386,27 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity {
         this.isActive = data.getBoolean("IsActive");
         this.maxBurnTime = data.getInteger("MaxBurnTime");
         this.burnTime = data.getInteger("BurnTime");
+        if (data.hasKey("IsWorking"))
+            this.isWorking = data.getBoolean("IsWorking");
     }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return isWorking;
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isWorking) {
+        this.isWorking = isWorking;
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == CAPABILITY_WORKABLE)
+            return CAPABILITY_WORKABLE.cast(this);
+        else if (capability == CAPABILITY_FUELABLE)
+            return CAPABILITY_FUELABLE.cast(this);
+        return super.getCapability(capability, side);
+    }
+
 }

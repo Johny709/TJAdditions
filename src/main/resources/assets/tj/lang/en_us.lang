@@ -270,6 +270,7 @@ metaitem.creative.item.cover.name=Creative Item Cover
 metaitem.creative.cover.display.ticks=Ticks: §e%.1f§r
 metaitem.creative.energy.cover.name=Creative Energy Cover
 metaitem.item.linking.device.name=Linking Device
+metaitem.item.copy.config.name=Copy Config Tool
 metaitem.item.linking.device.link.from=Use Linking device to Link from this.
 metaitem.item.linking.device.link.to=Use Linking device to Link to this.
 metaitem.linking.device.name=Linking from: §e
@@ -311,3 +312,5 @@ tj.top.parallel_controller.maxeut=Max EU/t:
 tj.top.parallel_controller.energy_bonus=Current Energy Usage:
 tj.top.parallel_controller.energy_consumption=Energy Consumption:
 tj.top.parallel_controller.multiblock_recipe=Multiblock Recipe:
+
+item.is.empty=None
