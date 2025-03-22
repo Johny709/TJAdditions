@@ -225,14 +225,21 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                             }
                         }
                         if (!silktouch) {
-                            GAUtility.applyHammerDrops(world.rand, actualState, itemStacks, type.fortune, null, this.energyContainer.getInputVoltage());
+                            if (getType() != Type.DESTROYER) {
+                                GAUtility.applyHammerDrops(world.rand, actualState, itemStacks, type.fortune, null, this.energyContainer.getInputVoltage());
+                            }
+                            else {
+                                itemStacks.add(new ItemStack(actualState.getBlock().getItemDropped(actualState, world.rand, type.fortune), 1, Math.min(meta, maxState)));
+                            }
                         } else {
                             itemStacks.add(new ItemStack(actualState.getBlock(), 1, Math.min(meta, maxState)));
                         }
                         if (addItemsToItemHandler(outputInventory, true, itemStacks)) {
                             addItemsToItemHandler(outputInventory, false, itemStacks);
-                            if (this.getType() != Type.CREATIVE) {
+                            if (this.getType() != Type.DESTROYER) {
                                 world.setBlockState(blockPos1, Blocks.COBBLESTONE.getDefaultState());
+                            } else {
+                                world.setBlockState(blockPos1, Blocks.AIR.getDefaultState());
                             }
                         }
                     });
@@ -243,6 +250,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                             if (currentChunk.get() >= chunks.size()) {
                                 if (canRestart) {
                                     currentChunk.set(0);
+                                    chunks.clear();
                                     x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
                                     z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
                                     y.set(maxY.get());
