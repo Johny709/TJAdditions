@@ -7,6 +7,7 @@ import com.johny.tj.machines.multi.electric.*;
 import com.johny.tj.machines.multi.steam.*;
 import com.johny.tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
 import com.johny.tj.machines.singleblock.MetaTileEntityCoalBoiler;
+import com.johny.tj.machines.singleblock.MetaTileEntityFluidBoiler;
 import com.johny.tj.machines.singleblock.MetaTileEntitySolarBoiler;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
@@ -76,6 +77,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
     public static MetaTileEntityCoalBoiler[] COAL_BOILER = new MetaTileEntityCoalBoiler[3];
     public static MetaTileEntitySolarBoiler[] SOLAR_BOILER = new MetaTileEntitySolarBoiler[3];
+    public static MetaTileEntityFluidBoiler[] FLUID_BOILER = new MetaTileEntityFluidBoiler[3];
 
     public static void init() {
 
@@ -146,6 +148,9 @@ public class TJMetaTileEntities {
         SOLAR_BOILER[0] = GregTechAPI.registerMetaTileEntity(5097, new MetaTileEntitySolarBoiler(TJId("solar_boiler_bronze"), BRONZE));
         SOLAR_BOILER[1] = GregTechAPI.registerMetaTileEntity(5098, new MetaTileEntitySolarBoiler(TJId("solar_boiler_steel"), STEEL));
         SOLAR_BOILER[2] = GregTechAPI.registerMetaTileEntity(5099, new MetaTileEntitySolarBoiler(TJId("solar_boiler_lv"), LV));
+        FLUID_BOILER[0] = GregTechAPI.registerMetaTileEntity(5100, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_bronze"), BRONZE));
+        FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5101, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
+        FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5102, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

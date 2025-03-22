@@ -57,18 +57,18 @@ import static gregtech.api.unification.material.Materials.Steam;
 
 public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkable, IFuelInfo, IFuelable {
 
-    private float temp;
+    protected float temp;
     private boolean isActive;
     private boolean hadWater;
-    private int burnTime;
-    private int maxBurnTime;
+    protected int burnTime;
+    protected int maxBurnTime;
     private boolean isWorking = true;
 
-    private final IFluidTank waterTank;
-    private final IFluidTank steamTank;
+    protected final IFluidTank waterTank;
+    protected final IFluidTank steamTank;
     protected final BoilerType boilerType;
     private static final EnumFacing[] STEAM_PUSH_DIRECTIONS = ArrayUtils.add(EnumFacing.HORIZONTALS, EnumFacing.UP);
-    private static final int BASE_MODIFIER = 12;
+    public static final int BASE_MODIFIER = 12;
 
     public MetaTileEntityCoalBoiler(ResourceLocation metaTileEntityId, BoilerType boilerType) {
         super(metaTileEntityId);
@@ -205,14 +205,11 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
 
     protected boolean canBurn() {
         if (burnTime > 0) {
-            burnTime = MathHelper.clamp(burnTime -boilerType.getTicks(), 0, maxBurnTime);
+            burnTime = MathHelper.clamp(burnTime - boilerType.getTicks(), 0, maxBurnTime);
             return true;
         }
         ItemStack stack = importItems.getStackInSlot(1);
-        int burnValue = (TileEntityFurnace.getItemBurnTime(stack) * BASE_MODIFIER) /
-                (boilerType == BRONZE ? 1
-                : boilerType == STEEL ? 2
-                : 4);
+        int burnValue = getBurnValue(stack);
         if (burnValue > 0) {
             stack.shrink(1);
             this.burnTime = burnValue;
@@ -220,6 +217,13 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
             return true;
         }
         return false;
+    }
+
+    private int getBurnValue(ItemStack stack) {
+        return (TileEntityFurnace.getItemBurnTime(stack) * BASE_MODIFIER) /
+                (boilerType == BRONZE ? 1
+                        : boilerType == STEEL ? 2
+                        : 4);
     }
 
     @Override
@@ -242,7 +246,7 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
                 return;
             }
             int waterToConsume = Math.round((float) boilerType.getSteamProduction() / 160);
-            FluidStack waterStack = importFluids.drain(waterToConsume, false);
+            FluidStack waterStack = waterTank.drain(waterToConsume, false);
             boolean hasEnoughWater = waterStack != null && waterStack.amount == waterToConsume;
             if (hasEnoughWater && hadWater) {
                 getWorld().setBlockToAir(this.getPos());
@@ -281,7 +285,8 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
 
     @Override
     public int getFuelBurnTime() {
-        return maxBurnTime * importItems.getStackInSlot(1).getCount();
+        ItemStack stack = importItems.getStackInSlot(1);
+        return stack.getCount() * getBurnValue(stack);
     }
 
     @Override

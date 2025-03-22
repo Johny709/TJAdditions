@@ -34,6 +34,16 @@ public class MetaTileEntitySolarBoiler extends MetaTileEntityCoalBoiler {
     }
 
     @Override
+    public int getProgress() {
+        return canBurn() ? (int) (getWorld().getWorldTime() % (24000 / Math.pow(2, 0))) : 0;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return 12000;
+    }
+
+    @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.SOLAR_BOILER_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive());

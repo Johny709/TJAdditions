@@ -53,6 +53,9 @@ tj.machine.coal_boiler_lv.name=LV Coal Boiler
 tj.machine.solar_boiler_bronze.name=Bronze Solar Boiler
 tj.machine.solar_boiler_steel.name=Steel Solar Boiler
 tj.machine.solar_boiler_lv.name=LV Solar Boiler
+tj.machine.fluid_boiler_bronze.name=Bronze Fluid Boiler
+tj.machine.fluid_boiler_steel.name=Steel Fluid Boiler
+tj.machine.fluid_boiler_lv.name=LV Fluid Boiler
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch

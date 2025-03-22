@@ -128,12 +128,15 @@ public class RecipeLoader {
 
         ModHandler.addShapelessRecipe("bronze_solar_boiler", SOLAR_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_SOLAR_BRONZE.getStackForm());
         ModHandler.addShapelessRecipe("bronze_coal_boiler", COAL_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_COAL_BRONZE.getStackForm());
+        ModHandler.addShapelessRecipe("bronze_fluid_boiler", FLUID_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_LAVA_BRONZE.getStackForm());
+
         ModHandler.addShapedRecipe("steel_solar_boiler", SOLAR_BOILER[1].getStackForm(), "GGG", "SSS", "PBP",
                 'G', Blocks.GLASS,
                 'S', new UnificationEntry(OrePrefix.plate, Silver),
                 'P', new UnificationEntry(OrePrefix.pipeMedium, Steel),
                 'B', MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL));
         ModHandler.addShapelessRecipe("steel_coal_boiler", COAL_BOILER[1].getStackForm(), MetaTileEntities.STEAM_BOILER_COAL_STEEL.getStackForm());
+        ModHandler.addShapelessRecipe("steel_fluid_boiler", FLUID_BOILER[1].getStackForm(), MetaTileEntities.STEAM_BOILER_LAVA_STEEL.getStackForm());
 
         ModHandler.addShapedRecipe("lv_solar_boiler", SOLAR_BOILER[2].getStackForm(), "GGG", "SSS", "PBP",
                 'G', Blocks.GLASS,
@@ -146,6 +149,11 @@ public class RecipeLoader {
                 'H', MetaTileEntities.HULL[1].getStackForm(),
                 'B', Blocks.BRICK_BLOCK,
                 'F', Blocks.FURNACE);
+
+        ModHandler.addShapedRecipe("lv_fluid_boiler", FLUID_BOILER[2].getStackForm(), "PPP", "GGG", "PHP",
+                'P', new UnificationEntry(OrePrefix.plate, Steel),
+                'G', Blocks.GLASS,
+                'H', MetaTileEntities.HULL[1].getStackForm());
 
         for (int i = 0; i < AIR_COLLECTORS.length; i++) {
             ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTOR[i].getStackForm(), "CRC", "RSR", "PRP",
