@@ -60,7 +60,7 @@ public class MetaTileEntityFluidBoiler extends MetaTileEntityCoalBoiler {
             public void drawInForeground(int mouseX, int mouseY) {
                 if(isMouseOverElement(mouseX, mouseY)) {
                     List<String> hoverList = Arrays.asList(I18n.format("machine.boiler.display.burning", this.displayBurnTimeInSeconds),
-                            I18n.format("machine.boiler.display.burning.info"));
+                            I18n.format("machine.boiler.display.burning.info.bucket"));
                     drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
                 }
             }

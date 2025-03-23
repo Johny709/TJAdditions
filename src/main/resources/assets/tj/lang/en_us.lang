@@ -305,11 +305,15 @@ machine.universal.toggle.reset.disabled=Reset
 machine.universal.linked.entity.null=Not linked
 machine.universal.linked.entity.empty=Null
 machine.universal.linked.entity.radius=Radius: §e%.1f§rx§e%.1f§r
+
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks
 machine.boiler.display.steam.description=§7Generates Steam at 100°C
 machine.boiler.display.burning=Burning for §e%.1fs§r
 machine.boiler.display.burning.info=§7Can take any item with burn value as fuel
+machine.boiler.display.burning.info.bucket=§7Takes fluids with burn value stated in their bucket form per 1000L
+machine.steam_boiler.tooltip.heat=Heating rate §c%d
+machine.steam_boiler.tooltip.cooldown=Cooldown rate §3%d
 
 tj.top.parallel_controller.maxeut=Max EU/t:
 tj.top.parallel_controller.energy_bonus=Current Energy Usage:

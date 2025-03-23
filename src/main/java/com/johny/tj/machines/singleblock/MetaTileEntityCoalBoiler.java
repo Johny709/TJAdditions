@@ -84,8 +84,11 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gregtech.machine.steam_boiler.tooltip_produces", boilerType.getSteamProduction(), boilerType.getTicks()));
+        tooltip.add(I18n.format("machine.steam_boiler.tooltip.heat", 100 + "%"));
+        tooltip.add(I18n.format("machine.steam_boiler.tooltip.cooldown", boilerType.getCooldown() * 100 + "%"));
     }
 
     @Override
