@@ -181,12 +181,11 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes, distinct);
+        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, occupiedRecipes, distinct);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
             if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex)) {
-                this.previousRecipe.cacheUtilized(i);
                 setupRecipe(currentRecipe, i);
                 return true;
             }
@@ -197,11 +196,10 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (j == lastRecipeIndex) {
                 continue;
             }
-            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes, distinct);
+            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, occupiedRecipes, distinct);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 if (setupAndConsumeRecipeInputs(currentRecipe, j)) {
-                    this.previousRecipe.cacheUtilized(i);
                     setupRecipe(currentRecipe, i);
                     return true;
                 }
@@ -226,8 +224,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (currentRecipe == null) {
                 continue;
             }
-            this.previousRecipe.put(currentRecipe, i);
-            this.previousRecipe.cacheUnutilized();
+            this.previousRecipe.put(currentRecipe);
             if (!setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }

@@ -4,119 +4,59 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.recipes.Recipe;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 public class ParallelRecipeLRUCache {
+
     private final int capacity;
-    private Recipe[] lastAccessedRecipe;
-    private final Map<Integer, LinkedList<Recipe>> recipeCaches;
-    private int cacheHit = 0;
-    private int cacheMiss = 0;
-    private boolean isReadAscending = true;
+    private long cacheHit;
+    private long cacheMiss;
+    private final LinkedList<Recipe> recipeList = new LinkedList<>();
 
     public ParallelRecipeLRUCache(int capacity) {
         this.capacity = capacity;
-        this.lastAccessedRecipe = new Recipe[1];
-        this.recipeCaches = new HashMap<>();
-        this.recipeCaches.put(0, new LinkedList<>());
-    }
-
-    public void setRecipeCaches(int i, boolean remove) {
-        this.lastAccessedRecipe = Arrays.copyOf(lastAccessedRecipe, i);
-        if (!remove) {
-            this.recipeCaches.put(i -1, new LinkedList<>());
-        } else {
-            this.recipeCaches.remove(i);
-        }
-    }
-
-    public int getCachedRecipeCount() {
-        return this.recipeCaches.size();
-    }
-
-    public int getCacheHit() {
-        return this.cacheHit;
-    }
-
-    public int getCacheMiss() {
-        return this.cacheMiss;
-    }
-
-    public boolean getIsReadAscending() {
-        return this.isReadAscending;
-    }
-
-    public void setIsReadAscending(boolean isAscending) {
-        this.isReadAscending = isAscending;
-    }
-
-    public boolean toggleIsReadAscending() {
-        setIsReadAscending(!this.isReadAscending);
-        return this.isReadAscending;
     }
 
     public void clear() {
-        this.cacheHit = 0;
-        this.cacheMiss = 0;
-        Arrays.fill(this.lastAccessedRecipe, null);
-        this.recipeCaches.forEach((key, value) -> value.clear());
+        recipeList.clear();
+        cacheHit = 0;
+        cacheMiss = 0;
     }
 
-    public Recipe get(IItemHandlerModifiable inputItems, IMultipleTankHandler inputFluids, int i, Recipe[] occupiedRecipes, boolean distinct) {
-        if (!this.isReadAscending) {
-            return getReverse(inputItems, inputFluids, i);
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public long getCacheHit() {
+        return cacheHit;
+    }
+
+    public long getCacheMiss() {
+        return cacheMiss;
+    }
+
+    public void put(Recipe recipe) {
+        if (recipeList.size() >= capacity) {
+            recipeList.removeLast();
         }
-        for (Recipe recipeCache : this.recipeCaches.get(i)) {
-            boolean foundMatches = recipeCache.matches(false, inputItems, inputFluids);
-            if (foundMatches) {
-                if (distinct) {
-                    if (Arrays.asList(occupiedRecipes).contains(recipeCache) && recipeCache != occupiedRecipes[i])
-                        continue;
-                }
-                this.lastAccessedRecipe[i] = recipeCache;
-                return recipeCache;
+        recipeList.addFirst(recipe);
+    }
+
+    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids, Recipe[] occupiedRecipes, boolean distinct) {
+        for (Recipe recipe : recipeList) {
+            if (recipe == null)
+                continue;
+            if (recipe.matches(false, importInventory, importFluids)) {
+                if (distinct && Arrays.asList(occupiedRecipes).contains(recipe))
+                    continue;
+                recipeList.remove(recipe);
+                recipeList.addFirst(recipe);
+                cacheHit++;
+                return recipe;
             }
         }
+        cacheMiss++;
         return null;
-    }
-
-    public Recipe getReverse(IItemHandlerModifiable inputItems, IMultipleTankHandler inputFluids, int i) {
-        Iterator<Recipe> recipeCachesIterator = this.recipeCaches.get(i).descendingIterator();
-        while (recipeCachesIterator.hasNext()) {
-            Recipe recipeCache = recipeCachesIterator.next();
-            boolean foundMatches = recipeCache.matches(false, inputItems, inputFluids);
-            if (foundMatches) {
-                this.lastAccessedRecipe[i] = recipeCache;
-                return recipeCache;
-            }
-        }
-        return null;
-    }
-
-    public int cacheUtilized(int i) {
-        if (this.lastAccessedRecipe[i] == null) {
-            return this.cacheHit;
-        }
-        this.recipeCaches.get(i).remove(this.lastAccessedRecipe[i]);
-        this.recipeCaches.get(i).addFirst(this.lastAccessedRecipe[i]);
-        this.cacheHit++;
-        return this.cacheHit;
-    }
-
-    public int cacheUnutilized() {
-        this.cacheMiss++;
-        return this.cacheMiss;
-    }
-
-    public void put(Recipe value, int i) {
-        if (capacity <= 0) {
-            return;
-        }
-
-        if (this.recipeCaches.get(i).size() >= this.capacity) {
-            this.recipeCaches.get(i).removeLast();
-        }
-
-        this.recipeCaches.get(i).addFirst(value);
     }
 }

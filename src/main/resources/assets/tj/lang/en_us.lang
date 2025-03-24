@@ -154,6 +154,11 @@ tj.multiblock.parallel.description=Capable of running multiple recipes in parall
 tj.multiblock.parallel.chemical_plant.description=Does not run recipes in batches when running chemical plant recipes.
 tj.multiblock.parallel.tooltip.1=Max Batch: §e%d§7 Per Overclocking Tier
 tj.multiblock.parallel.distinct=Distinct Recipes:
+tj.multiblock.parallel.debug.cache.capacity=Cache Capacity: §e%.1f§r
+tj.multiblock.parallel.debug.cache.hit=Cache Hit: §e%.1f§r
+tj.multiblock.parallel.debug.cache.hit.info=Amount of times a recipe has been found retrieved from the cache.
+tj.multiblock.parallel.debug.cache.miss=Cache Miss: §e%.1f§r
+tj.multiblock.parallel.debug.cache.miss.info=Amount of times a recipe wasn't found from cache.
 
 tj.multiblock.elite_large_miner.restart=Can Restart:
 tj.multiblock.elite_large_miner.restart.true=Yes
@@ -232,6 +237,7 @@ tj.multiblock.tab.maintenance=Maintenance
 tj.multiblock.tab.linked_entities_display=Linked Entities
 tj.multiblock.tab.workable=Recipe Workable Handlers
 tj.multiblock.tab.settings=Settings
+tj.multiblock.tab.debug=Debugging
 
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %d
 tj.multiblock.not_enough_fluid.space=WARNING: not enough space for fluid %d

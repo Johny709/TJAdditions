@@ -1,5 +1,6 @@
 package com.johny.tj.capability.impl;
 
+import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.GAUtility;
 import gregicadditions.utils.GALog;
@@ -28,7 +29,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     private final RecipeMap<?> recipeMap;
 
     public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, RecipeMap<?> recipeMap, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
-        super(tileEntity, 64);
+        super(tileEntity, TJConfig.machines.recipeCacheCapacity);
         this.recipeMap = recipeMap;
         this.EUtPercentage = EUtPercentage;
         this.durationPercentage = durationPercentage;
@@ -72,7 +73,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 return false;
             foundRecipe = occupiedRecipes[i];
         } else {
-            foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes, distinct);
+            foundRecipe = this.previousRecipe.get(importInventory, importFluids, occupiedRecipes, distinct);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -85,8 +86,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
                 if (currentRecipe != null) {
                     this.occupiedRecipes[i] = currentRecipe;
-                    this.previousRecipe.put(currentRecipe, i);
-                    this.previousRecipe.cacheUnutilized();
+                    this.previousRecipe.put(currentRecipe);
                 }
             }
         }
@@ -98,9 +98,6 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         }
         if (!setupAndConsumeRecipeInputs(currentRecipe)) {
             return false;
-        }
-        if (foundRecipe != null) {
-            this.previousRecipe.cacheUtilized(i);
         }
         setupRecipe(currentRecipe, i);
         return true;
@@ -115,13 +112,12 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes, distinct);
+        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, occupiedRecipes, distinct);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
             currentRecipe = createRecipe(maxVoltage, importInventory.get(lastRecipeIndex), importFluids, currentRecipe);
             if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex)) {
-                this.previousRecipe.cacheUtilized(i);
                 setupRecipe(currentRecipe, i);
                 return true;
             }
@@ -132,12 +128,11 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             if (j == lastRecipeIndex) {
                 continue;
             }
-            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes, distinct);
+            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, occupiedRecipes, distinct);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 currentRecipe = createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe);
                 if (setupAndConsumeRecipeInputs(currentRecipe, j)) {
-                    this.previousRecipe.cacheUtilized(i);
                     setupRecipe(currentRecipe, i);
                     return true;
                 }
@@ -162,8 +157,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 continue;
             }
             this.occupiedRecipes[i] = currentRecipe;
-            this.previousRecipe.put(currentRecipe, i);
-            this.previousRecipe.cacheUnutilized();
+            this.previousRecipe.put(currentRecipe);
             if (isBatching()) {
                 currentRecipe = createRecipe(maxVoltage, bus, importFluids, currentRecipe);
             }

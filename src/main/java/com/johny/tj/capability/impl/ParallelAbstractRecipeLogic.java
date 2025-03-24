@@ -116,7 +116,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.failCount = Arrays.copyOf(failCount, this.size);
         this.timeToStop = Arrays.copyOf(timeToStop, this.size);
         this.occupiedRecipes = Arrays.copyOf(occupiedRecipes, this.size);
-        this.previousRecipe.setRecipeCaches(i, remove);
         if (remove) {
             this.fluidOutputs.remove(i -1);
             this.itemOutputs.remove(i -1);
@@ -252,7 +251,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 return false;
             foundRecipe = occupiedRecipes[i];
         } else {
-            foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes, distinct);
+            foundRecipe = this.previousRecipe.get(importInventory, importFluids, occupiedRecipes, distinct);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -265,15 +264,11 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 currentRecipe = findRecipe(maxVoltage, importInventory, importFluids, this.useOptimizedRecipeLookUp);
                 if (currentRecipe != null) {
                     this.occupiedRecipes[i] = currentRecipe;
-                    this.previousRecipe.put(currentRecipe, i);
-                    this.previousRecipe.cacheUnutilized();
+                    this.previousRecipe.put(currentRecipe);
                 }
             }
         }
         if (currentRecipe != null && setupAndConsumeRecipeInputs(currentRecipe)) {
-            if (foundRecipe != null) {
-                this.previousRecipe.cacheUtilized(i);
-            }
             setupRecipe(currentRecipe, i);
             return true;
         }
@@ -522,7 +517,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     public void setDistinct(boolean distinct) {
         this.distinct = distinct;
         Arrays.fill(occupiedRecipes, null);
-        this.previousRecipe.clear();
         metaTileEntity.markDirty();
     }
 
@@ -832,9 +826,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.failCount = new int[this.size];
         this.timeToStop = new int[this.size];
         this.occupiedRecipes = new Recipe[this.size];
-        for (int i = 1; i < this.size; i++) {
-            this.previousRecipe.setRecipeCaches(i + 1, false);
-        }
 
         for (int i = 0; i < this.size; i++) {
             workingEnabled[i] = workingList.getCompoundTagAt(i).getBoolean("WorkingEnabled" + i);

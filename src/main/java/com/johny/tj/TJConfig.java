@@ -19,6 +19,12 @@ public class TJConfig {
         @Config.Comment("Loads the recipes for Large Architecture multiblock")
         @Config.RequiresMcRestart
         public boolean loadArchitectureRecipes = false;
+
+        @Config.Name("Parallel Recipe Cache Capacity")
+        @Config.Comment("Recipe LRU Caching for Parallel Multiblock Recipe Logic. Recommended not to make this too large.")
+        @Config.RequiresMcRestart
+        public int recipeCacheCapacity = 10;
+
     }
 
     @Config.Comment("Industrial Fusion Reactor")

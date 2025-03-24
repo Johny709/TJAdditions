@@ -53,6 +53,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -153,15 +154,20 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab()));
+        WidgetGroup workableWidgetGroup = new WidgetGroup(), debugWidgetGroup = new WidgetGroup();
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab(widget -> {workableWidgetGroup.addWidget(widget); return workableWidgetGroup;})));
+        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab(widget -> {debugWidgetGroup.addWidget(widget); return debugWidgetGroup;})));
         return tabs;
     }
 
-    private AbstractWidgetGroup workableTab() {
-        WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addWorkableDisplayText, 0xFFFFFF)
+    private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addWorkableDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleWorkableDisplayClick));
-        return widgetGroup;
+    }
+
+    private AbstractWidgetGroup debugTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDebugDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180));
     }
 
     private int getPowerConsumptionSum() {
@@ -290,6 +296,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         }
     }
 
+    private void addDebugDisplayText(List<ITextComponent> textList) {
+        textList.add(new TextComponentTranslation("tj.multiblock.parallel.debug.cache.capacity", recipeMapWorkable.previousRecipe.getCapacity()));
+        textList.add(new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit", recipeMapWorkable.previousRecipe.getCacheHit())
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))));
+        textList.add(new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss", recipeMapWorkable.previousRecipe.getCacheMiss())
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))));
+    }
+
     private void handleWorkableDisplayClick(String componentData, Widget.ClickData clickData) {
         switch (componentData) {
             case "leftPage":
@@ -311,14 +325,16 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 return;
             case "notDistinct":
                 recipeMapWorkable.setDistinct(true);
-        }
-        for (int i = pageIndex; i < pageIndex + pageSize; i++) {
-            if (componentData.equals("lock" + i)) {
-                recipeMapWorkable.setLockingMode(false, i);
-            }
-            if (componentData.equals("unlock" + i)) {
-                recipeMapWorkable.setLockingMode(true, i);
-            }
+                return;
+            default:
+                for (int i = pageIndex; i < pageIndex + pageSize; i++) {
+                    if (componentData.equals("lock" + i)) {
+                        recipeMapWorkable.setLockingMode(false, i);
+                    }
+                    if (componentData.equals("unlock" + i)) {
+                        recipeMapWorkable.setLockingMode(true, i);
+                    }
+                }
         }
     }
 
