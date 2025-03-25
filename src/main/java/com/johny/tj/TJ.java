@@ -1,12 +1,9 @@
 package com.johny.tj;
 
 import com.johny.tj.blocks.TJMetaBlocks;
-import com.johny.tj.capability.IMultiControllable;
-import com.johny.tj.capability.IMultipleWorkable;
-import com.johny.tj.capability.IParallelController;
+import com.johny.tj.capability.*;
 import com.johny.tj.integration.theoneprobe.TheOneProbeCompatibility;
 import com.johny.tj.items.TJCoverBehaviours;
-import com.johny.tj.machines.LinkPos;
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.util.GTLog;
@@ -45,6 +42,7 @@ public class TJ
         registerCapabilityWithNoDefault(IMultipleWorkable.class);
         registerCapabilityWithNoDefault(IParallelController.class);
         registerCapabilityWithNoDefault(LinkPos.class);
+        registerCapabilityWithNoDefault(LinkInterDimPos.class);
         logger = event.getModLog();
     }
 

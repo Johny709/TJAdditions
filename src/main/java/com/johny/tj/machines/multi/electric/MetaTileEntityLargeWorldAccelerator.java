@@ -6,13 +6,9 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
-import com.johny.tj.capability.IParallelController;
-import com.johny.tj.capability.TJCapabilities;
+import com.johny.tj.capability.*;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.machines.AcceleratorBlacklist;
-import com.johny.tj.machines.LinkEvent;
-import com.johny.tj.machines.LinkPos;
-import com.johny.tj.machines.LinkSet;
 import com.johny.tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -77,7 +73,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    private long energyPerTick = 0;
+    private long energyPerTick;
     private boolean isActive = false;
     private AcceleratorMode acceleratorMode;
     private IMultipleTankHandler importFluidHandler;
@@ -395,14 +391,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         Textures.AMPLIFAB_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive);
     }
 
-    protected void setActive(boolean active) {
-        this.isActive = active;
-        markDirty();
-        if (!getWorld().isRemote) {
-            writeCustomData(1, buf -> buf.writeBoolean(active));
-        }
-    }
-
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         String tileMode = "null";
@@ -463,6 +451,14 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         }
     }
 
+    protected void setActive(boolean active) {
+        this.isActive = active;
+        markDirty();
+        if (!getWorld().isRemote) {
+            writeCustomData(1, buf -> buf.writeBoolean(active));
+        }
+    }
+
     @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
@@ -470,6 +466,18 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             this.isActive = buf.readBoolean();
             getHolder().scheduleChunkForRenderUpdate();
         }
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeBoolean(isActive);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.isActive = buf.readBoolean();
     }
 
     @Override

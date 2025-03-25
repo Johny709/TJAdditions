@@ -21,6 +21,7 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import java.util.Objects;
@@ -632,6 +633,27 @@ public class AssemblingRecipes {
                 .outputs(PARALLEL_LARGE_BREWERY.getStackForm())
                 .EUt(GAValues.VA[9])
                 .duration(3000)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .fluidInputs(Lubricant.getFluid(16000))
+                .fluidInputs(Polybenzimidazole.getFluid(4608))
+                .inputs(new ItemStack(Item.getItemById(5739))) // Flux Controller
+                .inputs(new ItemStack(Item.getItemById(5733), 64)) // Flux Core
+                .inputs(new ItemStack(Item.getItemById(5736), 16)) // Flux Block
+                .input(OrePrefix.plateDense, Talonite, 4)
+                .inputs(MetaItems.EMITTER_IV.getStackForm(16))
+                .inputs(MetaItems.EMITTER_LUV.getStackForm(16))
+                .inputs(MetaItems.EMITTER_ZPM.getStackForm(16))
+                .inputs(MetaItems.EMITTER_UV.getStackForm(16))
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
+                .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
+                .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
+                .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
+                .outputs(LARGE_WIRELESS_CHARGING_STATION.getStackForm())
+                .EUt(GAValues.VA[8])
+                .duration(2000)
                 .buildAndRegister();
     }
 }

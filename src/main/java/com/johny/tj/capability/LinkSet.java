@@ -1,4 +1,4 @@
-package com.johny.tj.machines;
+package com.johny.tj.capability;
 
 import gregtech.api.metatileentity.MetaTileEntity;
 

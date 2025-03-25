@@ -4,7 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJValues;
-import com.johny.tj.machines.LinkSet;
+import com.johny.tj.capability.LinkSet;
 import com.johny.tj.machines.multi.electric.MetaTileEntityLargeWorldAccelerator;
 import com.johny.tj.textures.TJTextures;
 import gregicadditions.GAUtility;

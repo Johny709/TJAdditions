@@ -1,6 +1,5 @@
 package com.johny.tj.capability;
 
-import com.johny.tj.machines.LinkPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
@@ -17,4 +16,7 @@ public class TJCapabilities {
 
     @CapabilityInject(LinkPos.class)
     public static Capability<LinkPos> CAPABILITY_LINKPOS = null;
+
+    @CapabilityInject(LinkInterDimPos.class)
+    public static Capability<LinkInterDimPos> CAPABILITY_LINKPOS_INTERDIM = null;
 }

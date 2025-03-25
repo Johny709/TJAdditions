@@ -1,4 +1,4 @@
-package com.johny.tj.machines;
+package com.johny.tj.capability;
 
 public interface LinkEvent {
 

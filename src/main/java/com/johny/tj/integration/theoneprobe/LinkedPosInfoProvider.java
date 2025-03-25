@@ -1,7 +1,8 @@
 package com.johny.tj.integration.theoneprobe;
 
+import com.johny.tj.capability.LinkInterDimPos;
+import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.TJCapabilities;
-import com.johny.tj.machines.LinkPos;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
@@ -13,7 +14,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
+
+import static com.johny.tj.capability.TJCapabilities.CAPABILITY_LINKPOS_INTERDIM;
 
 public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
@@ -24,15 +28,17 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
     @Override
     protected void addProbeInfo(LinkPos capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
+        LinkInterDimPos interDimPos = tileEntity.getCapability(CAPABILITY_LINKPOS_INTERDIM, null);
+
         int pageIndex = capability.getPageIndex();
         int pageSize = capability.getPageSize();
         int size = capability.getBlockPosSize();
-        WorldServer world = (WorldServer) capability.world();
 
         IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
+            WorldServer world = interDimPos != null ? DimensionManager.getWorld(interDimPos.getDimension(i)) : (WorldServer) capability.world();
             BlockPos pos = capability.getBlockPos(i);
             if (i < size && pos != null) {
                 TileEntity entity = world.getTileEntity(pos);
