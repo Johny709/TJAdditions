@@ -78,7 +78,7 @@ import static gregtech.api.unification.material.Materials.Nitrogen;
 import static gregtech.api.unification.material.Materials.RedSteel;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeWirelessChargingStation extends TJMultiblockDisplayBase implements LinkInterDimPos, LinkEvent, IParallelController {
+public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkInterDimPos, LinkEvent, IParallelController {
 
     protected TransferType transferType;
     private long energyPerTick;
@@ -96,7 +96,7 @@ public class MetaTileEntityLargeWirelessChargingStation extends TJMultiblockDisp
     private int pageIndex;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
 
-    public MetaTileEntityLargeWirelessChargingStation(ResourceLocation metaTileEntityId, TransferType transferType) {
+    public MetaTileEntityLargeWirelessEnergyEmitter(ResourceLocation metaTileEntityId, TransferType transferType) {
         super(metaTileEntityId);
         this.transferType = transferType;
         reinitializeStructurePattern();
@@ -104,13 +104,12 @@ public class MetaTileEntityLargeWirelessChargingStation extends TJMultiblockDisp
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeWirelessChargingStation(metaTileEntityId, transferType);
+        return new MetaTileEntityLargeWirelessEnergyEmitter(metaTileEntityId, transferType);
     }
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("tj.multiblock.large_wireless_charging_station.description"));
-        tooltip.add(I18n.format("metaitem.item.linking.device.link.from"));
+        tooltip.add(I18n.format("tj.multiblock.large_wireless_energy_emitter.description"));
     }
 
     @Override

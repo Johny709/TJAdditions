@@ -56,7 +56,7 @@ tj.machine.solar_boiler_lv.name=LV Solar Boiler
 tj.machine.fluid_boiler_bronze.name=Bronze Fluid Boiler
 tj.machine.fluid_boiler_steel.name=Steel Fluid Boiler
 tj.machine.fluid_boiler_lv.name=LV Fluid Boiler
-tj.machine.large_wireless_charging_station.name=Large Wireless Energy Emitter (LWCS)
+tj.machine.large_wireless_energy_emitter.name=Large Wireless Energy Emitter (LWCS)
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -229,7 +229,7 @@ tj.multiblock.parallel_large_electrolyzer.description=True Parallel version of L
 tj.multiblock.parallel_large_macerator.description=True Parallel version of Large Macerator that can batch and run recipes in parallel.
 tj.multiblock.parallel_large_sifter.description=True Parallel version of Large Sifter that can batch and run recipes in parallel.
 tj.multiblock.parallel_large_washing_machine.description=True Parallel version of Large Washing Plant that can batch and run recipes in parallel.
-tj.multiblock.large_wireless_charging_station.description=Link to transfer energy to machines and energy hatches. Works across dimensions.
+tj.multiblock.large_wireless_energy_emitter.description=Link to transfer energy to §6machines§r and §6energy hatches§r. Gains an additional link per tier. Consumes §310L/t Nitrogen Plasma§r per link across dimensions.
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7

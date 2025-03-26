@@ -19,7 +19,7 @@ import java.util.List;
 
 import static gregicadditions.GAMaterials.Talonite;
 
-public class LargeWirelessChargingStationInfo extends MultiblockInfoPage {
+public class LargeWirelessEnergyEmitterInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -48,8 +48,7 @@ public class LargeWirelessChargingStationInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.large_wireless_charging_station.description="),
-                I18n.format("metaitem.item.linking.device.link.from")};
+                I18n.format("tj.multiblock.large_wireless_energy_emitter.description=")};
     }
 
     @Override
