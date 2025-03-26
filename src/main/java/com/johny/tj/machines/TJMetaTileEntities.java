@@ -24,6 +24,7 @@ import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityL
 import net.minecraft.util.ResourceLocation;
 
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
+import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.OUTPUT;
 import static com.johny.tj.machines.singleblock.BoilerType.*;
 import static gregicadditions.machines.GATileEntities.*;
 
@@ -73,7 +74,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntityParallelLargeSifter PARALLEL_LARGE_SIFTER;
     public static MetaTileEntityParallelLargeBrewery PARALLEL_LARGE_BREWERY;
     public static MetaTileEntityAcceleratorAnchorPoint ACCELERATOR_ANCHOR_POINT;
-    public static MetaTileEntityLargeWirelessEnergyEmitter LARGE_WIRELESS_CHARGING_STATION;
+    public static MetaTileEntityLargeWirelessEnergyEmitter LARGE_WIRELESS_ENERGY_EMITTER;
+    public static MetaTileEntityLargeWirelessEnergyReceiver LARGE_WIRELESS_ENERGY_RECEIVER;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -154,7 +156,8 @@ public class TJMetaTileEntities {
         FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5101, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
         FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5102, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
 
-        LARGE_WIRELESS_CHARGING_STATION = GregTechAPI.registerMetaTileEntity(5103, new MetaTileEntityLargeWirelessEnergyEmitter(TJId("large_wireless_energy_emitter"), INPUT));
+        LARGE_WIRELESS_ENERGY_EMITTER = GregTechAPI.registerMetaTileEntity(5103, new MetaTileEntityLargeWirelessEnergyEmitter(TJId("large_wireless_energy_emitter"), INPUT));
+        LARGE_WIRELESS_ENERGY_RECEIVER = GregTechAPI.registerMetaTileEntity(5104, new MetaTileEntityLargeWirelessEnergyReceiver(TJId("large_wireless_energy_receiver"), OUTPUT));
 
         int energyHatchId = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {

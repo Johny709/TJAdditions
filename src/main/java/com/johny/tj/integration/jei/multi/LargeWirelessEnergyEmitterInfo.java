@@ -1,14 +1,12 @@
 package com.johny.tj.integration.jei.multi;
 
 import com.google.common.collect.Lists;
-import com.johny.tj.machines.TJMetaTileEntities;
+import com.johny.tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -17,13 +15,21 @@ import net.minecraft.util.EnumFacing;
 
 import java.util.List;
 
-import static gregicadditions.GAMaterials.Talonite;
+import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
 
 public class LargeWirelessEnergyEmitterInfo extends MultiblockInfoPage {
 
+    private final MetaTileEntityLargeWirelessEnergyEmitter.TransferType transferType;
+    private final MetaTileEntityLargeWirelessEnergyEmitter tileEntity;
+
+    public LargeWirelessEnergyEmitterInfo(MetaTileEntityLargeWirelessEnergyEmitter.TransferType transferType, MetaTileEntityLargeWirelessEnergyEmitter tileEntity) {
+        this.transferType = transferType;
+        this.tileEntity = tileEntity;
+    }
+
     @Override
     public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.LARGE_WIRELESS_CHARGING_STATION;
+        return tileEntity;
     }
 
     @Override
@@ -35,12 +41,13 @@ public class LargeWirelessEnergyEmitterInfo extends MultiblockInfoPage {
                 .aisle("CCCCC", "CCFCC", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~CCC~", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', getController(), EnumFacing.WEST)
-                .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TALONITE))
-                .where('F', MetaBlocks.FRAMES.get(Talonite).getDefaultState())
-                .where('I', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TIERED_HULL_LUV))
+                .where('C', tileEntity.getCasingState(transferType))
+                .where('F', tileEntity.getFrameState(transferType))
+                .where('I', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TIERED_HULL_UV))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
-                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.LuV], EnumFacing.WEST)
-                .where('H', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.LuV], EnumFacing.EAST)
+                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
+                .where('H', transferType == INPUT ? MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV]
+                        : MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.UV], EnumFacing.EAST)
                 .build();
         return Lists.newArrayList(shapeInfo);
     }
@@ -48,7 +55,7 @@ public class LargeWirelessEnergyEmitterInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.large_wireless_energy_emitter.description=")};
+                I18n.format("tj.multiblock.large_wireless_energy_emitter.description")};
     }
 
     @Override

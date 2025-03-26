@@ -651,7 +651,28 @@ public class AssemblingRecipes {
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
-                .outputs(LARGE_WIRELESS_CHARGING_STATION.getStackForm())
+                .outputs(LARGE_WIRELESS_ENERGY_EMITTER.getStackForm())
+                .EUt(GAValues.VA[8])
+                .duration(2000)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .fluidInputs(Lubricant.getFluid(16000))
+                .fluidInputs(Polybenzimidazole.getFluid(4608))
+                .inputs(new ItemStack(Item.getItemById(5739))) // Flux Controller
+                .inputs(new ItemStack(Item.getItemById(5733), 64)) // Flux Core
+                .inputs(new ItemStack(Item.getItemById(5736), 16)) // Flux Block
+                .input(OrePrefix.plateDense, Talonite, 4)
+                .inputs(MetaItems.SENSOR_IV.getStackForm(16))
+                .inputs(MetaItems.SENSOR_LUV.getStackForm(16))
+                .inputs(MetaItems.SENSOR_ZPM.getStackForm(16))
+                .inputs(MetaItems.SENSOR_UV.getStackForm(16))
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
+                .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
+                .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
+                .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
+                .outputs(LARGE_WIRELESS_ENERGY_EMITTER.getStackForm())
                 .EUt(GAValues.VA[8])
                 .duration(2000)
                 .buildAndRegister();

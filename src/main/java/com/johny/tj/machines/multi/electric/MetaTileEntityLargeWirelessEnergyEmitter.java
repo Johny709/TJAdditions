@@ -272,20 +272,20 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     protected void transferRF(int energyToAdd, IEnergyStorage RFContainer) {
         if (RFContainer != null && RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored() > energyToAdd * 4) {
-            RFContainer.receiveEnergy(Math.min(Integer.MAX_VALUE, energyToAdd * 4), false);
-            energyInputContainer.removeEnergy(energyToAdd);
+            int energyInserted = RFContainer.receiveEnergy(Math.min(Integer.MAX_VALUE, energyToAdd * 4), false);
+            energyInputContainer.removeEnergy(energyInserted);
         }
     }
 
     protected void transferEU(long energyToAdd, IEnergyContainer EUContainer) {
         if (EUContainer != null && EUContainer.getEnergyCapacity() - EUContainer.getEnergyStored() > energyToAdd) {
-            EUContainer.addEnergy(energyToAdd);
-            energyInputContainer.removeEnergy(energyToAdd);
+            long energyInserted = EUContainer.addEnergy(energyToAdd);
+            energyInputContainer.removeEnergy(energyInserted);
         }
     }
 
 
-    private boolean hasEnoughEnergy(long amount) {
+    protected boolean hasEnoughEnergy(long amount) {
         return energyInputContainer.getEnergyStored() >= amount;
     }
 
@@ -303,22 +303,22 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 .aisle("HHHHH", "HHFHH", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~HHH~", "~HSH~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('F', statePredicate(getFrameState()))
+                .where('C', statePredicate(getCasingState(transferType)))
+                .where('H', statePredicate(getCasingState(transferType)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('F', statePredicate(getFrameState(transferType)))
                 .where('I', frameworkPredicate().or(frameworkPredicate2()))
                 .where('~', tile -> true)
                 .build();
     }
 
-    public IBlockState getCasingState() {
+    public IBlockState getCasingState(TransferType transferType) {
         if (transferType == TransferType.INPUT)
             return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TALONITE);
         else
             return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.RED_STEEL);
     }
 
-    public IBlockState getFrameState() {
+    public IBlockState getFrameState(TransferType transferType) {
         if (transferType == TransferType.INPUT)
             return MetaBlocks.FRAMES.get(Talonite).getDefaultState();
         else
@@ -500,6 +500,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     @Override
     public void setBlockPos(double x, double y, double z, boolean connect, int i) {
+        entityEnergyAmps[i] = 1;
         entityLinkBlockPos[i] = connect ? new BlockPos(x, y, z) : null;
     }
 
