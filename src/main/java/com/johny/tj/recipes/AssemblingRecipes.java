@@ -672,7 +672,7 @@ public class AssemblingRecipes {
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
-                .outputs(LARGE_WIRELESS_ENERGY_EMITTER.getStackForm())
+                .outputs(LARGE_WIRELESS_ENERGY_RECEIVER.getStackForm())
                 .EUt(GAValues.VA[8])
                 .duration(2000)
                 .buildAndRegister();

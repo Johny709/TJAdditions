@@ -271,14 +271,14 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     protected void transferRF(int energyToAdd, IEnergyStorage RFContainer) {
-        if (RFContainer != null && RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored() > energyToAdd * 4) {
+        if (RFContainer != null && RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored() >= energyToAdd * 4) {
             int energyInserted = RFContainer.receiveEnergy(Math.min(Integer.MAX_VALUE, energyToAdd * 4), false);
-            energyInputContainer.removeEnergy(energyInserted);
+            energyInputContainer.removeEnergy(energyInserted / 4);
         }
     }
 
     protected void transferEU(long energyToAdd, IEnergyContainer EUContainer) {
-        if (EUContainer != null && EUContainer.getEnergyCapacity() - EUContainer.getEnergyStored() > energyToAdd) {
+        if (EUContainer != null && EUContainer.getEnergyCanBeInserted() >= energyToAdd) {
             long energyInserted = EUContainer.addEnergy(energyToAdd);
             energyInputContainer.removeEnergy(energyInserted);
         }

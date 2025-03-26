@@ -34,17 +34,17 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
 
     @Override
     protected void transferRF(int energyToAdd, IEnergyStorage RFContainer) {
-        if (RFContainer != null && RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored() < energyToAdd * 4) {
-            int energyExtracted = RFContainer.extractEnergy(Math.min(Integer.MAX_VALUE, energyToAdd / 4), false);
-            energyOutputContainer.addEnergy(energyExtracted);
+        if (RFContainer != null && energyOutputContainer.getEnergyCanBeInserted() >= energyToAdd) {
+            int energyExtracted = RFContainer.extractEnergy(Math.min(Integer.MAX_VALUE, energyToAdd * 4), false);
+            energyOutputContainer.addEnergy(energyExtracted / 4);
         }
     }
 
     @Override
     protected void transferEU(long energyToAdd, IEnergyContainer EUContainer) {
-        if (EUContainer != null && EUContainer.getEnergyCapacity() - EUContainer.getEnergyStored() < energyToAdd) {
+        if (EUContainer != null && energyOutputContainer.getEnergyCanBeInserted() >= energyToAdd) {
             long energyExtracted = EUContainer.removeEnergy(energyToAdd);
-            energyOutputContainer.addEnergy(energyExtracted);
+            energyOutputContainer.addEnergy(Math.abs(energyExtracted));
         }
     }
 
