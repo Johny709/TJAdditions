@@ -43,12 +43,27 @@ public class ParallelRecipeLRUCache {
         recipeList.addFirst(recipe);
     }
 
-    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids, Recipe[] occupiedRecipes, boolean distinct) {
+    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids) {
         for (Recipe recipe : recipeList) {
             if (recipe == null)
                 continue;
             if (recipe.matches(false, importInventory, importFluids)) {
-                if (distinct && Arrays.asList(occupiedRecipes).contains(recipe))
+                recipeList.remove(recipe);
+                recipeList.addFirst(recipe);
+                cacheHit++;
+                return recipe;
+            }
+        }
+        cacheMiss++;
+        return null;
+    }
+
+    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids, int i, Recipe[] occupiedRecipes) {
+        for (Recipe recipe : recipeList) {
+            if (recipe == null)
+                continue;
+            if (recipe.matches(false, importInventory, importFluids)) {
+                if (Arrays.asList(occupiedRecipes).contains(recipe) && recipe != occupiedRecipes[i])
                     continue;
                 recipeList.remove(recipe);
                 recipeList.addFirst(recipe);

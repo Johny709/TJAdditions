@@ -251,7 +251,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 return false;
             foundRecipe = occupiedRecipes[i];
         } else {
-            foundRecipe = this.previousRecipe.get(importInventory, importFluids, occupiedRecipes, distinct);
+            if (!distinct)
+                foundRecipe = this.previousRecipe.get(importInventory, importFluids);
+            else
+                foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -516,6 +519,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     public void setDistinct(boolean distinct) {
         this.distinct = distinct;
+        previousRecipe.clear();
         Arrays.fill(occupiedRecipes, null);
         metaTileEntity.markDirty();
     }

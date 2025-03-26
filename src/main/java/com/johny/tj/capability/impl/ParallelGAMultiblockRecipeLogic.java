@@ -73,7 +73,10 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 return false;
             foundRecipe = occupiedRecipes[i];
         } else {
-            foundRecipe = this.previousRecipe.get(importInventory, importFluids, occupiedRecipes, distinct);
+            if (!distinct)
+                foundRecipe = this.previousRecipe.get(importInventory, importFluids);
+            else
+                foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, occupiedRecipes);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -112,7 +115,11 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, occupiedRecipes, distinct);
+        Recipe foundRecipe;
+        if (!distinct)
+            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids);
+        else
+            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
@@ -128,7 +135,10 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             if (j == lastRecipeIndex) {
                 continue;
             }
-            foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, occupiedRecipes, distinct);
+            if (!distinct)
+                foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids);
+            else
+                foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, occupiedRecipes);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 currentRecipe = createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe);
