@@ -64,6 +64,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
 
@@ -133,10 +134,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                     : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
             textList.add(hasEnoughFluid(fluidConsumption) ? new TextComponentTranslation("tj.multiblock.enough_fluid")
                     .appendText(" ")
-                    .appendSibling(new TextComponentTranslation(Nitrogen.getPlasma(fluidConsumption).getUnlocalizedName()))
+                    .appendSibling(new TextComponentTranslation(Nitrogen.getPlasma(fluidConsumption).getUnlocalizedName())
+                            .setStyle(new Style().setColor(TextFormatting.DARK_AQUA)))
                     .appendText(" ")
-                    .appendText(String.valueOf(fluidConsumption))
-                    .appendText("/t")
+                    .appendText("§3" + fluidConsumption)
+                    .appendText("§7 L/t")
                      : new TextComponentTranslation("tj.multiblock.not_enough_fluid").setStyle(new Style().setColor(TextFormatting.RED)));
         } else {
             super.addDisplayText(textList);
@@ -197,11 +199,10 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
         WidgetGroup widgetLinkedEntitiesGroup = new WidgetGroup();
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widget -> {widgetLinkedEntitiesGroup.addWidget(widget); return widgetLinkedEntitiesGroup;})));
-        return tabs;
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widget -> {widgetLinkedEntitiesGroup.addWidget(widget); return widgetLinkedEntitiesGroup;})));
     }
 
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {

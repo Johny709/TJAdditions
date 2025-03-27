@@ -64,6 +64,8 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -133,8 +135,12 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
                 case GT_TILE_ENTITY:
                     textList.add(hasEnoughFluid(fluidConsumption) ? new TextComponentTranslation("tj.multiblock.enough_fluid")
-                            .appendSibling(new TextComponentString(" " + UUMatter.getLocalizedName() + ": " + fluidConsumption + "/t")
-                                    .setStyle(new Style().setColor(TextFormatting.YELLOW))) :
+                            .appendText(" ")
+                            .appendSibling(new TextComponentTranslation(UUMatter.getUnlocalizedName())
+                                    .setStyle(new Style().setColor(TextFormatting.LIGHT_PURPLE)))
+                            .appendText(" ")
+                            .appendText("§d" + fluidConsumption)
+                            .appendText("§7 L/t"):
                             new TextComponentTranslation("tj.multiblock.not_enough_fluid").setStyle(new Style().setColor(TextFormatting.RED)));
                     textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT"));
                     break;
@@ -157,18 +163,24 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
         for (int i = pageIndex, linkedEntitiesPos = i + 1; i < pageIndex + pageSize; i++, linkedEntitiesPos++) {
-            if (i < entityLinkBlockPos.length) {
+            if (i < entityLinkBlockPos.length && entityLinkBlockPos[i] != null) {
+
+                TileEntity tileEntity = world.getTileEntity(entityLinkBlockPos[i]);
+                MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]);
+                boolean isTileEntity = tileEntity != null;
+                boolean isMetaTileEntity = metaTileEntity != null;
+
                 textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
-                        .appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.null"
-                                : acceleratorMode == AcceleratorMode.TILE_ENTITY ? world.getTileEntity(entityLinkBlockPos[i]).getBlockType().getTranslationKey() + ".name"
-                                : BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]).getMetaFullName())).setStyle(new Style()
-                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.null"
-                                : acceleratorMode == AcceleratorMode.TILE_ENTITY ? world.getTileEntity(entityLinkBlockPos[i]).getBlockType().getTranslationKey() + ".name"
-                                : BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]).getMetaFullName())
+                        .appendSibling(new TextComponentTranslation(isMetaTileEntity ? metaTileEntity.getMetaFullName()
+                                : isTileEntity ? tileEntity.getBlockType().getTranslationKey() + ".name"
+                                : "machine.universal.linked.entity.null")).setStyle(new Style()
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(isMetaTileEntity ? metaTileEntity.getMetaFullName()
+                                : isTileEntity ? tileEntity.getBlockType().getTranslationKey() + ".name"
+                                : "machine.universal.linked.entity.null")
                                 .appendText("\n")
                                 .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius",
-                                        entityLinkBlockPos[i] != null && BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]) instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0,
-                                        entityLinkBlockPos[i] != null && BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]) instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0))
+                                        isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0,
+                                        isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0))
                                 .appendText("\n")
                                 .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getX()))
                                         .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
@@ -184,17 +196,15 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
         WidgetGroup widgetLinkedEntitiesGroup = new WidgetGroup();
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widgetLinkedEntitiesGroup)));
-        return tabs;
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widget -> {widgetLinkedEntitiesGroup.addWidget(widget); return widgetLinkedEntitiesGroup;})));
     }
 
-    private AbstractWidgetGroup linkedEntitiesDisplayTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntities, 0xFFFFFF)
+    private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntities, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
-        return widgetGroup;
     }
 
     @Override

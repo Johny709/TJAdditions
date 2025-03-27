@@ -53,6 +53,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
@@ -152,12 +153,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
         WidgetGroup workableWidgetGroup = new WidgetGroup(), debugWidgetGroup = new WidgetGroup();
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab(widget -> {workableWidgetGroup.addWidget(widget); return workableWidgetGroup;})));
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab(widget -> {debugWidgetGroup.addWidget(widget); return debugWidgetGroup;})));
-        return tabs;
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab(widget -> {workableWidgetGroup.addWidget(widget); return workableWidgetGroup;})));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab(widget -> {debugWidgetGroup.addWidget(widget); return debugWidgetGroup;})));
     }
 
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {

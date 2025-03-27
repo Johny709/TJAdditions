@@ -193,7 +193,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     private static class ParallelMultiblockChemicalReactorWorkableHandler extends ParallelMultiblockRecipeLogic {
 
         public ParallelMultiblockChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity) {
-            super(tileEntity, 64);
+            super(tileEntity, TJConfig.machines.recipeCacheCapacity);
         }
 
         @Override

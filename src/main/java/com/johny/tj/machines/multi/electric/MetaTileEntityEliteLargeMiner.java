@@ -66,6 +66,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static gregicadditions.GAMaterials.Taranium;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -331,20 +333,18 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     @Override
-    protected List<Triple<String, ItemStack, AbstractWidgetGroup>> addNewTabs(List<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
         WidgetGroup widgetFilterGroup = new WidgetGroup(), widgetSettingsGroup = new WidgetGroup();
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab(widgetFilterGroup)));
-        tabs.add(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab(widgetSettingsGroup)));
-        return tabs;
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab(widget -> {widgetFilterGroup.addWidget(widget); return widgetFilterGroup;})));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab(widget -> {widgetSettingsGroup.addWidget(widget); return widgetSettingsGroup;})));
     }
 
     @Override
-    protected AbstractWidgetGroup mainDisplayTab(WidgetGroup widgetGroup) {
+    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isDone, this::setDone)
+        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isDone, this::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
-        return widgetGroup;
     }
 
     private boolean isDone() {
@@ -365,21 +365,19 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         }
     }
 
-    protected AbstractWidgetGroup filterTab(WidgetGroup widgetGroup) {
-        this.blockFilter.initUI(widgetGroup::addWidget);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+    protected AbstractWidgetGroup filterTab(Function<Widget, WidgetGroup> widgetGroup) {
+        this.blockFilter.initUI(widgetGroup::apply);
+        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                 .setTooltipText("machine.universal.toggle.filter"));
-        widgetGroup.addWidget(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+        widgetGroup.apply(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
+        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                 .setTooltipText("cover.filter.blacklist"));
-        return widgetGroup;
     }
 
-    protected AbstractWidgetGroup settingsTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10,18, this::addSettingsDisplayText, 0xFFFFFF)
+    protected AbstractWidgetGroup settingsTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new AdvancedTextWidget(10,18, this::addSettingsDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleSettingDisplayText));
-        return widgetGroup;
     }
 
     protected void addSettingsDisplayText(List<ITextComponent> textList) {
