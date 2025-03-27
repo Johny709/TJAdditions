@@ -54,6 +54,7 @@ import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -256,7 +257,9 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 importFluidHandler.drain(Nitrogen.getPlasma(fluidToConsume), true);
             }
             WorldServer world = DimensionManager.getWorld(entityLinkWorld[i]);
-            world.getChunk(entityLinkBlockPos[i]).markLoaded(true);
+            Chunk chunk = world.getChunk(entityLinkBlockPos[i]);
+            if (!chunk.isLoaded())
+                chunk.onLoad();
             TileEntity tileEntity = world.getTileEntity(entityLinkBlockPos[i]);
             MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]);
             long energyToAdd = energyPerTick * entityEnergyAmps[i];
