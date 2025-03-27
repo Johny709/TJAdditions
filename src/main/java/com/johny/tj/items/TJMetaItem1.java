@@ -13,6 +13,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
         CREATIVE_ITEM_COVER = addItem(1001, "creative.item.cover");
         CREATIVE_ENERGY_COVER = addItem(1002, "creative.energy.cover");
         LINKING_DEVICE = addItem(1003,"item.linking.device").addComponents(new LinkingDeviceBehavior()).setMaxStackSize(1);
+        VOID_PLUNGER = addItem(1004, "void_plunger").addComponents(new VoidPlungerBehaviour()).setMaxStackSize(1);
     }
 
     @Override

@@ -299,6 +299,14 @@ metaitem.linking.device.message.nolink=Cannot Link From Null Entity!
 metaitem.linking.device.message.capable=Not A Linkable Entity!
 metaitem.linking.device.message.remaining=Links Remaining: §e%.1f§r
 metaitem.linking.device.message.no_remaining=Used up all remaining links
+metaitem.void_plunger.name=Void Plunger
+metaitem.void_plunger.description=Right-Click to void items and fluids from multiblock hatches and buses.
+metaitem.void_plunger.message.fail=Not a valid multiblock.
+metaitem.void_plunger.message.success=Voided Items and Fluids from multiblock.
+metaitem.void_plunger.message.void.item.input=Voided item inputs:
+metaitem.void_plunger.message.void.fluid.input=Voided fluid inputs:
+metaitem.void_plunger.message.void.item.output=Voided item outputs:
+metaitem.void_plunger.message.void.fluid.output=Voided fluid outputs:
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF

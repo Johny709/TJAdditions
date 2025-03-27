@@ -190,6 +190,9 @@ public class RecipeLoader {
                 'G', new UnificationEntry(OrePrefix.gear, Bronze),
                 'O', new UnificationEntry(OrePrefix.gear, Steel));
 
-    }
+        ModHandler.addShapedRecipe("void_plunger", TJMetaItems.VOID_PLUNGER.getStackForm(), " OO", " SO", "S  ",
+                'O', new ItemStack(Item.getItemById(5405)), // Reinforced Obsidian
+                'S', new UnificationEntry(OrePrefix.stick, Steel));
 
+    }
 }
