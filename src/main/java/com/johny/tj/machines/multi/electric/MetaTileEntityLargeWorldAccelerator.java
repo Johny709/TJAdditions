@@ -85,7 +85,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     private int energyMultiplier = 1;
     private BlockPos[] entityLinkBlockPos;
     private int fluidConsumption;
-    private final int pageSize = 6;
+    private final int pageSize = 4;
     private int pageIndex;
     private NBTTagCompound linkData;
 
@@ -174,24 +174,24 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
                         .appendSibling(new TextComponentTranslation(isMetaTileEntity ? metaTileEntity.getMetaFullName()
                                 : isTileEntity ? tileEntity.getBlockType().getTranslationKey() + ".name"
-                                : "machine.universal.linked.entity.null")).setStyle(new Style()
-                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(isMetaTileEntity ? metaTileEntity.getMetaFullName()
-                                : isTileEntity ? tileEntity.getBlockType().getTranslationKey() + ".name"
-                                : "machine.universal.linked.entity.null")
-                                .appendText("\n")
-                                .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius",
+                                : "machine.universal.linked.entity.null")).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(isMetaTileEntity ? metaTileEntity.getMetaFullName()
+                                    : isTileEntity ? tileEntity.getBlockType().getTranslationKey() + ".name"
+                                    : "machine.universal.linked.entity.null")
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius",
                                         isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0,
                                         isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? tier : 0))
-                                .appendText("\n")
-                                .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getX()))
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getX()))
                                         .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                .appendText("\n")
-                                .appendSibling(new TextComponentString("Y: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getY()))
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString("Y: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getY()))
                                         .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                .appendText("\n")
-                                .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getZ()))
-                                        .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))))));
-
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getZ()))
+                                        .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + i))
+                );
             }
         }
     }
@@ -214,8 +214,18 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             pageIndex -= pageSize;
             return;
         }
-        if (componentData.equals("rightPage") && pageIndex < entityLinkBlockPos.length - pageSize)
+        if (componentData.equals("rightPage") && pageIndex < entityLinkBlockPos.length - pageSize) {
             pageIndex += pageSize;
+            return;
+        }
+        for (int i = 0; i < entityLinkBlockPos.length; i++) {
+            if (componentData.equals("remove" + i)) {
+                int index = linkData.getInteger("I");
+                linkData.setInteger("I", index + 1);
+                entityLinkBlockPos[i] = null;
+                break;
+            }
+        }
     }
 
     @Override

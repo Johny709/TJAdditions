@@ -291,6 +291,7 @@ metaitem.linking.device.y=Y: §e%.1f§r
 metaitem.linking.device.z=Z: §e%.1f§r
 metaitem.linking.device.range=Range: §e%.1f§r Blocks
 metaitem.linking.device.message.link=Link Established From:
+metaitem.linking.device.message.link.continue=Continue Linking From:
 metaitem.linking.device.message.unlink=Link Disbanded From:
 metaitem.linking.device.message.success=Linking Successful
 metaitem.linking.device.message.occupied=Already Link With:
@@ -323,6 +324,7 @@ machine.universal.linked.entity.null=Not linked
 machine.universal.linked.entity.empty=Null
 machine.universal.linked.entity.radius=Radius: §e%.1f§rx§e%.1f§r
 machine.universal.linked.dimension=Dimension: §e%s§r (§e%s§r)
+machine.universal.linked.remove=[Remove]
 machine.universal.energy.stored=Energy Stored: §e%s§r / §e%s§r
 machine.universal.energy.amps=Amps: §e%s§rA
 

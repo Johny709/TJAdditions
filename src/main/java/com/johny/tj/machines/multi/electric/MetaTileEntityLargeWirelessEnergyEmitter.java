@@ -196,7 +196,9 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                                 .appendText(" ")
                                 .appendSibling(withButton(new TextComponentString("[+]"), "increment" + i))
                                 .appendText(" ")
-                                .appendSibling(withButton(new TextComponentString("[-]"), "decrement" + i))));
+                                .appendSibling(withButton(new TextComponentString("[-]"), "decrement" + i)))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + i)));
 
             }
         }
@@ -227,14 +229,21 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         for (int i = 0; i < entityLinkBlockPos.length; i++) {
             if (componentData.equals("increment" + i)) {
                 entityEnergyAmps[i] = MathHelper.clamp(entityEnergyAmps[i] + 1, 0, 256);
-                int amps = Arrays.stream(entityEnergyAmps).sum();
-                totalEnergyPerTick = (long) (Math.pow(4, tier) * 8) * amps;
-                return;
+                updateTotalEnergyPerTick();
+                break;
             }
             if (componentData.equals("decrement" + i)) {
                 entityEnergyAmps[i] = MathHelper.clamp(entityEnergyAmps[i] - 1, 0, 256);
-                int amps = Arrays.stream(entityEnergyAmps).sum();
-                totalEnergyPerTick = (long) (Math.pow(4, tier) * 8) * amps;
+                updateTotalEnergyPerTick();
+                break;
+            }
+            if (componentData.equals("remove" + i)) {
+                int index = linkData.getInteger("I");
+                linkData.setInteger("I", index + 1);
+                entityLinkBlockPos[i] = null;
+                entityLinkWorld[i] = Integer.MIN_VALUE;
+                entityEnergyAmps[i] = 0;
+                updateTotalEnergyPerTick();
                 break;
             }
         }
@@ -291,6 +300,10 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         }
     }
 
+    private void updateTotalEnergyPerTick() {
+        int amps = Arrays.stream(entityEnergyAmps).sum();
+        totalEnergyPerTick = (long) (Math.pow(4, tier) * 8) * amps;
+    }
 
     protected boolean hasEnoughEnergy(long amount) {
         return energyInputContainer.getEnergyStored() >= amount;
@@ -359,8 +372,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             Arrays.fill(entityLinkWorld, getWorld().provider.getDimension());
         }
         energyPerTick = (long) (Math.pow(4, tier) * 8);
-        int amps = Arrays.stream(entityEnergyAmps).sum();
-        totalEnergyPerTick = energyPerTick * amps;
+        updateTotalEnergyPerTick();
         int dimensionID = getWorld().provider.getDimension();
         linkedWorldsCount = (int) Arrays.stream(entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
         fluidConsumption = 10 * linkedWorldsCount;
@@ -470,8 +482,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     @Override
     public void onLink() {
-        int amps = Arrays.stream(entityEnergyAmps).sum();
-        totalEnergyPerTick = (long) (Math.pow(4, tier) * 8) * amps;
+        updateTotalEnergyPerTick();
         int dimensionID = getWorld().provider.getDimension();
         linkedWorldsCount = (int) Arrays.stream(entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
         fluidConsumption = 10 * linkedWorldsCount;
