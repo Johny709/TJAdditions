@@ -1,6 +1,5 @@
 package com.johny.tj.machines.multi.electric;
 
-import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
@@ -9,6 +8,7 @@ import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.LinkEvent;
 import com.johny.tj.capability.LinkInterDimPos;
 import com.johny.tj.capability.TJCapabilities;
+import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.items.TJMetaItems;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
@@ -25,6 +25,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -40,13 +41,11 @@ import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -211,6 +210,25 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widget -> {widgetLinkedEntitiesGroup.addWidget(widget); return widgetLinkedEntitiesGroup;})));
     }
 
+    @Override
+    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
+                .setTooltipText("machine.universal.toggle.reset"));
+    }
+
+    private boolean isReset() {
+        return false;
+    }
+
+    private void setReset(boolean reset) {
+        Arrays.fill(entityLinkBlockPos, null);
+        Arrays.fill(entityLinkWorld, Integer.MIN_VALUE);
+        Arrays.fill(entityEnergyAmps, 0);
+        linkData = null;
+        updateTotalEnergyPerTick();
+    }
+
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntities, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
@@ -346,16 +364,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        ItemStack stack = playerIn.getHeldItemMainhand();
-        if (!getWorld().isRemote && stack.isItemEqual(TJMetaItems.LINKING_DEVICE.getStackForm())) {
-            Arrays.fill(entityLinkBlockPos, null);
-            Arrays.fill(entityLinkWorld, getWorld().provider.getDimension());
-        }
-        return super.onRightClick(playerIn, hand, facing, hitResult);
-    }
-
-    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         energyInputContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
@@ -401,16 +409,17 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 data.setInteger("EntityEnergyAmps" + i, entityEnergyAmps[i]);
             }
         }
-        data.setTag("Link.XYZ", linkData);
         data.setLong("EnergyPerTick", totalEnergyPerTick);
         data.setInteger("BlockPosSize", entityLinkBlockPos.length);
+        if (linkData != null)
+            data.setTag("Link.XYZ", linkData);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        linkData = data.getCompoundTag("Link.XYZ");
+        linkData = data.hasKey("Link.XYZ") ? data.getCompoundTag("Link.XYZ") : null;
         totalEnergyPerTick = data.getLong("EnergyPerTick");
         entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
         entityLinkWorld = new int[data.getInteger("BlockPosSize")];

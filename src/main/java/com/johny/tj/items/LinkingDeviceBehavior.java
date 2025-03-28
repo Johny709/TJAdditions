@@ -47,7 +47,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                             LinkPos linkPos = (LinkPos)linkedGTTE;
                             if (linkPos.getLinkData() != null) {
                                 nbt = linkPos.getLinkData();
-                                player.getHeldItem(hand).setTagCompound(nbt);
+                                player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                             }
                             double linkX = 0;
                             double linkY = 0;
@@ -118,7 +118,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                         LinkPos linkPos = (LinkPos)targetGTTE;
                         if (linkPos.getLinkData() != null) {
                             nbt = linkPos.getLinkData();
-                            player.getHeldItem(hand).setTagCompound(nbt);
+                            player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                         } else {
                             nbt.setString("Name", targetGTTE.getMetaFullName());
                             nbt.setDouble("X", targetGTTE.getPos().getX());
@@ -136,7 +136,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                                 .appendSibling(new TextComponentString("\nX: " + targetGTTE.getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
                                 .appendSibling(new TextComponentString("\nY: " + targetGTTE.getPos().getY()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
                                 .appendSibling(new TextComponentString("\nZ: " + targetGTTE.getPos().getZ() + "\n").setStyle(new Style().setColor(TextFormatting.YELLOW)))
-                                .appendSibling(new TextComponentTranslation("metaitem.linking.device.message.remaining").appendSibling(new TextComponentString(" " + linkPos.getBlockPosSize()))
+                                .appendSibling(new TextComponentTranslation("metaitem.linking.device.message.remaining").appendSibling(new TextComponentString(" " + nbt.getInteger("I")))
                                             .setStyle(new Style().setColor(TextFormatting.YELLOW))));
 
                     } else {
@@ -158,6 +158,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
         int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
         int range = nbt.hasKey("Range") ? nbt.getInteger("Range") : 0;
         String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
+        lines.add(I18n.format("metaitem.linking.device.description"));
         lines.add(I18n.format("metaitem.linking.device.name") + I18n.format(name));
         lines.add(I18n.format("metaitem.linking.device.x", x));
         lines.add(I18n.format("metaitem.linking.device.y", y));

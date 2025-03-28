@@ -286,6 +286,7 @@ metaitem.item.copy.config.name=Copy Config Tool
 metaitem.item.linking.device.link.from=Use Linking device to Link from this.
 metaitem.item.linking.device.link.to=Use Linking device to Link to this.
 metaitem.linking.device.name=Linking from: §e
+metaitem.linking.device.description=To link machines to other machines and maybe even mobs. Shift-Right Click to establish a link from a machine and then Right-Click on other machines to link. Also Shift-Right Click on machine again to update Linker whenever removing links from that machine and resetting.
 metaitem.linking.device.x=X: §e%.1f§r
 metaitem.linking.device.y=Y: §e%.1f§r
 metaitem.linking.device.z=Z: §e%.1f§r

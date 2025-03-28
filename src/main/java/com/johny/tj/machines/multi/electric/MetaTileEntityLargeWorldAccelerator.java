@@ -7,6 +7,7 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.*;
+import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.machines.AcceleratorBlacklist;
 import com.johny.tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
@@ -26,6 +27,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -203,6 +205,23 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widget -> {widgetLinkedEntitiesGroup.addWidget(widget); return widgetLinkedEntitiesGroup;})));
     }
 
+    @Override
+    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
+                .setTooltipText("machine.universal.toggle.reset"));
+    }
+
+    private boolean isReset() {
+        return false;
+    }
+
+    private void setReset(boolean reset) {
+        Arrays.fill(entityLinkBlockPos, null);
+        linkData = null;
+        updateEnergyPerTick();
+    }
+
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntities, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
@@ -223,6 +242,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 int index = linkData.getInteger("I");
                 linkData.setInteger("I", index + 1);
                 entityLinkBlockPos[i] = null;
+                updateEnergyPerTick();
                 break;
             }
         }
@@ -317,6 +337,11 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         }
     }
 
+    private void updateEnergyPerTick() {
+        long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
+        energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier) * count;
+    }
+
     private boolean hasEnoughEnergy(long amount) {
         return energyContainer.getEnergyStored() >= amount;
     }
@@ -338,16 +363,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         } catch (Exception ignored) {
 
         }
-    }
-
-    @Override
-    public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        ItemStack stack = playerIn.getHeldItemMainhand();
-        if (!getWorld().isRemote && stack.isItemEqual(TJMetaItems.LINKING_DEVICE.getStackForm())) {
-            setLinkedEntitiesPos(null);
-            Arrays.fill(entityLinkBlockPos, null);
-        }
-        return super.onRightClick(playerIn, hand, facing, hitResult);
     }
 
     private void setLinkedEntitiesPos(MetaTileEntity metaTileEntity) {
@@ -373,8 +388,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         } else {
             entityLinkBlockPos = entityLinkBlockPos != null ? Arrays.copyOf(entityLinkBlockPos, tier) : new BlockPos[tier];
         }
-        long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
-        energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier) * count;
         fluidConsumption = (int) Math.pow(4, gtAcceleratorTier - 1) * 1000;
         setLinkedEntitiesPos(this);
     }
@@ -451,18 +464,19 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 data.setDouble("EntityLinkZ" + i, entityLinkBlockPos[i].getZ());
             }
         }
-        data.setTag("Link.XYZ", linkData);
         data.setLong("EnergyPerTick", energyPerTick);
         data.setInteger("EnergyMultiplier", energyMultiplier);
         data.setInteger("AcceleratorMode", acceleratorMode.ordinal());
         data.setInteger("BlockPosSize", entityLinkBlockPos.length);
+        if (linkData != null)
+            data.setTag("Link.XYZ", linkData);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        linkData = data.getCompoundTag("Link.XYZ");
+        linkData = data.hasKey("Link.XZY") ? data.getCompoundTag("Link.XYZ") : null;
         energyMultiplier = data.getInteger("EnergyMultiplier");
         energyPerTick = data.getLong("EnergyPerTick");
         acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
@@ -550,8 +564,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public void onLink() {
-        long count = Arrays.stream(entityLinkBlockPos).filter(Objects::nonNull).count();
-        energyPerTick = (long) ((Math.pow(4, tier) * 8) * energyMultiplier) * count;
+        updateEnergyPerTick();
     }
 
     @Override
