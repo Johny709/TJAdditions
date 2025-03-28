@@ -1,5 +1,6 @@
 package com.johny.tj.capability;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -18,4 +19,8 @@ public interface LinkPos {
     int getPageIndex();
 
     int getPageSize();
+
+    void setLinkData(NBTTagCompound linkData);
+
+    NBTTagCompound getLinkData();
 }

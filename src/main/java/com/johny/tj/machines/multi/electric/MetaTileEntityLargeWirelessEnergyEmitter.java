@@ -96,6 +96,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     private int linkedWorldsCount;
     private final int pageSize = 4;
     private int pageIndex;
+    private NBTTagCompound linkData;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
 
     public MetaTileEntityLargeWirelessEnergyEmitter(ResourceLocation metaTileEntityId, TransferType transferType) {
@@ -388,6 +389,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 data.setInteger("EntityEnergyAmps" + i, entityEnergyAmps[i]);
             }
         }
+        data.setTag("Link.XYZ", linkData);
         data.setLong("EnergyPerTick", totalEnergyPerTick);
         data.setInteger("BlockPosSize", entityLinkBlockPos.length);
         return data;
@@ -396,6 +398,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
+        linkData = data.getCompoundTag("Link.XYZ");
         totalEnergyPerTick = data.getLong("EnergyPerTick");
         entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
         entityLinkWorld = new int[data.getInteger("BlockPosSize")];
@@ -523,6 +526,16 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     public int getPageSize() {
         return pageSize;
+    }
+
+    @Override
+    public void setLinkData(NBTTagCompound linkData) {
+        this.linkData = linkData;
+    }
+
+    @Override
+    public NBTTagCompound getLinkData() {
+        return linkData;
     }
 
     @Override

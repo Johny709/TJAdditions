@@ -87,6 +87,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     private int fluidConsumption;
     private final int pageSize = 6;
     private int pageIndex;
+    private NBTTagCompound linkData;
 
     public MetaTileEntityLargeWorldAccelerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -440,6 +441,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 data.setDouble("EntityLinkZ" + i, entityLinkBlockPos[i].getZ());
             }
         }
+        data.setTag("Link.XYZ", linkData);
         data.setLong("EnergyPerTick", energyPerTick);
         data.setInteger("EnergyMultiplier", energyMultiplier);
         data.setInteger("AcceleratorMode", acceleratorMode.ordinal());
@@ -450,6 +452,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
+        linkData = data.getCompoundTag("Link.XYZ");
         energyMultiplier = data.getInteger("EnergyMultiplier");
         energyPerTick = data.getLong("EnergyPerTick");
         acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
@@ -523,6 +526,16 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public int getPageSize() {
         return pageSize;
+    }
+
+    @Override
+    public void setLinkData(NBTTagCompound linkData) {
+        this.linkData = linkData;
+    }
+
+    @Override
+    public NBTTagCompound getLinkData() {
+        return linkData;
     }
 
     @Override
