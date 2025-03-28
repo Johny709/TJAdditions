@@ -178,6 +178,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                                         : isTileEntity ? getTileEntity.getBlockType().getTranslationKey() + ".name"
                                         : "machine.universal.linked.entity.null")
                                         .appendText("\n")
+                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", world.provider.getDimensionType().getName(), world.provider.getDimensionType().getId()))
+                                        .appendText("\n")
                                         .appendSibling(new TextComponentTranslation("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity))
                                         .appendText("\n")
                                         .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getX()))

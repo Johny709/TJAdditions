@@ -322,6 +322,7 @@ machine.universal.toggle.reset.disabled=Reset
 machine.universal.linked.entity.null=Not linked
 machine.universal.linked.entity.empty=Null
 machine.universal.linked.entity.radius=Radius: §e%.1f§rx§e%.1f§r
+machine.universal.linked.dimension=Dimension: §e%s§r (§e%s§r)
 machine.universal.energy.stored=Energy Stored: §e%s§r / §e%s§r
 machine.universal.energy.amps=Amps: §e%s§rA
 
