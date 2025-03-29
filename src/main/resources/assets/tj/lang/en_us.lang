@@ -309,6 +309,7 @@ metaitem.void_plunger.message.void.item.input=Voided item inputs:
 metaitem.void_plunger.message.void.fluid.input=Voided fluid inputs:
 metaitem.void_plunger.message.void.item.output=Voided item outputs:
 metaitem.void_plunger.message.void.fluid.output=Voided fluid outputs:
+metaitem.nbt_reader.name=NBT Reader
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF
