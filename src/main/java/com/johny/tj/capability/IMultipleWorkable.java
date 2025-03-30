@@ -29,8 +29,4 @@ public interface IMultipleWorkable extends IMultiControllable {
      * @return total amount of instances in this recipe workable
      */
     int getSize();
-
-    int getPageIndex();
-
-    int getPageSize();
 }

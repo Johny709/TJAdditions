@@ -6,7 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.LinkEvent;
-import com.johny.tj.capability.LinkInterDimPos;
+import com.johny.tj.capability.LinkPosInterDim;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.items.TJMetaItems;
@@ -79,7 +79,7 @@ import static gregtech.api.unification.material.Materials.Nitrogen;
 import static gregtech.api.unification.material.Materials.RedSteel;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkInterDimPos, LinkEvent, IParallelController {
+public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPosInterDim, LinkEvent, IParallelController {
 
     protected TransferType transferType;
     private long energyPerTick;
@@ -549,21 +549,21 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public void setLinkData(NBTTagCompound linkData) {
+    public void setPosLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
     }
 
     @Override
-    public NBTTagCompound getLinkData() {
+    public NBTTagCompound getPosLinkData() {
         return linkData;
     }
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == TJCapabilities.CAPABILITY_LINKPOS_INTERDIM)
-            return TJCapabilities.CAPABILITY_LINKPOS_INTERDIM.cast(this);
-        if (capability == TJCapabilities.CAPABILITY_LINKPOS)
-            return TJCapabilities.CAPABILITY_LINKPOS.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_LINK_POS_INTERDIM)
+            return TJCapabilities.CAPABILITY_LINK_POS_INTERDIM.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_LINK_POS)
+            return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
         return super.getCapability(capability, side);

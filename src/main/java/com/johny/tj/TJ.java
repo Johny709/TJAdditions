@@ -1,7 +1,7 @@
 package com.johny.tj;
 
 import com.johny.tj.blocks.TJMetaBlocks;
-import com.johny.tj.capability.*;
+import com.johny.tj.capability.TJSimpleCapabilityManager;
 import com.johny.tj.integration.theoneprobe.TheOneProbeCompatibility;
 import com.johny.tj.items.TJCoverBehaviours;
 import com.johny.tj.machines.TJMetaTileEntities;
@@ -14,8 +14,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
-
-import static gregtech.api.capability.SimpleCapabilityManager.registerCapabilityWithNoDefault;
 
 
 @Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
@@ -38,11 +36,7 @@ public class TJ
         proxy.onPreLoad();
         TJMetaBlocks.init();
         TJMetaTileEntities.init();
-        registerCapabilityWithNoDefault(IMultiControllable.class);
-        registerCapabilityWithNoDefault(IMultipleWorkable.class);
-        registerCapabilityWithNoDefault(IParallelController.class);
-        registerCapabilityWithNoDefault(LinkPos.class);
-        registerCapabilityWithNoDefault(LinkInterDimPos.class);
+        TJSimpleCapabilityManager.init();
         logger = event.getModLog();
     }
 

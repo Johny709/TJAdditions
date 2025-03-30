@@ -1,8 +1,8 @@
 package com.johny.tj.items;
 
 import com.johny.tj.capability.LinkEvent;
-import com.johny.tj.capability.LinkInterDimPos;
 import com.johny.tj.capability.LinkPos;
+import com.johny.tj.capability.LinkPosInterDim;
 import com.johny.tj.capability.LinkSet;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
@@ -45,8 +45,8 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                         MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(getWorld, worldPos);
                         if (linkedGTTE instanceof LinkPos) {
                             LinkPos linkPos = (LinkPos)linkedGTTE;
-                            if (linkPos.getLinkData() != null) {
-                                nbt = linkPos.getLinkData();
+                            if (linkPos.getPosLinkData() != null) {
+                                nbt = linkPos.getPosLinkData();
                                 player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                             }
                             double linkX = 0;
@@ -80,15 +80,15 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                                                 if (targetPos == null) {
                                                     linkPos.setBlockPos(linkX, linkY, linkZ, true, Math.abs(linkI - linkPos.getBlockPosSize()));
                                                     nbt.setInteger("I", linkI - 1);
-                                                    linkPos.setLinkData(nbt);
+                                                    linkPos.setPosLinkData(nbt);
                                                     break;
                                                 }
                                             }
                                             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
                                             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
                                                     .appendSibling(new TextComponentString(" " + (linkI - 1))));
-                                            if (linkedGTTE instanceof LinkInterDimPos) {
-                                                ((LinkInterDimPos) linkedGTTE).setDimension(world.provider::getDimension, Math.abs(linkI - linkPos.getBlockPosSize()));
+                                            if (linkedGTTE instanceof LinkPosInterDim) {
+                                                ((LinkPosInterDim) linkedGTTE).setDimension(world.provider::getDimension, Math.abs(linkI - linkPos.getBlockPosSize()));
                                             }
                                             if (targetGTTE instanceof LinkSet) {
                                                 ((LinkSet) targetGTTE).setLink(() -> linkedGTTE);
@@ -116,8 +116,8 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                 } else {
                     if (targetGTTE instanceof LinkPos) {
                         LinkPos linkPos = (LinkPos)targetGTTE;
-                        if (linkPos.getLinkData() != null) {
-                            nbt = linkPos.getLinkData();
+                        if (linkPos.getPosLinkData() != null) {
+                            nbt = linkPos.getPosLinkData();
                             player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                         } else {
                             nbt.setString("Name", targetGTTE.getMetaFullName());
@@ -127,11 +127,11 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                             nbt.setInteger("I", linkPos.getBlockPosSize());
                             nbt.setInteger("Range", linkPos.getRange());
                             nbt.removeTag("DimensionID");
-                            if (targetGTTE instanceof LinkInterDimPos)
-                                nbt.setInteger("DimensionID", ((LinkInterDimPos) targetGTTE).dimensionID());
+                            if (targetGTTE instanceof LinkPosInterDim)
+                                nbt.setInteger("DimensionID", ((LinkPosInterDim) targetGTTE).dimensionID());
                         }
 
-                        ITextComponent textComponent = new TextComponentTranslation(linkPos.getLinkData() != null ? "metaitem.linking.device.message.link.continue" : "metaitem.linking.device.message.link").appendText(" ");
+                        ITextComponent textComponent = new TextComponentTranslation(linkPos.getPosLinkData() != null ? "metaitem.linking.device.message.link.continue" : "metaitem.linking.device.message.link").appendText(" ");
                         player.sendMessage(textComponent.appendSibling(new TextComponentTranslation(targetGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
                                 .appendSibling(new TextComponentString("\nX: " + targetGTTE.getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
                                 .appendSibling(new TextComponentString("\nY: " + targetGTTE.getPos().getY()).setStyle(new Style().setColor(TextFormatting.YELLOW)))

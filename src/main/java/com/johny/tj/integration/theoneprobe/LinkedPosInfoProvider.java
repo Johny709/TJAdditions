@@ -1,7 +1,7 @@
 package com.johny.tj.integration.theoneprobe;
 
-import com.johny.tj.capability.LinkInterDimPos;
 import com.johny.tj.capability.LinkPos;
+import com.johny.tj.capability.LinkPosInterDim;
 import com.johny.tj.capability.TJCapabilities;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -17,18 +17,18 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 
-import static com.johny.tj.capability.TJCapabilities.CAPABILITY_LINKPOS_INTERDIM;
+import static com.johny.tj.capability.TJCapabilities.CAPABILITY_LINK_POS_INTERDIM;
 
 public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
     @Override
     protected Capability<LinkPos> getCapability() {
-        return TJCapabilities.CAPABILITY_LINKPOS;
+        return TJCapabilities.CAPABILITY_LINK_POS;
     }
 
     @Override
     protected void addProbeInfo(LinkPos capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        LinkInterDimPos interDimPos = tileEntity.getCapability(CAPABILITY_LINKPOS_INTERDIM, null);
+        LinkPosInterDim interDimPos = tileEntity.getCapability(CAPABILITY_LINK_POS_INTERDIM, null);
 
         int pageIndex = capability.getPageIndex();
         int pageSize = capability.getPageSize();

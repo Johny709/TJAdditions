@@ -553,12 +553,12 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public void setLinkData(NBTTagCompound linkData) {
+    public void setPosLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
     }
 
     @Override
-    public NBTTagCompound getLinkData() {
+    public NBTTagCompound getPosLinkData() {
         return linkData;
     }
 
@@ -594,8 +594,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == TJCapabilities.CAPABILITY_LINKPOS) {
-            return TJCapabilities.CAPABILITY_LINKPOS.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_LINK_POS) {
+            return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
         }
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER) {
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);

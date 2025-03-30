@@ -589,10 +589,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     @Override
     public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_MULTIPLEWORKABLE) {
-            return TJCapabilities.CAPABILITY_MULTIPLEWORKABLE.cast(this);
-        } else if (capability == TJCapabilities.CAPABILITY_MULTICONTROLLABLE) {
-            return TJCapabilities.CAPABILITY_MULTICONTROLLABLE.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE) {
+            return TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE.cast(this);
+        } else if (capability == TJCapabilities.CAPABILITY_MULTI_CONTROLLABLE) {
+            return TJCapabilities.CAPABILITY_MULTI_CONTROLLABLE.cast(this);
         }
         return null;
     }

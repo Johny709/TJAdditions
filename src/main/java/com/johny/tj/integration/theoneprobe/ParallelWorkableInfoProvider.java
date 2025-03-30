@@ -14,7 +14,7 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
 
     @Override
     protected Capability<IMultipleWorkable> getCapability() {
-        return TJCapabilities.CAPABILITY_MULTIPLEWORKABLE;
+        return TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE;
     }
 
     @Override
