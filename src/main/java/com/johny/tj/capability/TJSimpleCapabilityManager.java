@@ -10,5 +10,7 @@ public class TJSimpleCapabilityManager {
         registerCapabilityWithNoDefault(IParallelController.class);
         registerCapabilityWithNoDefault(LinkPos.class);
         registerCapabilityWithNoDefault(LinkPosInterDim.class);
+        registerCapabilityWithNoDefault(LinkEntity.class);
+        registerCapabilityWithNoDefault(LinkEntityInterDim.class);
     }
 }

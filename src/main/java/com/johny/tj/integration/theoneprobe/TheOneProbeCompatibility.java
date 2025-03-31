@@ -10,5 +10,6 @@ public class TheOneProbeCompatibility {
         probe.registerProvider(new ParallelControllerInfoProvider());
         probe.registerProvider(new ParallelWorkableInfoProvider());
         probe.registerProvider(new LinkedPosInfoProvider());
+        probe.registerProvider(new LinkEntityInfoProvider());
     }
 }

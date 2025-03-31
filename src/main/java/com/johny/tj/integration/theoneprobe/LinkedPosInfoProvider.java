@@ -13,33 +13,35 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 
 import static com.johny.tj.capability.TJCapabilities.CAPABILITY_LINK_POS_INTERDIM;
 
-public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
+public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos<BlockPos>> {
 
     @Override
-    protected Capability<LinkPos> getCapability() {
+    protected Capability<LinkPos<BlockPos>> getCapability() {
         return TJCapabilities.CAPABILITY_LINK_POS;
     }
 
     @Override
-    protected void addProbeInfo(LinkPos capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        LinkPosInterDim interDimPos = tileEntity.getCapability(CAPABILITY_LINK_POS_INTERDIM, null);
+    protected void addProbeInfo(LinkPos<BlockPos> capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
+        LinkPosInterDim<BlockPos> interDimPos = tileEntity.getCapability(CAPABILITY_LINK_POS_INTERDIM, null);
 
         int pageIndex = capability.getPageIndex();
         int pageSize = capability.getPageSize();
-        int size = capability.getBlockPosSize();
+        int size = capability.getPosSize();
 
         IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
             WorldServer world = interDimPos != null ? DimensionManager.getWorld(interDimPos.getDimension(i)) : (WorldServer) capability.world();
-            BlockPos pos = capability.getBlockPos(i);
+            DimensionType worldType = world.provider.getDimensionType();
+            BlockPos pos = capability.getPos(i);
             if (i < size && pos != null) {
                 TileEntity entity = world.getTileEntity(pos);
                 MetaTileEntity gregEntity = BlockMachine.getMetaTileEntity(world, pos);
@@ -54,6 +56,7 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
                     IProbeInfo posInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                     posInfo.text(TextStyleClass.INFO + (gregEntity != null ? "X:§e " + gregEntity.getPos().getX() + ", §rY:§e " + gregEntity.getPos().getY() + ", §rZ:§e " + gregEntity.getPos().getZ()
                             : "X:§e " + entity.getPos().getX() + ", §rY:§e " + entity.getPos().getY() + ", §rZ:§e " + entity.getPos().getZ()));
+                    posInfo.text(TextStyleClass.INFO + " " +  worldType.getName() + " (" + worldType.getId() + ")");
                 }
             }
         }

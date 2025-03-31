@@ -2,7 +2,7 @@ package com.johny.tj.capability;
 
 import java.util.function.IntSupplier;
 
-public interface LinkPosInterDim<T> extends LinkPos<T> {
+public interface LinkEntityInterDim<T> extends LinkEntity<T> {
 
     int dimensionID();
 

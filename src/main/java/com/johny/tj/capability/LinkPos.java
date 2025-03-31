@@ -1,22 +1,21 @@
 package com.johny.tj.capability;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public interface LinkPos extends IPageCapable {
+public interface LinkPos<T> extends IPageCapable {
 
     int getRange();
 
-    int getBlockPosSize();
+    int getPosSize();
 
-    BlockPos getBlockPos(int i);
+    T getPos(int index);
+
+    void setPos(T pos, int index);
 
     World world();
 
-    void setBlockPos(double x, double y, double z, boolean connect, int i);;
+    NBTTagCompound getLinkData();
 
-    NBTTagCompound getPosLinkData();
-
-    void setPosLinkData(NBTTagCompound linkData);
+    void setLinkData(NBTTagCompound linkData);
 }
