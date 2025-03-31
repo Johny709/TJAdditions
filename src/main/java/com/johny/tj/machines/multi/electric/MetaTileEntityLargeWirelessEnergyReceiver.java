@@ -14,7 +14,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 
 public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLargeWirelessEnergyEmitter {
 
-    private IEnergyContainer energyOutputContainer;
+    private IEnergyContainer outputEnergyContainer;
 
     public MetaTileEntityLargeWirelessEnergyReceiver(ResourceLocation metaTileEntityId, TransferType transferType) {
         super(metaTileEntityId, transferType);
@@ -34,24 +34,30 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
 
     @Override
     protected void transferRF(int energyToAdd, IEnergyStorage RFContainer) {
-        if (RFContainer != null && energyOutputContainer.getEnergyCanBeInserted() >= energyToAdd) {
-            int energyExtracted = RFContainer.extractEnergy(Math.min(Integer.MAX_VALUE, energyToAdd * 4), false);
-            energyOutputContainer.addEnergy(energyExtracted / 4);
+        if (RFContainer == null)
+            return;
+        long energyRemainingToFill = (outputEnergyContainer.getEnergyCapacity() - outputEnergyContainer.getEnergyStored());
+        if (outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            int energyExtracted = RFContainer.extractEnergy((int) Math.min(Integer.MAX_VALUE, Math.min(energyToAdd * 4L, energyRemainingToFill)), false);
+            outputEnergyContainer.addEnergy(energyExtracted / 4);
         }
     }
 
     @Override
     protected void transferEU(long energyToAdd, IEnergyContainer EUContainer) {
-        if (EUContainer != null && energyOutputContainer.getEnergyCanBeInserted() >= energyToAdd) {
+        if (EUContainer == null)
+            return;
+        long energyRemainingToFill = outputEnergyContainer.getEnergyCapacity() - outputEnergyContainer.getEnergyStored();
+        if (outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
             long energyExtracted = EUContainer.removeEnergy(energyToAdd);
-            energyOutputContainer.addEnergy(Math.abs(energyExtracted));
+            outputEnergyContainer.addEnergy(Math.abs(energyExtracted));
         }
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        energyOutputContainer = new EnergyContainerList(getAbilities(MultiblockAbility.OUTPUT_ENERGY));
+        outputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.OUTPUT_ENERGY));
     }
 
     @Override

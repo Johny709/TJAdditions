@@ -79,7 +79,7 @@ import static gregtech.api.unification.material.Materials.Nitrogen;
 import static gregtech.api.unification.material.Materials.RedSteel;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPosInterDim, LinkEvent, IParallelController {
+public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPosInterDim<BlockPos>, LinkEvent, IParallelController {
 
     protected TransferType transferType;
     private long energyPerTick;
@@ -87,7 +87,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     private int fluidConsumption;
     private boolean isActive = false;
     private IMultipleTankHandler importFluidHandler;
-    private IEnergyContainer energyInputContainer;
+    private IEnergyContainer inputEnergyContainer;
     private int tier;
     private BlockPos[] entityLinkBlockPos;
     private int[] entityLinkWorld;
@@ -146,7 +146,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         }
     }
 
-    private void addDisplayLinkedEntities(List<ITextComponent> textList) {
+    private void addDisplayLinkedEntitiesText(List<ITextComponent> textList) {
         textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
                 .setStyle(new Style().setBold(true).setUnderlined(true)));
         textList.add(new TextComponentString(":")
@@ -217,6 +217,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
+    private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntitiesText, 0xFFFFFF)
+                .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
+    }
+
     private boolean isReset() {
         return false;
     }
@@ -227,11 +232,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         Arrays.fill(entityEnergyAmps, 0);
         linkData = null;
         updateTotalEnergyPerTick();
-    }
-
-    private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayLinkedEntities, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
     }
 
     @Override
@@ -305,16 +305,22 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     protected void transferRF(int energyToAdd, IEnergyStorage RFContainer) {
-        if (RFContainer != null && RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored() >= energyToAdd * 4) {
+        if (RFContainer == null)
+            return;
+        int energyRemainingToFill = RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored();
+        if (RFContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
             int energyInserted = RFContainer.receiveEnergy(Math.min(Integer.MAX_VALUE, energyToAdd * 4), false);
-            energyInputContainer.removeEnergy(energyInserted / 4);
+            inputEnergyContainer.removeEnergy(energyInserted / 4);
         }
     }
 
     protected void transferEU(long energyToAdd, IEnergyContainer EUContainer) {
-        if (EUContainer != null && EUContainer.getEnergyCanBeInserted() >= energyToAdd) {
-            long energyInserted = EUContainer.addEnergy(energyToAdd);
-            energyInputContainer.removeEnergy(energyInserted);
+        if (EUContainer == null)
+            return;
+        long energyRemainingToFill = EUContainer.getEnergyCapacity() - EUContainer.getEnergyStored();
+        if (EUContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyInserted = EUContainer.addEnergy(Math.min(energyToAdd, energyRemainingToFill));
+            inputEnergyContainer.removeEnergy(energyInserted);
         }
     }
 
@@ -324,7 +330,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     protected boolean hasEnoughEnergy(long amount) {
-        return energyInputContainer.getEnergyStored() >= amount;
+        return inputEnergyContainer.getEnergyStored() >= amount;
     }
 
     private boolean hasEnoughFluid(int amount) {
@@ -366,7 +372,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        energyInputContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        inputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
         importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         int framework = context.getOrDefault("framework", GAMultiblockCasing.CasingType.TIERED_HULL_LV).getTier();
         int framework2 = context.getOrDefault("framework2", GAMultiblockCasing2.CasingType.TIERED_HULL_UHV.getTier());
@@ -466,7 +472,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     @Override
     public long getMaxEUt() {
-        return energyInputContainer.getInputVoltage();
+        return inputEnergyContainer.getInputVoltage();
     }
 
     @Override
@@ -518,19 +524,19 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public int getBlockPosSize() {
+    public int getPosSize() {
         return entityLinkBlockPos.length;
     }
 
     @Override
-    public BlockPos getBlockPos(int i) {
+    public BlockPos getPos(int i) {
         return entityLinkBlockPos[i];
     }
 
     @Override
-    public void setBlockPos(double x, double y, double z, boolean connect, int i) {
-        entityEnergyAmps[i] = 1;
-        entityLinkBlockPos[i] = connect ? new BlockPos(x, y, z) : null;
+    public void setPos(BlockPos pos, int index) {
+        entityEnergyAmps[index] = 1;
+        entityLinkBlockPos[index] = pos;
     }
 
     @Override
@@ -549,12 +555,12 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public void setPosLinkData(NBTTagCompound linkData) {
+    public void setLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
     }
 
     @Override
-    public NBTTagCompound getPosLinkData() {
+    public NBTTagCompound getLinkData() {
         return linkData;
     }
 
