@@ -161,7 +161,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 BlockAbilityCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
                 List<BlockAbilityCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 currentCasing.add(tieredCasingType);
-                return currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() == tier;
+                return currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier;
             }
         };
     }
