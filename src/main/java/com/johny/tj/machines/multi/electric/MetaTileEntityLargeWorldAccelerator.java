@@ -73,7 +73,7 @@ import java.util.stream.IntStream;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos<BlockPos>, LinkEvent, IParallelController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -523,18 +523,18 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public int getBlockPosSize() {
+    public int getPosSize() {
         return entityLinkBlockPos.length;
     }
 
     @Override
-    public BlockPos getBlockPos(int i) {
+    public BlockPos getPos(int i) {
         return entityLinkBlockPos[i];
     }
 
     @Override
-    public void setBlockPos(double x, double y, double z, boolean connect, int i) {
-        entityLinkBlockPos[i] = connect ? new BlockPos(x, y, z) : null;
+    public void setPos(BlockPos pos, int index) {
+        entityLinkBlockPos[index] = pos;
     }
 
     @Override
@@ -553,12 +553,12 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public void setPosLinkData(NBTTagCompound linkData) {
+    public void setLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
     }
 
     @Override
-    public NBTTagCompound getPosLinkData() {
+    public NBTTagCompound getLinkData() {
         return linkData;
     }
 
