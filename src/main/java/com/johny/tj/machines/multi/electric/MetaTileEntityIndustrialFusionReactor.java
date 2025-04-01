@@ -140,7 +140,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                     }
                     return false;
                     })).or(tilePredicate((state, tile) -> {
-                    for (int i = tier; i < GAValues.V.length; i++) {
+                    for (int i = Math.max(tier, 9); i < GAValues.V.length; i++) {
                         if (tile.metaTileEntityId.equals(GATileEntities.ENERGY_INPUT[i - 9].metaTileEntityId))
                             return true;
                     }
