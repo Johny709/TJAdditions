@@ -133,7 +133,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             textList.add(isWorkingEnabled ? (isActive ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
                     : new TextComponentTranslation("gregtech.multiblock.idling"))
                     : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
-            textList.add(hasEnoughFluid(fluidConsumption) ? new TextComponentTranslation("tj.multiblock.enough_fluid")
+            textList.add(hasEnoughFluid(fluidConsumption) || fluidConsumption == 0 ? new TextComponentTranslation("tj.multiblock.enough_fluid")
                     .appendText(" ")
                     .appendSibling(new TextComponentTranslation(Nitrogen.getPlasma(fluidConsumption).getUnlocalizedName())
                             .setStyle(new Style().setColor(TextFormatting.DARK_AQUA)))

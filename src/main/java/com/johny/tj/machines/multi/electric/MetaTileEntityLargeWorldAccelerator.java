@@ -137,7 +137,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                     break;
 
                 case GT_TILE_ENTITY:
-                    textList.add(hasEnoughFluid(fluidConsumption) ? new TextComponentTranslation("tj.multiblock.enough_fluid")
+                    textList.add(hasEnoughFluid(fluidConsumption) || fluidConsumption == 0 ? new TextComponentTranslation("tj.multiblock.enough_fluid")
                             .appendText(" ")
                             .appendSibling(new TextComponentTranslation(UUMatter.getUnlocalizedName())
                                     .setStyle(new Style().setColor(TextFormatting.LIGHT_PURPLE)))
