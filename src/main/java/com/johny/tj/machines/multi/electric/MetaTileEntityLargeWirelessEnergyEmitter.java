@@ -377,12 +377,13 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         int framework = context.getOrDefault("framework", GAMultiblockCasing.CasingType.TIERED_HULL_LV).getTier();
         int framework2 = context.getOrDefault("framework2", GAMultiblockCasing2.CasingType.TIERED_HULL_UHV.getTier());
         tier = Math.min(framework, framework2);
-        entityLinkBlockPos = entityLinkBlockPos != null ? Arrays.copyOf(entityLinkBlockPos, tier) : new BlockPos[tier];
-        entityEnergyAmps = entityEnergyAmps != null ? Arrays.copyOf(entityEnergyAmps, tier) : new int[tier];
+        int linkAmount = tier * 2;
+        entityLinkBlockPos = entityLinkBlockPos != null ? Arrays.copyOf(entityLinkBlockPos, linkAmount) : new BlockPos[linkAmount];
+        entityEnergyAmps = entityEnergyAmps != null ? Arrays.copyOf(entityEnergyAmps, linkAmount) : new int[linkAmount];
         if (entityLinkWorld != null) {
-            entityLinkWorld = Arrays.copyOf(entityLinkWorld, tier);
+            entityLinkWorld = Arrays.copyOf(entityLinkWorld, linkAmount);
         } else {
-            entityLinkWorld = new int[tier];
+            entityLinkWorld = new int[linkAmount];
             Arrays.fill(entityLinkWorld, getWorld().provider.getDimension());
         }
         energyPerTick = (long) (Math.pow(4, tier) * 8);
