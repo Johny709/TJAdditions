@@ -390,6 +390,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         }
         fluidConsumption = (int) Math.pow(4, gtAcceleratorTier - 1) * 1000;
         setLinkedEntitiesPos(this);
+        updateEnergyPerTick();
     }
 
     @Override
