@@ -50,7 +50,7 @@ public class LargeBatteryChargerInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.large_wireless_energy_emitter.description")};
+                I18n.format("tj.multiblock.large_battery_charger.description")};
     }
 
     @Override

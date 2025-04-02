@@ -6,6 +6,7 @@ import com.johny.tj.blocks.BlockFusionCasings;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
+import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.item.GAMultiblockCasing;
@@ -32,6 +33,7 @@ import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.*;
 import static gregicadditions.recipes.GARecipeMaps.ASSEMBLY_LINE_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
+import static gregtech.api.unification.material.MarkerMaterials.Tier.Infinite;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Master;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
@@ -673,6 +675,27 @@ public class AssemblingRecipes {
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .outputs(LARGE_WIRELESS_ENERGY_RECEIVER.getStackForm())
+                .EUt(GAValues.VA[8])
+                .duration(2000)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .fluidInputs(Lubricant.getFluid(16000))
+                .fluidInputs(Polybenzimidazole.getFluid(4608))
+                .inputs(new ItemStack(Item.getItemById(5739))) // Flux Controller
+                .inputs(new ItemStack(Item.getItemById(5733), 64)) // Flux Core
+                .inputs(new ItemStack(Item.getItemById(5736), 16)) // Flux Block
+                .input(OrePrefix.plateDense, Talonite, 4)
+                .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_HV, 16))
+                .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_EV, 16))
+                .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_IV, 16))
+                .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_LUV, 16))
+                .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_ZPM, 16))
+                .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_UV, 16))
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
+                .outputs(LARGE_BATTERY_CHARGER.getStackForm())
                 .EUt(GAValues.VA[8])
                 .duration(2000)
                 .buildAndRegister();

@@ -28,6 +28,7 @@ import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
 import static gregtech.api.recipes.RecipeMaps.ALLOY_SMELTER_RECIPES;
+import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
 import static gregtech.api.unification.material.Materials.*;
 
 public class RecipeLoader {
@@ -194,5 +195,8 @@ public class RecipeLoader {
                 'O', new ItemStack(Item.getItemById(5405)), // Reinforced Obsidian
                 'S', new UnificationEntry(OrePrefix.stick, Steel));
 
+        ModHandler.addShapedRecipe("nbt_reader", TJMetaItems.NBT_READER.getStackForm(), "PPP", "PCP", "PPP",
+                'P', new ItemStack(Items.PAPER),
+                'C', new UnificationEntry(OrePrefix.circuit, Basic));
     }
 }

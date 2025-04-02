@@ -232,6 +232,7 @@ tj.multiblock.parallel_large_macerator.description=True Parallel version of Larg
 tj.multiblock.parallel_large_sifter.description=True Parallel version of Large Sifter that can batch and run recipes in parallel.
 tj.multiblock.parallel_large_washing_machine.description=True Parallel version of Large Washing Plant that can batch and run recipes in parallel.
 tj.multiblock.large_wireless_energy_emitter.description=Link to transfer energy to §6machines§7 and §6energy hatches§7. Gains an additional link per tier. Consumes §310L/t Nitrogen Plasma§7 per link across dimensions.
+tj.multiblock.large_battery_charger.description=§bCharges§7 or §bDischarges§7 energy of lots of items. Consumes §e1A§7 per slot, only consumes §eenergy§7 when needed. §6Players§7 can be linked to this machine to §bcharge§7 their items wireless. Consumes §310L/t Nitrogen Plasma§7 when §6player§7 is in different dimension.
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
@@ -312,6 +313,7 @@ metaitem.void_plunger.message.void.fluid.input=Voided fluid inputs:
 metaitem.void_plunger.message.void.item.output=Voided item outputs:
 metaitem.void_plunger.message.void.fluid.output=Voided fluid outputs:
 metaitem.nbt_reader.name=NBT Reader
+metaitem.nbt_reader.description=Right-Click on a tile entity to display NBT data.
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF

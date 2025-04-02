@@ -7,7 +7,9 @@ import gregtech.api.gui.widgets.ScrollableListWidget;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
@@ -61,5 +63,10 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
                 .replace("{", "§b{§r")
                 .replace("}", "§b}§r")));
 
+    }
+
+    @Override
+    public void addInformation(ItemStack itemStack, List<String> lines) {
+        lines.add(I18n.format("metaitem.nbt_reader.description"));
     }
 }
