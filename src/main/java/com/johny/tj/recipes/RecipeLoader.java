@@ -198,5 +198,15 @@ public class RecipeLoader {
         ModHandler.addShapedRecipe("nbt_reader", TJMetaItems.NBT_READER.getStackForm(), "PPP", "PCP", "PPP",
                 'P', new ItemStack(Items.PAPER),
                 'C', new UnificationEntry(OrePrefix.circuit, Basic));
+
+        ModHandler.addShapedRecipe("rotor_holder_umv", ROTOR_HOLDER_UMV.getStackForm(), "MQM", "QHQ", "MQM",
+                'M', new UnificationEntry(OrePrefix.gearSmall, MetastableHassium),
+                'Q', new UnificationEntry(OrePrefix.gear, Quantum),
+                'H', GATileEntities.GA_HULLS[3].getStackForm());
+
+        ModHandler.addShapedRecipe("coolant_rotor_holder_umv", COOLANT_ROTOR_HOLDER_UMV.getStackForm(), "MVM", "VHV", "MVM",
+                'M', new UnificationEntry(OrePrefix.gearSmall, MetastableOganesson),
+                'V', new UnificationEntry(OrePrefix.gear, Vibranium),
+                'H', GATileEntities.GA_HULLS[3].getStackForm());
     }
 }
