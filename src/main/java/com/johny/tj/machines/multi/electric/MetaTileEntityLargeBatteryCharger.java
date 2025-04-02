@@ -344,30 +344,30 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 if (stack.isEmpty())
                     continue;
                 IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                transferRF((int) energyPerTick, RFContainer, transferMode, stack);
+                transferRF((int) energyPerTick, RFContainer, transferMode, stack, false);
 
                 IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                transferEU(energyPerTick, EUContainer, transferMode, stack);
+                transferEU(energyPerTick, EUContainer, transferMode, stack, false);
             }
 
             for (ItemStack stack : linkedPlayer.inventory.mainInventory) {
                 if (stack.isEmpty())
                     continue;
                 IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                transferRF((int) energyPerTick, RFContainer, transferMode, stack);
+                transferRF((int) energyPerTick, RFContainer, transferMode, stack, false);
 
                 IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                transferEU(energyPerTick, EUContainer, transferMode, stack);
+                transferEU(energyPerTick, EUContainer, transferMode, stack, false);
             }
 
             for (ItemStack stack : linkedPlayer.inventory.offHandInventory) {
                 if (stack.isEmpty())
                     continue;
                 IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                transferRF((int) energyPerTick, RFContainer, transferMode, stack);
+                transferRF((int) energyPerTick, RFContainer, transferMode, stack, false);
 
                 IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                transferEU(energyPerTick, EUContainer, transferMode, stack);
+                transferEU(energyPerTick, EUContainer, transferMode, stack, false);
             }
         }
         for (int i = 0; i < importItemHandler.getSlots(); i++) {
@@ -376,10 +376,10 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 continue;
 
             IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-            transferRF((int) energyPerTick, RFContainer, transferMode, stack);
+            transferRF((int) energyPerTick, RFContainer, transferMode, stack, transferToOutput);
 
             IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-            transferEU(energyPerTick, EUContainer, transferMode, stack);
+            transferEU(energyPerTick, EUContainer, transferMode, stack, transferToOutput);
         }
     }
 
@@ -400,8 +400,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         updateFluidConsumption();
     }
 
-    private void transferToOutput(ItemStack stack, boolean enabled) {
-        if (enabled && !getAbilities(EXPORT_ITEMS).isEmpty()) {
+    private void transferToOutput(ItemStack stack, boolean transferToOutput) {
+        if (transferToOutput && !getAbilities(EXPORT_ITEMS).isEmpty()) {
             for (int i = 0; i < exportItemHandler.getSlots(); i++) {
                 if (exportItemHandler.getStackInSlot(i).isEmpty()) {
                     ItemStack newStack = stack.copy();
@@ -412,7 +412,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         }
     }
 
-    private void transferRF(int energyToAdd, IEnergyStorage RFContainer, TransferMode transferMode, ItemStack stack) {
+    private void transferRF(int energyToAdd, IEnergyStorage RFContainer, TransferMode transferMode, ItemStack stack, boolean transferToOutput) {
         if (RFContainer == null)
             return;
         if (transferMode == INPUT) {
@@ -432,7 +432,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         }
     }
 
-    private void transferEU(long energyToAdd, IElectricItem EUContainer, TransferMode transferMode, ItemStack stack) {
+    private void transferEU(long energyToAdd, IElectricItem EUContainer, TransferMode transferMode, ItemStack stack, boolean transferToOutput) {
         if (EUContainer == null)
             return;
         if (transferMode == INPUT) {
