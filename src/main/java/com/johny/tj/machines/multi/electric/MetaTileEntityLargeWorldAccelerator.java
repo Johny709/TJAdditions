@@ -218,7 +218,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     private void setReset(boolean reset) {
         Arrays.fill(entityLinkBlockPos, null);
-        linkData = null;
+        linkData.setInteger("I", getPosSize());
         updateEnergyPerTick();
     }
 

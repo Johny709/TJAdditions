@@ -230,7 +230,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         Arrays.fill(entityLinkBlockPos, null);
         Arrays.fill(entityLinkWorld, Integer.MIN_VALUE);
         Arrays.fill(entityEnergyAmps, 0);
-        linkData = null;
+        linkData.setInteger("I", getPosSize());
         updateTotalEnergyPerTick();
     }
 

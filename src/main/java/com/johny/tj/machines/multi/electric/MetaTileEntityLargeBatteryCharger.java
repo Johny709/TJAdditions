@@ -274,7 +274,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         Arrays.fill(linkedPlayers, null);
         Arrays.fill(linkedPlayersID, null);
         Arrays.fill(entityLinkWorld, Integer.MIN_VALUE);
-        linkData = null;
+        linkData.setInteger("I", getPosSize());
         updateTotalEnergyPerTick();
         updateFluidConsumption();
     }
@@ -290,6 +290,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         }
         for (int i = 0; i < linkedPlayers.length; i++) {
             if (componentData.equals("remove" + i)) {
+                int index = linkData.getInteger("I");
+                linkData.setInteger("I", index + 1);
                 linkedPlayers[i] = null;
                 linkedPlayersID[i] = null;
                 entityLinkWorld[i] = Integer.MIN_VALUE;

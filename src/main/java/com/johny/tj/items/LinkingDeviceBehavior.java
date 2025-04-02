@@ -49,22 +49,22 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                                 nbt = linkPos.getLinkData();
                                 player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                             }
-                            double linkX = 0;
-                            double linkY = 0;
-                            double linkZ = 0;
-                            if (targetGTTE != null) {
-                                linkX = targetGTTE.getPos().getX();
-                                linkY = targetGTTE.getPos().getY();
-                                linkZ = targetGTTE.getPos().getZ();
-                            }
+                            int linkX = 0;
+                            int linkY = 0;
+                            int linkZ = 0;
                             if (targetTE != null) {
                                 linkX = targetTE.getPos().getX();
                                 linkY = targetTE.getPos().getY();
                                 linkZ = targetTE.getPos().getZ();
                             }
-                            double xDiff = linkX - x;
-                            double yDiff = linkY - y;
-                            double zDiff = linkZ - z;
+                            if (targetGTTE != null) {
+                                linkX = targetGTTE.getPos().getX();
+                                linkY = targetGTTE.getPos().getY();
+                                linkZ = targetGTTE.getPos().getZ();
+                            }
+                            int xDiff = (int) (linkX - x);
+                            int yDiff = (int) (linkY - y);
+                            int zDiff = (int) (linkZ - z);
                             if (xDiff <= linkPos.getRange() && xDiff >= -linkPos.getRange()) {
                                 if (yDiff <= linkPos.getRange() && yDiff >= -linkPos.getRange()) {
                                     if (zDiff <= linkPos.getRange() && zDiff >= -linkPos.getRange()) {
@@ -123,8 +123,8 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                             player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                         }
                         boolean sameLink = linkPos.getLinkData() != null && linkPos.getLinkData().getCompoundTag("Link.XYZ").equals(nbt.getCompoundTag("Link.XYZ"));
-                        int posSize = nbt.hasKey("I") ? nbt.getInteger("I") : linkPos.getPosSize();
-                        int range = nbt.hasKey("Range") ? nbt.getInteger("Range") : linkPos.getRange();
+                        int posSize = nbt.hasKey("I") && linkPos.getLinkData() != null ? nbt.getInteger("I") : linkPos.getPosSize();
+                        int range = nbt.hasKey("Range") && linkPos.getLinkData() != null ? nbt.getInteger("Range") : linkPos.getRange();
                         setLinkData(nbt, targetGTTE, player, posSize, range, sameLink);
                     } else {
                         player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.capable"));
@@ -175,20 +175,25 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                 MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(getWorld, worldPos);
                 if (metaTileEntity instanceof LinkEntity<?>) {
                     LinkEntity<Entity> linkEntity = (LinkEntity<Entity>) metaTileEntity;
-                    for (int i = 0; i < linkEntity.getPosSize(); i++) {
-                        Entity targetEntity = linkEntity.getPos(i);
-                        if (targetEntity != null && targetEntity.isEntityEqual(player)) {
-                            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.occupied"));
-                            return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+                    if (linkI < 0) {
+                        for (int i = 0; i < linkEntity.getPosSize(); i++) {
+                            Entity targetEntity = linkEntity.getPos(i);
+                            if (targetEntity != null && targetEntity.isEntityEqual(player)) {
+                                player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.occupied"));
+                                return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+                            }
+                            if (targetEntity == null) {
+                                linkEntity.setPos(player, i);
+                                nbt.setInteger("I", linkI - 1);
+                                linkEntity.setLinkData(nbt);
+                                player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
+                                if (metaTileEntity instanceof LinkEntityInterDim<?>)
+                                    ((LinkEntityInterDim<Entity>) metaTileEntity).setDimension(player.world.provider::getDimension, i);
+                                break;
+                            }
                         }
-                        if (targetEntity == null) {
-                            linkEntity.setPos(player, i);
-                            linkEntity.setLinkData(nbt);
-                            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
-                            if (metaTileEntity instanceof LinkEntityInterDim<?>)
-                                ((LinkEntityInterDim<Entity>) metaTileEntity).setDimension(player.world.provider::getDimension, i);
-                            break;
-                        }
+                    } else {
+                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                     }
                 }
             }
