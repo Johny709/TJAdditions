@@ -437,7 +437,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 break;
              case TILE_ENTITY:
                  acceleratorMode = AcceleratorMode.GT_TILE_ENTITY;
-                 energyMultiplier = 256;
+                 energyMultiplier = 64;
                  entityLinkBlockPos = new BlockPos[1];
                  tileMode = "tj.multiblock.large_world_accelerator.mode.GT";
                  break;
