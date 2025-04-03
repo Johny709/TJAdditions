@@ -159,8 +159,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             if (i < entityLinkBlockPos.length && entityLinkBlockPos[i] != null) {
 
                 WorldServer world = DimensionManager.getWorld(entityLinkWorld[i]);
-                TileEntity getTileEntity = world.getTileEntity(entityLinkBlockPos[i]);
-                MetaTileEntity getMetaTileEntity = BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]);
+                TileEntity getTileEntity = world != null ? world.getTileEntity(entityLinkBlockPos[i]) : null;
+                MetaTileEntity getMetaTileEntity = world != null ? BlockMachine.getMetaTileEntity(world, entityLinkBlockPos[i]) : null;
                 boolean isTileEntity = getTileEntity != null;
                 boolean isMetaTileEntity = getMetaTileEntity != null;
                 IEnergyStorage RFContainer = isTileEntity ? getTileEntity.getCapability(ENERGY, null) : null;
@@ -178,7 +178,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                                         : isTileEntity ? getTileEntity.getBlockType().getTranslationKey() + ".name"
                                         : "machine.universal.linked.entity.null")
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", world.provider.getDimensionType().getName(), world.provider.getDimensionType().getId()))
+                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimensionType().getId() : 0))
                                         .appendText("\n")
                                         .appendSibling(new TextComponentTranslation("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity))
                                         .appendText("\n")
@@ -287,6 +287,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 importFluidHandler.drain(Nitrogen.getPlasma(fluidToConsume), true);
             }
             WorldServer world = DimensionManager.getWorld(entityLinkWorld[i]);
+            if (world == null)
+                continue;
             Chunk chunk = world.getChunk(entityLinkBlockPos[i]);
             if (!chunk.isLoaded())
                 chunk.onLoad();

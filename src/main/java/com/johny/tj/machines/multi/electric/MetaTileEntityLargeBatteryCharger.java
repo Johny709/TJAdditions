@@ -320,7 +320,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     protected void updateFormedValid() {
-        if (!isWorkingEnabled && !hasEnoughEnergy(totalEnergyPerTick) && getNumProblems() < 6) {
+        if (!isWorkingEnabled || !hasEnoughEnergy(totalEnergyPerTick) || getNumProblems() >= 6) {
             if (isActive)
                 setActive(false);
             return;
