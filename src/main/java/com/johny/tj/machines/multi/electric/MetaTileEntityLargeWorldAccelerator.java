@@ -192,6 +192,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                                     .appendText("\n")
                                     .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentTranslation(entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(entityLinkBlockPos[i].getZ()))
                                         .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
+                        .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + i))
                 );
             }

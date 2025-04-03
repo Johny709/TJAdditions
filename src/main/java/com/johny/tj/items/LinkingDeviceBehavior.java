@@ -175,7 +175,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                 MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(getWorld, worldPos);
                 if (metaTileEntity instanceof LinkEntity<?>) {
                     LinkEntity<Entity> linkEntity = (LinkEntity<Entity>) metaTileEntity;
-                    if (linkI < 0) {
+                    if (linkI > 0) {
                         for (int i = 0; i < linkEntity.getPosSize(); i++) {
                             Entity targetEntity = linkEntity.getPos(i);
                             if (targetEntity != null && targetEntity.isEntityEqual(player)) {
