@@ -59,6 +59,12 @@ tj.machine.fluid_boiler_lv.name=LV Fluid Boiler
 tj.machine.large_wireless_energy_emitter.name=Large Wireless Energy Emitter (LWEE)
 tj.machine.large_wireless_energy_receiver.name=Large Wireless Energy Receiver (LWER)
 tj.machine.large_battery_charger.name=Large Battery Charger (LBC)
+tj.machine.super_input_bus.hv.name=Super Input Bus (HV)
+tj.machine.super_output_bus.hv.name=Super Output Bus (HV)
+tj.machine.super_input_bus.luv.name=Super Input Bus (LuV)
+tj.machine.super_output_bus.luv.name=Super Output Bus (LuV)
+tj.machine.super_input_bus.uhv.name=Super Input Bus (UHV)
+tj.machine.super_output_bus.uhv.name=Super Output Bus (UHV)
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -338,6 +344,8 @@ machine.universal.item.output.transfer=Transfer To Output:
 machine.universal.mode.transfer=Transfer Mode:
 machine.universal.mode.transfer.input=[Input]
 machine.universal.mode.transfer.output=[Output]
+machine.universal.slots=Slots: §6%s§r
+machine.universal.stack=Stack Size: §6%s§r
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks

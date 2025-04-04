@@ -164,6 +164,33 @@ public class AssemblingRecipes {
                 .EUt(500000)
                 .buildAndRegister();
 
+        for (int i = 0; i < SUPER_ITEM_INPUT_BUS.length; i++) {
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .inputs(ITEM_IMPORT_BUS[3 * (1 + i)].getStackForm(64))
+                    .input(OrePrefix.gear, materialTier[0][3 * (1 + i) - 1], 16)
+                    .inputs(i == 0 ? MetaItems.ROBOT_ARM_HV.getStackForm(4)
+                            : i == 1 ? MetaItems.ROBOT_ARM_LUV.getStackForm(4)
+                            : GAMetaItems.ROBOT_ARM_UHV.getStackForm(4))
+                    .outputs(SUPER_ITEM_INPUT_BUS[i].getStackForm())
+                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : Polyetheretherketone.getFluid(9216))
+                    .duration(1200)
+                    .EUt(GAValues.VA[3 * (1 + i)])
+                    .buildAndRegister();
+
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .inputs(ITEM_EXPORT_BUS[3 * (1 + i)].getStackForm(64))
+                    .input(OrePrefix.gear, materialTier[0][3 * (1 + i) - 1], 16)
+                    .inputs(i == 0 ? MetaItems.CONVEYOR_MODULE_HV.getStackForm(4)
+                            : i == 1 ? MetaItems.CONVEYOR_MODULE_LUV.getStackForm(4)
+                            : GAMetaItems.CONVEYOR_MODULE_UHV.getStackForm(4))
+                    .outputs(SUPER_ITEM_OUTPUT_BUS[i].getStackForm())
+                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : Polyetheretherketone.getFluid(9216))
+                    .duration(1200)
+                    .EUt(GAValues.VA[3 * (1 + i)])
+                    .buildAndRegister();
+        }
+
+
         for (int i = 0; i < materialTier[0].length; i++) {
 
             ASSEMBLER_RECIPES.recipeBuilder()
