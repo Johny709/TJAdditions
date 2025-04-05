@@ -10,6 +10,8 @@ public class TJGuiTextures {
     public static final TextureArea DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");
     public static final TextureArea ITEM_FILTER = TextureArea.fullImage("textures/items/metaitems/item_filter.png");
     public static final TextureArea RESET_BUTTON = TextureArea.fullImage("textures/gui/widget/reset_button_toggle.png");
+    public static final TextureArea UP_BUTTON = TextureArea.fullImage("textures/gui/widget/up_button_toggle.png");
+    public static final TextureArea DOWN_BUTTON = TextureArea.fullImage("textures/gui/widget/down_button_toggle.png");
 
     public static final TextureArea SUN_BRONZE = TextureArea.fullImage("textures/gui/steam/bronze/boiler_sun_active.png");
     public static final TextureArea SUN_STEEL = TextureArea.fullImage("textures/gui/steam/steel/boiler_sun_active.png");

@@ -3,10 +3,10 @@ package com.johny.tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.gui.TJGuiTextures;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.SlotWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
@@ -16,7 +16,14 @@ import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMu
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -33,6 +40,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_IT
 public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     private final boolean isExport;
+    private int ticks = 5;
 
     public MetaTileEntitySuperItemBus(ResourceLocation metaTileEntityId, int tier, boolean isExport) {
         super(metaTileEntityId, tier);
@@ -109,7 +117,7 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
     @Override
     public void update() {
         super.update();
-        if (!getWorld().isRemote && getOffsetTimer() % 5 == 0) {
+        if (!getWorld().isRemote && getOffsetTimer() % ticks == 0) {
             if (isExport) {
                 pushItemsIntoNearbyHandlers(getFrontFacing());
             } else {
@@ -122,6 +130,14 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
     protected ModularUI createUI(EntityPlayer player) {
         IItemHandlerModifiable bus = isExport ? exportItems : importItems;
         WidgetGroup widgetGroup = new WidgetGroup();
+        widgetGroup.addWidget(new ImageWidget(169, 72 * (getTier() / 3), 18, 18, GuiTextures.DISPLAY));
+        widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * (getTier() / 3), this::addDisplayText, 0xFFFFFF));
+        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * (getTier() / 3), 18, 18, TJGuiTextures.UP_BUTTON, this::isIncrement, this::onIncrement)
+                .setTooltipText("machine.universal.toggle.increment"));
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * (getTier() / 3), 18, 18, TJGuiTextures.DOWN_BUTTON, this::isDecrement, this::onDecrement)
+                .setTooltipText("machine.universal.toggle.decrement"));
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 40 + 72 * (getTier() / 3), 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
+                .setTooltipText("machine.universal.toggle.reset"));
         for (int i = 0; i < bus.getSlots(); i++) {
             widgetGroup.addWidget(new SlotWidget(bus, i, 7 + 18 * (i % 10), 14 + 18 * (i / 10), true, !isExport)
                     .setBackgroundTexture(GuiTextures.SLOT));
@@ -132,6 +148,36 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
                 .widget(widgetGroup)
                 .build(getHolder(), player);
     }
+
+    private void addDisplayText(List<ITextComponent> textList) {
+        textList.add(new TextComponentString(ticks + "t")
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.ticks.operation")))));
+    }
+
+    private void onIncrement(boolean b) {
+        ticks = MathHelper.clamp(ticks + 1, 1, Integer.MAX_VALUE);
+    }
+
+    private boolean isIncrement() {
+        return false;
+    }
+
+    private void onDecrement(boolean b) {
+        ticks = MathHelper.clamp(ticks - 1, 1, Integer.MAX_VALUE);
+    }
+
+    private boolean isDecrement() {
+        return false;
+    }
+
+    private void onReset(boolean b) {
+        ticks = 5;
+    }
+
+    private boolean isReset() {
+        return false;
+    }
+
 
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
@@ -155,5 +201,18 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
         list.add(isExport ? exportItems : importItems);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setInteger("Ticks", ticks);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        ticks = data.hasKey("Ticks") ? data.getInteger("Ticks") : 5;
     }
 }
