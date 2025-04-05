@@ -7,6 +7,7 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.textures.TJTextures;
+import gregtech.api.capability.IControllable;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -30,13 +31,13 @@ import net.minecraftforge.items.IItemHandler;
 import java.util.List;
 
 
-public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITickable {
+public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
     private int speed = 1;
     private long timer = 1L;
     private final SimpleItemFilter itemFilter;
     private final IItemHandler itemHandler;
-
+    private boolean isWorking;
 
     public CoverCreativeItem(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -72,11 +73,23 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
         itemFilterGroup.addWidget(new ClickButtonWidget(65, 55, 18, 18, "-", this::onDecrement));
         itemFilterGroup.addWidget(new ToggleButtonWidget(83, 55, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
                 .setTooltipText("machine.universal.toggle.reset"));
+        itemFilterGroup.addWidget(new ToggleButtonWidget(101, 55, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setTooltipText("machine.universal.toggle.run.mode"));
         this.itemFilter.initUI(itemFilterGroup::addWidget);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(itemFilterGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isWorking) {
+        this.isWorking = isWorking;
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return isWorking;
     }
 
     private void onReset(boolean reset) {
@@ -113,6 +126,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
         this.itemFilter.writeToNBT(compound);
         data.setInteger("Speed", speed);
         data.setTag("CreativeFilterItem", compound);
+        data.setBoolean("IsWorking", isWorking);
     }
 
     @Override
@@ -120,13 +134,14 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
         super.readFromNBT(data);
         NBTTagCompound tagCompound = data.getCompoundTag("CreativeFilterItem");
         this.itemFilter.readFromNBT(tagCompound);
+        this.isWorking = data.getBoolean("IsWorking");
         if (data.hasKey("Speed"))
             this.speed = data.getInteger("Speed");
     }
 
     @Override
     public void update() {
-        if (++timer % speed == 0) {
+        if (isWorking && ++timer % speed == 0) {
             for (int i = 0; i < 9; i++) {
                 ItemStack itemFromFilter = this.itemFilter.getItemFilterSlots().getStackInSlot(i).copy();
                 int remainingCount = itemFromFilter.getCount();

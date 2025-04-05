@@ -7,6 +7,7 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.textures.TJTextures;
+import gregtech.api.capability.IControllable;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -33,12 +34,13 @@ import java.util.Optional;
 
 import static gregtech.api.unification.material.Materials.Lava;
 
-public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, ITickable {
+public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
     private int speed = 1;
     private long timer = 1L;
     private final SimpleFluidFilter fluidFilter;
     private final IFluidHandler fluidHandler;
+    private boolean isWorking;
 
     public CoverCreativeFluid(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -74,11 +76,23 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
         fluidFilterGroup.addWidget(new ClickButtonWidget(65, 55, 18, 18, "-", this::onDecrement));
         fluidFilterGroup.addWidget(new ToggleButtonWidget(83, 55, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
                 .setTooltipText("machine.universal.toggle.reset"));
+        fluidFilterGroup.addWidget(new ToggleButtonWidget(101, 55, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setTooltipText("machine.universal.toggle.run.mode"));
         this.fluidFilter.initUI(fluidFilterGroup::addWidget);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(fluidFilterGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isWorking) {
+        this.isWorking = isWorking;
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return isWorking;
     }
 
     private void onReset(boolean reset) {
@@ -115,6 +129,7 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
         this.fluidFilter.writeToNBT(compound);
         data.setTag("CreativeFilterFluid", compound);
         data.setInteger("Speed", speed);
+        data.setBoolean("IsWorking", isWorking);
     }
 
     @Override
@@ -122,13 +137,14 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
         super.readFromNBT(data);
         NBTTagCompound tagCompound = data.getCompoundTag("CreativeFilterFluid");
         this.fluidFilter.readFromNBT(tagCompound);
+        this.isWorking = data.getBoolean("IsWorking");
         if (data.hasKey("Speed"))
             this.speed = data.getInteger("Speed");
     }
 
     @Override
     public void update() {
-        if (timer++ % speed == 0) {
+        if (isWorking && timer++ % speed == 0) {
             for (int index = 0; index < 9; index++) {
                 FluidStack fluid = this.fluidFilter.getFluidInSlot(index);
                 if (fluid != null) {
