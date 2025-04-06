@@ -65,6 +65,12 @@ tj.machine.super_input_bus.luv.name=Super Input Bus (LuV)
 tj.machine.super_output_bus.luv.name=Super Output Bus (LuV)
 tj.machine.super_input_bus.uhv.name=Super Input Bus (UHV)
 tj.machine.super_output_bus.uhv.name=Super Output Bus (UHV)
+tj.machine.super_input_hatch.hv.name=Super Input Hatch (HV)
+tj.machine.super_output_hatch.hv.name=Super Output Hatch (HV)
+tj.machine.super_input_hatch.luv.name=Super Input Hatch (LuV)
+tj.machine.super_output_hatch.luv.name=Super Output Hatch (LuV)
+tj.machine.super_input_hatch.uhv.name=Super Input Hatch (UHV)
+tj.machine.super_output_hatch.uhv.name=Super Output Hatch (UHV)
 
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
@@ -349,7 +355,7 @@ machine.universal.mode.transfer=Transfer Mode:
 machine.universal.mode.transfer.input=[Input]
 machine.universal.mode.transfer.output=[Output]
 machine.universal.slots=Slots: §6%s§r
-machine.universal.stack=Stack Size: §6%s§r
+machine.universal.stack=Stack Size: §6%s§7 per slot
 machine.universal.ticks.operation=Ticks per operation
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C

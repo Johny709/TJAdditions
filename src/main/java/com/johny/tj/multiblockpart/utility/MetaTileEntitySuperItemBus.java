@@ -55,8 +55,8 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("machine.universal.slots", (getTier() + 1) * (getTier() + 1)));
         tooltip.add(I18n.format("machine.universal.stack", 1024));
+        tooltip.add(I18n.format("machine.universal.slots", (getTier() + 1) * (getTier() + 1)));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }
 
@@ -129,22 +129,23 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         IItemHandlerModifiable bus = isExport ? exportItems : importItems;
+        int tier = getTier() / 3;
         WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new ImageWidget(169, 72 * (getTier() / 3), 18, 18, GuiTextures.DISPLAY));
-        widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * (getTier() / 3), this::addDisplayText, 0xFFFFFF));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * (getTier() / 3), 18, 18, TJGuiTextures.UP_BUTTON, this::isIncrement, this::onIncrement)
+        widgetGroup.addWidget(new ImageWidget(169, 72 * tier, 18, 18, GuiTextures.DISPLAY));
+        widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * tier, this::addDisplayText, 0xFFFFFF));
+        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.UP_BUTTON, this::isIncrement, this::onIncrement)
                 .setTooltipText("machine.universal.toggle.increment"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * (getTier() / 3), 18, 18, TJGuiTextures.DOWN_BUTTON, this::isDecrement, this::onDecrement)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * tier, 18, 18, TJGuiTextures.DOWN_BUTTON, this::isDecrement, this::onDecrement)
                 .setTooltipText("machine.universal.toggle.decrement"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 40 + 72 * (getTier() / 3), 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 40 + 72 * tier, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
                 .setTooltipText("machine.universal.toggle.reset"));
         for (int i = 0; i < bus.getSlots(); i++) {
             widgetGroup.addWidget(new SlotWidget(bus, i, 7 + 18 * (i % 10), 14 + 18 * (i / 10), true, !isExport)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 63 + 72 * (getTier() / 3))
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 63 + 72 * tier)
                 .label(7, 4, getMetaFullName())
-                .bindPlayerInventory(player.inventory, -18 + 72 * (getTier() / 3))
+                .bindPlayerInventory(player.inventory, -18 + 72 * tier)
                 .widget(widgetGroup)
                 .build(getHolder(), player);
     }

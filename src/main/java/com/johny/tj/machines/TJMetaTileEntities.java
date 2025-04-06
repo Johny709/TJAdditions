@@ -11,10 +11,7 @@ import com.johny.tj.machines.singleblock.MetaTileEntityFluidBoiler;
 import com.johny.tj.machines.singleblock.MetaTileEntitySolarBoiler;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
 import com.johny.tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
-import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
-import com.johny.tj.multiblockpart.utility.MetaTileEntitySuperItemBus;
-import com.johny.tj.multiblockpart.utility.MetaTileEntityTJMultiFluidHatch;
-import com.johny.tj.multiblockpart.utility.MetaTileEntityWaterReservoirHatch;
+import com.johny.tj.multiblockpart.utility.*;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityEnergyHatch;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
@@ -86,6 +83,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntityFluidBoiler[] FLUID_BOILER = new MetaTileEntityFluidBoiler[3];
     public static MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[3];
     public static MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[3];
+    public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[3];
+    public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_OUTPUT_HATCH = new MetaTileEntitySuperFluidHatch[3];
 
     public static void init() {
 
@@ -170,11 +169,13 @@ public class TJMetaTileEntities {
             ENERGY_OUTPUT_HATCH_256A[i] = GregTechAPI.registerMetaTileEntity(energyHatchID++, new GAMetaTileEntityEnergyHatch(TJId("energy_output_256_" + GAValues.VN[tier]), tier, 256, true));
         }
 
-        int superBusID = 5106; // occupies ID range 5106 - 5111
+        int superBusID = 5106; // occupies ID range 5106 - 5117
         for (int i = 0; i < SUPER_ITEM_INPUT_BUS.length; i++) {
             int tier = 3 + (3 * i);
             SUPER_ITEM_INPUT_BUS[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperItemBus(TJId("super_input_bus." + GAValues.VN[tier]), tier, false));
             SUPER_ITEM_OUTPUT_BUS[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperItemBus(TJId("super_output_bus." + GAValues.VN[tier]), tier, true));
+            SUPER_FLUID_INPUT_HATCH[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperFluidHatch(TJId("super_input_hatch." + GAValues.VN[tier]), tier, false));
+            SUPER_FLUID_OUTPUT_HATCH[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperFluidHatch(TJId("super_output_hatch." + GAValues.VN[tier]), tier, true));
         }
 
         ENERGY_INPUT_HATCH_4_AMPS.add(GregTechAPI.registerMetaTileEntity(5044, new GAMetaTileEntityEnergyHatch(location("energy_hatch.input.max.4"), 14, 4, false)));
