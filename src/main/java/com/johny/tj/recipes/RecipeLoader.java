@@ -192,7 +192,7 @@ public class RecipeLoader {
                 'O', new UnificationEntry(OrePrefix.gear, Steel));
 
         ModHandler.addShapedRecipe("void_plunger", TJMetaItems.VOID_PLUNGER.getStackForm(), " OO", " SO", "S  ",
-                'O', new ItemStack(Item.getItemById(5405)), // Reinforced Obsidian
+                'O', new ItemStack(Item.getByNameOrId("enderio:block_reinforced_obsidian")),
                 'S', new UnificationEntry(OrePrefix.stick, Steel));
 
         ModHandler.addShapedRecipe("nbt_reader", TJMetaItems.NBT_READER.getStackForm(), "PPP", "PCP", "PPP",

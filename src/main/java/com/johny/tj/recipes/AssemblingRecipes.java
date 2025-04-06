@@ -693,9 +693,9 @@ public class AssemblingRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(Polybenzimidazole.getFluid(4608))
-                .inputs(new ItemStack(Item.getItemById(5739))) // Flux Controller
-                .inputs(new ItemStack(Item.getItemById(5733), 64)) // Flux Core
-                .inputs(new ItemStack(Item.getItemById(5736), 16)) // Flux Block
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcontroller")))
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcore"), 64))
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxblock"), 16))
                 .input(OrePrefix.plateDense, Talonite, 4)
                 .inputs(MetaItems.EMITTER_IV.getStackForm(16))
                 .inputs(MetaItems.EMITTER_LUV.getStackForm(16))
@@ -714,9 +714,9 @@ public class AssemblingRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(Polybenzimidazole.getFluid(4608))
-                .inputs(new ItemStack(Item.getItemById(5739))) // Flux Controller
-                .inputs(new ItemStack(Item.getItemById(5733), 64)) // Flux Core
-                .inputs(new ItemStack(Item.getItemById(5736), 16)) // Flux Block
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcontroller")))
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcore"), 64))
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxblock"), 16))
                 .input(OrePrefix.plateDense, Talonite, 4)
                 .inputs(MetaItems.SENSOR_IV.getStackForm(16))
                 .inputs(MetaItems.SENSOR_LUV.getStackForm(16))
@@ -735,9 +735,9 @@ public class AssemblingRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(Polybenzimidazole.getFluid(4608))
-                .inputs(new ItemStack(Item.getItemById(5739))) // Flux Controller
-                .inputs(new ItemStack(Item.getItemById(5733), 64)) // Flux Core
-                .inputs(new ItemStack(Item.getItemById(5736), 16)) // Flux Block
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcontroller")))
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcore"), 64))
+                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxblock"), 16))
                 .input(OrePrefix.plateDense, Talonite, 4)
                 .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_HV, 16))
                 .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_EV, 16))
