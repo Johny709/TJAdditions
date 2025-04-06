@@ -377,7 +377,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         inputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
         importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         int framework = context.getOrDefault("framework", GAMultiblockCasing.CasingType.TIERED_HULL_LV).getTier();
-        int framework2 = context.getOrDefault("framework2", GAMultiblockCasing2.CasingType.TIERED_HULL_UHV.getTier());
+        int framework2 = context.getOrDefault("framework2", GAMultiblockCasing2.CasingType.TIERED_HULL_UHV).getTier();
         tier = Math.min(framework, framework2);
         int linkAmount = tier * 2;
         entityLinkBlockPos = entityLinkBlockPos != null ? Arrays.copyOf(entityLinkBlockPos, linkAmount) : new BlockPos[linkAmount];
