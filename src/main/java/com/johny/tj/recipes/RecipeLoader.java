@@ -6,11 +6,13 @@ import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.recipes.ct.*;
+import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
+import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.common.blocks.BlockMachineCasing;
@@ -24,10 +26,13 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import static com.johny.tj.TJValues.CIRCUIT_TIERS;
+import static com.johny.tj.items.TJMetaItems.UNIVERSAL_CIRCUITS;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
 import static gregtech.api.recipes.RecipeMaps.ALLOY_SMELTER_RECIPES;
+import static gregtech.api.recipes.RecipeMaps.PACKER_RECIPES;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
 import static gregtech.api.unification.material.Materials.*;
 
@@ -208,5 +213,17 @@ public class RecipeLoader {
                 'M', new UnificationEntry(OrePrefix.gearSmall, MetastableOganesson),
                 'V', new UnificationEntry(OrePrefix.gear, Vibranium),
                 'H', GATileEntities.GA_HULLS[3].getStackForm());
+
+        for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
+            ModHandler.addShapelessRecipe(GAValues.VN[i].toLowerCase() + "_universal_circuit", UNIVERSAL_CIRCUITS[i].getStackForm(), new UnificationEntry(OrePrefix.circuit, CIRCUIT_TIERS[i]));
+
+            PACKER_RECIPES.recipeBuilder()
+                    .input(OrePrefix.circuit, CIRCUIT_TIERS[i])
+                    .notConsumable(new IntCircuitIngredient(0))
+                    .outputs(UNIVERSAL_CIRCUITS[i].getStackForm())
+                    .EUt(2)
+                    .duration(20)
+                    .buildAndRegister();
+        }
     }
 }
