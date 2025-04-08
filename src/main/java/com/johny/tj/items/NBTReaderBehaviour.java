@@ -28,10 +28,10 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
     private NBTTagCompound compound;
 
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
+        TileEntity tileEntity = world.getTileEntity(pos);
+        this.name = tileEntity.getBlockType().getTranslationKey() + ".name";
+        this.compound = new NBTTagCompound();
         if (!world.isRemote) {
-         TileEntity tileEntity = world.getTileEntity(pos);
-         this.name = tileEntity.getBlockType().getTranslationKey() + ".name";
-         this.compound = new NBTTagCompound();
          tileEntity.writeToNBT(compound);
 
          PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
