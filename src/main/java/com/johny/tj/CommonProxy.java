@@ -3,12 +3,16 @@ package com.johny.tj;
 
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.recipes.RecipeLoader;
+import com.johny.tj.util.EnderWorldData;
 import gregtech.common.blocks.VariantItemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.world.storage.MapStorage;
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -52,6 +56,30 @@ public class CommonProxy {
     public static void registerOrePrefix(RegistryEvent.Register<IRecipe> event) {
         TJMetaItems.registerOreDict();
     }
+
+    @SubscribeEvent
+    public static void onWorldLoad(WorldEvent.Load event) {
+        MapStorage storage = event.getWorld().getMapStorage();
+        WorldSavedData worldData = storage.getOrLoadData(EnderWorldData.class, "EnderWorldData");
+
+        if (worldData == null) {
+            storage.setData("EnderWorldData", new EnderWorldData("EnderWorldData"));
+        }
+        EnderWorldData.setInstance((EnderWorldData) worldData);
+
+        EnderWorldData.init();
+    }
+
+    @SubscribeEvent
+    public static void onWorldUnload(WorldEvent.Unload event) {
+        EnderWorldData.setDirty();
+    }
+
+    @SubscribeEvent
+    public static void onWorldSave(WorldEvent.Save event) {
+        EnderWorldData.setDirty();
+    }
+
 
     private static <T extends Block> ItemBlock createItemBlock(T block, Function<T, ItemBlock> producer) {
         ItemBlock itemBlock = producer.apply(block);
