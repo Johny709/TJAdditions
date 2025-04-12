@@ -17,6 +17,7 @@ public class TJMetaItems {
     public static MetaItem<?>.MetaValueItem LINKING_DEVICE;
     public static MetaItem<?>.MetaValueItem VOID_PLUNGER;
     public static MetaItem<?>.MetaValueItem NBT_READER;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UHV;
 
     public static final MetaItem<?>.MetaValueItem[] UNIVERSAL_CIRCUITS = new MetaItem.MetaValueItem[15];
     public static final MetaItem<?>.MetaValueItem[] ENDER_FLUID_COVERS = new MetaItem.MetaValueItem[12];
