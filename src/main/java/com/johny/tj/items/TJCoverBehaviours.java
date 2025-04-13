@@ -1,10 +1,7 @@
 package com.johny.tj.items;
 
 import com.johny.tj.TJ;
-import com.johny.tj.items.covers.CoverCreativeEnergy;
-import com.johny.tj.items.covers.CoverCreativeFluid;
-import com.johny.tj.items.covers.CoverCreativeItem;
-import com.johny.tj.items.covers.CoverEnderFluid;
+import com.johny.tj.items.covers.*;
 import gregicadditions.GAValues;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverDefinition;
@@ -18,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import java.util.function.BiFunction;
 
 import static com.johny.tj.items.TJMetaItems.ENDER_FLUID_COVERS;
+import static com.johny.tj.items.TJMetaItems.ENDER_ITEM_COVERS;
 
 public class TJCoverBehaviours {
 
@@ -28,9 +26,11 @@ public class TJCoverBehaviours {
         registerBehavior(127, new ResourceLocation(TJ.MODID, "creative.item.cover"), TJMetaItems.CREATIVE_ITEM_COVER, CoverCreativeItem::new);
         registerBehavior(128, new ResourceLocation(TJ.MODID, "creative.energy.cover"), TJMetaItems.CREATIVE_ENERGY_COVER, CoverCreativeEnergy::new);
 
+        int enderCoverID = 129; // occupies IDs 129 - 153
         for (int i = 0; i < ENDER_FLUID_COVERS.length; i++) {
             int finalI = i;
-            registerBehavior(129 + i, new ResourceLocation(TJ.MODID, "ender_fluid_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_FLUID_COVERS[i], (cover, face) -> new CoverEnderFluid(cover, face, finalI + 3));
+            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_fluid_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_FLUID_COVERS[i], (cover, face) -> new CoverEnderFluid(cover, face, finalI + 3));
+            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_item_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_ITEM_COVERS[i], (cover, face) -> new CoverEnderItem(cover, face, finalI + 3));
         }
     }
 

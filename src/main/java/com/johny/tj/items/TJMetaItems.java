@@ -21,6 +21,7 @@ public class TJMetaItems {
 
     public static final MetaItem<?>.MetaValueItem[] UNIVERSAL_CIRCUITS = new MetaItem.MetaValueItem[15];
     public static final MetaItem<?>.MetaValueItem[] ENDER_FLUID_COVERS = new MetaItem.MetaValueItem[12];
+    public static final MetaItem<?>.MetaValueItem[] ENDER_ITEM_COVERS = new MetaItem.MetaValueItem[12];
 
     public static void init() {
         TJMetaItem1 item = new TJMetaItem1();

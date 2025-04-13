@@ -1,5 +1,6 @@
 package com.johny.tj.util;
 
+import com.johny.tj.items.handlers.LargeItemStackHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.storage.WorldSavedData;
@@ -15,10 +16,12 @@ import java.util.Map;
 public class EnderWorldData extends WorldSavedData {
 
     private static final Map<String, FluidTank> fluidTankMap = new HashMap<>();
+    private static final Map<String, LargeItemStackHandler> itemChestMap = new HashMap<>();
     private static EnderWorldData INSTANCE;
 
     public static void init() {
-        fluidTankMap.putIfAbsent("default", new FluidTank(Integer.MAX_VALUE));
+        fluidTankMap.putIfAbsent("default", new FluidTank(64000));
+        itemChestMap.putIfAbsent("default", new LargeItemStackHandler(1, 640));
     }
 
     public EnderWorldData(String name) {
@@ -29,39 +32,80 @@ public class EnderWorldData extends WorldSavedData {
         return fluidTankMap;
     }
 
+    public static Map<String, LargeItemStackHandler> getItemChestMap() {
+        return itemChestMap;
+    }
+
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
         NBTTagList tankList = new NBTTagList(),
-                idList = new NBTTagList();
+                tankIDList = new NBTTagList(),
+                tankCapacityList = new NBTTagList(),
+                chestList = new NBTTagList(),
+                chestIDList = new NBTTagList(),
+                chestCapacityList = new NBTTagList();
 
-        int i = 0;
+        int i = 0, j = 0;
         for (Map.Entry<String, FluidTank> tank : fluidTankMap.entrySet()) {
-            NBTTagCompound tankCompound = new NBTTagCompound(), colorCompound = new NBTTagCompound();
+            NBTTagCompound tankCompound = new NBTTagCompound(), tankIDCompound = new NBTTagCompound(), tankCapacity = new NBTTagCompound();
             tankCompound.setTag("Tank" + i, tank.getValue().writeToNBT(new NBTTagCompound()));
-            colorCompound.setString("ID" + i, tank.getKey());
+            tankIDCompound.setString("ID" + i, tank.getKey());
+            tankCapacity.setInteger("Capacity" + i, tank.getValue().getCapacity());
 
             tankList.appendTag(tankCompound);
-            idList.appendTag(colorCompound);
+            tankIDList.appendTag(tankIDCompound);
+            tankCapacityList.appendTag(tankCapacity);
             i++;
         }
+
+        for (Map.Entry<String, LargeItemStackHandler> chest : itemChestMap.entrySet()) {
+            NBTTagCompound chestCompound = new NBTTagCompound(), chestIDCompound = new NBTTagCompound(), chestCapacity = new NBTTagCompound();
+            chestCompound.setTag("Chest" + j, chest.getValue().getStackInSlot(0).writeToNBT(new NBTTagCompound()));
+            chestIDCompound.setString("ID" + j, chest.getKey());
+            chestCapacity.setInteger("Capacity" + j, chest.getValue().getCapacity());
+
+            chestList.appendTag(chestCompound);
+            chestIDList.appendTag(chestIDCompound);
+            chestCapacityList.appendTag(chestCapacity);
+            j++;
+        }
         nbt.setTag("TankList", tankList);
-        nbt.setTag("TextList", idList);
+        nbt.setTag("TankIDList", tankIDList);
+        nbt.setTag("TankCapacityList", tankCapacityList);
+        nbt.setTag("ChestList", chestList);
+        nbt.setTag("ChestIDList", chestIDList);
+        nbt.setTag("ChestCapacityList", chestCapacityList);
         return nbt;
     }
 
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound nbt) {
         NBTTagList tankList = nbt.getTagList("TankList", Constants.NBT.TAG_COMPOUND),
-                idList = nbt.getTagList("TextList", Constants.NBT.TAG_COMPOUND);
+                tankIDList = nbt.getTagList("TankIDList", Constants.NBT.TAG_COMPOUND),
+                tankCapacityList = nbt.getTagList("TankCapacityList", Constants.NBT.TAG_COMPOUND),
+                chestList = nbt.getTagList("ChestList", Constants.NBT.TAG_COMPOUND),
+                chestIDList = nbt.getTagList("ChestIDList", Constants.NBT.TAG_COMPOUND),
+                chestCapacityList = nbt.getTagList("ChestCapacityList", Constants.NBT.TAG_COMPOUND);
 
         for (int i = 0; i < tankList.tagCount(); i++) {
             NBTTagCompound tankCompound = tankList.getCompoundTagAt(i).getCompoundTag("Tank" + i);
-            String textCompound = idList.getCompoundTagAt(i).getString("ID" + i);
+            String tankIDCompound = tankIDList.getCompoundTagAt(i).getString("ID" + i);
+            int tankCapacity = tankCapacityList.getCompoundTagAt(i).getInteger("Capacity" + i);
 
-            FluidTank tank = new FluidTank(Integer.MAX_VALUE);
+            FluidTank tank = new FluidTank(tankCapacity);
             tank.readFromNBT(tankCompound);
-            fluidTankMap.put(textCompound, tank);
+            fluidTankMap.put(tankIDCompound, tank);
+        }
+
+        for (int i = 0; i < chestList.tagCount(); i++) {
+            NBTTagCompound chestCompound = chestList.getCompoundTagAt(i).getCompoundTag("Chest" + i);
+            String chestIDCompound = chestIDList.getCompoundTagAt(i).getString("ID" + i);
+            int chestCapacity = chestCapacityList.getCompoundTagAt(i).getInteger("Capacity" + i);
+
+            LargeItemStackHandler chest = new LargeItemStackHandler(1, chestCapacity);
+            chest.getStackInSlot(0).deserializeNBT(chestCompound);
+            itemChestMap.put(chestIDCompound, chest);
         }
     }
 
