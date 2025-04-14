@@ -9,13 +9,15 @@ import java.util.List;
 public class EnderCoverBehaviour implements IItemBehaviour {
 
     private final int transferRate;
-    private final int capacity;
+    private final long capacity;
 
     public EnderCoverBehaviour(EnderCoverType enderCoverType, int tier) {
-        this.capacity = enderCoverType != EnderCoverType.ITEM ? (int) Math.min(Math.pow(4, tier) * 1000, Integer.MAX_VALUE)
-                : (int) Math.min(Math.pow(4, tier) * 10, Integer.MAX_VALUE);
-        this.transferRate = enderCoverType != EnderCoverType.ITEM ? (int) Math.min(Math.pow(4, tier) * 16, Integer.MAX_VALUE)
-                : (int) Math.min(Math.round(Math.pow(4, tier) / 20), Integer.MAX_VALUE);
+        this.capacity = enderCoverType == EnderCoverType.FLUID ? (int) Math.min(Math.pow(4, tier) * 1000, Integer.MAX_VALUE)
+                : enderCoverType == EnderCoverType.ITEM ? (int) Math.min(Math.pow(4, tier) * 10, Integer.MAX_VALUE)
+                : (long) (Math.pow(4, tier) * 1000);
+        this.transferRate = enderCoverType == EnderCoverType.FLUID ? (int) Math.min(Math.pow(4, tier) * 16, Integer.MAX_VALUE)
+                : enderCoverType == EnderCoverType.ITEM ? (int) Math.min(Math.round(Math.pow(4, tier) / 20), Integer.MAX_VALUE)
+                : (int) Math.min(Math.pow(4, tier) * 8, Integer.MAX_VALUE);
     }
 
     @Override

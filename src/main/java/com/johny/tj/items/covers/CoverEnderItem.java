@@ -53,7 +53,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
         widget.accept(new LabelWidget(30, 4, "metaitem.ender_item_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
-        widget.accept(new TJSlotWidget(this::getItemHandler, 0, 7, 38)
+        widget.accept(new TJSlotWidget(this::getItemHandler, 0, 7, 38, false, false)
                 .setBackgroundTexture(SLOT));
     }
 
@@ -74,10 +74,12 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     public void update() {
-        if (pumpMode == IMPORT) {
-            moveInventoryItems(itemInventory, getItemHandler());
-        } else {
-            moveInventoryItems(getItemHandler(), itemInventory);
+        if (isWorkingEnabled) {
+            if (pumpMode == IMPORT) {
+                moveInventoryItems(itemInventory, getItemHandler());
+            } else {
+                moveInventoryItems(getItemHandler(), itemInventory);
+            }
         }
     }
 

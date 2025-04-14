@@ -5,10 +5,10 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.builder.handlers.BasicEnergyHandler;
 import com.johny.tj.items.handlers.LargeItemStackHandler;
 import com.johny.tj.textures.TJSimpleOverlayRenderer;
 import gregtech.api.capability.IControllable;
-import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -170,9 +170,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .appendText(" / ")
                             .appendText(String.valueOf(capacity))));
             }
-            if (entry.getValue() instanceof IEnergyContainer) {
-                IEnergyContainer container = (IEnergyContainer) entry.getValue();
-                textComponent.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.energy.stored", container.getEnergyStored(), container.getEnergyCapacity())));
+            if (entry.getValue() instanceof BasicEnergyHandler) {
+                BasicEnergyHandler container = (BasicEnergyHandler) entry.getValue();
+                textComponent.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.energy.stored", container.getStored(), container.getCapacity())));
             }
         }
     }
