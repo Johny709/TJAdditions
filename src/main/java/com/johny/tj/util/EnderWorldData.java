@@ -2,6 +2,7 @@ package com.johny.tj.util;
 
 import com.johny.tj.builder.handlers.BasicEnergyHandler;
 import com.johny.tj.items.handlers.LargeItemStackHandler;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.storage.WorldSavedData;
@@ -127,7 +128,7 @@ public class EnderWorldData extends WorldSavedData {
             int chestCapacity = chestCapacityList.getCompoundTagAt(i).getInteger("Capacity" + i);
 
             LargeItemStackHandler chest = new LargeItemStackHandler(1, chestCapacity);
-            chest.getStackInSlot(0).deserializeNBT(chestCompound);
+            chest.setStackInSlot(0, new ItemStack(chestCompound));
             itemChestMap.put(chestIDCompound, chest);
         }
 
