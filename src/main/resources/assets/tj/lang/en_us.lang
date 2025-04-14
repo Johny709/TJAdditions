@@ -402,6 +402,7 @@ machine.universal.linked.dimension=Dimension: §e%s§r (§e%s§r)
 machine.universal.linked.remove=[Remove]
 machine.universal.linked.players=Linked Players
 machine.universal.energy.stored=Energy Stored: §e%s§r / §e%s§r
+machine.universal.item.stored=Items Stored: §e%s§r / §e%s§r
 machine.universal.energy.amps=Amps: §e%s§rA
 machine.universal.item.output.transfer=Transfer To Output:
 machine.universal.mode.transfer=Transfer Mode:

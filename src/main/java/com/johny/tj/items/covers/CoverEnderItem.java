@@ -1,6 +1,5 @@
 package com.johny.tj.items.covers;
 
-import com.johny.tj.gui.widgets.TJSlotWidget;
 import com.johny.tj.items.handlers.LargeItemStackHandler;
 import com.johny.tj.textures.TJSimpleOverlayRenderer;
 import com.johny.tj.util.EnderWorldData;
@@ -8,17 +7,24 @@ import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.LabelWidget;
+import gregtech.api.gui.widgets.ProgressWidget;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.johny.tj.gui.TJGuiTextures.BAR_HEAT;
+import static com.johny.tj.gui.TJGuiTextures.BAR_STEEL;
 import static com.johny.tj.textures.TJTextures.PORTAL_OVERLAY;
-import static gregtech.api.gui.GuiTextures.SLOT;
+import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
 import static gregtech.common.covers.CoverPump.PumpMode.IMPORT;
 
 public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHandler> {
@@ -63,13 +69,49 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
         widget.accept(new LabelWidget(30, 4, "metaitem.ender_item_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
-        widget.accept(new TJSlotWidget(this::getItemHandler, 0, 7, 38, false, false)
-                .setBackgroundTexture(SLOT));
+        widget.accept(new ProgressWidget(this::getItemsStored, 7, 38, 18, 18) {
+            private int itemStored;
+            private int itemCapacity;
+
+            @Override
+            public void drawInForeground(int mouseX, int mouseY) {
+                if(isMouseOverElement(mouseX, mouseY)) {
+                    List<String> hoverList = Collections.singletonList(I18n.format("machine.universal.item.stored", this.itemStored, this.itemCapacity));
+                    drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
+                }
+            }
+
+            @Override
+            public void detectAndSendChanges() {
+                super.detectAndSendChanges();
+                LargeItemStackHandler itemStackHandler = getMap().get(text);
+                if (itemStackHandler != null) {
+                    int itemStored = itemStackHandler.getStackInSlot(0).getCount();
+                    int itemCapacity = itemStackHandler.getCapacity();
+                    writeUpdateInfo(1, buffer -> buffer.writeInt(itemStored));
+                    writeUpdateInfo(2, buffer -> buffer.writeInt(itemCapacity));
+                }
+            }
+
+            @Override
+            public void readUpdateInfo(int id, PacketBuffer buffer) {
+                super.readUpdateInfo(id, buffer);
+                if (id == 1) {
+                    this.itemStored = buffer.readInt();
+                }
+                if (id == 2) {
+                    this.itemCapacity = buffer.readInt();
+                }
+            }
+
+        }.setProgressBar(BAR_STEEL, BAR_HEAT, VERTICAL));
     }
 
-    private IItemHandler getItemHandler() {
-        IItemHandler itemHandler = EnderWorldData.getItemChestMap().get(text);
-        return itemHandler != null ? itemHandler : EnderWorldData.getItemChestMap().get("default");
+    private double getItemsStored() {
+        LargeItemStackHandler itemHandler = getMap().get(text);
+        if (itemHandler == null)
+            return 0;
+        return (double) itemHandler.getStackInSlot(0).getCount() / itemHandler.getCapacity();
     }
 
     @Override
@@ -85,10 +127,13 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     @Override
     public void update() {
         if (isWorkingEnabled) {
+            LargeItemStackHandler itemStackHandler = getMap().get(text);
+            if (itemStackHandler == null)
+                return;
             if (pumpMode == IMPORT) {
-                moveInventoryItems(itemInventory, getItemHandler());
+                moveInventoryItems(itemInventory, itemStackHandler);
             } else {
-                moveInventoryItems(getItemHandler(), itemInventory);
+                moveInventoryItems(itemStackHandler, itemInventory);
             }
         }
     }
