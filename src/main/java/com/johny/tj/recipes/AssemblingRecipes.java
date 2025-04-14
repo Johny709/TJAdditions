@@ -28,8 +28,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.Objects;
 
-import static com.johny.tj.items.TJMetaItems.ENDER_FLUID_COVERS;
-import static com.johny.tj.items.TJMetaItems.FLUID_REGULATOR_UHV;
+import static com.johny.tj.items.TJMetaItems.*;
 import static com.johny.tj.machines.TJMetaTileEntities.COKE_OVEN;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
@@ -53,6 +52,7 @@ public class AssemblingRecipes {
         MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
         MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
         MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
+        MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
 
         for (int i = 0; i < boilerType.length; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
@@ -272,6 +272,30 @@ public class AssemblingRecipes {
                     .inputs(sensors[i + 2].getStackForm(2))
                     .inputs(pumps[i + 2].getStackForm(2))
                     .outputs(ENDER_FLUID_COVERS[i].getStackForm())
+                    .duration(600)
+                    .EUt(GAValues.VA[i + 3])
+                    .buildAndRegister();
+
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(576))
+                    .input(OrePrefix.plate, EnderPearl, 9)
+                    .input(OrePrefix.plateDense, StainlessSteel)
+                    .inputs(emitters[i + 2].getStackForm(2))
+                    .inputs(sensors[i + 2].getStackForm(2))
+                    .inputs(conveyors[i + 2].getStackForm(2))
+                    .outputs(ENDER_ITEM_COVERS[i].getStackForm())
+                    .duration(600)
+                    .EUt(GAValues.VA[i + 3])
+                    .buildAndRegister();
+
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(576))
+                    .input(OrePrefix.plate, EnderPearl, 9)
+                    .input(OrePrefix.plateDense, StainlessSteel)
+                    .inputs(emitters[i + 2].getStackForm(2))
+                    .inputs(sensors[i + 2].getStackForm(2))
+                    .input(OrePrefix.cableGtHex, materialTier[1][i + 2], 2)
+                    .outputs(ENDER_ENERGY_COVERS[i].getStackForm())
                     .duration(600)
                     .EUt(GAValues.VA[i + 3])
                     .buildAndRegister();
