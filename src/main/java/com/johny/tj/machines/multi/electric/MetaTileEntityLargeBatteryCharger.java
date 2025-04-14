@@ -528,7 +528,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         for (int i = 0; i < linkedPlayersID.length; i++) {
-            if (linkedPlayersID[i] != null) {
+            if (linkedPlayersID[i] != null && linkedPlayers[i] != null) {
                 data.setUniqueId("PlayerID" + i, linkedPlayersID[i]);
                 data.setInteger("EntityWorld" + i, linkedPlayers[i].world.provider.getDimension());
             }
