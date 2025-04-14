@@ -17,7 +17,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.johny.tj.textures.TJTextures.COVER_CREATIVE_FLUID;
+import static com.johny.tj.textures.TJTextures.PORTAL_OVERLAY;
 import static gregtech.api.gui.GuiTextures.SLOT;
 import static gregtech.common.covers.CoverPump.PumpMode.IMPORT;
 
@@ -42,7 +42,17 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     protected TJSimpleOverlayRenderer getOverlay() {
-        return COVER_CREATIVE_FLUID;
+        return PORTAL_OVERLAY;
+    }
+
+    @Override
+    protected int getPortalColor() {
+        return 0xff3e00;
+    }
+
+    @Override
+    public int getTier() {
+        return tier;
     }
 
     @Override

@@ -5,9 +5,11 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.TJValues;
 import com.johny.tj.builder.handlers.BasicEnergyHandler;
 import com.johny.tj.items.handlers.LargeItemStackHandler;
 import com.johny.tj.textures.TJSimpleOverlayRenderer;
+import com.johny.tj.textures.TJTextures;
 import gregtech.api.capability.IControllable;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
@@ -51,8 +53,20 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     @Override
-    public void renderCover(CCRenderState ccRenderState, Matrix4 matrix4, IVertexOperation[] iVertexOperations, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
-        getOverlay().renderSided(attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
+    public void renderCover(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
+        int oldBaseColor = renderState.baseColour;
+        int oldAlphaOverride = renderState.alphaOverride;
+
+        renderState.baseColour = getPortalColor() << 8;
+        renderState.alphaOverride = 0xFF;
+        getOverlay().renderSided(attachedSide, renderState, translation, pipeline);
+
+        renderState.baseColour = TJValues.VC[getTier()] << 8;
+        TJTextures.INSIDE_OVERLAY_BASE.renderSided(attachedSide, renderState, translation, pipeline);
+
+        renderState.baseColour = oldBaseColor;
+        renderState.alphaOverride = oldAlphaOverride;
+        TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(attachedSide, renderState, translation, pipeline);
     }
 
     @Override
@@ -61,6 +75,14 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             this.openUI((EntityPlayerMP) playerIn);
         }
         return EnumActionResult.SUCCESS;
+    }
+
+    protected int getPortalColor() {
+        return 0xffffff;
+    }
+
+    protected int getTier() {
+        return 0;
     }
 
     protected abstract TJSimpleOverlayRenderer getOverlay();

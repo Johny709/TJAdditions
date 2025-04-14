@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 import static com.johny.tj.gui.TJGuiTextures.BAR_HEAT;
 import static com.johny.tj.gui.TJGuiTextures.BAR_STEEL;
-import static com.johny.tj.textures.TJTextures.COVER_CREATIVE_FLUID;
+import static com.johny.tj.textures.TJTextures.PORTAL_OVERLAY;
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
 
@@ -47,7 +47,17 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     protected TJSimpleOverlayRenderer getOverlay() {
-        return COVER_CREATIVE_FLUID;
+        return PORTAL_OVERLAY;
+    }
+
+    @Override
+    protected int getPortalColor() {
+        return 0x9fff2c;
+    }
+
+    @Override
+    public int getTier() {
+        return tier;
     }
 
     @Override

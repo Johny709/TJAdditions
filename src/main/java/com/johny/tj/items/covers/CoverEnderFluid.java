@@ -18,7 +18,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.johny.tj.textures.TJTextures.COVER_CREATIVE_FLUID;
+import static com.johny.tj.textures.TJTextures.PORTAL_OVERLAY;
 import static gregtech.api.gui.GuiTextures.FLUID_SLOT;
 
 public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
@@ -42,7 +42,17 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     protected TJSimpleOverlayRenderer getOverlay() {
-        return COVER_CREATIVE_FLUID;
+        return PORTAL_OVERLAY;
+    }
+
+    @Override
+    protected int getPortalColor() {
+        return 0x00a6ff;
+    }
+
+    @Override
+    public int getTier() {
+        return tier;
     }
 
     @Override
