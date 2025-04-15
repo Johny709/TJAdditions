@@ -379,6 +379,7 @@ metaitem.uiv_universal_circuit.name=Universal Circuit (UIV)
 metaitem.umv_universal_circuit.name=Universal Circuit (UMV)
 metaitem.uxv_universal_circuit.name=Universal Circuit (UXV)
 metaitem.max_universal_circuit.name=Universal Circuit (MAX)
+metaitem.fluid.regulator.uhv.name=Fluid Regulator (UHV)
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF
