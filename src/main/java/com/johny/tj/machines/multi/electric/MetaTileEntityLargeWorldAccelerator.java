@@ -521,7 +521,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public int getRange() {
-        return TJConfig.largeWorldAccelerator.range;
+        return TJConfig.largeWorldAccelerator.baseRange + TJConfig.largeWorldAccelerator.additionalRange * tier;
     }
 
     @Override

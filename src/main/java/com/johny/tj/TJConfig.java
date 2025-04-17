@@ -435,8 +435,12 @@ public class TJConfig {
     public static LargeWorldAccelerator largeWorldAccelerator = new LargeWorldAccelerator();
 
     public static class LargeWorldAccelerator {
-        @Config.Name("Block Range Radius")
+        @Config.Name("Block Range Base Radius")
         @Config.RequiresMcRestart
-        public int range = 64;
+        public int baseRange = 48;
+
+        @Config.Name("Block Range Additional Radius")
+        @Config.RequiresMcRestart
+        public int additionalRange = 16;
     }
 }
