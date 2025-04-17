@@ -10,10 +10,8 @@ import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GAFusionCasing;
-import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregicadditions.utils.GALog;
-import gregtech.api.GTValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerHandler;
@@ -22,6 +20,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -39,7 +38,7 @@ import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
-import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -58,9 +57,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController {
 
@@ -133,22 +134,24 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 .where('C', statePredicate(getCasingState()))
                 .where('c', statePredicate(getCoilState()))
                 .where('O', statePredicate(getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS)))
-                .where('E', statePredicate(getCasingState()).or(tilePredicate((state, tile) -> {
-                    for (int i = tier; i < GTValues.V.length; i++) {
-                        if (tile.metaTileEntityId.equals(MetaTileEntities.ENERGY_INPUT_HATCH[i].metaTileEntityId))
-                            return true;
-                    }
-                    return false;
-                    })).or(tilePredicate((state, tile) -> {
-                    for (int i = Math.max(tier, 9); i < GAValues.V.length; i++) {
-                        if (tile.metaTileEntityId.equals(GATileEntities.ENERGY_INPUT[i - 9].metaTileEntityId))
-                            return true;
-                    }
-                    return false;
-                })).or(energyPortPredicate(tier)))
+                .where('E', statePredicate(getCasingState()).or(tilePredicate(energyHatchPredicate(tier))).or(energyPortPredicate(tier)))
             .where('I', statePredicate(getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
             .where('#', (tile) -> true);
         return tier != 0 ? factoryPattern.build() : null;
+    }
+
+    public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> energyHatchPredicate(int tier) {
+        return (state, tile) -> {
+            if (tile instanceof MetaTileEntityMultiblockPart) {
+                MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
+                if (multiblockPart instanceof IMultiblockAbilityPart<?>) {
+                    IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
+                    return abilityPart.getAbility() == INPUT_ENERGY && multiblockPart.getTier() >= tier;
+                }
+            }
+
+            return false;
+        };
     }
 
     public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
@@ -214,7 +217,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.inputFluidInventory = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.outputInventory = new ItemHandlerList(getAbilities(MultiblockAbility.EXPORT_ITEMS));
         this.outputFluidInventory = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        List<IEnergyContainer> energyInputs = getAbilities(MultiblockAbility.INPUT_ENERGY);
+        List<IEnergyContainer> energyInputs = getAbilities(INPUT_ENERGY);
         this.inputEnergyContainers = new EnergyContainerList(energyInputs);
         euCapacity += energyInputs.size() * 10000000L * (long) Math.pow(2, tier - 6);
         this.energyContainer = new EnergyContainerHandler(this, euCapacity, GAValues.V[tier], 0, 0, 0) {
