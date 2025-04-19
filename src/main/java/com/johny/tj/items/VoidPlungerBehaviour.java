@@ -26,15 +26,26 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
         MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(world, pos);
         if (!world.isRemote) {
-            if (!(metaTileEntity instanceof RecipeMapMultiblockController)) {
+            IItemHandlerModifiable importItems;
+            IMultipleTankHandler importFluids;
+            IItemHandlerModifiable exportItems;
+            IMultipleTankHandler exportFluids;
+            if (metaTileEntity != null) {
+                importItems = metaTileEntity.getImportItems();
+                importFluids = metaTileEntity.getImportFluids();
+                exportItems = metaTileEntity.getExportItems();
+                exportFluids = metaTileEntity.getExportFluids();
+            } else {
                 player.sendMessage(new TextComponentTranslation("metaitem.void_plunger.message.fail"));
                 return EnumActionResult.SUCCESS;
             }
-            RecipeMapMultiblockController controllerBase = ((RecipeMapMultiblockController) metaTileEntity);
-            IItemHandlerModifiable importItems = controllerBase.getInputInventory();
-            IMultipleTankHandler importFluids = controllerBase.getInputFluidInventory();
-            IItemHandlerModifiable exportItems = controllerBase.getOutputInventory();
-            IMultipleTankHandler exportFluids = controllerBase.getOutputFluidInventory();
+            if (metaTileEntity instanceof RecipeMapMultiblockController) {
+                RecipeMapMultiblockController controllerBase = ((RecipeMapMultiblockController) metaTileEntity);
+                importItems = controllerBase.getInputInventory();
+                importFluids = controllerBase.getInputFluidInventory();
+                exportItems = controllerBase.getOutputInventory();
+                exportFluids = controllerBase.getOutputFluidInventory();
+            }
             List<ItemStack> importItemList = new ArrayList<>();
             List<FluidStack> importFluidList = new ArrayList<>();
             List<ItemStack> exportItemList = new ArrayList<>();
