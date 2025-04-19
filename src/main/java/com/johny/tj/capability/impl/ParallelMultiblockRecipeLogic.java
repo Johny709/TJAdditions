@@ -7,9 +7,9 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
-import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.recipes.Recipe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -24,11 +24,18 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     protected int previousRecipeDuration;
 
     // Fields used for distinct mode
-    protected int lastRecipeIndex = 0;
+    protected int[] lastRecipeIndex;
     protected ItemStack[][] lastItemInputsMatrix;
 
     public ParallelMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, int recipeCacheSize) {
         super(tileEntity, recipeCacheSize);
+        this.lastRecipeIndex = new int[1];
+    }
+
+    @Override
+    public void setLayer(int i, boolean remove) {
+        super.setLayer(i, remove);
+        this.lastRecipeIndex = Arrays.copyOf(lastRecipeIndex, getSize());
     }
 
     public IEnergyContainer getEnergyContainer() {
@@ -97,8 +104,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     /**
      * Used to reset cached values after multiblock structure deforms
      */
-    protected void invalidate() {
-        lastRecipeIndex = 0;
+    public void invalidate() {
+        Arrays.fill(lastRecipeIndex, 0);
     }
 
     protected List<IItemHandlerModifiable> getInputBuses() {
@@ -160,8 +167,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (controller.getNumProblems() > 5)
                 return false;
 
-
-            //    return trySearchNewRecipeDistinct(i);
+            if (controller.isDistinctBus())
+                return trySearchNewRecipeDistinct(i);
 
         }
         return trySearchNewRecipeCombined(i);
@@ -183,27 +190,27 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
         Recipe foundRecipe;
         if (!distinct)
-            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids);
+            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids);
         else
-            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes);
+            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids, i, occupiedRecipes);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
-            if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex)) {
+            if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex[i])) {
                 setupRecipe(currentRecipe, i);
                 return true;
             }
-            foundRecipeIndex.add(lastRecipeIndex);
+            foundRecipeIndex.add(lastRecipeIndex[i]);
         }
 
         for (int j = 0; j < importInventory.size(); j++) {
-            if (j == lastRecipeIndex) {
+            if (j == lastRecipeIndex[i]) {
                 continue;
             }
             if (!distinct)
-                foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids);
+                foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids);
             else
-                foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes);
+                foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids, i, occupiedRecipes);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 if (setupAndConsumeRecipeInputs(currentRecipe, j)) {
@@ -222,7 +229,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             }
 
             IItemHandlerModifiable bus = importInventory.get(j);
-            boolean dirty = checkRecipeInputsDirty(bus, importFluids, j, i);
+            boolean dirty = checkRecipeInputsDirty(bus, importFluids, j);
             if (!dirty && !forceRecipeRecheck[i]) {
                 continue;
             }
@@ -231,11 +238,12 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (currentRecipe == null) {
                 continue;
             }
+            this.occupiedRecipes[i] = currentRecipe;
             this.previousRecipe.put(currentRecipe);
             if (!setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }
-            lastRecipeIndex = j;
+            lastRecipeIndex[i] = j;
             setupRecipe(currentRecipe, i);
             return true;
         }
@@ -243,7 +251,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     // Replacing this for optimization reasons
-    protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs, int index, int i) {
+    protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs, int index) {
         boolean shouldRecheckRecipe = false;
 
         if (lastItemInputsMatrix == null || lastItemInputsMatrix.length != getInputBuses().size()) {
@@ -284,7 +292,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe, int index) {
-        RecipeMapMultiblockController controller = (RecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         if (controller.checkRecipe(recipe, false)) {
 
             int[] resultOverclock = calculateOverclock(recipe.getEUt(), recipe.getDuration());
@@ -305,5 +313,11 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             }
         }
         return false;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound compound) {
+        super.deserializeNBT(compound);
+        this.lastRecipeIndex = new int[getSize()];
     }
 }

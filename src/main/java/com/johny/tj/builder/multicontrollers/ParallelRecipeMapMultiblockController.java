@@ -9,6 +9,7 @@ import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
+import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregicadditions.GAUtility;
@@ -21,6 +22,7 @@ import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -68,6 +70,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected int pageIndex = 0;
     protected final int pageSize = 6;
     protected boolean advancedText;
+    protected boolean isDistinctBus;
 
     protected IItemHandlerModifiable inputInventory;
     protected IItemHandlerModifiable outputInventory;
@@ -146,10 +149,26 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return pageSize;
     }
 
+    public boolean isDistinctBus() {
+        return isDistinctBus;
+    }
+
+    public void setDistinctBus(Boolean isDistinctBus) {
+        this.isDistinctBus = isDistinctBus;
+        this.recipeMapWorkable.previousRecipe.clear();
+    }
+
     @Override
     protected void reinitializeStructurePattern() {
         this.parallelLayer = 1;
         super.reinitializeStructurePattern();
+    }
+
+    @Override
+    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this::isDistinctBus, this::setDistinctBus)
+                .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 
     @Override
@@ -356,6 +375,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         }
         super.invalidateStructure();
         resetTileAbilities();
+        recipeMapWorkable.invalidate();
     }
 
     @Override
@@ -498,6 +518,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         NBTTagCompound tagCompound = super.writeToNBT(data);
         tagCompound.setInteger("Parallel", this.parallelLayer);
+        tagCompound.setBoolean("DistinctBus", this.isDistinctBus);
         tagCompound.setBoolean("UseOptimizedRecipeLookUp", this.recipeMapWorkable.getUseOptimizedRecipeLookUp());
         return tagCompound;
     }
@@ -506,6 +527,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.parallelLayer = data.getInteger("Parallel");
+        this.isDistinctBus = data.getBoolean("DistinctBus");
         if (data.hasKey("Parallel"))
             this.structurePattern = createStructurePattern();
         if (data.hasKey("UseOptimizedRecipeLookUp")) {

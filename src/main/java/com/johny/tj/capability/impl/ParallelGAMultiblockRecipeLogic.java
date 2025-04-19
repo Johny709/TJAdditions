@@ -117,22 +117,22 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
         Recipe foundRecipe;
         if (!distinct)
-            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids);
+            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids);
         else
-            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex), importFluids, i, occupiedRecipes);
+            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids, i, occupiedRecipes);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
-            currentRecipe = createRecipe(maxVoltage, importInventory.get(lastRecipeIndex), importFluids, currentRecipe);
-            if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex)) {
+            currentRecipe = createRecipe(maxVoltage, importInventory.get(lastRecipeIndex[i]), importFluids, currentRecipe);
+            if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex[i])) {
                 setupRecipe(currentRecipe, i);
                 return true;
             }
-            foundRecipeIndex.add(lastRecipeIndex);
+            foundRecipeIndex.add(lastRecipeIndex[i]);
         }
 
         for (int j = 0; j < importInventory.size(); j++) {
-            if (j == lastRecipeIndex) {
+            if (j == lastRecipeIndex[i]) {
                 continue;
             }
             if (!distinct)
@@ -157,7 +157,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 continue;
             }
             IItemHandlerModifiable bus = importInventory.get(j);
-            boolean dirty = checkRecipeInputsDirty(bus, importFluids, j, i);
+            boolean dirty = checkRecipeInputsDirty(bus, importFluids, j);
             if (!dirty && !forceRecipeRecheck[i]) {
                 continue;
             }
@@ -174,7 +174,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             if (!setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }
-            lastRecipeIndex = j;
+            lastRecipeIndex[i] = j;
             setupRecipe(currentRecipe, i);
             return true;
         }
