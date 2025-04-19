@@ -8,6 +8,8 @@ import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -24,12 +26,12 @@ import java.util.Objects;
 public class VoidPlungerBehaviour implements IItemBehaviour {
 
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
+        NBTTagCompound nbt = player.getHeldItem(hand).getOrCreateSubCompound("Plunger");
+        boolean voiding = nbt.getBoolean("Void");
         MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(world, pos);
         if (!world.isRemote) {
-            IItemHandlerModifiable importItems;
-            IMultipleTankHandler importFluids;
-            IItemHandlerModifiable exportItems;
-            IMultipleTankHandler exportFluids;
+            IItemHandlerModifiable importItems, exportItems;
+            IMultipleTankHandler importFluids, exportFluids;
             if (metaTileEntity != null) {
                 importItems = metaTileEntity.getImportItems();
                 importFluids = metaTileEntity.getImportFluids();
@@ -53,8 +55,10 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
 
             for (int i = 0; i < importItems.getSlots(); i++) {
                 ItemStack item = importItems.getStackInSlot(i);
-                addItemsToList(importItemList, item);
-                importItems.setStackInSlot(i, ItemStack.EMPTY);
+                if (voiding || player.inventory.addItemStackToInventory(item)) {
+                    addItemsToList(importItemList, item);
+                    importItems.setStackInSlot(i, ItemStack.EMPTY);
+                }
             }
             for (int i = 0; i < importFluids.getTanks(); i++) {
                 FluidStack fluid = importFluids.getTankAt(i).getFluid();
@@ -63,8 +67,10 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
             }
             for (int i = 0; i < exportItems.getSlots(); i++) {
                 ItemStack item = importItems.getStackInSlot(i);
-                addItemsToList(exportItemList, item);
-                importItems.setStackInSlot(i, ItemStack.EMPTY);
+                if (voiding || player.inventory.addItemStackToInventory(item)) {
+                    addItemsToList(exportItemList, item);
+                    importItems.setStackInSlot(i, ItemStack.EMPTY);
+                }
             }
             for (int i = 0; i < exportFluids.getTanks(); i++) {
                 FluidStack fluid = importFluids.getTankAt(i).getFluid();
@@ -139,7 +145,21 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
         list.add(fluid);
     }
 
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+        NBTTagCompound nbt = player.getHeldItem(hand).getOrCreateSubCompound("Plunger");
+        boolean voiding = nbt.getBoolean("Void");
+        nbt.setBoolean("Void", !voiding);
+        if (world.isRemote)
+            player.sendMessage(new TextComponentTranslation("metaitem.void_plunger.mode", !voiding));
+        return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+    }
+
+    @Override
     public void addInformation(ItemStack itemStack, List<String> lines) {
+        NBTTagCompound nbt = itemStack.getOrCreateSubCompound("Plunger");
+        boolean voiding = nbt.getBoolean("Void");
         lines.add(I18n.format("metaitem.void_plunger.description"));
+        lines.add(I18n.format("metaitem.void_plunger.mode", voiding));
     }
 }
