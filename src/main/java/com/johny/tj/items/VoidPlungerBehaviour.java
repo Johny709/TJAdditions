@@ -1,5 +1,6 @@
 package com.johny.tj.items;
 
+import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
@@ -42,11 +43,17 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
                 return EnumActionResult.SUCCESS;
             }
             if (metaTileEntity instanceof RecipeMapMultiblockController) {
-                RecipeMapMultiblockController controllerBase = ((RecipeMapMultiblockController) metaTileEntity);
-                importItems = controllerBase.getInputInventory();
-                importFluids = controllerBase.getInputFluidInventory();
-                exportItems = controllerBase.getOutputInventory();
-                exportFluids = controllerBase.getOutputFluidInventory();
+                RecipeMapMultiblockController controller = (RecipeMapMultiblockController) metaTileEntity;
+                importItems = controller.getInputInventory();
+                importFluids = controller.getInputFluidInventory();
+                exportItems = controller.getOutputInventory();
+                exportFluids = controller.getOutputFluidInventory();
+            } else if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
+                ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+                importItems = controller.getInputInventory();
+                importFluids = controller.getInputFluidInventory();
+                exportItems = controller.getOutputInventory();
+                exportFluids = controller.getOutputFluidInventory();
             }
             List<ItemStack> importItemList = new ArrayList<>();
             List<FluidStack> importFluidList = new ArrayList<>();
