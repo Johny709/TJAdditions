@@ -9,6 +9,11 @@
         "textures": {
           "all": "tj:blocks/casings/pipe/machine_casing_pipe_stainless"
         }
+      },
+      "fpm_pipe": {
+        "textures": {
+          "all": "tj:blocks/casings/pipe/fpm_pipe_casing"
+        }
       }
     }
   }

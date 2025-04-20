@@ -1,5 +1,6 @@
 package com.johny.tj.blocks;
 
+import gregtech.common.pipelike.fluidpipe.FluidPipeProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -13,6 +14,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static gregicadditions.GAMaterials.FullerenePolymerMatrix;
+import static gregtech.common.blocks.MetaBlocks.FLUID_PIPE;
 
 
 public class TJMetaBlocks {
@@ -37,6 +41,8 @@ public class TJMetaBlocks {
 
         FUSION_CASING = new BlockFusionCasings();
         FUSION_CASING.setRegistryName("fusion_casing");
+
+        FLUID_PIPE.addPipeMaterial(FullerenePolymerMatrix, new FluidPipeProperties(1000, 18000, true));
     }
 
     @SideOnly(Side.CLIENT)
