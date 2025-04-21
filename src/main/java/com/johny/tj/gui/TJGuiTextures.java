@@ -9,6 +9,7 @@ public class TJGuiTextures {
     public static final TextureArea CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
     public static final TextureArea DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");
     public static final TextureArea ITEM_FILTER = TextureArea.fullImage("textures/items/metaitems/item_filter.png");
+    public static final TextureArea FLUID_FILTER = TextureArea.fullImage("textures/items/metaitems/fluid_filter.png");
     public static final TextureArea RESET_BUTTON = TextureArea.fullImage("textures/gui/widget/reset_button_toggle.png");
     public static final TextureArea UP_BUTTON = TextureArea.fullImage("textures/gui/widget/up_button_toggle.png");
     public static final TextureArea DOWN_BUTTON = TextureArea.fullImage("textures/gui/widget/down_button_toggle.png");
