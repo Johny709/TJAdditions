@@ -6,7 +6,6 @@ import com.johny.tj.textures.TJSimpleOverlayRenderer;
 import com.johny.tj.util.EnderWorldData;
 import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
@@ -35,7 +34,8 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     private final SimpleFluidFilter fluidFilter;
     private final int capacity;
     private final int tier;
-    private boolean isFilterEnabled;
+    private boolean isFilterPopUp;
+    private boolean isFilterBlacklist;
 
     public CoverEnderFluid(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
@@ -50,7 +50,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
                     int index = i;
                     widgetGroup.accept(new PhantomFluidWidget(3 + 18 * (i % 3), 3 + 18 * (i / 3), 18, 18,
                             () -> getFluidInSlot(index), (newFluid) -> setFluidInSlot(index, newFluid))
-                            .setBackgroundTexture(GuiTextures.SLOT));
+                            .setBackgroundTexture(SLOT));
                 }
             }
         };
@@ -93,11 +93,12 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(180, 162, 60, 60, BORDERED_BACKGROUND);
+        PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
+        popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist));
         fluidFilter.initUI(popUpWidgetGroup::addWidget);
-        widget.accept(popUpWidgetGroup.setEnabled(this::isFilterEnabled));
+        widget.accept(popUpWidgetGroup.setEnabled(this::isFilterPopUp));
         widget.accept(new LabelWidget(30, 4, "metaitem.ender_fluid_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
-        widget.accept(new ToggleButtonWidget(151, 145, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterEnabled, this::setFilterEnabled)
+        widget.accept(new ToggleButtonWidget(151, 145, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
                 .setTooltipText("machine.universal.toggle.filter"));
         widget.accept(new ImageWidget(151, 145, 18, 18, FLUID_FILTER));
         widget.accept(new TJTankWidget(this::getFluidTank, 7, 38, 18, 18)
@@ -105,13 +106,22 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
                 .setContainerClicking(true, true));
     }
 
-    private void setFilterEnabled(boolean isFilterEnabled) {
-        this.isFilterEnabled = isFilterEnabled;
+    private void setFilterBlacklist(boolean isFilterBlacklist) {
+        this.isFilterBlacklist = isFilterBlacklist;
         markAsDirty();
     }
 
-    private boolean isFilterEnabled() {
-        return isFilterEnabled;
+    private boolean isFilterBlacklist() {
+        return isFilterBlacklist;
+    }
+
+    private void setFilterPopUp(boolean isFilterPopUp) {
+        this.isFilterPopUp = isFilterPopUp;
+        markAsDirty();
+    }
+
+    private boolean isFilterPopUp() {
+        return isFilterPopUp;
     }
 
     private IFluidTank getFluidTank() {
@@ -125,13 +135,13 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
             if (pumpMode == CoverPump.PumpMode.EXPORT) {
                 FluidStack enderStack = getFluidTank().drain(transferRate, false);
                 if (enderStack != null && fluidTank.fill(enderStack, false) > 0) {
-                    if (!isFilterEnabled || fluidFilter.testFluid(enderStack))
+                    if (!isFilterBlacklist == fluidFilter.testFluid(enderStack))
                         getFluidTank().drain(fluidTank.fill(enderStack, true), true);
                 }
             } else {
                 FluidStack fluidStack = fluidTank.drain(transferRate, false);
                 if (fluidStack != null && getFluidTank().fill(fluidStack, false) > 0) {
-                    if (!isFilterEnabled || fluidFilter.testFluid(fluidStack))
+                    if (!isFilterBlacklist == fluidFilter.testFluid(fluidStack))
                         fluidTank.drain(getFluidTank().fill(fluidStack, true), true);
                 }
             }
@@ -142,13 +152,13 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         fluidFilter.writeToNBT(data);
-        data.setBoolean("FilterEnabled", isFilterEnabled);
+        data.setBoolean("FilterBlacklist", isFilterBlacklist);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         fluidFilter.readFromNBT(data);
-        isFilterEnabled = data.getBoolean("FilterEnabled");
+        isFilterBlacklist = data.getBoolean("FilterBlacklist");
     }
 }

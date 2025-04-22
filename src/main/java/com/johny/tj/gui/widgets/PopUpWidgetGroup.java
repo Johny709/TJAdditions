@@ -14,15 +14,15 @@ import java.util.function.BooleanSupplier;
 public class PopUpWidgetGroup extends AbstractWidgetGroup {
 
     private final int width;
-    private final int length;
+    private final int height;
     private final TextureArea textureArea;
     private BooleanSupplier setEnabled;
     private boolean isEnabled;
 
-    public PopUpWidgetGroup(int x, int y, int width, int length, TextureArea textureArea) {
+    public PopUpWidgetGroup(int x, int y, int width, int height, TextureArea textureArea) {
         super(new Position(x, y));
         this.width = width;
-        this.length = length;
+        this.height = height;
         this.textureArea = textureArea;
     }
 
@@ -40,7 +40,7 @@ public class PopUpWidgetGroup extends AbstractWidgetGroup {
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         if (isEnabled) {
-            textureArea.draw(getPosition().getX(), getPosition().getY(), width, length);
+            textureArea.draw(getPosition().getX(), getPosition().getY(), width, height);
             super.drawInBackground(mouseX, mouseY, context);
         }
     }

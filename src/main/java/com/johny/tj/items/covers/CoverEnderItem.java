@@ -6,7 +6,6 @@ import com.johny.tj.textures.TJSimpleOverlayRenderer;
 import com.johny.tj.util.EnderWorldData;
 import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.common.covers.filter.SimpleItemFilter;
@@ -26,8 +25,7 @@ import java.util.function.Consumer;
 
 import static com.johny.tj.gui.TJGuiTextures.*;
 import static com.johny.tj.textures.TJTextures.PORTAL_OVERLAY;
-import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
+import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
 import static gregtech.common.covers.CoverPump.PumpMode.IMPORT;
 
@@ -37,7 +35,8 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     private final SimpleItemFilter itemFilter;
     private final int capacity;
     private final int tier;
-    private boolean isFilterEnabled;
+    private boolean isFilterPopUp;
+    private boolean isFilterBlacklist;
 
     public CoverEnderItem(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
@@ -49,8 +48,12 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
             @Override
             public void initUI(Consumer<Widget> widgetGroup) {
                 for (int i = 0; i < 9; i++) {
-                    widgetGroup.accept(new PhantomSlotWidget(itemFilterSlots, i, 3 + 18 * (i % 3), 3 + 18 * (i / 3)).setBackgroundTexture(GuiTextures.SLOT));
+                    widgetGroup.accept(new PhantomSlotWidget(itemFilterSlots, i, 3 + 18 * (i % 3), 3 + 18 * (i / 3)).setBackgroundTexture(SLOT));
                 }
+                widgetGroup.accept(new ToggleButtonWidget(21, 57, 18, 18, BUTTON_FILTER_DAMAGE,
+                        () -> ignoreDamage, this::setIgnoreDamage).setTooltipText("cover.item_filter.ignore_damage"));
+                widgetGroup.accept(new ToggleButtonWidget(39, 57, 18, 18, BUTTON_FILTER_NBT,
+                        () -> ignoreNBT, this::setIgnoreNBT).setTooltipText("cover.item_filter.ignore_nbt"));
             }
         };
     }
@@ -82,11 +85,12 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(180, 162, 60, 60, BORDERED_BACKGROUND);
+        PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
+        popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist));
         itemFilter.initUI(popUpWidgetGroup::addWidget);
-        widget.accept(popUpWidgetGroup.setEnabled(this::isFilterEnabled));
+        widget.accept(popUpWidgetGroup.setEnabled(this::isFilterPopUp));
         widget.accept(new LabelWidget(30, 4, "metaitem.ender_item_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
-        widget.accept(new ToggleButtonWidget(151, 145, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterEnabled, this::setFilterEnabled)
+        widget.accept(new ToggleButtonWidget(151, 145, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
                 .setTooltipText("machine.universal.toggle.filter"));
         widget.accept(new ImageWidget(151, 145, 18, 18, ITEM_FILTER));
         widget.accept(new ProgressWidget(this::getItemsStored, 7, 38, 18, 18) {
@@ -127,13 +131,22 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
         }.setProgressBar(BAR_STEEL, BAR_HEAT, VERTICAL));
     }
 
-    private void setFilterEnabled(boolean isFilterEnabled) {
-        this.isFilterEnabled = isFilterEnabled;
+    private void setFilterBlacklist(boolean isFilterBlacklist) {
+        this.isFilterBlacklist = isFilterBlacklist;
         markAsDirty();
     }
 
-    private boolean isFilterEnabled() {
-        return isFilterEnabled;
+    private boolean isFilterBlacklist() {
+        return isFilterBlacklist;
+    }
+
+    private void setFilterPopUp(boolean isFilterPopUp) {
+        this.isFilterPopUp = isFilterPopUp;
+        markAsDirty();
+    }
+
+    private boolean isFilterPopUp() {
+        return isFilterPopUp;
     }
 
     private double getItemsStored() {
@@ -170,7 +183,8 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     private void moveInventoryItems(IItemHandler sourceInventory, IItemHandler targetInventory) {
         for (int srcIndex = 0; srcIndex < sourceInventory.getSlots(); srcIndex++) {
             ItemStack sourceStack = sourceInventory.extractItem(srcIndex, Math.min(transferRate, maxTransferRate), true);
-            if (sourceStack.isEmpty() || isFilterEnabled && itemFilter.matchItemStack(sourceStack) == -1) {
+            boolean isFilterStack = itemFilter.matchItemStack(sourceStack) != null;
+            if (sourceStack.isEmpty() || isFilterBlacklist == isFilterStack) {
                 continue;
             }
             ItemStack remainder = ItemHandlerHelper.insertItemStacked(targetInventory, sourceStack, true);
@@ -186,13 +200,13 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         itemFilter.writeToNBT(data);
-        data.setBoolean("FilterEnabled", isFilterEnabled);
+        data.setBoolean("FilterBlacklist", isFilterBlacklist);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         itemFilter.readFromNBT(data);
-        isFilterEnabled = data.getBoolean("FilterEnabled");
+        isFilterBlacklist = data.getBoolean("FilterBlacklist");
     }
 }

@@ -97,7 +97,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        WidgetGroup widgetGroup = new WidgetGroup();
+        WidgetGroup widgetGroup = new WidgetGroup(), addWidgetGroup = new WidgetGroup();
         ScrollableListWidget listWidget = new ScrollableListWidget(30, 61, 127, 80) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
@@ -121,11 +121,12 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .setButtonTexture(BUTTON_CLEAR_GRID));
         widgetGroup.addWidget(new CycleButtonWidget(30, 145, 115, 18, CoverPump.PumpMode.class, this::getPumpMode, this::setPumpMode));
         widgetGroup.addWidget(new ToggleButtonWidget(7, 145, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled));
-        addWidgets(widgetGroup::addWidget);
+        addWidgets(addWidgetGroup::addWidget);
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 246)
                 .bindPlayerInventory(player.inventory, 165)
                 .widget(widgetGroup)
                 .widget(listWidget)
+                .widget(addWidgetGroup)
                 .build(this, player);
     }
 
