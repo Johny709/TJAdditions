@@ -7,6 +7,8 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJValues;
 import com.johny.tj.builder.handlers.BasicEnergyHandler;
+import com.johny.tj.gui.widgets.TJClickButtonWidget;
+import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.items.handlers.LargeItemStackHandler;
 import com.johny.tj.textures.TJSimpleOverlayRenderer;
 import com.johny.tj.textures.TJTextures;
@@ -30,6 +32,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -110,17 +113,25 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 61, 115, 80, DISPLAY));
-        widgetGroup.addWidget(new TextFieldWidget(32, 43, 112, 18, false, this::getTextID, this::setTextID)
+        widgetGroup.addWidget(new TJTextFieldWidget(32, 43, 112, 18, false, this::getTextID, this::setTextID)
+                .setTooltipText("machine.universal.toggle.current.entry")
                 .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TextFieldWidget(32, 20, 110, 18, false, this::getTransferRate, this::setTransferRate)
+        widgetGroup.addWidget(new TJTextFieldWidget(32, 20, 110, 18, false, this::getTransferRate, this::setTransferRate)
+                .setTooltipText("metaitem.ender_cover.transfer")
+                        .setTooltipFormat(this::getTooltipFormat)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ClickButtonWidget(151, 38, 18, 18, "O", this::onAddEntry));
-        widgetGroup.addWidget(new ClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 15, 18, 18, "-", this::onDecrement));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 61, 18, 18, "", this::onClear)
+        widgetGroup.addWidget(new TJClickButtonWidget(151, 38, 18, 18, "O", this::onAddEntry)
+                .setTooltipText("machine.universal.toggle.add.entry"));
+        widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
+                .setTooltipText("machine.universal.toggle.increment.disabled"));
+        widgetGroup.addWidget(new TJClickButtonWidget(7, 15, 18, 18, "-", this::onDecrement)
+                .setTooltipText("machine.universal.toggle.decrement.disabled"));
+        widgetGroup.addWidget(new TJClickButtonWidget(7, 61, 18, 18, "", this::onClear)
+                .setTooltipText("machine.universal.toggle.clear")
                 .setButtonTexture(BUTTON_CLEAR_GRID));
         widgetGroup.addWidget(new CycleButtonWidget(30, 145, 115, 18, CoverPump.PumpMode.class, this::getPumpMode, this::setPumpMode));
-        widgetGroup.addWidget(new ToggleButtonWidget(7, 145, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled));
+        widgetGroup.addWidget(new ToggleButtonWidget(7, 145, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setTooltipText("machine.universal.toggle.run.mode"));
         addWidgets(addWidgetGroup::addWidget);
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 246)
                 .bindPlayerInventory(player.inventory, 165)
@@ -128,6 +139,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .widget(listWidget)
                 .widget(addWidgetGroup)
                 .build(this, player);
+    }
+
+    private String[] getTooltipFormat() {
+        return ArrayUtils.toArray(getTransferRate());
     }
 
     private void setTransferRate(String amount) {
@@ -140,11 +155,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void onIncrement(Widget.ClickData clickData) {
-        transferRate = MathHelper.clamp(transferRate * 2, 1, maxTransferRate);
+        transferRate = MathHelper.clamp(transferRate * 2, 0, maxTransferRate);
     }
 
     private void onDecrement(Widget.ClickData clickData) {
-        transferRate = MathHelper.clamp(transferRate / 2, 1, maxTransferRate);
+        transferRate = MathHelper.clamp(transferRate / 2, 0, maxTransferRate);
     }
 
     private void setPumpMode(CoverPump.PumpMode pumpMode) {
