@@ -291,6 +291,8 @@ tile.pipe_casing.stainless_pipe.name=Stainless Pipe Casing
 tile.pipe_casing.fpm_pipe.name=FPM Pipe Casing
 tile.fusion_casing.fusion_casing_uhv.name=Fusion Casing MK IV
 tile.fusion_casing.fusion_coil_uhv.name=Fusion Coil Block MK IV
+tile.fusion_casing.fusion_casing_uev.name=Fusion Casing MK V
+tile.fusion_casing.fusion_coil_uev.name=Fusion Coil Block MK V
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover

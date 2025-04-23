@@ -28,7 +28,9 @@ public class BlockFusionCasings extends VariantBlock<BlockFusionCasings.FusionTy
 
     public enum FusionType implements IStringSerializable {
         FUSION_CASING_UHV("fusion_casing_uhv"),
-        FUSION_COIL_UHV("fusion_coil_uhv");
+        FUSION_COIL_UHV("fusion_coil_uhv"),
+        FUSION_CASING_UEV("fusion_casing_uev"),
+        FUSION_COIL_UEV("fusion_coil_uev");
 
         FusionType(String name) {
             this.name = name;

@@ -14,6 +14,16 @@
         "textures": {
           "all": "tj:blocks/casings/fusion/fusion_coil_4_uhv"
         }
+      },
+      "fusion_casing_uev": {
+        "textures": {
+          "all": "tj:blocks/casings/fusion/machine_casing_fusion_5_uev"
+        }
+      },
+      "fusion_coil_uev": {
+        "textures": {
+          "all": "tj:blocks/casings/fusion/fusion_coil_uev"
+        }
       }
     }
   }
