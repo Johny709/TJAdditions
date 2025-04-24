@@ -6,6 +6,7 @@ import com.johny.tj.blocks.BlockAbilityCasings;
 import com.johny.tj.blocks.BlockFusionCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import com.johny.tj.textures.TJTextures;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -71,13 +72,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private long euCapacity;
     private EnergyContainerList inputEnergyContainers;
     private long heat = 0;
-    DecimalFormat formatter = new DecimalFormat("#0.00");
-
-    public void resetStructure() {
-        this.invalidateStructure();
-        this.recipeMapWorkable.previousRecipe.clear();
-        this.structurePattern = createStructurePattern();
-    }
+    private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, RecipeMaps.FUSION_RECIPES);
@@ -95,6 +90,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 break;
             case 9:
                 this.energyToStart = 1_280_000_000;
+                break;
+            case 10:
+                this.energyToStart = 2_560_000_000L;
         }
         this.energyContainer = new EnergyContainerHandler(this, Integer.MAX_VALUE, 0, 0 ,0, 0) {
             @Override
@@ -105,13 +103,19 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         reinitializeStructurePattern();
     }
 
-    public int getTier() {
-        return tier;
-    }
-
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityIndustrialFusionReactor(metaTileEntityId, tier);
+    }
+
+    public void resetStructure() {
+        this.invalidateStructure();
+        this.recipeMapWorkable.previousRecipe.clear();
+        this.structurePattern = createStructurePattern();
+    }
+
+    public int getTier() {
+        return tier;
     }
 
     @Override
@@ -171,32 +175,32 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart iMultiblockPart) {
-        return ClientHandler.FUSION_TEXTURE;
+        switch (tier) {
+            case 6: return TJTextures.FUSION_PORT_LUV;
+            case 7: return TJTextures.FUSION_PORT_ZPM;
+            case 8: return TJTextures.FUSION_PORT_UV;
+            case 9: return TJTextures.FUSION_PORT_UHV;
+            default: return TJTextures.FUSION_PORT_UEV;
+        }
     }
 
     public IBlockState getCasingState() {
         switch (tier) {
-            case 6:
-                return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING);
-            case 7:
-                return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2);
-            case 8:
-                return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_3);
-            default:
-                return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_CASING_UHV);
+            case 6: return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING);
+            case 7: return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2);
+            case 8: return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_3);
+            case 9: return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_CASING_UHV);
+            default: return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_CASING_UEV);
         }
     }
 
     public IBlockState getCoilState() {
         switch (tier) {
-            case 6:
-                return MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.FUSION_COIL);
-            case 7:
-                return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_2);
-            case 8:
-                return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_3);
-            default:
-                return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UHV);
+            case 6: return MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.FUSION_COIL);
+            case 7: return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_2);
+            case 8: return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_3);
+            case 9: return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UHV);
+            default: return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UEV);
         }
     }
 

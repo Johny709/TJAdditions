@@ -24,6 +24,7 @@ tj.machine.industrial_fusion_reactor.luv.name=Industrial Fusion Reactor Computer
 tj.machine.industrial_fusion_reactor.zpm.name=Industrial Fusion Reactor Computer MK2 (IFRC2)
 tj.machine.industrial_fusion_reactor.uv.name=Industrial Fusion Reactor Computer MK3 (IFRC3)
 tj.machine.industrial_fusion_reactor.uhv.name=Industrial Fusion Reactor Computer MK4 (IFRC4)
+tj.machine.industrial_fusion_reactor.uev.name=Industrial Fusion Reactor Computer MK5 (IFRC5)
 tj.machine.parallel_chemical_reactor.name=Parallel Large Chemical Reactor (PLCR)
 tj.machine.large_greenhouse.name=Large Green House (LGH)
 tj.machine.large_architect_workbench.name=Large Architect Workbench (LAW)

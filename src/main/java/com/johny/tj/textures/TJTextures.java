@@ -49,6 +49,12 @@ public class TJTextures {
     public static TJSimpleOverlayRenderer INSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "cover/inside_overlay_base");
     public static TJSimpleOverlayRenderer PORTAL_OVERLAY = new TJSimpleOverlayRenderer("minecraft", "portal");
 
+    public static TJSimpleCubeRenderer FUSION_PORT_LUV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_luv");
+    public static TJSimpleCubeRenderer FUSION_PORT_ZPM = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_zpm");
+    public static TJSimpleCubeRenderer FUSION_PORT_UV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_uv");
+    public static TJSimpleCubeRenderer FUSION_PORT_UHV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_uhv");
+    public static TJSimpleCubeRenderer FUSION_PORT_UEV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_uev");
+
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {
         GTLog.logger.info("Loading meta tile entity texture sprites...");

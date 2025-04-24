@@ -31,6 +31,7 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        int tier = fusionReactor.getTier();
         for (int index = 0; index < 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
             for (int num = 0; num < index; num++) {
@@ -43,9 +44,9 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
                     builder.where('S', fusionReactor, EnumFacing.WEST)
                     .where('C', fusionReactor.getCasingState())
                     .where('c', fusionReactor.getCoilState())
-                    .where('E', fusionReactor.getTier() < 9 ? MetaTileEntities.ENERGY_INPUT_HATCH[fusionReactor.getTier()] : GATileEntities.ENERGY_INPUT[0], EnumFacing.WEST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[fusionReactor.getTier()], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[fusionReactor.getTier()], EnumFacing.WEST);
+                    .where('E', tier < 9 ? MetaTileEntities.ENERGY_INPUT_HATCH[tier] : GATileEntities.ENERGY_INPUT[tier - 9], EnumFacing.WEST)
+                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(tier, 9)], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(tier, 9)], EnumFacing.WEST);
             shapes.add(builder.build());
         }
         return shapes;

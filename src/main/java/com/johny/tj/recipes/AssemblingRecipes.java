@@ -152,6 +152,16 @@ public class AssemblingRecipes {
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(ENERGY_INPUT[1].getStackForm())
+                .inputs(UHPIC.getStackForm(8))
+                .input(OrePrefix.circuit, UIV)
+                .input(OrePrefix.plate, Bohrium, 8)
+                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_UEV))
+                .duration(200)
+                .EUt(GAValues.VA[10])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(HULL[8].getStackForm())
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 4)
                 .input(OrePrefix.cableGtSingle, NaquadahAlloy, 16)
@@ -170,6 +180,16 @@ public class AssemblingRecipes {
                 .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UHV))
                 .duration(50)
                 .EUt(500000)
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .fluidInputs(Periodicium.getFluid(144))
+                .input(OrePrefix.plate, SuperheavyLAlloy, 6)
+                .input(OrePrefix.plate, SuperheavyHAlloy, 6)
+                .inputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UHV))
+                .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UEV))
+                .duration(50)
+                .EUt(8000000)
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
@@ -513,6 +533,21 @@ public class AssemblingRecipes {
                 .buildAndRegister();
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(Helium.getFluid(4000))
+                .fluidInputs(Neon.getFluid(4000))
+                .fluidInputs(Krypton.getFluid(4000))
+                .fluidInputs(Xenon.getFluid(4000))
+                .inputs(NEUTRON_REFLECTOR.getStackForm(10))
+                .input(OrePrefix.cableGtQuadruple, UMVSuperconductor, 4)
+                .inputs(FIELD_GENERATOR_UEV.getStackForm(2))
+                .inputs(QCD_PROTECTIVE_PLATING.getStackForm(2))
+                .input(OrePrefix.circuit, UIV, 1)
+                .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UEV))
+                .duration(400)
+                .EUt(GAValues.VA[10])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(11520))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(SuperheavyLAlloy.getFluid(11520))
@@ -532,6 +567,29 @@ public class AssemblingRecipes {
                 .input(OrePrefix.circuit, UIV,16)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_UHV.getStackForm())
                 .EUt(1800000)
+                .duration(1000)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(DenseNeutronPlasma.getFluid(18000))
+                .fluidInputs(QCDMatter.getFluid(20736))
+                .inputs(EXOTIC_CHIP.getStackForm(64))
+                .inputs(EXOTIC_CHIP.getStackForm(64))
+                .input(OrePrefix.wireGtHex, UMVSuperconductor, 64)
+                .input(OrePrefix.plateDense, Neutronium, 4)
+                .input(OrePrefix.plateDense, CosmicNeutronium, 4)
+                .inputs(FIELD_GENERATOR_UMV.getStackForm(16))
+                .inputs(EMITTER_UMV.getStackForm(16))
+                .inputs(SENSOR_UMV.getStackForm(16))
+                .inputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UEV))
+                .input(OrePrefix.circuit, UXV, 16)
+                .input(OrePrefix.circuit, UXV, 16)
+                .input(OrePrefix.circuit, UXV, 16)
+                .input(OrePrefix.circuit, UXV, 16)
+                .outputs(INDUSTRIAL_FUSION_REACTOR_UEV.getStackForm())
+                .EUt(180000000)
                 .duration(1000)
                 .buildAndRegister();
 
