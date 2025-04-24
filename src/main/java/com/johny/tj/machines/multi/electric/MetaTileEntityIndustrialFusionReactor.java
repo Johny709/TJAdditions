@@ -449,23 +449,23 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             EUt = matchingRecipe.getEUt();
             duration = matchingRecipe.getDuration();
 
-            int tierDiff = fusionOverclockMultiplier(matchingRecipe, energyToStart);
+            float tierDiff = fusionOverclockMultiplier(matchingRecipe, energyToStart);
 
             List<FluidStack> newFluidInputs = new ArrayList<>();
             List<FluidStack> outputF = new ArrayList<>();
-            this.multiplyInputsAndOutputs(newFluidInputs, outputF, matchingRecipe, minMultiplier);
+            multiplyInputsAndOutputs(newFluidInputs, outputF, matchingRecipe, minMultiplier);
 
             RecipeBuilder<?> newRecipe = recipeMap.recipeBuilder();
 
             newRecipe.fluidInputs(newFluidInputs)
                     .fluidOutputs(outputF)
-                    .EUt(Math.max(1, (EUt * this.EUtPercentage * minMultiplier / 100) * tierDiff))
-                    .duration((int) Math.max(3, (duration * (this.durationPercentage / 100.0)) / tierDiff));
+                    .EUt((int) Math.max(1, (EUt * this.EUtPercentage * minMultiplier / 100.0) * tierDiff))
+                    .duration((int) Math.max(1, (duration * (this.durationPercentage / 100.0)) / tierDiff));
 
             return newRecipe.build().getResult();
         }
 
-        protected void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
+        private static void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
             for (FluidStack fluidS : recipe.getFluidInputs()) {
                 FluidStack newFluid = new FluidStack(fluidS.getFluid(), fluidS.amount * multiplier);
                 newFluidInputs.add(newFluid);
@@ -478,18 +478,16 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             }
         }
 
-        protected int fusionOverclockMultiplier(Recipe matchingRecipe, long energyToStart) {
-            long recipeEnergy = matchingRecipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L);
-            boolean rounded = false;
-            int multiplier = 1;
-            while (!rounded) {
-                if (recipeEnergy < (160_000_000L * multiplier) + 1) {
-                    recipeEnergy = 160_000_000L * multiplier;
-                    rounded = true;
-                }
-                multiplier *= 2;
+        private static float fusionOverclockMultiplier(Recipe matchingRecipe, long energyToStart) {
+            long recipeEnergy = Math.max(160_000_000, matchingRecipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L));
+            long recipeEnergyOld = recipeEnergy;
+            float OCMultiplier = 1;
+            while (recipeEnergy <= energyToStart) {
+                if (recipeEnergy != recipeEnergyOld)
+                    OCMultiplier *= recipeEnergy > 640_000_000 ? 4 : 2.8F;
+                recipeEnergy *= 2;
             }
-            return (int) (energyToStart / recipeEnergy);
+            return OCMultiplier;
         }
     }
 }
