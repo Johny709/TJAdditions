@@ -7,6 +7,7 @@ import com.johny.tj.blocks.BlockFusionCasings;
 import com.johny.tj.blocks.BlockFusionGlass;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import com.johny.tj.gui.widgets.TJCycleButtonWidget;
 import com.johny.tj.textures.TJTextures;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
@@ -20,6 +21,9 @@ import gregtech.api.capability.impl.EnergyContainerHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.AbstractWidgetGroup;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
@@ -49,20 +53,25 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
+import static com.johny.tj.gui.TJGuiTextures.*;
+import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController {
@@ -74,6 +83,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private EnergyContainerList inputEnergyContainers;
     private long heat = 0;
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
+    private BatchMode batchMode = BatchMode.ONE;
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, RecipeMaps.FUSION_RECIPES);
@@ -254,6 +264,28 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
+    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        return widgetGroup.apply(new TJCycleButtonWidget(172, 151, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR)
+                .setTooltipFormat(this::getTooltipFormat)
+                .setToggle(true)
+                .setButtonTexture(TOGGLE_BUTTON_BACK)
+                .setTooltipHoverString("machine.universal.batch.amount"));
+    }
+
+    private void setBatchMode(BatchMode batchMode) {
+        this.batchMode = batchMode;
+    }
+
+    private BatchMode getBatchMode() {
+        return batchMode;
+    }
+
+    private String[] getTooltipFormat() {
+        return ArrayUtils.toArray(String.valueOf(batchMode.getAmount()));
+    }
+
+    @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         textList.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer));
         if (!this.isStructureFormed()) {
@@ -365,6 +397,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         NBTTagCompound tagCompound = super.writeToNBT(data);
         tagCompound.setInteger("Parallel", this.parallelLayer);
+        tagCompound.setInteger("BatchMode", this.batchMode.ordinal());
         return tagCompound;
     }
 
@@ -372,6 +405,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.parallelLayer = data.getInteger("Parallel");
+        this.batchMode = BatchMode.values()[data.getInteger("BatchMode")];
         if (data.hasKey("Parallel"))
             this.structurePattern = createStructurePattern();
     }
@@ -451,7 +485,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             if (!matchingRecipe.getFluidInputs().isEmpty()) {
 
                 this.findFluid(countFluid, fluidInputs);
-                minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, matchingRecipe, parallelLayer));
+                minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, matchingRecipe, parallelLayer * batchMode.getAmount()));
             }
 
             if (minMultiplier == Integer.MAX_VALUE) {
@@ -471,8 +505,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
             newRecipe.fluidInputs(newFluidInputs)
                     .fluidOutputs(outputF)
-                    .EUt((int) Math.max(1, (EUt * this.EUtPercentage * minMultiplier / 100.0) * tierDiff))
-                    .duration((int) Math.max(1, (duration * (this.durationPercentage / 100.0)) / tierDiff));
+                    .EUt((int) Math.max(1, ((EUt * this.EUtPercentage * minMultiplier / 100.0) * tierDiff) / batchMode.getAmount()))
+                    .duration((int) Math.max(1, ((duration * (this.durationPercentage / 100.0)) / tierDiff) * batchMode.getAmount()));
 
             return newRecipe.build().getResult();
         }
@@ -500,6 +534,30 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 recipeEnergy *= 2;
             }
             return OCMultiplier;
+        }
+    }
+
+    public enum BatchMode implements IStringSerializable {
+        ONE("batch_one", 1),
+        FOUR("batch_four", 4),
+        SIXTEEN("batch_sixteen", 16),
+        SIXTY_FOUR("batch_sixty_four", 64);
+
+        BatchMode(String name, int amount) {
+            this.name = name;
+            this.amount = amount;
+        }
+
+        private final String name;
+        private final int amount;
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        public int getAmount() {
+            return amount;
         }
     }
 }

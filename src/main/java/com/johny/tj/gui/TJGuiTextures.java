@@ -32,5 +32,10 @@ public class TJGuiTextures {
     public static final TextureArea STEEL_FUEL_EMPTY = TextureArea.fullImage("textures/gui/steam/steel/boiler_steel_fuel.png");
     public static final TextureArea STEEL_FUEL_FULL = TextureArea.fullImage("textures/gui/steam/steel/boiler_steel_fuel_full.png");
 
+    public static final TextureArea BUTTON_BATCH_ONE = TextureArea.fullImage("textures/button/button_batch_1.png");
+    public static final TextureArea BUTTON_BATCH_FOUR = TextureArea.fullImage("textures/button/button_batch_4.png");
+    public static final TextureArea BUTTON_BATCH_SIXTEEN = TextureArea.fullImage("textures/button/button_batch_16.png");
+    public static final TextureArea BUTTON_BATCH_SIXTY_FOUR = TextureArea.fullImage("textures/button/button_batch_64.png");
+
     public static final TextureArea MULTIBLOCK_BOTTOM_TABS = TextureArea.fullImage("textures/gui/tab/multiblock_tabs_bottom.png");
 }

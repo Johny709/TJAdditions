@@ -431,6 +431,7 @@ machine.universal.mode.transfer.output=[Output]
 machine.universal.slots=Slots: §6%s§r
 machine.universal.stack=Stack Size: §6%s§7 per slot
 machine.universal.ticks.operation=Ticks per operation
+machine.universal.batch.amount=Batch Mode: §6%sx§7
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks
