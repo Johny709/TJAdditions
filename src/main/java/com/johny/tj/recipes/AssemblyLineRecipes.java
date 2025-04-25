@@ -211,7 +211,7 @@ public class AssemblyLineRecipes {
                 .inputs(NEUTRON_REFLECTOR.getStackForm(10))
                 .input(OrePrefix.cableGtQuadruple, UMVSuperconductor, 4)
                 .inputs(FIELD_GENERATOR_UEV.getStackForm(2))
-                .inputs(QCD_PROTECTIVE_PLATING.getStackForm(2))
+                .input(OrePrefix.plate, Periodicium, 4)
                 .input(OrePrefix.circuit, UIV, 1)
                 .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UEV))
                 .duration(400)
