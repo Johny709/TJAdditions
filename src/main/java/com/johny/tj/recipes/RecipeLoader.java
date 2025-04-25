@@ -1,14 +1,13 @@
 package com.johny.tj.recipes;
 
 import com.johny.tj.TJConfig;
-import com.johny.tj.blocks.BlockPipeCasings;
-import com.johny.tj.blocks.BlockSolidCasings;
-import com.johny.tj.blocks.TJMetaBlocks;
+import com.johny.tj.blocks.*;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.recipes.ct.*;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
+import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
@@ -16,6 +15,7 @@ import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.common.blocks.BlockMachineCasing;
+import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -224,6 +224,15 @@ public class RecipeLoader {
                     .EUt(2)
                     .duration(20)
                     .buildAndRegister();
+        }
+
+        BlockFusionGlass.GlassType[] fusionGlass = BlockFusionGlass.GlassType.values();
+        ItemStack[] fusionCasing = {MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING), MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2),
+                GAMetaBlocks.FUSION_CASING.getItemVariant(GAFusionCasing.CasingType.FUSION_3), TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UHV),
+                TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UEV)};
+        for (int i = 0; i < fusionGlass.length; i++) {
+            ModHandler.addShapelessRecipe("fusion_glass" + fusionCasing[i].getTranslationKey(), TJMetaBlocks.FUSION_GLASS.getItemVariant(fusionGlass[i]), fusionCasing[i], new ItemStack(Blocks.GLASS));
+            ModHandler.addShapelessRecipe("fusion_casing" + fusionCasing[i].getTranslationKey(), fusionCasing[i], TJMetaBlocks.FUSION_GLASS.getItemVariant(fusionGlass[i]));
         }
     }
 }

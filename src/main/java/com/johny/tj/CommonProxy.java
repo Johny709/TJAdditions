@@ -35,6 +35,7 @@ public class CommonProxy {
         registry.register(ABILITY_CASING);
         registry.register(PIPE_CASING);
         registry.register(FUSION_CASING);
+        registry.register(FUSION_GLASS);
     }
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
@@ -44,6 +45,7 @@ public class CommonProxy {
         registry.register(createItemBlock(ABILITY_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(PIPE_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(FUSION_CASING, VariantItemBlock::new));
+        registry.register(createItemBlock(FUSION_GLASS, VariantItemBlock::new));
     }
 
     @SubscribeEvent

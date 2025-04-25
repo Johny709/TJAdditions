@@ -28,6 +28,7 @@ public class TJMetaBlocks {
     public static BlockAbilityCasings ABILITY_CASING;
     public static BlockPipeCasings PIPE_CASING;
     public static BlockFusionCasings FUSION_CASING;
+    public static BlockFusionGlass FUSION_GLASS;
 
     public static void init() {
         SOLID_CASING = new BlockSolidCasings();
@@ -42,6 +43,9 @@ public class TJMetaBlocks {
         FUSION_CASING = new BlockFusionCasings();
         FUSION_CASING.setRegistryName("fusion_casing");
 
+        FUSION_GLASS = new BlockFusionGlass();
+        FUSION_GLASS.setRegistryName("fusion_glass");
+
         FLUID_PIPE.addPipeMaterial(FullerenePolymerMatrix, new FluidPipeProperties(1000, 18000, true));
     }
 
@@ -51,6 +55,7 @@ public class TJMetaBlocks {
         registerItemModel(ABILITY_CASING);
         registerItemModel(PIPE_CASING);
         registerItemModel(FUSION_CASING);
+        registerItemModel(FUSION_GLASS);
     }
 
     @SideOnly(Side.CLIENT)

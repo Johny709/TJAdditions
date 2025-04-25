@@ -296,6 +296,11 @@ tile.fusion_casing.fusion_casing_uhv.name=Fusion Casing MK IV
 tile.fusion_casing.fusion_coil_uhv.name=Fusion Coil Block MK IV
 tile.fusion_casing.fusion_casing_uev.name=Fusion Casing MK V
 tile.fusion_casing.fusion_coil_uev.name=Fusion Coil Block MK V
+tile.fusion_glass.fusion_glass_luv.name=Fusion Glass MK I
+tile.fusion_glass.fusion_glass_zpm.name=Fusion Glass MK II
+tile.fusion_glass.fusion_glass_uv.name=Fusion Glass MK III
+tile.fusion_glass.fusion_glass_uhv.name=Fusion Glass MK IV
+tile.fusion_glass.fusion_glass_uev.name=Fusion Glass MK V
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover
