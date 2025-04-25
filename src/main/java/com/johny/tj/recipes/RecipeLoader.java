@@ -44,8 +44,8 @@ public class RecipeLoader {
 
         craftingRecipes();
         GreenhouseRecipes.init();
-        AssemblingRecipes.assemblerRecipes();
-        AssemblingRecipes.assemblyLineRecipes();
+        AssemblerRecipes.init();
+        AssemblyLineRecipes.init();
         RockBreakerRecipes.init();
 
         if (TJConfig.machines.loadArchitectureRecipes)
