@@ -45,6 +45,11 @@
           "all": "tj:blocks/casings/solid/tungsten_titanium_carbide"
         }
       },
+      "cosmic_neutronium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/cosmic_neutronium"
+        }
+      },
       "chemically_inert_fpm": {
         "textures": {
           "all": "tj:blocks/casings/solid/chemically_inert_fpm_casing"

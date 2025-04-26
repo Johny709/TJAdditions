@@ -61,6 +61,7 @@ tj.machine.large_wireless_energy_emitter.name=Large Wireless Energy Emitter (LWE
 tj.machine.large_wireless_energy_receiver.name=Large Wireless Energy Receiver (LWER)
 tj.machine.large_battery_charger.name=Large Battery Charger (LBC)
 tj.machine.mega_reaction_chamber.name=Mega Reaction Chamber (MRC)
+tj.machine.void_more_miner.name=Void MOre Miner (VMOM)
 tj.machine.super_input_bus.hv.name=Super Input Bus (HV)
 tj.machine.super_output_bus.hv.name=Super Output Bus (HV)
 tj.machine.super_input_bus.luv.name=Super Input Bus (LuV)
@@ -247,6 +248,7 @@ tj.multiblock.parallel_large_sifter.description=True Parallel version of Large S
 tj.multiblock.parallel_large_washing_machine.description=True Parallel version of Large Washing Plant that can batch and run recipes in parallel.
 tj.multiblock.large_wireless_energy_emitter.description=Link to transfer energy to §6machines§7 and §6energy hatches§7. Gains two additional links per tier. Consumes §310L/t Nitrogen Plasma§7 per link across dimensions.
 tj.multiblock.large_battery_charger.description=§bCharges§7 or §bDischarges§7 energy of lots of items. Consumes §e1A§7 per slot, only consumes §eenergy§7 when needed. §6Players§7 can be linked to this machine to §bcharge§7 their items wireless. Consumes §310L/t Nitrogen Plasma§7 when §6player§7 is in different dimension. Gains an additional link per tier.
+tj.multiblock.void_more_miner.description=Tier and Heats is determined by Component Motor Blocks.
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7

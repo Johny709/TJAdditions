@@ -544,5 +544,26 @@ public class AssemblyLineRecipes {
                 .EUt(GAValues.VA[8])
                 .duration(2000)
                 .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(7776))
+                .fluidInputs(FullerenePolymerMatrix.getFluid(2592))
+                .input(OrePrefix.cableGtSingle, UMVSuperconductor, 64)
+                .input(OrePrefix.cableGtSingle, UMVSuperconductor, 64)
+                .input(OrePrefix.cableGtSingle, UMVSuperconductor, 64)
+                .input(OrePrefix.cableGtSingle, UMVSuperconductor, 64)
+                .input(OrePrefix.screw, HeavyQuarkDegenerateMatter, 64)
+                .input(OrePrefix.screw, Periodicium, 64)
+                .input(OrePrefix.stick, Taranium, 16)
+                .inputs(ELECTRIC_MOTOR_UMV.getStackForm(8))
+                .input(OrePrefix.plate, CosmicNeutronium, 8)
+                .input(OrePrefix.circuit, UMV, 4)
+                .input(OrePrefix.gear, QCDMatter, 4)
+                .inputs(SENSOR_UMV.getStackForm(2))
+                .inputs(VOID_MINER[2].getStackForm())
+                .outputs(VOID_MORE_MINER.getStackForm())
+                .EUt(64000000)
+                .duration(600)
+                .buildAndRegister();
     }
 }
