@@ -1,6 +1,5 @@
 package com.johny.tj.recipes;
 
-import com.johny.tj.TJConfig;
 import com.johny.tj.blocks.BlockAbilityCasings;
 import com.johny.tj.blocks.BlockFusionCasings;
 import com.johny.tj.blocks.BlockSolidCasings;
@@ -25,7 +24,6 @@ import net.minecraft.item.ItemStack;
 import java.util.Objects;
 
 import static com.johny.tj.items.TJMetaItems.*;
-import static com.johny.tj.machines.TJMetaTileEntities.COKE_OVEN;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.item.GAMetaItems.*;
@@ -335,17 +333,5 @@ public class AssemblerRecipes {
                 .duration(1200)
                 .EUt(GAValues.VA[9])
                 .buildAndRegister();
-
-        if (TJConfig.machines.replaceCTMultis) {
-            ASSEMBLER_RECIPES.recipeBuilder()
-                    .inputs(COKE_OVEN.getStackForm(64))
-                    .inputs(COKE_OVEN.getStackForm(64))
-                    .inputs(COKE_OVEN.getStackForm(64))
-                    .inputs(COKE_OVEN.getStackForm(64))
-                    .outputs(MEGA_COKE_OVEN.getStackForm(1))
-                    .EUt(30)
-                    .duration(1200)
-                    .buildAndRegister();
-        }
     }
 }

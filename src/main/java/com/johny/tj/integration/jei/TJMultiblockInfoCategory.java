@@ -43,14 +43,14 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                                 .put("coke_oven", new MultiblockInfoRecipeWrapper(new CokeOvenInfo()))
                                 .put("heat_exchanger", new MultiblockInfoRecipeWrapper(new HeatExchangerInfo()))
                                 .put("armor_infuser", new MultiblockInfoRecipeWrapper(new ArmorInfuserInfo()))
-                                .put("mega_coke_oven", new MultiblockInfoRecipeWrapper(new MegaCokeOvenInfo()))
                                 .put("dragon_egg_replicator", new MultiblockInfoRecipeWrapper(new DragonReplicatorInfo()))
                                 .put("chaos_replicator", new MultiblockInfoRecipeWrapper(new ChaosReplicatorInfo()))
                                 .put("large_powered_spawner", new MultiblockInfoRecipeWrapper(new LargePoweredSpawnerInfo()))
                                 .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
                     }
 
-                    multiblockRecipes.put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
+                    multiblockRecipes.put("mega_coke_oven", new MultiblockInfoRecipeWrapper(new MegaCokeOvenInfo()))
+                            .put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
                             .put("mega_steel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.STEEL, TJMetaTileEntities.MEGA_BOILER[1])))
                             .put("mega_titanium_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.TITANIUM, TJMetaTileEntities.MEGA_BOILER[2])))
                             .put("mega_tungstensteel_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.TUNGSTENSTEEL, TJMetaTileEntities.MEGA_BOILER[3])))

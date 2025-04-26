@@ -36,7 +36,7 @@ import static gregtech.api.recipes.RecipeMaps.PACKER_RECIPES;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
 import static gregtech.api.unification.material.Materials.*;
 
-public class RecipeLoader {
+public class RecipeInit {
 
     public static MetaTileEntityAirCollector[] AIR_COLLECTORS = {MetaTileEntities.AIR_COLLECTOR[3], AIR_COLLECTOR[4], AIR_COLLECTOR[5]};
 
@@ -47,12 +47,12 @@ public class RecipeLoader {
         AssemblerRecipes.init();
         AssemblyLineRecipes.init();
         RockBreakerRecipes.init();
+        CokeOvenRecipes.init();
 
         if (TJConfig.machines.loadArchitectureRecipes)
             ArchitectureRecipes.init();
 
         if (TJConfig.machines.replaceCTMultis) {
-            CokeOvenRecipes.init();
             PrimitiveAlloySmelterRecipes.init();
             HeatExchangerRecipes.init();
             LargePoweredSpawnerRecipes.init();

@@ -2,7 +2,8 @@ package com.johny.tj;
 
 
 import com.johny.tj.items.TJMetaItems;
-import com.johny.tj.recipes.RecipeLoader;
+import com.johny.tj.recipes.LateRecipes;
+import com.johny.tj.recipes.RecipeInit;
 import com.johny.tj.util.EnderWorldData;
 import gregtech.common.blocks.VariantItemBlock;
 import net.minecraft.block.Block;
@@ -50,7 +51,7 @@ public class CommonProxy {
 
     @SubscribeEvent
     public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
-        RecipeLoader.init();
+        RecipeInit.init();
     }
 
 
@@ -98,5 +99,6 @@ public class CommonProxy {
     }
     public void onPostLoad() {
         TJRecipeMaps.multiRecipesInit();
+        LateRecipes.init();
     }
 }
