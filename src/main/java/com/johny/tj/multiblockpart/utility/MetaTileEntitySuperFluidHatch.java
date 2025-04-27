@@ -4,6 +4,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.gui.TJGuiTextures;
+import gregicadditions.GAValues;
+import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -13,7 +15,6 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.render.Textures;
-import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -37,7 +38,7 @@ import java.util.stream.IntStream;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.EXPORT_FLUIDS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 
-public class MetaTileEntitySuperFluidHatch extends MetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IFluidTank> {
+public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IFluidTank> {
 
     private final boolean isExport;
     private int ticks = 1;
@@ -56,25 +57,40 @@ public class MetaTileEntitySuperFluidHatch extends MetaTileEntityMultiblockPart 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         int tier = getTier() / 3;
-        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.1", (int) Math.pow(2, tier - 1) * 1024000));
-        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", (tier + 1) * (tier + 1)));
+        int slots = Math.min(16, (tier + 1) * (tier + 1));
+        int capacity = (int) Math.pow(2, tier - 1) * 1024000;
+        capacity *= getTier() >= GAValues.UMV ? 8 : 1;
+        int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
+
+        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.1", finalCapacity));
+        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", slots));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }
 
     @Override
     protected FluidTankList createImportFluidHandler() {
         int tier = getTier() / 3;
+        int slots = Math.min(16, (tier + 1) * (tier + 1));
+        int capacity = (int) Math.pow(2, tier - 1) * 1024000;
+        capacity *= getTier() >= GAValues.UMV ? 8 : 1;
+        int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
+
         return isExport ? super.createImportFluidHandler()
-                : new FluidTankList(false, IntStream.range(0, (tier + 1) * (tier + 1))
-                .mapToObj(tank -> new FluidTank((int) Math.pow(2, tier - 1) * 1024000))
+                : new FluidTankList(false, IntStream.range(0, slots)
+                .mapToObj(tank -> new FluidTank(finalCapacity))
                 .collect(Collectors.toList()));
     }
 
     @Override
     protected FluidTankList createExportFluidHandler() {
         int tier = getTier() / 3;
-        return isExport ? new FluidTankList(true, IntStream.range(0, (tier + 1) * (tier + 1))
-                .mapToObj(tank -> new FluidTank((int) Math.pow(2, tier - 1) * 1024000))
+        int slots = Math.min(16, (tier + 1) * (tier + 1));
+        int capacity = (int) Math.pow(2, tier - 1) * 1024000;
+        capacity *= getTier() >= GAValues.UMV ? 8 : 1;
+        int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
+
+        return isExport ? new FluidTankList(true, IntStream.range(0, slots)
+                .mapToObj(tank -> new FluidTank(finalCapacity))
                 .collect(Collectors.toList()))
         : super.createExportFluidHandler();
     }
@@ -94,7 +110,7 @@ public class MetaTileEntitySuperFluidHatch extends MetaTileEntityMultiblockPart 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         FluidTankList tank = isExport ? exportFluids : importFluids;
-        int tier = getTier() / 3;
+        int tier = Math.min(3, getTier() / 3);
         WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new ImageWidget(169, 81 + 18 * (tier - 1), 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 86 + 18 * (tier - 1), this::addDisplayText, 0xFFFFFF));

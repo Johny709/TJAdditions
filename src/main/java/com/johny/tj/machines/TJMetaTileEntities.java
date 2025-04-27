@@ -84,10 +84,10 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCoalBoiler[] COAL_BOILER = new MetaTileEntityCoalBoiler[3];
     public static MetaTileEntitySolarBoiler[] SOLAR_BOILER = new MetaTileEntitySolarBoiler[3];
     public static MetaTileEntityFluidBoiler[] FLUID_BOILER = new MetaTileEntityFluidBoiler[3];
-    public static MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[3];
-    public static MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[3];
-    public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[3];
-    public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_OUTPUT_HATCH = new MetaTileEntitySuperFluidHatch[3];
+    public static MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
+    public static MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
+    public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
+    public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_OUTPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
 
     public static void init() {
 
@@ -167,8 +167,8 @@ public class TJMetaTileEntities {
         LARGE_WIRELESS_ENERGY_RECEIVER = GregTechAPI.registerMetaTileEntity(5104, new MetaTileEntityLargeWirelessEnergyReceiver(TJId("large_wireless_energy_receiver"), OUTPUT));
         LARGE_BATTERY_CHARGER = GregTechAPI.registerMetaTileEntity(5105, new MetaTileEntityLargeBatteryCharger(TJId("large_battery_charger")));
 
-        MEGA_REACTION_CHAMBER = GregTechAPI.registerMetaTileEntity(5118, new MetaTileEntityMegaReactionChamber(TJId("mega_reaction_chamber")));
-        VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5119, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
+        MEGA_REACTION_CHAMBER = GregTechAPI.registerMetaTileEntity(5127, new MetaTileEntityMegaReactionChamber(TJId("mega_reaction_chamber")));
+        VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5128, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
 
         int energyHatchID = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
@@ -176,9 +176,9 @@ public class TJMetaTileEntities {
             ENERGY_OUTPUT_HATCH_256A[i] = GregTechAPI.registerMetaTileEntity(energyHatchID++, new GAMetaTileEntityEnergyHatch(TJId("energy_output_256_" + GAValues.VN[tier]), tier, 256, true));
         }
 
-        int superBusID = 5106; // occupies ID range 5106 - 5117
+        int superBusID = 5106; // occupies ID range 5106 - 5126
         for (int i = 0; i < SUPER_ITEM_INPUT_BUS.length; i++) {
-            int tier = 3 + (3 * i);
+            int tier = Math.min(GAValues.MAX, 3 + (3 * i));
             SUPER_ITEM_INPUT_BUS[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperItemBus(TJId("super_input_bus." + GAValues.VN[tier]), tier, false));
             SUPER_ITEM_OUTPUT_BUS[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperItemBus(TJId("super_output_bus." + GAValues.VN[tier]), tier, true));
             SUPER_FLUID_INPUT_HATCH[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperFluidHatch(TJId("super_input_hatch." + GAValues.VN[tier]), tier, false));

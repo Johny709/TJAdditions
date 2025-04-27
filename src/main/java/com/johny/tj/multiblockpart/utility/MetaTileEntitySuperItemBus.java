@@ -4,6 +4,9 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.items.handlers.LargeItemStackHandler;
+import gregicadditions.GAValues;
+import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
@@ -12,7 +15,6 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.render.Textures;
-import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -26,18 +28,14 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.EXPORT_ITEMS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_ITEMS;
 
-public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
+public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     private final boolean isExport;
     private int ticks = 5;
@@ -55,63 +53,36 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("machine.universal.stack", 1024));
-        tooltip.add(I18n.format("machine.universal.slots", (getTier() + 1) * (getTier() + 1)));
+        int slots = Math.min(100,(getTier() + 1) * (getTier() + 1));
+        int size = getTier() < GAValues.UMV ? 1024
+                : getTier() < GAValues.MAX ? 16384
+                : Integer.MAX_VALUE;
+
+        tooltip.add(I18n.format("machine.universal.stack", size));
+        tooltip.add(I18n.format("machine.universal.slots", slots));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return isExport ? super.createImportItemHandler()
-                : new ItemStackHandler((getTier() + 1) * (getTier() + 1)) {
+        int slots = Math.min(100,(getTier() + 1) * (getTier() + 1));
+        int size = getTier() < GAValues.UMV ? 1024
+                : getTier() < GAValues.MAX ? 16384
+                : Integer.MAX_VALUE;
 
-            @Override
-            protected int getStackLimit(int slot, @NotNull ItemStack stack) {
-                return 1024;
-            }
-        };
+        return isExport ? super.createImportItemHandler()
+                : new LargeItemStackHandler(slots, size);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return isExport ? new ItemStackHandler((getTier() + 1) * (getTier() + 1)) {
+        int slots = Math.min(100,(getTier() + 1) * (getTier() + 1));
+        int size = getTier() < GAValues.UMV ? 1024
+                : getTier() < GAValues.MAX ? 16384
+                : Integer.MAX_VALUE;
 
-            @Override
-            protected int getStackLimit(int slot, @NotNull ItemStack stack) {
-                return 1024;
-            }
-
-            @Override
-            @Nonnull
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if (amount == 0)
-                    return ItemStack.EMPTY;
-
-                validateSlotIndex(slot);
-
-                ItemStack existing = this.stacks.get(slot);
-
-                if (existing.isEmpty())
-                    return ItemStack.EMPTY;
-
-                int toExtract = Math.min(amount, 1024);
-
-                if (existing.getCount() <= toExtract) {
-                    if (!simulate) {
-                        this.stacks.set(slot, ItemStack.EMPTY);
-                        onContentsChanged(slot);
-                    }
-                    return existing;
-                }
-                else {
-                    if (!simulate) {
-                        this.stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
-                        onContentsChanged(slot);
-                    }
-                    return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
-                }
-            }
-        } : super.createExportItemHandler();
+        return isExport ? new LargeItemStackHandler(slots, size)
+                : super.createExportItemHandler();
     }
 
     @Override
@@ -129,7 +100,7 @@ public class MetaTileEntitySuperItemBus extends MetaTileEntityMultiblockPart imp
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         IItemHandlerModifiable bus = isExport ? exportItems : importItems;
-        int tier = getTier() / 3;
+        int tier = Math.min(3, getTier() / 3);
         WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new ImageWidget(169, 72 * tier, 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * tier, this::addDisplayText, 0xFFFFFF));

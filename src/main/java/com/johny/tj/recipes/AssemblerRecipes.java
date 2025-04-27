@@ -23,13 +23,13 @@ import net.minecraft.item.ItemStack;
 
 import java.util.Objects;
 
+import static com.johny.tj.TJValues.CIRCUIT_TIERS;
 import static com.johny.tj.items.TJMetaItems.*;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.item.GAMetaItems.*;
 import static gregicadditions.machines.GATileEntities.*;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
-import static gregtech.api.unification.material.MarkerMaterials.Tier.Infinite;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Master;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.items.MetaItems.*;
@@ -46,6 +46,8 @@ public class AssemblerRecipes {
         MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
         MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
         MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
+        MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
+        MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
 
         for (int i = 0; i < boilerType.length; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
@@ -194,61 +196,56 @@ public class AssemblerRecipes {
                 .EUt(GAValues.VA[6])
                 .buildAndRegister();
 
-        ASSEMBLER_RECIPES.recipeBuilder()
-                .input(OrePrefix.circuit, Infinite, 2)
-                .inputs(ELECTRIC_PUMP_UHV.getStackForm())
-                .notConsumable(new IntCircuitIngredient(1))
-                .outputs(FLUID_REGULATOR_UHV.getStackForm())
-                .duration(100)
-                .EUt(GAValues.VA[9])
-                .buildAndRegister();
+        for (int i = 0; i < 15; i++) {
+            if (i == GAValues.UHV || i == GAValues.UMV || i == GAValues.MAX)
+                ASSEMBLER_RECIPES.recipeBuilder()
+                        .input(OrePrefix.circuit, CIRCUIT_TIERS[Math.min(12, i)], 2)
+                        .inputs(pumps[i - 1].getStackForm())
+                        .notConsumable(new IntCircuitIngredient(1))
+                        .outputs(regulators[i - 1].getStackForm())
+                        .duration(100)
+                        .EUt(GAValues.VA[i])
+                        .buildAndRegister();
+        }
 
         for (int i = 0; i < SUPER_ITEM_INPUT_BUS.length; i++) {
-            int tier = 3 * (1 + i);
+            int tier = Math.min(GAValues.MAX, 3 + (3 * i));
             ASSEMBLER_RECIPES.recipeBuilder()
-                    .inputs(ITEM_IMPORT_BUS[tier].getStackForm(64))
+                    .inputs(i < 3 ? ITEM_IMPORT_BUS[tier].getStackForm(64) : SUPER_ITEM_INPUT_BUS[i - 1].getStackForm())
                     .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
-                    .inputs(i == 0 ? MetaItems.ROBOT_ARM_HV.getStackForm(4)
-                            : i == 1 ? MetaItems.ROBOT_ARM_LUV.getStackForm(4)
-                            : GAMetaItems.ROBOT_ARM_UHV.getStackForm(4))
+                    .inputs(robotArms[tier - 1].getStackForm(4))
                     .outputs(SUPER_ITEM_INPUT_BUS[i].getStackForm())
-                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : Polyetheretherketone.getFluid(9216))
+                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .duration(1200)
                     .EUt(GAValues.VA[tier])
                     .buildAndRegister();
 
             ASSEMBLER_RECIPES.recipeBuilder()
-                    .inputs(ITEM_EXPORT_BUS[tier].getStackForm(64))
+                    .inputs(i < 3 ? ITEM_EXPORT_BUS[tier].getStackForm(64) : SUPER_ITEM_OUTPUT_BUS[i - 1].getStackForm())
                     .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
-                    .inputs(i == 0 ? MetaItems.CONVEYOR_MODULE_HV.getStackForm(4)
-                            : i == 1 ? MetaItems.CONVEYOR_MODULE_LUV.getStackForm(4)
-                            : GAMetaItems.CONVEYOR_MODULE_UHV.getStackForm(4))
+                    .inputs(conveyors[tier - 1].getStackForm(4))
                     .outputs(SUPER_ITEM_OUTPUT_BUS[i].getStackForm())
-                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : Polyetheretherketone.getFluid(9216))
+                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .duration(1200)
                     .EUt(GAValues.VA[tier])
                     .buildAndRegister();
 
             ASSEMBLER_RECIPES.recipeBuilder()
-                    .inputs(i < 2 ? INPUT_HATCH_MULTI.get(i).getStackForm(64) : QUADRUPLE_QUADRUPLE_INPUT_HATCH.getStackForm(64))
+                    .inputs(i < 2 ? INPUT_HATCH_MULTI.get(i).getStackForm(64) : i < 3 ? QUADRUPLE_QUADRUPLE_INPUT_HATCH.getStackForm(64) : SUPER_FLUID_INPUT_HATCH[i - 1].getStackForm())
                     .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
-                    .inputs(i == 0 ? MetaItems.FLUID_REGULATOR_HV.getStackForm(4)
-                            : i == 1 ? MetaItems.FLUID_REGULATOR_LUV.getStackForm(4)
-                            : FLUID_REGULATOR_UHV.getStackForm(4))
+                    .inputs(regulators[tier - 1].getStackForm(4))
                     .outputs(SUPER_FLUID_INPUT_HATCH[i].getStackForm())
-                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : Polyetheretherketone.getFluid(9216))
+                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .duration(1200)
                     .EUt(GAValues.VA[tier])
                     .buildAndRegister();
 
             ASSEMBLER_RECIPES.recipeBuilder()
-                    .inputs(i < 2 ? OUTPUT_HATCH_MULTI.get(i).getStackForm(64) : QUADRUPLE_QUADRUPLE_OUTPUT_HATCH.getStackForm(64))
+                    .inputs(i < 2 ? OUTPUT_HATCH_MULTI.get(i).getStackForm(64) : i < 3 ? QUADRUPLE_QUADRUPLE_OUTPUT_HATCH.getStackForm(64) : SUPER_FLUID_OUTPUT_HATCH[i - 1].getStackForm())
                     .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
-                    .inputs(i == 0 ? MetaItems.ELECTRIC_PUMP_HV.getStackForm(4)
-                            : i == 1 ? MetaItems.ELECTRIC_PUMP_LUV.getStackForm(4)
-                            : GAMetaItems.ELECTRIC_PUMP_UHV.getStackForm(4))
+                    .inputs(pumps[tier - 1].getStackForm(4))
                     .outputs(SUPER_FLUID_OUTPUT_HATCH[i].getStackForm())
-                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : Polyetheretherketone.getFluid(9216))
+                    .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .duration(1200)
                     .EUt(GAValues.VA[tier])
                     .buildAndRegister();

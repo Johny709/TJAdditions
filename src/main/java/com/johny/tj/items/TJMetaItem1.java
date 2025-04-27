@@ -19,6 +19,8 @@ public class TJMetaItem1 extends MaterialMetaItem {
         VOID_PLUNGER = addItem(1004, "void_plunger").addComponents(new VoidPlungerBehaviour()).setMaxStackSize(1);
         NBT_READER = addItem(1005, "nbt_reader").addComponents(new NBTReaderBehaviour()).setMaxStackSize(1);
         FLUID_REGULATOR_UHV = addItem(1059, "fluid.regulator.uhv");
+        FLUID_REGULATOR_UMV = addItem(1062, "fluid.regulator.umv");
+        FLUID_REGULATOR_MAX = addItem(1064, "fluid.regulator.max");
 
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) { // occupies range 1006 - 1021
             UNIVERSAL_CIRCUITS[i] = addItem(1006 + i, GAValues.VN[i].toLowerCase() + "_universal_circuit").setUnificationData(OrePrefix.circuit, CIRCUIT_TIERS[i]);
