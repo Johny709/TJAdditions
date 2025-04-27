@@ -9,6 +9,7 @@ import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.gui.widgets.PopUpWidgetGroup;
 import com.johny.tj.machines.ExtendedItemFilter;
 import com.johny.tj.machines.TJMiner;
 import com.johny.tj.textures.TJTextures;
@@ -33,6 +34,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -54,7 +56,6 @@ import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -63,7 +64,10 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -91,15 +95,16 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     protected boolean silktouch = false;
     protected boolean canRestart = false;
     protected final ExtendedItemFilter blockFilter;
-    public Map<Integer, IBlockState> blocksToFilter;
+    protected final OreDictionaryItemFilter oreDictFilter;
     protected boolean enableFilter;
     protected boolean blackListFilter;
+    protected boolean oreDict;
 
     public MetaTileEntityEliteLargeMiner(ResourceLocation metaTileEntityId, Type type) {
         super(metaTileEntityId);
         this.type = type;
-        blocksToFilter = new HashMap<>();
-        blockFilter = new ExtendedItemFilter(blocksToFilter);
+        blockFilter = new ExtendedItemFilter();
+        oreDictFilter = new OreDictionaryItemFilter();
     }
 
     @Override
@@ -213,28 +218,22 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                         NonNullList<ItemStack> itemStacks = NonNullList.create();
                         IBlockState blockState = this.getWorld().getBlockState(blockPos1);
                         int meta = blockState.getBlock().getMetaFromState(blockState);
-                        int maxState = blockState.getBlock().getBlockState().getValidStates().size();
-                        IBlockState actualState = blockState.getBlock().getBlockState().getValidStates().get(Math.min(meta, maxState));
+                        ItemStack stack = new ItemStack(blockState.getBlock(), 1, meta);
                         if (isEnableFilter()) {
-                            if (isBlackListFilter()) {
-                                if (blocksToFilter.containsValue(actualState)) {
-                                    return;
-                                }
-                            } else {
-                                if (!blocksToFilter.containsValue(actualState)) {
-                                    return;
-                                }
-                            }
+                            boolean isFilterStack = isOreDict() ? oreDictFilter.matchItemStack(stack) != null : blockFilter.matchItemStack(stack) != null;
+                            if (isBlackListFilter() == isFilterStack)
+                                return;
                         }
+
                         if (!silktouch) {
                             if (getType() != Type.DESTROYER) {
-                                GAUtility.applyHammerDrops(world.rand, actualState, itemStacks, type.fortune, null, this.energyContainer.getInputVoltage());
+                                GAUtility.applyHammerDrops(world.rand, blockState, itemStacks, type.fortune, null, this.energyContainer.getInputVoltage());
                             }
                             else {
-                                itemStacks.add(new ItemStack(actualState.getBlock().getItemDropped(actualState, world.rand, type.fortune), 1, Math.min(meta, maxState)));
+                                itemStacks.add(new ItemStack(blockState.getBlock().getItemDropped(blockState, world.rand, type.fortune), 1, meta));
                             }
                         } else {
-                            itemStacks.add(new ItemStack(actualState.getBlock(), 1, Math.min(meta, maxState)));
+                            itemStacks.add(stack);
                         }
                         if (addItemsToItemHandler(outputInventory, true, itemStacks)) {
                             addItemsToItemHandler(outputInventory, false, itemStacks);
@@ -366,12 +365,20 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     protected AbstractWidgetGroup filterTab(Function<Widget, WidgetGroup> widgetGroup) {
-        this.blockFilter.initUI(widgetGroup::apply);
+        PopUpWidgetGroup slotsPopUp = new PopUpWidgetGroup(0, -7, 180, 90, null);
+        PopUpWidgetGroup oreDictPopUp = new PopUpWidgetGroup(9, 27, 150, 100, GuiTextures.BACKGROUND);
+        blockFilter.initUI(slotsPopUp::addWidget);
+        oreDictFilter.initUI(oreDictPopUp::addWidget);
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                 .setTooltipText("machine.universal.toggle.filter"));
         widgetGroup.apply(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                 .setTooltipText("cover.filter.blacklist"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isOreDict, this::setOreDict)
+                .setTooltipText("cover.ore_dictionary_filter.title"));
+        widgetGroup.apply(new ImageWidget(172, 169, 18, 18, TJGuiTextures.ORE_DICTIONARY_FILTER));
+        widgetGroup.apply(slotsPopUp.setEnabled(this::isSlotFilter));
+        return widgetGroup.apply(oreDictPopUp.setEnabled(this::isOreDict));
     }
 
     protected AbstractWidgetGroup settingsTab(Function<Widget, WidgetGroup> widgetGroup) {
@@ -432,6 +439,18 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
 
     public boolean isBlackListFilter() {
         return blackListFilter;
+    }
+
+    private void setOreDict(boolean oreDict) {
+        this.oreDict = oreDict;
+    }
+
+    private boolean isOreDict() {
+        return oreDict;
+    }
+
+    private boolean isSlotFilter() {
+        return !oreDict;
     }
 
     @Override
@@ -499,18 +518,12 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         super.writeToNBT(data);
         NBTTagList blockList = new NBTTagList();
         NBTTagList indexList = new NBTTagList();
-        int j = 0;
-        for (Integer i : blocksToFilter.keySet()) {
-            NBTTagCompound indexCompound = new NBTTagCompound();
-            indexCompound.setInteger("BlockIndex" + j++, i);
-            indexList.appendTag(indexCompound);
-            ItemStack stack = new ItemStack(blocksToFilter.get(i).getBlock(), 1, blocksToFilter.get(i).getBlock().getMetaFromState(blocksToFilter.get(i)));
-            blockList.appendTag(stack.writeToNBT(new NBTTagCompound()));
-        }
+        blockFilter.writeToNBT(data);
         data.setTag("BlockList", blockList);
         data.setTag("IndexList", indexList);
         data.setBoolean("EnableFilter", enableFilter);
         data.setBoolean("BlackListFilter", blackListFilter);
+        data.setBoolean("OreDict", oreDict);
         data.setTag("xPos", new NBTTagLong(x.get()));
         data.setTag("yPos", new NBTTagLong(y.get()));
         data.setTag("zPos", new NBTTagLong(z.get()));
@@ -527,15 +540,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        NBTTagList blockList = data.getTagList("BlockList", Constants.NBT.TAG_COMPOUND);
-        NBTTagList indexList = data.getTagList("IndexList", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0; i < indexList.tagCount(); i++) {
-            int index = indexList.getCompoundTagAt(i).getInteger("BlockIndex" + i);
-            ItemStack stack = new ItemStack(blockList.getCompoundTagAt(i));
-            blockFilter.getItemFilterSlots().insertItem(index, stack, false);
-        }
+        blockFilter.readFromNBT(data);
         blackListFilter = data.getBoolean("BlackListFilter");
         enableFilter = data.getBoolean("EnableFilter");
+        oreDict = data.getBoolean("OreDict");
         x.set(data.getLong("xPos"));
         y.set(data.getLong("yPos"));
         z.set(data.getLong("zPos"));

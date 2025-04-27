@@ -40,7 +40,8 @@ public class PopUpWidgetGroup extends AbstractWidgetGroup {
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         if (isEnabled) {
-            textureArea.draw(getPosition().getX(), getPosition().getY(), width, height);
+            if (textureArea != null)
+                textureArea.draw(getPosition().getX(), getPosition().getY(), width, height);
             super.drawInBackground(mouseX, mouseY, context);
         }
     }
