@@ -293,6 +293,7 @@ tile.solid_casing.duranium.name=Duranium Casing
 tile.solid_casing.seaborgium.name=Seaborgium Casing
 tile.solid_casing.tungsten_titanium_carbide.name=Tungsten Titanium Carbide Casing
 tile.solid_casing.heavy_quark_degenerate_matter.name=Heavy Quark Degenerate Matter Casing
+tile.solid_casing.periodicium.name=Periodicium Casing
 tile.ability_casing.energy_port_luv.name=Fusion Energy Port (LUV)
 tile.ability_casing.energy_port_zpm.name=Fusion Energy Port (ZPM)
 tile.ability_casing.energy_port_uv.name=Fusion Energy Port (UV)
@@ -405,6 +406,8 @@ metaitem.umv_universal_circuit.name=Universal Circuit (UMV)
 metaitem.uxv_universal_circuit.name=Universal Circuit (UXV)
 metaitem.max_universal_circuit.name=Universal Circuit (MAX)
 metaitem.fluid.regulator.uhv.name=Fluid Regulator (UHV)
+metaitem.fluid.regulator.umv.name=Fluid Regulator (UMV)
+metaitem.fluid.regulator.max.name=Fluid Regulator (MAX)
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF
