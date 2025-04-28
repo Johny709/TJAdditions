@@ -454,7 +454,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     private boolean isOreDict() {
-        return !oreDict;
+        return oreDict;
     }
 
     @Override
@@ -527,7 +527,6 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         data.setTag("IndexList", indexList);
         data.setBoolean("EnableFilter", enableFilter);
         data.setBoolean("BlackListFilter", blackListFilter);
-        data.setBoolean("OreDict", oreDict);
         data.setTag("xPos", new NBTTagLong(x.get()));
         data.setTag("yPos", new NBTTagLong(y.get()));
         data.setTag("zPos", new NBTTagLong(z.get()));
@@ -547,7 +546,6 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         blockFilter.readFromNBT(data);
         blackListFilter = data.getBoolean("BlackListFilter");
         enableFilter = data.getBoolean("EnableFilter");
-        oreDict = data.getBoolean("OreDict");
         x.set(data.getLong("xPos"));
         y.set(data.getLong("yPos"));
         z.set(data.getLong("zPos"));
