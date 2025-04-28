@@ -29,8 +29,7 @@ public class BlockPipeCasings extends VariantBlock<BlockPipeCasings.PipeCasingTy
     }
 
     public enum PipeCasingType implements IStringSerializable {
-        STAINLESS_PIPE_CASING("stainless_pipe"),
-        FPM_PIPE_CASING("fpm_pipe");
+        STAINLESS_PIPE_CASING("stainless_pipe");
 
         private final String name;
 

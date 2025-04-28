@@ -11,7 +11,6 @@ import gregicadditions.GAMaterials;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.GTValues;
@@ -50,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-import static com.johny.tj.textures.TJTextures.COSMIC_NEUTRONIUM;
+import static com.johny.tj.textures.TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
 
@@ -255,9 +254,9 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
                 .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
                 .aisle("CCCCCCCCC", "CCCCSCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
                 .where('S', selfPredicate())
-                .where('C', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.COSMIC_NEUTRONIUM)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('D', statePredicate(GAMetaBlocks.getMetalCasingBlockState(QCDMatter)))
-                .where('F', statePredicate(MetaBlocks.FRAMES.get(Neutronium).getDefaultState()))
+                .where('C', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('D', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.PERIODICIUM)))
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(QCDMatter).getDefaultState()))
                 .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('#', (tile) -> true)
                 .build();
@@ -265,7 +264,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return COSMIC_NEUTRONIUM;
+        return HEAVY_QUARK_DEGENERATE_MATTER;
     }
 
     @Override

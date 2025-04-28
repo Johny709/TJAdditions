@@ -37,10 +37,9 @@ public class TJTextures {
     public static TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/soulcasing");
     public static TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/duranium");
     public static TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer(TJ.MODID,"casings/solid/seaborgium");
+    public static TJSimpleCubeRenderer HEAVY_QUARK_DEGENERATE_MATTER = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/heavy_quark_degenerate_matter");
     public static TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer(TJ.MODID, "pipe/machine_casing_pipe_stainless");
     public static TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/tungsten_titanium_carbide");
-    public static TJSimpleCubeRenderer COSMIC_NEUTRONIUM = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/cosmic_neutronium");
-    public static TJSimpleCubeRenderer CHEMICALLY_INERT_FPM = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/chemically_inert_fpm_casing");
     public static TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer(TJ.MODID, "cover/creative_fluid_cover_overlay");
     public static TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer(TJ.MODID, "cover/creative_energy_cover_overlay");
     public static TJSimpleCubeRenderer FIELD_GENERATOR_CORE = new TJSimpleCubeRenderer(TJ.MODID, "items/field_generator_core");

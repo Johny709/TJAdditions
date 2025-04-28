@@ -18,7 +18,6 @@ import net.minecraft.util.EnumFacing;
 import java.util.List;
 
 import static com.johny.tj.machines.TJMetaTileEntities.VOID_MORE_MINER;
-import static gregicadditions.GAMaterials.Neutronium;
 import static gregicadditions.GAMaterials.QCDMatter;
 
 public class VoidMOreMinerInfo extends MultiblockInfoPage {
@@ -41,9 +40,9 @@ public class VoidMOreMinerInfo extends MultiblockInfoPage {
                 .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
                 .aisle("CCCCCCCCC", "CCCCCCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
                 .where('S', getController(), EnumFacing.WEST)
-                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.COSMIC_NEUTRONIUM))
-                .where('D', GAMetaBlocks.getMetalCasingBlockState(QCDMatter))
-                .where('F', MetaBlocks.FRAMES.get(Neutronium).getDefaultState())
+                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER))
+                .where('D', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.PERIODICIUM))
+                .where('F', MetaBlocks.FRAMES.get(QCDMatter).getDefaultState())
                 .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.MOTOR_UV))
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
                 .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.UV], EnumFacing.WEST)

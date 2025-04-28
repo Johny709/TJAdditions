@@ -12,6 +12,7 @@ import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
+import gregtech.api.unification.material.type.Material;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.common.blocks.BlockMachineCasing;
@@ -26,13 +27,14 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import java.util.Arrays;
+
 import static com.johny.tj.TJValues.CIRCUIT_TIERS;
 import static com.johny.tj.items.TJMetaItems.UNIVERSAL_CIRCUITS;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
-import static gregtech.api.recipes.RecipeMaps.ALLOY_SMELTER_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.PACKER_RECIPES;
+import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
 import static gregtech.api.unification.material.Materials.*;
 
@@ -169,17 +171,27 @@ public class RecipeInit {
                     'P', CraftingComponent.PIPE.getIngredient(5 + i));
         }
 
-        ModHandler.addShapedRecipe("duranium_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.DURANIUM_CASING, 3), "PhP", "PFP", "PwP",
-                'P', new UnificationEntry(OrePrefix.plate, Duranium),
-                'F', new UnificationEntry(OrePrefix.frameGt, Duranium));
+        Material[] materials = {Duranium, Seaborgium, TungstenTitaniumCarbide, HeavyQuarkDegenerateMatter, Periodicium};
+        for (Material material : materials) {
+            ModHandler.addShapedRecipe(material.toString(), TJMetaBlocks.SOLID_CASING.getItemVariant(Arrays.stream(BlockSolidCasings.SolidCasingType.values())
+                            .filter(block -> block.getName().equals(material.toString()))
+                            .findFirst()
+                            .orElse(null), 3), "PhP", "PFP", "PwP",
+                    'P', new UnificationEntry(OrePrefix.plate, material),
+                    'F', new UnificationEntry(OrePrefix.frameGt, material));
 
-        ModHandler.addShapedRecipe("seaborgium_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING, 3), "PhP", "PFP", "PwP",
-                'P', new UnificationEntry(OrePrefix.plate, Seaborgium),
-                'F', new UnificationEntry(OrePrefix.frameGt, Seaborgium));
-
-        ModHandler.addShapedRecipe("tungsten_titanium_carbide_casing", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.TUNGSTEN_TITANIUM_CARBIDE_CASING, 3), "PhP", "PFP", "PwP",
-                'P', new UnificationEntry(OrePrefix.plate, TungstenTitaniumCarbide),
-                'F', new UnificationEntry(OrePrefix.frameGt, TungstenTitaniumCarbide));
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .input(OrePrefix.plate, material, 6)
+                    .input(OrePrefix.frameGt, material)
+                    .notConsumable(new IntCircuitIngredient(0))
+                    .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(Arrays.stream(BlockSolidCasings.SolidCasingType.values())
+                            .filter(block -> block.getName().equals(material.toString()))
+                            .findFirst()
+                            .orElse(null), 3))
+                    .duration(50)
+                    .EUt(16)
+                    .buildAndRegister();
+        }
 
         ModHandler.addShapedRecipe("linking_device", TJMetaItems.LINKING_DEVICE.getStackForm(), "SIS", "RLR", "CIC",
                 'S', CraftingComponent.SENSOR.getIngredient(5),

@@ -2,7 +2,6 @@ package com.johny.tj.recipes;
 
 import com.johny.tj.blocks.BlockAbilityCasings;
 import com.johny.tj.blocks.BlockFusionCasings;
-import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
@@ -60,33 +59,6 @@ public class AssemblerRecipes {
                     .duration(1200)
                     .buildAndRegister();
         }
-
-        ASSEMBLER_RECIPES.recipeBuilder()
-                .input(OrePrefix.plate, Duranium, 6)
-                .input(OrePrefix.frameGt, Duranium)
-                .notConsumable(new IntCircuitIngredient(0))
-                .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.DURANIUM_CASING, 3))
-                .duration(50)
-                .EUt(16)
-                .buildAndRegister();
-
-        ASSEMBLER_RECIPES.recipeBuilder()
-                .input(OrePrefix.plate, Seaborgium, 6)
-                .input(OrePrefix.frameGt, Seaborgium)
-                .notConsumable(new IntCircuitIngredient(0))
-                .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING, 3))
-                .duration(50)
-                .EUt(16)
-                .buildAndRegister();
-
-        ASSEMBLER_RECIPES.recipeBuilder()
-                .input(OrePrefix.plate, TungstenTitaniumCarbide, 6)
-                .input(OrePrefix.frameGt, TungstenTitaniumCarbide)
-                .notConsumable(new IntCircuitIngredient(0))
-                .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.TUNGSTEN_TITANIUM_CARBIDE_CASING, 3))
-                .duration(50)
-                .EUt(16)
-                .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
                 .input(OrePrefix.pipeLarge, Naquadah, 9)
