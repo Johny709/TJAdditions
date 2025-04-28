@@ -1,5 +1,6 @@
 package com.johny.tj.gui;
 
+import com.johny.tj.gui.widgets.PopUpWidgetGroup;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
@@ -42,7 +43,8 @@ public class TJTabGroup extends AbstractWidgetGroup {
         if (includeHidden) {
             for (Widget widget : tabWidgets.values()) {
                 containedWidgets.add(widget);
-
+                if (widget instanceof PopUpWidgetGroup)
+                    continue;
                 if (widget instanceof AbstractWidgetGroup)
                     containedWidgets.addAll(((AbstractWidgetGroup) widget).getContainedWidgets(true));
             }

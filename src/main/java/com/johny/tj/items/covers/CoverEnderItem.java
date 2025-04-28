@@ -8,6 +8,7 @@ import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.covers.filter.SimpleItemFilter;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -33,6 +34,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     private final IItemHandler itemInventory;
     private final SimpleItemFilter itemFilter;
+    private BooleanConsumer enableItemPopUp;
     private final int capacity;
     private final int tier;
     private boolean isFilterPopUp;
@@ -89,7 +91,8 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
         popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                 .setTooltipText("cover.filter.blacklist"));
         itemFilter.initUI(popUpWidgetGroup::addWidget);
-        widget.accept(popUpWidgetGroup.setEnabled(this::isFilterPopUp));
+        enableItemPopUp = popUpWidgetGroup::setEnabled;
+        widget.accept(popUpWidgetGroup);
         widget.accept(new LabelWidget(30, 4, "metaitem.ender_item_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
         widget.accept(new ToggleButtonWidget(151, 145, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
                 .setTooltipText("machine.universal.toggle.filter.open"));
@@ -143,6 +146,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     private void setFilterPopUp(boolean isFilterPopUp) {
         this.isFilterPopUp = isFilterPopUp;
+        this.enableItemPopUp.apply(isFilterPopUp);
         markAsDirty();
     }
 

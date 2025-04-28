@@ -315,6 +315,8 @@ tile.fusion_glass.description=Can replace casings at middle layer where output h
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover
+cover.filter.ore_dictionary.open.enabled=Ore Dictionary Filter Open
+cover.filter.ore_dictionary.open.disabled=Ore Dictionary Filter Closed
 metaitem.creative.fluid.cover.name=Creative Fluid Cover
 metaitem.creative.item.cover.name=Creative Item Cover
 metaitem.creative.cover.display.ticks=Ticks: §e%.1f§r

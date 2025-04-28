@@ -11,6 +11,7 @@ import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.PhantomFluidWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.filter.SimpleFluidFilter;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,6 +33,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     private final IFluidHandler fluidTank;
     private final SimpleFluidFilter fluidFilter;
+    private BooleanConsumer enableFluidPopUp;
     private final int capacity;
     private final int tier;
     private boolean isFilterPopUp;
@@ -96,8 +98,9 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
         PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
         popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                 .setTooltipText("cover.filter.blacklist"));
+        enableFluidPopUp = popUpWidgetGroup::setEnabled;
         fluidFilter.initUI(popUpWidgetGroup::addWidget);
-        widget.accept(popUpWidgetGroup.setEnabled(this::isFilterPopUp));
+        widget.accept(popUpWidgetGroup);
         widget.accept(new LabelWidget(30, 4, "metaitem.ender_fluid_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
         widget.accept(new ToggleButtonWidget(151, 145, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
                 .setTooltipText("machine.universal.toggle.filter.open"));
@@ -118,6 +121,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     private void setFilterPopUp(boolean isFilterPopUp) {
         this.isFilterPopUp = isFilterPopUp;
+        this.enableFluidPopUp.apply(isFilterPopUp);
         markAsDirty();
     }
 

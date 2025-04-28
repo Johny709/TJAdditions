@@ -33,6 +33,7 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import gregtech.common.items.MetaItems;
@@ -95,7 +96,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     protected boolean silktouch = false;
     protected boolean canRestart = false;
     protected final ExtendedItemFilter blockFilter;
+    protected BooleanConsumer enableBlockPopUp;
     protected final OreDictionaryItemFilter oreDictFilter;
+    protected BooleanConsumer enableOreDictPopUp;
     protected boolean enableFilter;
     protected boolean blackListFilter;
     protected boolean oreDict;
@@ -220,7 +223,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                         int meta = blockState.getBlock().getMetaFromState(blockState);
                         ItemStack stack = new ItemStack(blockState.getBlock(), 1, meta);
                         if (isEnableFilter()) {
-                            boolean isFilterStack = isOreDict() ? oreDictFilter.matchItemStack(stack) != null : blockFilter.matchItemStack(stack) != null;
+                            boolean isFilterStack = oreDictFilter.matchItemStack(stack) != null || blockFilter.matchItemStack(stack) != null;
                             if (isBlackListFilter() == isFilterStack)
                                 return;
                         }
@@ -365,20 +368,23 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     protected AbstractWidgetGroup filterTab(Function<Widget, WidgetGroup> widgetGroup) {
-        PopUpWidgetGroup slotsPopUp = new PopUpWidgetGroup(0, -7, 180, 90, null);
-        PopUpWidgetGroup oreDictPopUp = new PopUpWidgetGroup(9, 27, 150, 100, GuiTextures.BACKGROUND);
+        PopUpWidgetGroup slotsPopUp = new PopUpWidgetGroup(0, 7, 180, 90, null);
+        PopUpWidgetGroup oreDictPopUp = new PopUpWidgetGroup(9, 37, 179, 90, GuiTextures.BACKGROUND);
         blockFilter.initUI(slotsPopUp::addWidget);
+        enableBlockPopUp = slotsPopUp::setEnabled;
+        enableBlockPopUp.apply(!oreDict);
         oreDictFilter.initUI(oreDictPopUp::addWidget);
+        enableOreDictPopUp = oreDictPopUp::setEnabled;
+        enableOreDictPopUp.apply(oreDict);
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                 .setTooltipText("machine.universal.toggle.filter"));
         widgetGroup.apply(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
         widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                 .setTooltipText("cover.filter.blacklist"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isOreDict, this::setOreDict)
-                .setTooltipText("cover.ore_dictionary_filter.title"));
-        widgetGroup.apply(new ImageWidget(172, 169, 18, 18, TJGuiTextures.ORE_DICTIONARY_FILTER));
-        widgetGroup.apply(slotsPopUp.setEnabled(this::isSlotFilter));
-        return widgetGroup.apply(oreDictPopUp.setEnabled(this::isOreDict));
+        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
+                .setTooltipText("cover.filter.ore_dictionary.open"));
+        widgetGroup.apply(slotsPopUp);
+        return widgetGroup.apply(oreDictPopUp);
     }
 
     protected AbstractWidgetGroup settingsTab(Function<Widget, WidgetGroup> widgetGroup) {
@@ -443,13 +449,11 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
 
     private void setOreDict(boolean oreDict) {
         this.oreDict = oreDict;
+        this.enableBlockPopUp.apply(!oreDict);
+        this.enableOreDictPopUp.apply(oreDict);
     }
 
     private boolean isOreDict() {
-        return oreDict;
-    }
-
-    private boolean isSlotFilter() {
         return !oreDict;
     }
 
