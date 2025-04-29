@@ -456,6 +456,8 @@ machine.boiler.display.burning.info.bucket=§7Takes fluids with burn value state
 machine.steam_boiler.tooltip.heat=Heating rate §c%d
 machine.steam_boiler.tooltip.cooldown=Cooldown rate §3%d
 
+tj.top.progress.heat=Heat:
+
 tj.top.parallel_controller.maxeut=Max EU/t:
 tj.top.parallel_controller.energy_bonus=Current Energy Usage:
 tj.top.parallel_controller.energy_consumption=Energy Consumption:

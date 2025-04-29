@@ -12,5 +12,6 @@ public class TJSimpleCapabilityManager {
         registerCapabilityWithNoDefault(LinkPosInterDim.class);
         registerCapabilityWithNoDefault(LinkEntity.class);
         registerCapabilityWithNoDefault(LinkEntityInterDim.class);
+        registerCapabilityWithNoDefault(IHeatInfo.class);
     }
 }

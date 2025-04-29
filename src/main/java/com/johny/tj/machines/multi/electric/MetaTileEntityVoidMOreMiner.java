@@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.capability.IHeatInfo;
+import com.johny.tj.capability.TJCapabilities;
 import gregicadditions.GAMaterials;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
@@ -33,12 +35,14 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -53,7 +57,7 @@ import static com.johny.tj.textures.TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
 
-public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
+public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase implements IHeatInfo {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private static final int CONSUME_START = 100;
@@ -310,4 +314,20 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
         overheat = data.getBoolean("Overheat");
     }
 
+    @Override
+    public long heat() {
+        return temperature;
+    }
+
+    @Override
+    public long maxHeat() {
+        return maxTemperature;
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_HEAT)
+            return TJCapabilities.CAPABILITY_HEAT.cast(this);
+        return super.getCapability(capability, side);
+    }
 }

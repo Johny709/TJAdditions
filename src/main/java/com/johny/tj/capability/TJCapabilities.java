@@ -27,4 +27,7 @@ public class TJCapabilities {
 
     @CapabilityInject(LinkEntityInterDim.class)
     public static Capability<LinkEntityInterDim<Entity>> CAPABILITY_LINK_ENTITY_INTERDIM = null;
+
+    @CapabilityInject(IHeatInfo.class)
+    public static Capability<IHeatInfo> CAPABILITY_HEAT = null;
 }
