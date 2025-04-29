@@ -38,7 +38,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     private final int capacity;
     private final int tier;
     private boolean isFilterPopUp;
-    private boolean isFilterBlacklist;
+    private boolean isFilterBlacklist = true;
 
     public CoverEnderItem(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);

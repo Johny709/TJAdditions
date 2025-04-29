@@ -37,7 +37,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     private final int capacity;
     private final int tier;
     private boolean isFilterPopUp;
-    private boolean isFilterBlacklist;
+    private boolean isFilterBlacklist = true;
 
     public CoverEnderFluid(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
