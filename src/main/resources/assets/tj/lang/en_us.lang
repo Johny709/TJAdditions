@@ -155,7 +155,7 @@ tj.multiblock.industrial_fusion_reactor.slices=Number of slices
 tj.multiblock.industrial_fusion_reactor.overclock.1=Duration / 2
 tj.multiblock.industrial_fusion_reactor.overclock.2=Energy * 2
 tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
-tj.multiblock.industrial_fusion_reactor.required_energy=Required Energy to run recipe: §e%d§7 EU
+tj.multiblock.industrial_fusion_reactor.required_heat=Required Heat to run recipe: §e%d§7 H
 
 tj.multiblock.parallel.description.parallel=Parallels and layers can be adjusted with screwdriver. Left-Click to increment, Shift-Left-Click to decrement.
 tj.multiblock.parallel.layer.increment.success=Increased layers to:
