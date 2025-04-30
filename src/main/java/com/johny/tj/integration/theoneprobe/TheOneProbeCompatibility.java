@@ -12,5 +12,7 @@ public class TheOneProbeCompatibility {
         probe.registerProvider(new LinkedPosInfoProvider());
         probe.registerProvider(new LinkEntityInfoProvider());
         probe.registerProvider(new IHeatInfoProvider());
+        probe.registerProvider(new IFluidHandlerInfoProvider());
+        probe.registerProvider(new IItemHandlerInfoProvider());
     }
 }
