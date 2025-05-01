@@ -140,10 +140,14 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
                 if (currentDrillingFluid < CONSUME_START) {
                     currentDrillingFluid = CONSUME_START;
                 }
+                if (isActive)
+                    setActive(false);
                 return;
             }
 
             if (progress >= maxProgress) {
+                if (addItemsToItemHandler(outputInventory, true, oreOutputs))
+                    addItemsToItemHandler(outputInventory, false, oreOutputs);
                 progress = 0;
                 fluidInputs.clear();
                 fluidOutputs.clear();
@@ -200,7 +204,12 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
                     if (nbOres != 0 && canMineOres) {
                         List<ItemStack> ores = getOres();
                         Collections.shuffle(ores);
-                        oreOutputs.addAll(ores.stream().limit(10).peek(itemStack -> itemStack.setCount(getWorld().rand.nextInt((int) (nbOres * nbOres)) + 1)).collect(Collectors.toCollection(ArrayList::new)));
+                        oreOutputs.addAll(ores.stream()
+                                .limit(10)
+                                .peek(itemStack -> itemStack.setCount(getWorld().rand.nextInt((int) (nbOres * nbOres)) + 1))
+                                .collect(Collectors.toCollection(ArrayList::new)));
+
+                        oreOutputs.forEach(ore -> ore.getItem().setMaxStackSize(Integer.MAX_VALUE));
                     }
                 }
                 progress = 1;
