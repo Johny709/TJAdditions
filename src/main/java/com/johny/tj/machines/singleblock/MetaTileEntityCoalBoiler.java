@@ -3,6 +3,7 @@ package com.johny.tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.capability.IHeatInfo;
 import com.johny.tj.textures.TJTextures;
 import gregtech.api.capability.IFuelInfo;
 import gregtech.api.capability.IFuelable;
@@ -55,7 +56,7 @@ import static gregtech.api.capability.GregtechTileCapabilities.CAPABILITY_WORKAB
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
 import static gregtech.api.unification.material.Materials.Steam;
 
-public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkable, IFuelInfo, IFuelable {
+public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkable, IFuelInfo, IFuelable, IHeatInfo {
 
     protected float temp;
     private boolean isActive;
@@ -417,4 +418,13 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
         return super.getCapability(capability, side);
     }
 
+    @Override
+    public long heat() {
+        return (long) temp / 24;
+    }
+
+    @Override
+    public long maxHeat() {
+        return 500;
+    }
 }
