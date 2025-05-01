@@ -29,9 +29,7 @@ public class IItemHandlerInfoProvider extends CapabilityInfoProvider<IItemHandle
             IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             inputInfo.text(TextStyleClass.INFO + "{*tj.top.items.inputs*} ");
             for (ItemStack item : inputs) {
-                IProbeInfo itemInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                itemInfo.item(item);
-                itemInfo.text(TextStyleClass.INFO + " {*" + item.getTranslationKey() + "*} " + item.getCount());
+                inputInfo.item(item);
             }
         }
 
@@ -39,15 +37,13 @@ public class IItemHandlerInfoProvider extends CapabilityInfoProvider<IItemHandle
             IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             outputInfo.text(TextStyleClass.INFO + "{*tj.top.items.outputs*} ");
             for (ItemStack item : outputs) {
-                IProbeInfo itemInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                itemInfo.item(item);
-                itemInfo.text(TextStyleClass.INFO + " {*" + item.getTranslationKey() + "*} " + item.getCount());
+                outputInfo.item(item);
             }
         }
     }
 
     @Override
     public String getID() {
-        return "";
+        return "tj:item_handler_provider";
     }
 }

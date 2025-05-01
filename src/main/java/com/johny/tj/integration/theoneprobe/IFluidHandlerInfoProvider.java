@@ -6,11 +6,11 @@ import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.TextStyleClass;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 
 import java.util.List;
 
@@ -30,25 +30,23 @@ public class IFluidHandlerInfoProvider extends CapabilityInfoProvider<IFluidHand
             IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             inputInfo.text(TextStyleClass.INFO + "{*tj.top.fluid.inputs*} ");
             for (FluidStack fluid : inputs) {
-                IProbeInfo fluidInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                fluidInfo.item(new ItemStack(fluid.getFluid().getBlock(), fluid.amount));
-                fluidInfo.text(TextStyleClass.INFO + "-" + " {*" + fluid.getUnlocalizedName() + "*} " + fluid.amount);
+                inputInfo.item(FluidUtil.getFilledBucket(fluid));
+                inputInfo.text(String.format("%,d" + "L", fluid.amount));
             }
         }
 
         if (outputs != null) {
             IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            outputInfo.text(TextStyleClass.INFO + "{*tj.top.items.outputs*} ");
+            outputInfo.text(TextStyleClass.INFO + "{*tj.top.fluid.outputs*} ");
             for (FluidStack fluid : outputs) {
-                IProbeInfo fluidInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                fluidInfo.item(new ItemStack(fluid.getFluid().getBlock(), fluid.amount));
-                fluidInfo.text(TextStyleClass.INFO + "-" + " {*" + fluid.getUnlocalizedName() + "*} " + fluid.amount);
+                outputInfo.item(FluidUtil.getFilledBucket(fluid));
+                outputInfo.text(String.format("%,d" + "L", fluid.amount));
             }
         }
     }
 
     @Override
     public String getID() {
-        return "";
+        return "tj:fluid_handler_provider";
     }
 }

@@ -29,8 +29,9 @@ public class IHeatInfoProvider extends CapabilityInfoProvider<IHeatInfo> {
         pageInfo.text(TextStyleClass.INFO + "{*tj.top.progress.heat*} ");
         pageInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
                 .suffix(displayHeat)
-                .width((displayHeat.length() * 12) / 2)
-                .filledColor(0xff0000ff));
+                .alternateFilledColor(0xFFF10000)
+                .filledColor(0xFFF10000)
+                .width((displayHeat.length() * 12) / 2));
 
     }
 
