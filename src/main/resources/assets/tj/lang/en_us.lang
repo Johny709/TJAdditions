@@ -203,8 +203,6 @@ tj.multiblock.elite_large_miner.reset.y=[Reset]
 
 tj.mulitblock.greenhouse.treemode=[Tree Mode]
 tj.multiblock.drilling_rig.voltage=Requires §d%s§7 voltage or higher. Overclocks up to §d%s§7.
-tj.multiblock.drilling_rig_drilling_mud.input=Fluid Input: %dmB/sec
-tj.multiblock.drilling_rig_drilling_mud.output=Fluid Output: %dmB/sec
 tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%dL§7 Drilling Mud and outputs §c%dL§7 Used Drilling Mud per second.
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
@@ -266,9 +264,10 @@ tj.multiblock.tab.linked_entities_display=Linked Entities
 tj.multiblock.tab.workable=Recipe Workable Handlers
 tj.multiblock.tab.settings=Settings
 tj.multiblock.tab.debug=Debugging
+tj.multiblock.tab.fluid=Fluid
 
-tj.multiblock.not_enough_fluid=WARNING: not enough fluid %d
-tj.multiblock.not_enough_fluid.space=WARNING: not enough space for fluid %d
+tj.multiblock.not_enough_fluid=WARNING: not enough fluid %s. Required: %dL
+tj.multiblock.not_enough_fluid.space=WARNING: not enough space for fluid %s Required: %dL
 tj.multiblock.enough_fluid=Consuming:
 tj.multiblock.turbine.tooltip.efficiency=[Fuel Efficiency]
 tj.multiblock.turbine.tooltip.efficiency.normal=Normal: §e%d§7
@@ -446,6 +445,8 @@ machine.universal.slots=Slots: §6%s§r
 machine.universal.stack=Stack Size: §6%s§7 per slot
 machine.universal.ticks.operation=Ticks per operation
 machine.universal.batch.amount=Batch Mode: §6%sx§7
+machine.universal.fluid.input.sec=Fluid Input: %s %dL/sec
+machine.universal.fluid.output.sec=Fluid Output: %s %dL/sec
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks

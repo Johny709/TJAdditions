@@ -128,12 +128,12 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
 
         ITextComponent energyText = hasEnoughEnergy ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, GAValues.VN[tier])
                 : new TextComponentTranslation("gregtech.multiblock.not_enough_energy");
-        ITextComponent drillingMudInputText = hasEnoughDrillingMud ? new TextComponentTranslation("tj.multiblock.drilling_rig_drilling_mud.input", drillingMudAmount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid", drillingMudName);
-        ITextComponent drillingMudOutputText = canFillDrillingMudOutput ? new TextComponentTranslation("tj.multiblock.drilling_rig_drilling_mud.output", drillingMudAmount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", usedDrillingMudName);
+        ITextComponent drillingMudInputText = hasEnoughDrillingMud ? new TextComponentTranslation("machine.universal.fluid.input.sec", drillingMudName, drillingMudAmount)
+                : new TextComponentTranslation("tj.multiblock.not_enough_fluid", drillingMudName, drillingMudAmount);
+        ITextComponent drillingMudOutputText = canFillDrillingMudOutput ? new TextComponentTranslation("machine.universal.fluid.output.sec", usedDrillingMudName, drillingMudAmount)
+                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", usedDrillingMudName, drillingMudAmount);
         ITextComponent fluidOutputText = canFillFluidOutput ? new TextComponentTranslation("gtadditions.multiblock.drilling_rig.rig_production", outputVeinFluidAmount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", veinName);
+                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", veinName, outputVeinFluidAmount);
         ITextComponent currentFluidVeinText = new TextComponentTranslation("gtadditions.multiblock.drilling_rig.fluid", veinName);
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentTranslation("gregtech.multiblock.work_paused")
                 : !isActive ? new TextComponentTranslation("gregtech.multiblock.idling")
@@ -142,8 +142,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
         energyText.getStyle().setColor(hasEnoughEnergy ? WHITE : RED);
         drillingMudInputText.getStyle().setColor(hasEnoughDrillingMud ? WHITE : RED);
         drillingMudOutputText.getStyle().setColor(canFillDrillingMudOutput ? WHITE : RED);
-        isWorkingText.getStyle().setColor(!isWorkingEnabled ? YELLOW : !isActive ? WHITE : GREEN);
         fluidOutputText.getStyle().setColor(canFillFluidOutput ? WHITE : RED);
+        isWorkingText.getStyle().setColor(!isWorkingEnabled ? YELLOW : !isActive ? WHITE : GREEN);
 
         textList.addAll(Arrays.asList(energyText, drillingMudInputText, drillingMudOutputText, fluidOutputText, currentFluidVeinText, isWorkingText));
         if (isActive)
@@ -194,7 +194,6 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
         }
 
         if (hasEnoughEnergy(maxVoltage)) {
-            energyContainer.removeEnergy(maxVoltage);
             if (progress <= 0) {
                 if (hasEnoughFluid(drillingMudAmount) && canOutputUsedDrillingMud(drillingMudAmount)) {
                     fluidInputs.add(inputFluid.drain(DrillingMud.getFluid(drillingMudAmount), true));
@@ -204,12 +203,15 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
                     progress = 1;
                     if (!isActive)
                         setActive(true);
+                } else {
+                    return; // prevent energy consumption if fluid is not consumed
                 }
             } else {
                 progress++;
             }
+            energyContainer.removeEnergy(maxVoltage);
         } else {
-            if (progress < 1)
+            if (progress > 1)
                 progress--;
         }
     }
