@@ -88,7 +88,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
 
         return fluidInputsCount >= 1 &&
                 fluidOutputsCount >= 1 &&
-                abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
+                abilities.containsKey(MultiblockAbility.INPUT_ENERGY) &&
+                abilities.containsKey(GregicAdditionsCapabilities.MAINTENANCE_HATCH);
     }
 
     @Override
