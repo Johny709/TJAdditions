@@ -5,6 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.capability.IHeatInfo;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
 import gregtech.api.capability.GregtechCapabilities;
@@ -53,10 +54,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static com.johny.tj.capability.TJCapabilities.CAPABILITY_HEAT;
+import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_FUELABLE;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 
-public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IFuelable {
+public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IFuelable, IHeatInfo {
 
     private static final int CONSUMPTION_MULTIPLIER = 100;
     private static final int BOILING_TEMPERATURE = 100;
@@ -482,13 +485,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     }
 
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        T result = super.getCapability(capability, side);
-        if (result != null)
-            return result;
-        if (capability == GregtechCapabilities.CAPABILITY_FUELABLE) {
-            return GregtechCapabilities.CAPABILITY_FUELABLE.cast(this);
-        }
-        return null;
+        if (capability == CAPABILITY_FUELABLE)
+            return CAPABILITY_FUELABLE.cast(this);
+        if (capability == CAPABILITY_HEAT)
+            return CAPABILITY_HEAT.cast(this);
+        return super.getCapability(capability, side);
     }
 
     @Override
@@ -563,4 +564,13 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         return fuels.values();
     }
 
+    @Override
+    public long heat() {
+        return 0;
+    }
+
+    @Override
+    public long maxHeat() {
+        return 0;
+    }
 }

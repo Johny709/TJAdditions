@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.johny.tj.capability.TJCapabilities.CAPABILITY_HEAT;
 import static com.johny.tj.gui.TJGuiTextures.BAR_HEAT;
 import static com.johny.tj.machines.singleblock.BoilerType.BRONZE;
 import static com.johny.tj.machines.singleblock.BoilerType.STEEL;
@@ -415,6 +416,8 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
             return CAPABILITY_WORKABLE.cast(this);
         else if (capability == CAPABILITY_FUELABLE)
             return CAPABILITY_FUELABLE.cast(this);
+        else if (capability == CAPABILITY_HEAT)
+            return CAPABILITY_HEAT.cast(this);
         return super.getCapability(capability, side);
     }
 
