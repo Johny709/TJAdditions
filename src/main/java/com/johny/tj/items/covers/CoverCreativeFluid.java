@@ -88,6 +88,7 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
+        markAsDirty();
     }
 
     @Override
@@ -97,6 +98,7 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
 
     private void onReset(boolean reset) {
         speed = 1;
+        markAsDirty();
     }
 
     private boolean isReset() {
@@ -113,6 +115,7 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
                 : clickData.isShiftClick ? 10
                 : 1;
         speed = MathHelper.clamp(speed +value, 1, Integer.MAX_VALUE);
+        markAsDirty();
     }
 
     private void onDecrement(Widget.ClickData clickData) {
@@ -120,6 +123,7 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
                 : clickData.isShiftClick ? 10
                 : 1;
         speed = MathHelper.clamp(speed -value, 1, Integer.MAX_VALUE);
+        markAsDirty();
     }
 
     @Override

@@ -156,10 +156,12 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void onIncrement(Widget.ClickData clickData) {
         transferRate = MathHelper.clamp(transferRate * 2, 1, maxTransferRate);
+        markAsDirty();
     }
 
     private void onDecrement(Widget.ClickData clickData) {
         transferRate = MathHelper.clamp(transferRate / 2, 1, maxTransferRate);
+        markAsDirty();
     }
 
     private void setPumpMode(CoverPump.PumpMode pumpMode) {
@@ -255,5 +257,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public void setWorkingEnabled(boolean isWorkingEnabled) {
         this.isWorkingEnabled = isWorkingEnabled;
+        markAsDirty();
     }
 }

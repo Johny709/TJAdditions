@@ -167,6 +167,7 @@ public abstract class TJGARecipeMapMultiblockController extends GARecipeMapMulti
 
     protected void setDistinctMode(boolean distinct) {
         isDistinct = distinct;
+        markDirty();
     }
 
     @Override

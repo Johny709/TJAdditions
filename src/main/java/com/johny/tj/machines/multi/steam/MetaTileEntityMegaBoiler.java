@@ -214,6 +214,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
 
     @Override
     protected void updateFormedValid() {
+        if (getOffsetTimer() < 40)
+            return;
         if (getOffsetTimer() % 20 == 0) {
             double outputMultiplier = currentTemperature / (boilerType.maxTemperature * 1.0) * getThrottleMultiplier() * getThrottleEfficiency();
             steamProduction = (int) (boilerType.baseSteamOutput * MAX_PROCESSES * outputMultiplier);
@@ -235,8 +237,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
 
         if (progress >= maxProgress) {
             progress = 0;
-            if (isActive)
-                setActive(false);
+            setActive(false);
         }
 
         if (progress <= 0) {
@@ -245,8 +246,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
             if (fuelMaxBurnTime > 0) {
                 maxProgress = fuelMaxBurnTime;
                 progress = 1;
-                if (!isActive)
-                    setActive(true);
+                setActive(true);
             }
         } else {
             progress++;
@@ -496,7 +496,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
             this.currentItemProcessed = data.getString("CurrentItemProcessed");
         }
         this.currentItemsEngaged = data.getInteger("CurrentItemsEngaged");
-        if(data.hasKey("ThrottlePercentage")) {
+        if (data.hasKey("ThrottlePercentage")) {
             this.throttlePercentage = data.getInteger("ThrottlePercentage");
         }
     }

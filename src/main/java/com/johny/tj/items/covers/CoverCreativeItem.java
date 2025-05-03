@@ -85,6 +85,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
+        markAsDirty();
     }
 
     @Override
@@ -94,6 +95,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
 
     private void onReset(boolean reset) {
         speed = 1;
+        markAsDirty();
     }
 
     private boolean isReset() {
@@ -110,6 +112,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
                 : clickData.isShiftClick ? 10
                 : 1;
         speed = MathHelper.clamp(speed +value, 1, Integer.MAX_VALUE);
+        markAsDirty();
     }
 
     private void onDecrement(Widget.ClickData clickData) {
@@ -117,6 +120,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
                 : clickData.isShiftClick ? 10
                 : 1;
         speed = MathHelper.clamp(speed -value, 1, Integer.MAX_VALUE);
+        markAsDirty();
     }
 
     @Override

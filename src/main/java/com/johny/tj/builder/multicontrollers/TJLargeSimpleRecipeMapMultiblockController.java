@@ -167,6 +167,7 @@ public abstract class TJLargeSimpleRecipeMapMultiblockController extends LargeSi
 
     protected void setDistinctMode(boolean distinct) {
         isDistinct = distinct;
+        markDirty();
     }
 
     @Override

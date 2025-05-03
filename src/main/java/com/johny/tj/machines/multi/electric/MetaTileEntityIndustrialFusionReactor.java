@@ -289,6 +289,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     private void setBatchMode(BatchMode batchMode) {
         this.batchMode = batchMode;
+        markDirty();
     }
 
     private BatchMode getBatchMode() {

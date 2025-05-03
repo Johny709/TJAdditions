@@ -167,6 +167,7 @@ public abstract class TJMultiRecipeMapMultiblockController extends MultiRecipeMa
 
     protected void setDistinctMode(boolean distinct) {
         isDistinct = distinct;
+        markDirty();
     }
 
     @Override

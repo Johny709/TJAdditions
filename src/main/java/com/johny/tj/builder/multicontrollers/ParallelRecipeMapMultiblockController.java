@@ -156,6 +156,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public void setDistinctBus(Boolean isDistinctBus) {
         this.isDistinctBus = isDistinctBus;
         this.recipeMapWorkable.previousRecipe.clear();
+        markDirty();
     }
 
     @Override
