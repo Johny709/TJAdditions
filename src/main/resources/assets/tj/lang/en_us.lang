@@ -266,6 +266,7 @@ tj.multiblock.tab.settings=Settings
 tj.multiblock.tab.debug=Debugging
 tj.multiblock.tab.fluid=Fluid
 
+tj.multiblock.structure_formed=Structure Formed.
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %s. Required: %dL
 tj.multiblock.not_enough_fluid.space=WARNING: not enough space for fluid %s Required: %dL
 tj.multiblock.enough_fluid=Consuming:
