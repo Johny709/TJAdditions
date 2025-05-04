@@ -476,6 +476,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setInteger("CurrentTemperature", currentTemperature);
+        data.setInteger("MaxProgress", maxProgress);
         data.setInteger("Progress", progress);
         data.setBoolean("HasNoWater", hasNoWater);
         data.setBoolean("Active", isActive);
@@ -489,6 +490,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.currentTemperature = data.getInteger("CurrentTemperature");
+        this.maxProgress = data.getInteger("MaxProgress");
         this.progress = data.getInteger("Progress");
         this.hasNoWater = data.getBoolean("HasNoWater");
         this.isActive = data.getBoolean("Active");
