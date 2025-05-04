@@ -21,6 +21,7 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import gregtech.common.metatileentities.multi.electric.generator.RotorHolderMultiblockController;
@@ -32,6 +33,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
@@ -48,10 +50,11 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
 
-    private int pageIndex = 0;
+    private int pageIndex;
     private final int pageSize = 6;
     private XLTurbineWorkableHandler xlTurbineWorkableHandler;
-    protected boolean doStructureCheck = false;
+    protected boolean doStructureCheck;
+    private BooleanConsumer fastModeConsumer;
 
     public MetaTileEntityXLTurbine(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
@@ -81,10 +84,16 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
             ITextComponent toggleFastMode = new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode");
             toggleFastMode.appendText(" ");
 
-            if (xlTurbineWorkableHandler.getFastModeToggle())
+            if (xlTurbineWorkableHandler.isFastMode())
                 toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true"));
             else
                 toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false"));
+
+            FluidStack fuelStack = xlTurbineWorkableHandler.getFuelStack();
+            int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+
+            ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+            textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.fuel_amount", fuelAmount, fuelName));
 
             textList.add(toggleFastMode);
 
@@ -148,10 +157,10 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         switch (componentData) {
             case "false":
-                xlTurbineWorkableHandler.toggleFastMode(true);
+                fastModeConsumer.apply(true);
                 break;
             case "true":
-                xlTurbineWorkableHandler.toggleFastMode(false);
+                fastModeConsumer.apply(false);
                 break;
             case "leftPage":
                 if (pageIndex > 0)
@@ -177,6 +186,7 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController {
     protected FuelRecipeLogic createWorkable(long maxVoltage) {
         XLTurbineWorkableHandler xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
         this.xlTurbineWorkableHandler = xlTurbineWorkableHandler;
+        this.fastModeConsumer = xlTurbineWorkableHandler::setFastMode;
         return xlTurbineWorkableHandler;
     }
 

@@ -22,6 +22,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,6 +31,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
@@ -46,10 +48,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
 
-    private int pageIndex = 0;
+    private int pageIndex;
     private final int pageSize = 6;
     private XLHotCoolantTurbineWorkableHandler xlHotCoolantTurbineWorkableHandler;
-    protected boolean doStructureCheck = false;
+    protected boolean doStructureCheck;
+    private BooleanConsumer fastModeConsumer;
 
     public MetaTileEntityXLHotCoolantTurbine(ResourceLocation metaTileEntityId, MetaTileEntityHotCoolantTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType);
@@ -79,10 +82,16 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             ITextComponent toggleFastMode = new TextComponentTranslation("gregtech.multiblock.extreme_turbine.fast_mode");
             toggleFastMode.appendText(" ");
 
-            if (xlHotCoolantTurbineWorkableHandler.getFastModeToggle())
+            if (xlHotCoolantTurbineWorkableHandler.isFastMode())
                 toggleFastMode.appendSibling(withButton(new TextComponentTranslation("gregtech.multiblock.extreme_turbine.fast_mode.true"), "true"));
             else
                 toggleFastMode.appendSibling(withButton(new TextComponentTranslation("gregtech.multiblock.extreme_turbine.fast_mode.false"), "false"));
+
+            FluidStack fuelStack = xlHotCoolantTurbineWorkableHandler.getFuelStack();
+            int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+
+            ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+            textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.fuel_amount", fuelAmount, fuelName));
 
             textList.add(toggleFastMode);
 
@@ -146,10 +155,10 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         switch (componentData) {
             case "false":
-                xlHotCoolantTurbineWorkableHandler.toggleFastMode(true);
+                fastModeConsumer.apply(true);
                 break;
             case "true":
-                xlHotCoolantTurbineWorkableHandler.toggleFastMode(false);
+                fastModeConsumer.apply(false);
                 break;
             case "leftPage":
                 if (pageIndex > 0)
@@ -175,6 +184,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     protected HotCoolantRecipeLogic createWorkable(long maxVoltage) {
         XLHotCoolantTurbineWorkableHandler xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
         this.xlHotCoolantTurbineWorkableHandler = xlHotCoolantTurbineWorkableHandler;
+        this.fastModeConsumer = xlHotCoolantTurbineWorkableHandler::setFastMode;
         return xlHotCoolantTurbineWorkableHandler;
     }
 
