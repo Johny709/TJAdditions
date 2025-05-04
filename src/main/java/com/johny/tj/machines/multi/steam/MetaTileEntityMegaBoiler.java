@@ -5,6 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.capability.IGeneratorInfo;
 import com.johny.tj.capability.IHeatInfo;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
@@ -55,6 +56,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static com.johny.tj.capability.TJCapabilities.CAPABILITY_GENERATOR;
 import static com.johny.tj.capability.TJCapabilities.CAPABILITY_HEAT;
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_FUELABLE;
 import static gregtech.api.capability.GregtechTileCapabilities.CAPABILITY_WORKABLE;
@@ -63,7 +65,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate
 import static gregtech.api.unification.material.Materials.Steam;
 import static gregtech.api.unification.material.Materials.Water;
 
-public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IWorkable, IFuelable, IHeatInfo {
+public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IWorkable, IFuelable, IHeatInfo, IGeneratorInfo {
 
     private static final int CONSUMPTION_MULTIPLIER = 100;
     private static final int BOILING_TEMPERATURE = 100;
@@ -510,6 +512,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
             return CAPABILITY_FUELABLE.cast(this);
         if (capability == CAPABILITY_HEAT)
             return CAPABILITY_HEAT.cast(this);
+        if (capability == CAPABILITY_GENERATOR)
+            return CAPABILITY_GENERATOR.cast(this);
         return super.getCapability(capability, side);
     }
 
@@ -603,5 +607,20 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     @Override
     public int getMaxProgress() {
         return maxProgress;
+    }
+
+    @Override
+    public long getProduction() {
+        return steamProduction;
+    }
+
+    @Override
+    public String prefix() {
+        return "machine.universal.producing";
+    }
+
+    @Override
+    public String suffix() {
+        return "tj.multiblock.large_boiler.steam.generation";
     }
 }

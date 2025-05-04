@@ -36,4 +36,7 @@ public class TJCapabilities {
 
     @CapabilityInject(IItemHandlerInfo.class)
     public static Capability<IItemHandlerInfo> CAPABILITY_ITEM_HANDLING = null;
+
+    @CapabilityInject(IGeneratorInfo.class)
+    public static Capability<IGeneratorInfo> CAPABILITY_GENERATOR = null;
 }

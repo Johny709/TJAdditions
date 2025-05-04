@@ -135,6 +135,7 @@ tj.multiblock.large_boiler.clear_item=Clear Item:
 tj.multiblock.large_boiler.items_process_hover=Current Items going to be processed. Will start when boiler reaches max capacity
 tj.multiblock.large_boiler.insert_item=Insert Item
 tj.multiblock.large_boiler.insert_burnable.name=Insert Burnable
+tj.multiblock.large_boiler.steam.generation=§7Steam/t§r
 
 tj.multiblock.extreme_turbine.norotor=No Rotor
 tj.multiblock.extreme_turbine.insertrotor=Insert Rotor
@@ -448,6 +449,8 @@ machine.universal.ticks.operation=Ticks per operation
 machine.universal.batch.amount=Batch Mode: §6%sx§7
 machine.universal.fluid.input.sec=Fluid Input: %s %dL/sec
 machine.universal.fluid.output.sec=Fluid Output: %s %dL/sec
+machine.universal.producing=Producing:
+machine.universal.eu.tick=§eEU/t§r
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks
