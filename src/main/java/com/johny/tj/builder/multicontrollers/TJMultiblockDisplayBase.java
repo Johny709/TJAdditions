@@ -3,6 +3,7 @@ package com.johny.tj.builder.multicontrollers;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJHorizontoalTabListRenderer;
 import com.johny.tj.gui.TJTabGroup;
+import com.johny.tj.gui.TJWidgetGroup;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.GAMultiblockWithDisplayBase;
 import gregtech.api.capability.GregtechTileCapabilities;
@@ -53,9 +54,9 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
     }
 
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        WidgetGroup widgetDisplayGroup = new WidgetGroup(), widgetMaintenanceGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widget -> {widgetDisplayGroup.addWidget(widget); return widgetDisplayGroup;})));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab(widget -> {widgetMaintenanceGroup.addWidget(widget); return widgetMaintenanceGroup;})));
+        TJWidgetGroup widgetDisplayGroup = new TJWidgetGroup(), widgetMaintenanceGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widgetDisplayGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab(widgetMaintenanceGroup::addWidgets)));
     }
 
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {

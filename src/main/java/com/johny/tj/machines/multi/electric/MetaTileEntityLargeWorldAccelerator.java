@@ -8,6 +8,7 @@ import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.*;
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.machines.AcceleratorBlacklist;
 import com.johny.tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
@@ -202,8 +203,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        WidgetGroup widgetLinkedEntitiesGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widget -> {widgetLinkedEntitiesGroup.addWidget(widget); return widgetLinkedEntitiesGroup;})));
+        TJWidgetGroup widgetLinkedEntitiesGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widgetLinkedEntitiesGroup::addWidgets)));
     }
 
     @Override

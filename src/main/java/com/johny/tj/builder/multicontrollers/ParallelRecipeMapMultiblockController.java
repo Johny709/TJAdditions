@@ -10,6 +10,7 @@ import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregicadditions.GAUtility;
@@ -175,9 +176,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        WidgetGroup workableWidgetGroup = new WidgetGroup(), debugWidgetGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab(widget -> {workableWidgetGroup.addWidget(widget); return workableWidgetGroup;})));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab(widget -> {debugWidgetGroup.addWidget(widget); return debugWidgetGroup;})));
+        TJWidgetGroup workableWidgetGroup = new TJWidgetGroup(), debugWidgetGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab(workableWidgetGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab(debugWidgetGroup::addWidgets)));
     }
 
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {

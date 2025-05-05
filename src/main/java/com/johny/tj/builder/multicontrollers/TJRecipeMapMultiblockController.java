@@ -3,6 +3,7 @@ package com.johny.tj.builder.multicontrollers;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJHorizontoalTabListRenderer;
 import com.johny.tj.gui.TJTabGroup;
+import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
@@ -103,8 +104,8 @@ public abstract class TJRecipeMapMultiblockController extends RecipeMapMultibloc
     }
 
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        WidgetGroup widgetDisplayGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widget -> {widgetDisplayGroup.addWidget(widget); return widgetDisplayGroup;})));
+        TJWidgetGroup widgetDisplayGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widgetDisplayGroup::addWidgets)));
     }
 
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {

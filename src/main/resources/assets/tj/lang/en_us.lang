@@ -266,6 +266,7 @@ tj.multiblock.tab.workable=Recipe Workable Handlers
 tj.multiblock.tab.settings=Settings
 tj.multiblock.tab.debug=Debugging
 tj.multiblock.tab.fluid=Fluid
+tj.multiblock.tab.rotor=Rotors
 
 tj.multiblock.structure_formed=Structure Formed.
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %s. Required: %dL

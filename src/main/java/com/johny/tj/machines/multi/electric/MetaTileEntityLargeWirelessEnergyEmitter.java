@@ -9,6 +9,7 @@ import com.johny.tj.capability.LinkEvent;
 import com.johny.tj.capability.LinkPosInterDim;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.items.TJMetaItems;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
@@ -206,8 +207,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        WidgetGroup widgetLinkedEntitiesGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widget -> {widgetLinkedEntitiesGroup.addWidget(widget); return widgetLinkedEntitiesGroup;})));
+        TJWidgetGroup widgetLinkedEntitiesGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widgetLinkedEntitiesGroup::addWidgets)));
     }
 
     @Override

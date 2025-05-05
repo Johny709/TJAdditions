@@ -9,6 +9,7 @@ import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.gui.widgets.PopUpWidgetGroup;
 import com.johny.tj.machines.ExtendedItemFilter;
 import com.johny.tj.machines.TJMiner;
@@ -337,9 +338,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        WidgetGroup widgetFilterGroup = new WidgetGroup(), widgetSettingsGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab(widget -> {widgetFilterGroup.addWidget(widget); return widgetFilterGroup;})));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab(widget -> {widgetSettingsGroup.addWidget(widget); return widgetSettingsGroup;})));
+        TJWidgetGroup widgetFilterGroup = new TJWidgetGroup(), widgetSettingsGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab(widgetFilterGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab(widgetSettingsGroup::addWidgets)));
     }
 
     @Override

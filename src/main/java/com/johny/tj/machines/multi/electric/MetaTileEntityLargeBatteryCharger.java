@@ -9,6 +9,7 @@ import com.johny.tj.capability.LinkEntityInterDim;
 import com.johny.tj.capability.LinkEvent;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.items.TJMetaItems;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
@@ -250,8 +251,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        WidgetGroup widgetLinkedPlayersGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab_linked_players_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedPlayersTab(widget -> {widgetLinkedPlayersGroup.addWidget(widget); return widgetLinkedPlayersGroup;})));
+        TJWidgetGroup widgetLinkedPlayersGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab_linked_players_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedPlayersTab(widgetLinkedPlayersGroup::addWidgets)));
     }
 
     @Override

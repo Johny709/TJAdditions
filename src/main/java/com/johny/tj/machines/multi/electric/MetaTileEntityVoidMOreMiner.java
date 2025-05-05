@@ -11,6 +11,7 @@ import com.johny.tj.capability.IFluidHandlerInfo;
 import com.johny.tj.capability.IHeatInfo;
 import com.johny.tj.capability.IItemHandlerInfo;
 import com.johny.tj.capability.TJCapabilities;
+import com.johny.tj.gui.TJWidgetGroup;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -118,8 +119,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        WidgetGroup widgetFluidGroup = new WidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab(widget -> {widgetFluidGroup.addWidget(widget); return widgetFluidGroup;})));
+        TJWidgetGroup widgetFluidGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab(widgetFluidGroup::addWidgets)));
     }
 
     private AbstractWidgetGroup fluidsTab(Function<Widget, WidgetGroup> widgetGroup) {
