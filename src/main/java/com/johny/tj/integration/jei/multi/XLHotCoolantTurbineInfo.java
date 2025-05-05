@@ -53,7 +53,7 @@ public class XLHotCoolantTurbineInfo extends MultiblockInfoPage {
                 .aisle("CCCCCCCCC", "CRCCRCCRC", "CCCCCCCCC", "CCCCCCCCC", "CCCCCCCCC", "CRCCRCCRC", "CCCCCCCCC")
                 .aisle("CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC", "CCCCCCCCC", "CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC")
                 .aisle("CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC", "ICCCCCCCC", "CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC")
-                .aisle("CCCCCCCCC", "C#CC#CC#C", "JCCCCCCCC", "SCCCCCCCE", "CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC")
+                .aisle("CCCCCCCCC", "C#CC#CC#C", "JCCCCCCCC", "SCCCCCCCE", "MCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC")
                 .aisle("CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC", "OCCCCCCCC", "CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC")
                 .aisle("CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC", "CCCCCCCCC", "CCCCCCCCC", "C#CC#CC#C", "CCCCCCCCC")
                 .aisle("CCCCCCCCC", "CTCCTCCTC", "CCCCCCCCC", "CCCCCCCCC", "CCCCCCCCC", "CTCCTCCTC", "CCCCCCCCC")
@@ -64,7 +64,8 @@ public class XLHotCoolantTurbineInfo extends MultiblockInfoPage {
                 .where('E', MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.MAX], EnumFacing.EAST)
                 .where('#', Blocks.AIR.getDefaultState())
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
-                .where('J', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MAX], EnumFacing.WEST);
+                .where('J', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MAX], EnumFacing.WEST)
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
         if (turbine.turbineType.hasOutputHatch) {
             shapeInfo.where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GAValues.EV], EnumFacing.WEST);
         } else {

@@ -5,11 +5,15 @@ import com.johny.tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJHorizontoalTabListRenderer;
 import com.johny.tj.gui.TJTabGroup;
+import gregicadditions.GAConfig;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
+import gregicadditions.machines.multi.IMaintenance;
 import gregicadditions.machines.multi.impl.HotCoolantRecipeLogic;
 import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCoolant;
+import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMaintenanceHatch;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
@@ -27,12 +31,16 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.util.Position;
+import gregtech.api.util.XSTR;
 import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
@@ -45,14 +53,16 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static gregicadditions.client.ClientHandler.MARAGING_STEEL_250_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine {
+public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance {
 
     public final MetaTileEntityHotCoolantTurbine.TurbineType turbineType;
     public IFluidHandler exportFluidHandler;
@@ -64,10 +74,29 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     protected boolean doStructureCheck;
     private BooleanConsumer fastModeConsumer;
 
+    /**
+     * This value stores whether each of the 5 maintenance problems have been fixed.
+     * A value of 0 means the problem is not fixed, else it is fixed
+     * Value positions correspond to the following from left to right: 0=Wrench, 1=Screwdriver, 2=Soft Hammer, 3=Hard Hammer, 4=Wire Cutter, 5=Crowbar
+     */
+    protected byte maintenance_problems;
+
+    public static final XSTR XSTR_RAND = new XSTR();
+    private int timeActive;
+    private static final int minimumMaintenanceTime = 5184000; // 72 real-life hours = 5184000 ticks
+
+    // Used for data preservation with Maintenance Hatch
+    private boolean storedTaped = false;
+
     public MetaTileEntityXLHotCoolantTurbine(ResourceLocation metaTileEntityId, MetaTileEntityHotCoolantTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType);
         this.turbineType = turbineType;
         reinitializeStructurePattern();
+    }
+
+    @Override
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityXLHotCoolantTurbine(metaTileEntityId, turbineType);
     }
 
     @Override
@@ -79,6 +108,17 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
         tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLHotCoolantTurbineWorkableHandler.getTurbineBonus() + "%"));
         tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast",  100 + "%"));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        boolean canForm = super.checkStructureComponents(parts, abilities);
+        if (!canForm)
+            return false;
+
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+
+        return maintenanceCount == 1;
     }
 
     @Override
@@ -195,15 +235,22 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
-    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityXLHotCoolantTurbine(metaTileEntityId, turbineType);
-    }
-
-    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.exportFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         this.importItemHandler = new ItemHandlerList(getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        if (getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).isEmpty())
+            return;
+        MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
+            this.maintenance_problems = 0b111111;
+        } else {
+            readMaintenanceData(maintenanceHatch);
+            if (maintenanceHatch.getType() == 0 && storedTaped) {
+                maintenanceHatch.setTaped(true);
+                storeTaped(false);
+            }
+        }
     }
 
     @Override
@@ -285,8 +332,8 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     public MultiblockAbility[] getAllowedAbilities() {
         return turbineType.hasOutputHatch ?
-                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY} :
-                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY};
+                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH} :
+                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     }
 
     public IBlockState getCasingState() {
@@ -296,6 +343,43 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return MARAGING_STEEL_250_CASING;
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setByte("Maintenance", maintenance_problems);
+        data.setInteger("ActiveTimer", timeActive);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        maintenance_problems = data.getByte("Maintenance");
+        timeActive = data.getInteger("ActiveTimer");
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeByte(maintenance_problems);
+        buf.writeInt(timeActive);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        maintenance_problems = buf.readByte();
+        timeActive = buf.readInt();
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == STORE_TAPED) {
+            storedTaped = buf.readBoolean();
+        }
     }
 
     @Override
@@ -358,6 +442,78 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             invalidateStructure();
             this.structurePattern = createStructurePattern();
         }
+    }
+
+    /**
+     * Sets the maintenance problem corresponding to index to fixed
+     *
+     * @param index the index of the maintenance problem
+     */
+    public void setMaintenanceFixed(int index) {
+        this.maintenance_problems |= 1 << index;
+    }
+
+    /**
+     * Used to cause a single random maintenance problem
+     */
+    protected void causeProblems() {
+        this.maintenance_problems &= ~(1 << ((int) (XSTR_RAND.nextFloat()*5)));
+    }
+
+    /**
+     *
+     * @return the byte value representing the maintenance problems
+     */
+    public byte getProblems() {
+        return maintenance_problems;
+    }
+
+    /**
+     *
+     * @return the amount of maintenance problems the multiblock has
+     */
+    public int getNumProblems() {
+        return 6 - Integer.bitCount(maintenance_problems);
+    }
+
+    /**
+     *
+     * @return whether the multiblock has any maintenance problems
+     */
+    public boolean hasProblems() {
+        return this.maintenance_problems < 63;
+    }
+
+    /**
+     * Used to calculate whether a maintenance problem should happen based on machine time active
+     * @param duration duration in ticks to add to the counter of active time
+     */
+
+    public void calculateMaintenance(int duration) {
+        MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
+            return;
+        }
+
+        timeActive += duration;
+        if (minimumMaintenanceTime - timeActive <= 0)
+            if(XSTR_RAND.nextFloat() - 0.75f >= 0) {
+                causeProblems();
+                maintenanceHatch.setTaped(false);
+            }
+    }
+
+    private void readMaintenanceData(MetaTileEntityMaintenanceHatch hatch) {
+        if (hatch.hasMaintenanceData()) {
+            Tuple<Byte, Integer> data = hatch.readMaintenanceData();
+            this.maintenance_problems = data.getFirst();
+            this.timeActive = data.getSecond();
+        }
+    }
+
+    public void storeTaped(boolean isTaped) {
+        this.storedTaped = isTaped;
+        writeCustomData(STORE_TAPED, buf -> buf.writeBoolean(isTaped));
     }
 
 }

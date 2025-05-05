@@ -70,6 +70,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
             energyContainer.get().addEnergy(totalEnergyProduced);
         }
 
+        extremeTurbine.calculateMaintenance(12);
         if (progress > 0 && !isActive())
             setActive(true);
 
@@ -79,7 +80,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         }
 
         if (progress <= 0) {
-            if (!isReadyForRecipes() || !this.tryAcquireNewRecipe())
+            if (extremeTurbine.getNumProblems() >= 6 || !isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
             progress = 1;
             setActive(true);
@@ -236,6 +237,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
                 double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += (BASE_EU_OUTPUT + getBonusForTurbineType(extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
+                totalEnergyOutput /= 1.00 + 0.05 * extremeTurbine.getNumProblems();
             }
         }
         return MathHelper.ceil(totalEnergyOutput * fastModeMultiplier * TURBINE_BONUS);
