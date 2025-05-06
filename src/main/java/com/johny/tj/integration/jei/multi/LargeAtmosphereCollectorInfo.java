@@ -3,6 +3,7 @@ package com.johny.tj.integration.jei.multi;
 import com.google.common.collect.Lists;
 import com.johny.tj.machines.multi.electric.MetaTileEntityLargeAtmosphereCollector;
 import gregicadditions.jei.GAMultiblockShapeInfo;
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
@@ -34,7 +35,7 @@ public class LargeAtmosphereCollectorInfo extends MultiblockInfoPage {
     public List<MultiblockShapeInfo> getMatchingShapes() {
         GAMultiblockShapeInfo builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN)
                 .aisle("CCC", "CCC", "CfC", "PPP", "PPP", "PPP", "CCC")
-                .aisle("CFC", "C#C", "C#S", "P#P", "P#P", "P#P", "CRC")
+                .aisle("CFC", "C#M", "C#S", "P#P", "P#P", "P#P", "CRC")
                 .aisle("CCC", "CCC", "CoC", "PPP", "PPP", "PPP", "CCC")
                 .where('S', tileEntity, EnumFacing.WEST)
                 .where('C', turbineType.casingState)
@@ -43,6 +44,7 @@ public class LargeAtmosphereCollectorInfo extends MultiblockInfoPage {
                 .where('F', MetaTileEntities.FLUID_EXPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.NORTH)
                 .where('f', MetaTileEntities.FLUID_IMPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.UP)
                 .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.DOWN)
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .build();
         return Lists.newArrayList(builder);
     }

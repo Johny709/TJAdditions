@@ -33,14 +33,12 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     private static final int BASE_ROTOR_DAMAGE = 220;
     private static final int BASE_EU_OUTPUT = 2048;
 
-    private int totalEnergyProduced = 0;
+    private int totalEnergyProduced ;
     private int fastModeMultiplier = 1;
     private int rotorDamageMultiplier = 1;
-    private float efficiencyPenalty = 1.5f;
     private boolean isFastMode;
     private int progress;
     private int maxProgress;
-    private long outputVoltage;
 
     private final MetaTileEntityXLTurbine extremeTurbine;
     private int rotorCycleLength = CYCLE_LENGTH;
@@ -48,10 +46,6 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     public XLTurbineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
         this.extremeTurbine = (MetaTileEntityXLTurbine) metaTileEntity;
-    }
-
-    public int getTotalEnergyProduced() {
-        return totalEnergyProduced;
     }
 
     public static float getTurbineBonus() {
@@ -150,7 +144,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
             int fuelAmountToUse = calculateFuelAmount(currentRecipe);
             if (fluidStack.amount >= fuelAmountToUse) {
                 maxProgress = calculateRecipeDuration(currentRecipe);
-                outputVoltage = startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
+                startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
                 return fuelAmountToUse;
             }
         }
@@ -263,12 +257,9 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         tagCompound.setInteger("FastModeMultiplier", fastModeMultiplier);
         tagCompound.setInteger("DamageMultiplier", rotorDamageMultiplier);
         tagCompound.setBoolean("IsFastMode", isFastMode);
-        tagCompound.setFloat("EfficiencyBonus", efficiencyPenalty);
         tagCompound.setInteger("TotalEnergy", totalEnergyProduced);
         tagCompound.setInteger("Progress", progress);
         tagCompound.setInteger("MaxProgress", maxProgress);
-        if (progress > 0)
-            tagCompound.setLong("OutputVoltage", outputVoltage);
         return tagCompound;
     }
 
@@ -279,12 +270,9 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         fastModeMultiplier = compound.getInteger("FastModeMultiplier");
         rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
         isFastMode = compound.getBoolean("IsFastMode");
-        efficiencyPenalty = compound.getFloat("EfficiencyBonus");
         totalEnergyProduced = compound.getInteger("TotalEnergy");
         progress = compound.getInteger("Progress");
         maxProgress = compound.getInteger("MaxProgress");
-        if (progress > 0)
-            outputVoltage = compound.getLong("OutputVoltage");
     }
 
     @Override

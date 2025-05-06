@@ -6,18 +6,19 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.blocks.BlockPipeCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.handlers.LargeAtmosphereCollectorWorkableHandler;
-import com.johny.tj.gui.TJGuiTextures;
+import com.johny.tj.builder.multicontrollers.TJRotorHolderMultiblockController;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregtech.api.GTValues;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
-import gregtech.api.gui.GuiTextures;
-import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -25,7 +26,6 @@ import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRo
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -33,23 +33,24 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeTurbine {
+public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockController {
 
-    protected boolean doStructureCheck;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    public final MetaTileEntityLargeTurbine.TurbineType turbineType;
+    public IFluidHandler exportFluidHandler;
 
-    public MetaTileEntityLargeAtmosphereCollector(ResourceLocation metaTileEntityId, TurbineType turbineType) {
-        super(metaTileEntityId, turbineType);
+    public MetaTileEntityLargeAtmosphereCollector(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
+        super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
+        this.turbineType = turbineType;
         reinitializeStructurePattern();
     }
 
@@ -71,6 +72,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
         if (isStructureFormed()) {
             MetaTileEntityRotorHolder rotorHolder = getRotorHolder();
             FluidStack fuelStack = ((LargeAtmosphereCollectorWorkableHandler) workableHandler).getFuelStack();
@@ -91,7 +93,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
                 }
             }
 
-            if(!isRotorFaceFree()) {
+            if (!isRotorFaceFree()) {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
                         .setStyle(new Style().setColor(TextFormatting.RED)));
             }
@@ -103,18 +105,13 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
             } else {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.idling"));
             }
-        } else {
-            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
-            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
-                    .setStyle(new Style().setColor(TextFormatting.RED)
-                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip))));
         }
     }
 
     @Override
-    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        return abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.exportFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
     }
 
     @Override
@@ -131,6 +128,11 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                 .where('#', isAirPredicate())
                 .build();
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return turbineType.casingRenderer;
     }
 
     public IBlockState getPipeState() {
@@ -155,40 +157,22 @@ public class MetaTileEntityLargeAtmosphereCollector extends MetaTileEntityLargeT
     }
 
     @Override
-    protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
-        ModularUI.Builder builder = ModularUI.extendedBuilder();
-        builder.image(-10, 0, 195, 217, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
-        builder.label(1, 9, getMetaFullName(), 0xFFFFFF);
-        builder.widget(new AdvancedTextWidget(1, 19, this::addDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)
-                .setClickHandler(this::handleDisplayClick));
-        builder.widget(new ToggleButtonWidget(162, 170, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
-                .setTooltipText("machine.universal.toggle.run.mode"));
-        builder.widget(new ToggleButtonWidget(162, 152, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
-                .setTooltipText("machine.universal.toggle.check.mode"));
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
-        return builder;
-    }
-
-    protected boolean getToggleMode() {
+    public boolean isWorkingEnabled() {
         return this.workableHandler.isWorkingEnabled();
     }
 
-    protected void setToggleRunning(boolean running) {
-        this.workableHandler.setWorkingEnabled(running);
+    @Override
+    public void setWorkingEnabled(boolean isWorking) {
+        this.workableHandler.setWorkingEnabled(isWorking);
     }
 
-    protected boolean getDoStructureCheck() {
-        if (isStructureFormed())
-            this.doStructureCheck = false;
-        return this.doStructureCheck;
+    @Override
+    public int getRotorSpeedIncrement() {
+        return 3;
     }
 
-    protected void setDoStructureCheck(boolean check) {
-        if (isStructureFormed()) {
-            this.doStructureCheck = true;
-            invalidateStructure();
-            this.structurePattern = createStructurePattern();
-        }
+    @Override
+    public int getRotorSpeedDecrement() {
+        return 1;
     }
 }

@@ -34,14 +34,12 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     private static final int BASE_ROTOR_DAMAGE = 11;
     private static final int BASE_EU_OUTPUT = 2048;
 
-    private int totalEnergyProduced = 0;
+    private int totalEnergyProduced;
     private int fastModeMultiplier = 1;
     private int rotorDamageMultiplier = 1;
-    private float efficiencyPenalty = 1.5f;
     private boolean isFastMode;
     private int progress;
     private int maxProgress;
-    private long outputVoltage;
     private boolean active;
 
     private final MetaTileEntityXLHotCoolantTurbine extremeTurbine;
@@ -50,10 +48,6 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     public XLHotCoolantTurbineWorkableHandler(MetaTileEntity metaTileEntity, HotCoolantRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
         this.extremeTurbine = (MetaTileEntityXLHotCoolantTurbine) metaTileEntity;
-    }
-
-    public int getTotalEnergyProduced() {
-        return totalEnergyProduced;
     }
 
     public static float getTurbineBonus() {
@@ -152,7 +146,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
             int fuelAmountToUse = calculateFuelAmount(currentRecipe);
             if (fluidStack.amount >= fuelAmountToUse) {
                 maxProgress = calculateRecipeDuration(currentRecipe);
-                outputVoltage = startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
+                startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
                 return fuelAmountToUse;
             }
         }
@@ -273,13 +267,10 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         tagCompound.setInteger("FastModeMultiplier", fastModeMultiplier);
         tagCompound.setInteger("DamageMultiplier", rotorDamageMultiplier);
         tagCompound.setBoolean("IsFastMode", isFastMode);
-        tagCompound.setFloat("EfficiencyBonus", efficiencyPenalty);
         tagCompound.setInteger("TotalEnergy", totalEnergyProduced);
         tagCompound.setInteger("Progress", progress);
         tagCompound.setInteger("MaxProgress", maxProgress);
         tagCompound.setBoolean("Active", active);
-        if (progress > 0)
-            tagCompound.setLong("OutputVoltage", outputVoltage);
         return tagCompound;
     }
 
@@ -290,13 +281,10 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         fastModeMultiplier = compound.getInteger("FastModeMultiplier");
         rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
         isFastMode = compound.getBoolean("IsFastMode");
-        efficiencyPenalty = compound.getFloat("EfficiencyBonus");
         totalEnergyProduced = compound.getInteger("TotalEnergy");
         maxProgress = compound.getInteger("MaxProgress");
         progress = compound.getInteger("Progress");
         active = compound.getBoolean("Active");
-        if (progress > 0)
-            outputVoltage = compound.getLong("OutputVoltage");
     }
 
     @Override

@@ -87,7 +87,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
         if (isStructureFormed()) {
             ITextComponent totalEnergy = new TextComponentTranslation("tj.multiblock.extreme_turbine.energy");
             totalEnergy.appendText(" ");
-            totalEnergy.appendSibling(new TextComponentString(xlTurbineWorkableHandler.getTotalEnergyProduced() + " EU/t"));
+            totalEnergy.appendSibling(new TextComponentString(xlTurbineWorkableHandler.getProduction() + " EU/t"));
             textList.add(totalEnergy);
 
             ITextComponent toggleFastMode = new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode");
