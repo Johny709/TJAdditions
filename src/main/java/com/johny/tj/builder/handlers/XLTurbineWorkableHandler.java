@@ -72,7 +72,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
             energyContainer.get().addEnergy(totalEnergyProduced);
         }
 
-        extremeTurbine.calculateMaintenance(12);
+        extremeTurbine.calculateMaintenance(rotorDamageMultiplier);
         if (progress > 0 && !isActive())
             setActive(true);
 
@@ -160,11 +160,9 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     @Override
     public boolean checkRecipe(FuelRecipe recipe) {
         List<MetaTileEntityRotorHolder> rotorHolders = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
-        rotorCycleLength++;
-        for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
-            int baseRotorDamage = BASE_ROTOR_DAMAGE;
-            if (rotorCycleLength >= CYCLE_LENGTH) {
-                rotorCycleLength = 0;
+        if (++rotorCycleLength >= CYCLE_LENGTH) {
+            for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
+                int baseRotorDamage = BASE_ROTOR_DAMAGE;
                 if (extremeTurbine.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM)
                     baseRotorDamage = 150;
                 int damageToBeApplied = (int) Math.round((baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier;
@@ -172,6 +170,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
                     return false;
                 }
             }
+            rotorCycleLength = 0;
         }
         return true;
     }

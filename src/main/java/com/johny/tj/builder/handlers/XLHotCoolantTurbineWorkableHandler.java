@@ -74,7 +74,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
             energyContainer.get().addEnergy(totalEnergyProduced);
         }
 
-        extremeTurbine.calculateMaintenance(12);
+        extremeTurbine.calculateMaintenance(rotorDamageMultiplier);
         if (progress > 0 && !isActive())
             this.setActive(true);
 
@@ -162,15 +162,14 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     @Override
     public boolean checkRecipe(HotCoolantRecipe recipe) {
         List<MetaTileEntityRotorHolder> rotorHolders = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
-        rotorCycleLength++;
-        for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
-            if (rotorCycleLength >= CYCLE_LENGTH) {
-                rotorCycleLength = 0;
+        if (++rotorCycleLength >= CYCLE_LENGTH) {
+            for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
                 int damageToBeApplied = (int) Math.round((BASE_ROTOR_DAMAGE * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier;
                 if (!rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                     return false;
                 }
             }
+            rotorCycleLength = 0;
         }
         return true;
     }
