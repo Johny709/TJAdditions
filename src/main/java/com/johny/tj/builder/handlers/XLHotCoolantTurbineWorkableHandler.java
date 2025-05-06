@@ -63,11 +63,13 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     @Override
     public void update() {
-        if (getMetaTileEntity().getWorld().isRemote)
+        if (getMetaTileEntity().getWorld().isRemote || !isWorkingEnabled())
             return;
+
         if (extremeTurbine.getOffsetTimer() % 20 == 0) {
             totalEnergyProduced = (int) getRecipeOutputVoltage();
         }
+
         if (totalEnergyProduced > 0) {
             energyContainer.get().addEnergy(totalEnergyProduced);
         }

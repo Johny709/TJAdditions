@@ -63,6 +63,7 @@ import java.util.function.Function;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static net.minecraft.util.text.TextFormatting.*;
 
 
 public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController implements IMaintenance {
@@ -148,74 +149,82 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController imp
 
             textList.add(toggleFastMode);
 
-            ITextComponent page = new TextComponentString(":");
-            page.appendText(" ");
-            page.appendSibling(withButton(new TextComponentString("[<]"), "leftPage"));
-            page.appendText(" ");
-            page.appendSibling(withButton(new TextComponentString("[>]"), "rightPage"));
-            textList.add(page);
+            int currentProgress = (int) Math.floor(xlTurbineWorkableHandler.getProgress() / (xlTurbineWorkableHandler.getMaxProgress() * 1.0) * 100);
+            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
 
-            int rotorHolderSize = getRotorHolders().size();
-            for (int i = pageIndex, rotorIndex = i + 1; i < pageIndex + pageSize; i++, rotorIndex++) {
-                if (i < rotorHolderSize) {
-                    MetaTileEntityRotorHolder rotorHolder = getAbilities(ABILITY_ROTOR_HOLDER).get(i);
+            ITextComponent isWorkingText = !xlTurbineWorkableHandler.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
+                    : !xlTurbineWorkableHandler.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")
+                    : new TextComponentTranslation("gregtech.multiblock.running");
 
-                    double durabilityToInt = rotorHolder.getRotorDurability() * 100;
-                    double efficencyToInt = rotorHolder.getRotorEfficiency() * 100;
-
-                    ITextComponent turbineText;
-                    TextFormatting colorFormatting;
-
-                    if (rotorHolder.hasRotorInInventory()) {
-                        if (durabilityToInt <= 10) {
-                            colorFormatting = TextFormatting.RED;
-                        }
-                        else if (durabilityToInt <= 25) {
-                            colorFormatting = TextFormatting.YELLOW;
-                        }
-                        else {
-                            colorFormatting = TextFormatting.GREEN;
-                        }
-                    } else {
-                        colorFormatting = TextFormatting.WHITE;
-                    }
-
-                    String rotorName = getShortenRotorName(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName());
-                    turbineText = new TextComponentString("-");
-                    turbineText.appendText(" ");
-                    turbineText.appendSibling(new TextComponentString("[" + rotorIndex + "] " + (rotorName.equals("Air") ? I18n.format("tj.multiblock.extreme_turbine.insertrotor") : rotorName))
-                                    .setStyle(new Style().setColor(colorFormatting)))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.extreme_turbine.name").appendSibling(new TextComponentString(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ? " " + I18n.format("gregtech.multiblock.extreme_turbine.norotor") + "\n" :
-                                            " " + rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName() + "\n"))
-                                    .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.speed").appendSibling(new TextComponentString(" " + rotorHolder.getCurrentRotorSpeed() + " / " + rotorHolder.getMaxRotorSpeed() + "\n")))
-                                    .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.efficiency").appendSibling(new TextComponentString(" " + (int) efficencyToInt + "%\n")))
-                                    .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.durability").appendSibling(new TextComponentString(" " + (int) durabilityToInt + "%").setStyle(new Style().setColor(colorFormatting))))
-                            )));
-                    textList.add(turbineText);
-                }
-            }
+            isWorkingText.getStyle().setColor(!xlTurbineWorkableHandler.isWorkingEnabled() ? YELLOW : !xlTurbineWorkableHandler.isActive() ? WHITE : GREEN);
+            textList.add(isWorkingText);
         } else {
             MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
         }
     }
 
+    private void addRotorDisplayText(List<ITextComponent> textList) {
+        ITextComponent page = new TextComponentString(":");
+        page.appendText(" ");
+        page.appendSibling(withButton(new TextComponentString("[<]"), "leftPage"));
+        page.appendText(" ");
+        page.appendSibling(withButton(new TextComponentString("[>]"), "rightPage"));
+        textList.add(page);
+
+        int rotorHolderSize = getRotorHolders().size();
+        for (int i = pageIndex, rotorIndex = i + 1; i < pageIndex + pageSize; i++, rotorIndex++) {
+            if (i < rotorHolderSize) {
+                MetaTileEntityRotorHolder rotorHolder = getAbilities(ABILITY_ROTOR_HOLDER).get(i);
+
+                double durabilityToInt = rotorHolder.getRotorDurability() * 100;
+                double efficencyToInt = rotorHolder.getRotorEfficiency() * 100;
+
+                ITextComponent turbineText;
+                TextFormatting colorFormatting;
+
+                if (rotorHolder.hasRotorInInventory()) {
+                    if (durabilityToInt <= 10) {
+                        colorFormatting = TextFormatting.RED;
+                    }
+                    else if (durabilityToInt <= 25) {
+                        colorFormatting = TextFormatting.YELLOW;
+                    }
+                    else {
+                        colorFormatting = TextFormatting.GREEN;
+                    }
+                } else {
+                    colorFormatting = TextFormatting.WHITE;
+                }
+
+                String rotorName = getShortenRotorName(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName());
+                turbineText = new TextComponentString("-");
+                turbineText.appendText(" ");
+                turbineText.appendSibling(new TextComponentString("[" + rotorIndex + "] " + (rotorName.equals("Air") ? I18n.format("tj.multiblock.extreme_turbine.insertrotor") : rotorName))
+                                .setStyle(new Style().setColor(colorFormatting)))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.extreme_turbine.name").appendSibling(new TextComponentString(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ? " " + I18n.format("gregtech.multiblock.extreme_turbine.norotor") + "\n" :
+                                        " " + rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName() + "\n"))
+                                .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.speed").appendSibling(new TextComponentString(" " + rotorHolder.getCurrentRotorSpeed() + " / " + rotorHolder.getMaxRotorSpeed() + "\n")))
+                                .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.efficiency").appendSibling(new TextComponentString(" " + (int) efficencyToInt + "%\n")))
+                                .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.durability").appendSibling(new TextComponentString(" " + (int) durabilityToInt + "%").setStyle(new Style().setColor(colorFormatting))))
+                        )));
+                textList.add(turbineText);
+            }
+        }
+    }
+
+    private void handleRotorDisplayClick(String componentData, Widget.ClickData clickData) {
+        if (componentData.equals("leftPage")) {
+            if (pageIndex > 0)
+                pageIndex -= pageSize;
+        } else {
+            if (pageIndex < getRotorHolders().size() - pageSize)
+                pageIndex += pageSize;
+        }
+    }
+
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        switch (componentData) {
-            case "false":
-                fastModeConsumer.apply(true);
-                break;
-            case "true":
-                fastModeConsumer.apply(false);
-                break;
-            case "leftPage":
-                if (pageIndex > 0)
-                    pageIndex -= pageSize;
-                break;
-            default:
-                if (pageIndex < getRotorHolders().size() - pageSize)
-                    pageIndex += pageSize;
-        }
+        fastModeConsumer.apply(componentData.equals("false"));
     }
 
     private String getShortenRotorName(String name) {
@@ -419,13 +428,14 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController imp
         return builder;
     }
 
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        TJWidgetGroup widgetDisplayGroup = new TJWidgetGroup(), widgetMaintenanceGroup = new TJWidgetGroup();
+    private void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+        TJWidgetGroup widgetDisplayGroup = new TJWidgetGroup(), widgetMaintenanceGroup = new TJWidgetGroup(), rotorWidgetGroup = new TJWidgetGroup();
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widgetDisplayGroup::addWidgets)));
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab(widgetMaintenanceGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab(rotorWidgetGroup::addWidgets)));
     }
 
-    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+    private AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
         widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
@@ -434,12 +444,17 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController imp
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    protected AbstractWidgetGroup maintenanceTab(Function<Widget, WidgetGroup> widgetGroup) {
+    private AbstractWidgetGroup maintenanceTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addMaintenanceDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }
 
-    protected void addMaintenanceDisplayText(List<ITextComponent> textList) {
+    private AbstractWidgetGroup rotorTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addRotorDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180).setClickHandler(this::handleRotorDisplayClick));
+    }
+
+    private void addMaintenanceDisplayText(List<ITextComponent> textList) {
         MultiblockDisplaysUtility.maintenanceDisplay(textList, maintenance_problems, hasProblems());
     }
 
@@ -452,13 +467,13 @@ public class MetaTileEntityXLTurbine extends RotorHolderMultiblockController imp
         this.markDirty();
     }
 
-    protected boolean getDoStructureCheck() {
+    private boolean getDoStructureCheck() {
         if (isStructureFormed())
             this.doStructureCheck = false;
         return this.doStructureCheck;
     }
 
-    protected void setDoStructureCheck(boolean check) {
+    private void setDoStructureCheck(boolean check) {
         if (isStructureFormed()) {
             this.doStructureCheck = true;
             invalidateStructure();
