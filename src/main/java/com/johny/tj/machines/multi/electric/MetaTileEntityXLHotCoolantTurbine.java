@@ -279,12 +279,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.updateFormedValid();
         if (isStructureFormed()) {
             if (getOffsetTimer() % 20 == 0) {
-                ItemStack rotorReplacementStack;
                 for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
                     if (rotorHolder.hasRotorInInventory())
                         continue;
-                    rotorReplacementStack = checkAndConsumeItem();
-                    if (!(rotorReplacementStack == null)) {
+                    ItemStack rotorReplacementStack = checkAndConsumeItem();
+                    if (rotorReplacementStack != null) {
                         rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
                     }
                 }
