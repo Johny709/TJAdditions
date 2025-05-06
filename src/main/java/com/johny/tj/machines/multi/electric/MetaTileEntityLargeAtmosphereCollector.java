@@ -13,6 +13,7 @@ import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -22,6 +23,7 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
@@ -44,7 +46,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static net.minecraft.util.text.TextFormatting.*;
 
 public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockController {
 
@@ -52,6 +56,8 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
+    private LargeAtmosphereCollectorWorkableHandler airCollectorHandler;
+    private BooleanConsumer fastModeConsumer;
 
     public MetaTileEntityLargeAtmosphereCollector(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
@@ -66,7 +72,9 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
     @Override
     protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        return new LargeAtmosphereCollectorWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
+        airCollectorHandler = new LargeAtmosphereCollectorWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
+        fastModeConsumer = airCollectorHandler::setFastMode;
+        return airCollectorHandler;
     }
 
     @Override
@@ -107,19 +115,35 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
                 }
             }
 
+            ITextComponent toggleFastMode = new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode");
+            toggleFastMode.appendText(" ");
+
+            if (airCollectorHandler.isFastMode())
+                toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true"));
+            else
+                toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false"));
+
             if (!isRotorFaceFree()) {
                 textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
                         .setStyle(new Style().setColor(TextFormatting.RED)));
             }
-            if (!workableHandler.isWorkingEnabled()) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.work_paused"));
-            } else if (workableHandler.isActive()) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.running"));
-                textList.add(new TextComponentTranslation("tj.multiblock.large_atmosphere_collector.air", workableHandler.getRecipeOutputVoltage()));
-            } else {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.idling"));
-            }
+            textList.add(toggleFastMode);
+
+            int currentProgress = (int) Math.floor(airCollectorHandler.getProgress() / (airCollectorHandler.getMaxProgress() * 1.0) * 100);
+            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+
+            ITextComponent isWorkingText = !airCollectorHandler.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
+                    : !airCollectorHandler.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")
+                    : new TextComponentTranslation("gregtech.multiblock.running");
+
+            isWorkingText.getStyle().setColor(!airCollectorHandler.isWorkingEnabled() ? YELLOW : !airCollectorHandler.isActive() ? WHITE : GREEN);
+            textList.add(isWorkingText);
         }
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        fastModeConsumer.apply(componentData.equals("false"));
     }
 
     @Override
@@ -140,7 +164,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     protected void updateFormedValid() {
         super.updateFormedValid();
         if (isStructureFormed()) {
-            if (getOffsetTimer() % 20 == 0) {;
+            if (getOffsetTimer() % 20 == 0) {
                 for (MetaTileEntityRotorHolder rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
                     if (rotorHolder.hasRotorInInventory())
                         continue;

@@ -24,6 +24,8 @@ import net.minecraftforge.fluids.IFluidTank;
 
 import java.util.function.Supplier;
 
+import static gregtech.api.unification.material.Materials.Air;
+
 public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
 
     private static final int CYCLE_LENGTH = 230;
@@ -39,7 +41,6 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
     private boolean isFastMode;
     private int progress;
     private int maxProgress;
-    private long outputVoltage;
 
     public LargeAtmosphereCollectorWorkableHandler(MetaTileEntityLargeAtmosphereCollector metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
@@ -54,7 +55,7 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
         totalAirProduced = (int) getRecipeOutputVoltage();
 
         if (totalAirProduced > 0) {
-            energyContainer.get().addEnergy(totalAirProduced);
+            airCollector.exportFluidHandler.fill(Air.getFluid(totalAirProduced), true);
         }
 
         airCollector.calculateMaintenance(rotorDamageMultiplier);
@@ -135,7 +136,7 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
             int fuelAmountToUse = calculateFuelAmount(currentRecipe);
             if (fluidStack.amount >= fuelAmountToUse) {
                 maxProgress = calculateRecipeDuration(currentRecipe);
-                outputVoltage = startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
+                startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
                 return fuelAmountToUse;
             }
         }
@@ -163,7 +164,7 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
         if (rotorHolder.hasRotorInInventory()) {
             double rotorEfficiency = rotorHolder.getRotorEfficiency();
             double totalEnergyOutput = (BASE_EU_OUTPUT + getBonusForTurbineType(airCollector) * rotorEfficiency);
-            return MathHelper.ceil(totalEnergyOutput);
+            return MathHelper.ceil(totalEnergyOutput * fastModeMultiplier);
         }
         return BASE_EU_OUTPUT + getBonusForTurbineType(airCollector);
     }
@@ -210,12 +211,14 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
 
     @Override
     public long getRecipeOutputVoltage() {
+        double totalEnergyOutput;
         MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
         if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
             double rotorEfficiency = rotorHolder.getRotorEfficiency();
-            double totalEnergyOutput = ((BASE_EU_OUTPUT + getBonusForTurbineType(airCollector)) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
-            return MathHelper.ceil(totalEnergyOutput);
+            totalEnergyOutput = ((BASE_EU_OUTPUT + getBonusForTurbineType(airCollector)) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
+            totalEnergyOutput /= 1.00 + 0.05 * airCollector.getNumProblems();
+            return MathHelper.ceil(totalEnergyOutput * fastModeMultiplier);
         }
         return 0L;
     }
@@ -281,6 +284,6 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
 
     @Override
     public String suffix() {
-        return "machine.universal.eu.tick";
+        return "tj.multiblock.large_atmosphere_collector.production";
     }
 }

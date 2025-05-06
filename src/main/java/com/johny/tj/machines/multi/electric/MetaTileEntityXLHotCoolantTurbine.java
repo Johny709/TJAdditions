@@ -102,6 +102,13 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
+    protected HotCoolantRecipeLogic createWorkable(long maxVoltage) {
+        this.xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
+        this.fastModeConsumer = xlHotCoolantTurbineWorkableHandler::setFastMode;
+        return xlHotCoolantTurbineWorkableHandler;
+    }
+
+    @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
@@ -234,14 +241,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .replace("Huge", "")
                 .replace("Turbine", "")
                 .replace("Rotor", "");
-    }
-
-    @Override
-    protected HotCoolantRecipeLogic createWorkable(long maxVoltage) {
-        XLHotCoolantTurbineWorkableHandler xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
-        this.xlHotCoolantTurbineWorkableHandler = xlHotCoolantTurbineWorkableHandler;
-        this.fastModeConsumer = xlHotCoolantTurbineWorkableHandler::setFastMode;
-        return xlHotCoolantTurbineWorkableHandler;
     }
 
     @Override

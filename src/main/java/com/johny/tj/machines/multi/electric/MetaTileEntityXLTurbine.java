@@ -71,6 +71,13 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     }
 
     @Override
+    protected FuelRecipeLogic createWorkable(long maxVoltage) {
+        this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
+        this.fastModeConsumer = xlTurbineWorkableHandler::setFastMode;
+        return xlTurbineWorkableHandler;
+    }
+
+    @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
@@ -190,14 +197,6 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
                 .replace("Huge", "")
                 .replace("Turbine", "")
                 .replace("Rotor", "");
-    }
-
-    @Override
-    protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        XLTurbineWorkableHandler xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
-        this.xlTurbineWorkableHandler = xlTurbineWorkableHandler;
-        this.fastModeConsumer = xlTurbineWorkableHandler::setFastMode;
-        return xlTurbineWorkableHandler;
     }
 
     @Override

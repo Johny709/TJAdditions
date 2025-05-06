@@ -285,6 +285,7 @@ tj.multiblock.large_world_accelerator.tier=Tier is not sufficient to run this mo
 tj.multiblock.large_architect_workbench.recipes.disabled=§cRecipes Are Disabled. Enable in Config
 
 tj.multiblock.large_atmosphere_collector.air=Outputting: §e%.1f§r Air/t
+tj.multiblock.large_atmosphere_collector.production=§bAir/t§r
 
 tile.solid_casing.draconium.name=Draconic Casing
 tile.solid_casing.awakened.name=Awakened Draconium Casing
