@@ -21,12 +21,19 @@ public class IGeneratorInfoProvider extends CapabilityInfoProvider<IGeneratorInf
     protected void addProbeInfo(IGeneratorInfo capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
 
         long generation = capability.getProduction();
-        String prefix = capability.prefix() != null ? capability.prefix() : "";
-        String suffix = capability.suffix() != null ? capability.suffix() : "";
+        String[] info = capability.productionInfo();
 
         IProbeInfo pageInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-        pageInfo.text(TextStyleClass.INFO + "{*" + prefix + "*} " + String.format("%,d", generation) + " {*" + suffix + "*}");
+        pageInfo.text(TextStyleClass.INFO + "{*" + info[0] + "*} " + String.format("%,d", generation));
 
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 1; i < info.length; i++) {
+            String textInfo = info[i].startsWith("§") ? info[i]
+                    : info[i].startsWith(" ") ? " "
+                    : "{*" + info[i] + "*}";
+            stringBuilder.append(textInfo);
+        }
+        pageInfo.text(TextStyleClass.INFO + stringBuilder.toString());
     }
 
     @Override

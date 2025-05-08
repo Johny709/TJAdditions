@@ -21,6 +21,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.function.Supplier;
 
@@ -278,12 +279,7 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
     }
 
     @Override
-    public String prefix() {
-        return "machine.universal.producing";
-    }
-
-    @Override
-    public String suffix() {
-        return "tj.multiblock.large_atmosphere_collector.production";
+    public String[] productionInfo() {
+        return ArrayUtils.toArray("machine.universal.producing", " ", Air.getUnlocalizedName(), "§b", "machine.universal.tick");
     }
 }

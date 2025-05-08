@@ -51,6 +51,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -615,12 +616,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     }
 
     @Override
-    public String prefix() {
-        return "machine.universal.producing";
-    }
-
-    @Override
-    public String suffix() {
-        return "tj.multiblock.large_boiler.steam.generation";
+    public String[] productionInfo() {
+        return ArrayUtils.toArray("machine.universal.producing", " ", Steam.getUnlocalizedName(), "machine.universal.tick");
     }
 }

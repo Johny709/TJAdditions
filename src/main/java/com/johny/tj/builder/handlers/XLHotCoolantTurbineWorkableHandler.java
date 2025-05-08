@@ -23,6 +23,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -317,12 +318,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     }
 
     @Override
-    public String prefix() {
-        return "machine.universal.producing";
-    }
-
-    @Override
-    public String suffix() {
-        return "machine.universal.eu.tick";
+    public String[] productionInfo() {
+        return ArrayUtils.toArray("machine.universal.producing", "machine.universal.eu.tick");
     }
 }
