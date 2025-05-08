@@ -1,8 +1,11 @@
 package com.johny.tj.builder.handlers;
 
+import com.johny.tj.TJValues;
 import com.johny.tj.builder.multicontrollers.TJFueledMultiblockController;
 import com.johny.tj.capability.IGeneratorInfo;
 import com.johny.tj.capability.TJCapabilities;
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
@@ -154,6 +157,10 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
 
     @Override
     public String[] productionInfo() {
-        return ArrayUtils.toArray("machine.universal.producing", " ", "machine.universal.eu.tick");
+        int tier = GAUtility.getTierByVoltage(energyProduced);
+        String voltage = GAValues.VN[tier];
+        String color = TJValues.VCC[tier];
+        return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
+                " ", "§r(§6", color, voltage, "§r)");
     }
 }

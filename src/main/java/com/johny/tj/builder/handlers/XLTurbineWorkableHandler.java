@@ -1,8 +1,11 @@
 package com.johny.tj.builder.handlers;
 
+import com.johny.tj.TJValues;
 import com.johny.tj.capability.IGeneratorInfo;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.machines.multi.electric.MetaTileEntityXLTurbine;
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -305,7 +308,11 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
 
     @Override
     public String[] productionInfo() {
-        return ArrayUtils.toArray("machine.universal.producing", " ", "machine.universal.eu.tick");
+        int tier = GAUtility.getTierByVoltage(totalEnergyProduced);
+        String voltage = GAValues.VN[tier];
+        String color = TJValues.VCC[tier];
+        return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
+                " ", "§r(§6", color, voltage, "§r)");
     }
 }
 

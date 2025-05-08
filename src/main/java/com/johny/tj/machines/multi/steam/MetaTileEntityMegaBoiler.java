@@ -617,6 +617,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
 
     @Override
     public String[] productionInfo() {
-        return ArrayUtils.toArray("machine.universal.producing", " ", Steam.getUnlocalizedName(), "machine.universal.tick");
+        return ArrayUtils.toArray("machine.universal.producing", "§7 ", "suffix", "machine.universal.liters.short", "§r ", Steam.getUnlocalizedName(), "machine.universal.tick");
     }
 }

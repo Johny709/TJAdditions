@@ -453,6 +453,7 @@ machine.universal.producing=Producing:
 machine.universal.eu.tick=EU/t
 machine.universal.tick=/t
 machine.universal.output.full=Output Full or Not Enough Space
+machine.universal.liters.short=L
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks

@@ -1,9 +1,12 @@
 package com.johny.tj.builder.handlers;
 
+import com.johny.tj.TJValues;
 import com.johny.tj.capability.IGeneratorInfo;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
 import com.johny.tj.machines.multi.electric.MetaTileEntityXLTurbine;
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.machines.multi.impl.HotCoolantRecipeLogic;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
 import gregicadditions.recipes.impl.nuclear.HotCoolantRecipe;
@@ -317,6 +320,10 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     @Override
     public String[] productionInfo() {
-        return ArrayUtils.toArray("machine.universal.producing", " ", "machine.universal.eu.tick");
+        int tier = GAUtility.getTierByVoltage(totalEnergyProduced);
+        String voltage = GAValues.VN[tier];
+        String color = TJValues.VCC[tier];
+        return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
+                " ", "§r(§6", color, voltage, "§r)");
     }
 }

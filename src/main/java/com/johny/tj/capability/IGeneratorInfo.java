@@ -5,7 +5,7 @@ public interface IGeneratorInfo {
     long getProduction();
 
     /**
-     * First index is prefix, otherwise is suffixed
+     * Everything is prefix until "suffix" String is passed in and will be part of suffix afterward.
      */
     String[] productionInfo();
 

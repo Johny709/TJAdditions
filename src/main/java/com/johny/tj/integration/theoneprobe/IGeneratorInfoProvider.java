@@ -24,16 +24,25 @@ public class IGeneratorInfoProvider extends CapabilityInfoProvider<IGeneratorInf
         String[] info = capability.productionInfo();
 
         IProbeInfo pageInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-        pageInfo.text(TextStyleClass.INFO + "{*" + info[0] + "*} " + String.format("%,d", generation));
+        StringBuilder prefixBuilder = new StringBuilder(), suffixBuilder = new StringBuilder();
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 1; i < info.length; i++) {
-            String textInfo = info[i].startsWith("§") ? info[i]
-                    : info[i].startsWith(" ") ? " "
-                    : "{*" + info[i] + "*}";
-            stringBuilder.append(textInfo);
+        boolean suffix = false;
+        for (String text : info) {
+            if (text.equals("suffix")) {
+                suffix = true;
+                continue;
+            }
+
+            String textInfo = text.startsWith("§") ? text
+                    : text.startsWith(" ") ? " "
+                    : "{*" + text + "*}";
+
+            if (!suffix)
+                prefixBuilder.append(textInfo);
+            else
+                suffixBuilder.append(textInfo);
         }
-        pageInfo.text(TextStyleClass.INFO + stringBuilder.toString());
+        pageInfo.text(TextStyleClass.INFO + prefixBuilder.toString() + String.format("%,d", generation) + suffixBuilder);
     }
 
     @Override
