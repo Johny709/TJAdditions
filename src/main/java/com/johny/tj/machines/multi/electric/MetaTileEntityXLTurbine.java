@@ -113,8 +113,10 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
 
             textList.add(toggleFastMode);
 
-            int currentProgress = (int) Math.floor(xlTurbineWorkableHandler.getProgress() / (xlTurbineWorkableHandler.getMaxProgress() * 1.0) * 100);
-            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            if (xlTurbineWorkableHandler.isActive()) {
+                int currentProgress = (int) Math.floor(xlTurbineWorkableHandler.getProgress() / (xlTurbineWorkableHandler.getMaxProgress() * 1.0) * 100);
+                textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            }
 
             ITextComponent isWorkingText = !xlTurbineWorkableHandler.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
                     : !xlTurbineWorkableHandler.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")

@@ -129,8 +129,10 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
             }
             textList.add(toggleFastMode);
 
-            int currentProgress = (int) Math.floor(airCollectorHandler.getProgress() / (airCollectorHandler.getMaxProgress() * 1.0) * 100);
-            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            if (airCollectorHandler.isActive()) {
+                int currentProgress = (int) Math.floor(airCollectorHandler.getProgress() / (airCollectorHandler.getMaxProgress() * 1.0) * 100);
+                textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            }
 
             ITextComponent isWorkingText = !airCollectorHandler.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
                     : !airCollectorHandler.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")

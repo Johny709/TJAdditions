@@ -280,6 +280,6 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
 
     @Override
     public String[] productionInfo() {
-        return ArrayUtils.toArray("machine.universal.producing", " ", Air.getUnlocalizedName(), "§b", "machine.universal.tick");
+        return ArrayUtils.toArray("machine.universal.producing", Air.getUnlocalizedName(), "machine.universal.tick");
     }
 }

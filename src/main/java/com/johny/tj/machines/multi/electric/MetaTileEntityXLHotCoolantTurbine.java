@@ -154,8 +154,10 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
             textList.add(toggleFastMode);
 
-            int currentProgress = (int) Math.floor(xlHotCoolantTurbineWorkableHandler.getProgress() / (xlHotCoolantTurbineWorkableHandler.getMaxProgress() * 1.0) * 100);
-            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            if (xlHotCoolantTurbineWorkableHandler.isActive()) {
+                int currentProgress = (int) Math.floor(xlHotCoolantTurbineWorkableHandler.getProgress() / (xlHotCoolantTurbineWorkableHandler.getMaxProgress() * 1.0) * 100);
+                textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            }
 
             ITextComponent isWorkingText = !xlHotCoolantTurbineWorkableHandler.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
                     : !xlHotCoolantTurbineWorkableHandler.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")

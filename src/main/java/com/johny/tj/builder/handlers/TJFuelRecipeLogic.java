@@ -1,0 +1,159 @@
+package com.johny.tj.builder.handlers;
+
+import com.johny.tj.builder.multicontrollers.TJFueledMultiblockController;
+import com.johny.tj.capability.IGeneratorInfo;
+import com.johny.tj.capability.TJCapabilities;
+import gregicadditions.machines.multi.IMaintenance;
+import gregtech.api.capability.GregtechTileCapabilities;
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
+import gregtech.api.capability.IWorkable;
+import gregtech.api.capability.impl.FuelRecipeLogic;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.recipes.machines.FuelRecipeMap;
+import gregtech.api.recipes.recipes.FuelRecipe;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidTank;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.function.Supplier;
+
+public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
+
+    private int progress;
+    private int maxProgress;
+    private long energyProduced;
+
+    public TJFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
+        super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
+    }
+
+    @Override
+    public void update() {
+        if (getMetaTileEntity().getWorld().isRemote || !isWorkingEnabled())
+            return;
+
+        if (!shouldVoidExcessiveEnergy() && energyContainer.get().getEnergyCanBeInserted() < energyProduced) {
+            if (isActive())
+                setActive(false);
+            return;
+        }
+
+        energyContainer.get().addEnergy(energyProduced);
+
+        if (metaTileEntity instanceof TJFueledMultiblockController)
+           ((TJFueledMultiblockController) metaTileEntity).calculateMaintenance(1);
+
+        if (progress > 0 && !isActive())
+            setActive(true);
+
+        if (progress >= maxProgress) {
+            progress = 0;
+            setActive(false);
+        }
+
+        if (progress <= 0) {
+            boolean problems = false;
+            if (metaTileEntity instanceof IMaintenance)
+                problems = ((IMaintenance) metaTileEntity).getNumProblems() >= 6;
+            if (problems || !isReadyForRecipes() || !this.tryAcquireNewRecipe())
+                return;
+            progress = 1;
+            setActive(true);
+        } else {
+            progress++;
+        }
+    }
+
+    protected boolean tryAcquireNewRecipe() {
+        IMultipleTankHandler fluidTanks = this.fluidTank.get();
+        for (IFluidTank fluidTank : fluidTanks) {
+            FluidStack tankContents = fluidTank.getFluid();
+            if (tankContents != null && tankContents.amount > 0) {
+                int fuelAmountUsed = this.tryAcquireNewRecipe(tankContents);
+                if (fuelAmountUsed > 0) {
+                    fluidTank.drain(fuelAmountUsed, true);
+                    return true; //recipe is found and ready to use
+                }
+            }
+        }
+        return false;
+    }
+
+    protected int tryAcquireNewRecipe(FluidStack fluidStack) {
+        FuelRecipe currentRecipe;
+        if (previousRecipe != null && previousRecipe.matches(getMaxVoltage(), fluidStack)) {
+            //if previous recipe still matches inputs, try to use it
+            currentRecipe = previousRecipe;
+        } else {
+            //else, try searching new recipe for given inputs
+            currentRecipe = recipeMap.findRecipe(getMaxVoltage(), fluidStack);
+            //if we found recipe that can be buffered, buffer it
+            if (currentRecipe != null) {
+                this.previousRecipe = currentRecipe;
+            }
+        }
+        if (currentRecipe != null && checkRecipe(currentRecipe)) {
+            int fuelAmountToUse = calculateFuelAmount(currentRecipe);
+            if (fluidStack.amount >= fuelAmountToUse) {
+                maxProgress = calculateRecipeDuration(currentRecipe);
+                energyProduced = startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
+                return fuelAmountToUse;
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound tagCompound = super.serializeNBT();
+        tagCompound.setInteger("Progress", progress);
+        tagCompound.setInteger("MaxProgress", maxProgress);
+        tagCompound.setLong("Energy", energyProduced);
+        return tagCompound;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound compound) {
+        super.deserializeNBT(compound);
+        energyProduced = compound.getLong("Energy");
+        maxProgress = compound.getInteger("MaxProgress");
+        progress = compound.getInteger("Progress");
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
+            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_GENERATOR)
+            return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
+        return super.getCapability(capability);
+    }
+
+    @Override
+    protected boolean shouldVoidExcessiveEnergy() {
+        return true;
+    }
+
+    @Override
+    public int getProgress() {
+        return progress;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return maxProgress;
+    }
+
+    @Override
+    public long getProduction() {
+        return energyProduced;
+    }
+
+    @Override
+    public String[] productionInfo() {
+        return ArrayUtils.toArray("machine.universal.producing", " ", "machine.universal.eu.tick");
+    }
+}

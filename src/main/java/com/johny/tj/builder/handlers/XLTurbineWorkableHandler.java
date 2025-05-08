@@ -59,13 +59,11 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         if (getMetaTileEntity().getWorld().isRemote || !isWorkingEnabled())
             return;
 
-        if (extremeTurbine.getOffsetTimer() % 20 == 0) {
+        if (extremeTurbine.getOffsetTimer() % 20 == 0)
             totalEnergyProduced = (int) getRecipeOutputVoltage();
-        }
 
-        if (totalEnergyProduced > 0) {
+        if (totalEnergyProduced > 0)
             energyContainer.get().addEnergy(totalEnergyProduced);
-        }
 
         extremeTurbine.calculateMaintenance(rotorDamageMultiplier);
         if (progress > 0 && !isActive())
@@ -272,8 +270,8 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
         isFastMode = compound.getBoolean("IsFastMode");
         totalEnergyProduced = compound.getInteger("TotalEnergy");
-        progress = compound.getInteger("Progress");
         maxProgress = compound.getInteger("MaxProgress");
+        progress = compound.getInteger("Progress");
     }
 
     @Override
@@ -307,7 +305,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
 
     @Override
     public String[] productionInfo() {
-        return ArrayUtils.toArray("machine.universal.producing", "machine.universal.eu.tick");
+        return ArrayUtils.toArray("machine.universal.producing", " ", "machine.universal.eu.tick");
     }
 }
 

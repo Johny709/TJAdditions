@@ -61,13 +61,11 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         if (getMetaTileEntity().getWorld().isRemote || !isWorkingEnabled())
             return;
 
-        if (extremeTurbine.getOffsetTimer() % 20 == 0) {
+        if (extremeTurbine.getOffsetTimer() % 20 == 0)
             totalEnergyProduced = (int) getRecipeOutputVoltage();
-        }
 
-        if (totalEnergyProduced > 0) {
+        if (totalEnergyProduced > 0)
             energyContainer.get().addEnergy(totalEnergyProduced);
-        }
 
         extremeTurbine.calculateMaintenance(rotorDamageMultiplier);
         if (progress > 0 && !isActive())
@@ -319,6 +317,6 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     @Override
     public String[] productionInfo() {
-        return ArrayUtils.toArray("machine.universal.producing", "machine.universal.eu.tick");
+        return ArrayUtils.toArray("machine.universal.producing", " ", "machine.universal.eu.tick");
     }
 }

@@ -1,5 +1,7 @@
 package com.johny.tj.machines.multi.steam;
 
+import com.johny.tj.builder.handlers.TJFuelRecipeLogic;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import com.johny.tj.builder.multicontrollers.TJFueledMultiblockController;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -26,11 +28,14 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
+
+import static net.minecraft.util.text.TextFormatting.*;
 
 public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockController {
 
@@ -56,24 +61,53 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (workableHandler.isActive()) {
-            textList.add(new TextComponentTranslation("gregtech.multiblock.generation_eu", workableHandler.getMaxVoltage()));
+        if (!isStructureFormed()) {
+            MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
+            return;
         }
+
+        textList.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", efficiency * 100).setStyle(new Style().setColor(AQUA)));
+
+        TJFuelRecipeLogic recipeLogic = (TJFuelRecipeLogic) workableHandler;
+        if (recipeLogic.isActive()) {
+            textList.add(new TextComponentTranslation("gregtech.multiblock.generation_eu", recipeLogic.getMaxVoltage()));
+            int currentProgress = (int) Math.floor(recipeLogic.getProgress() / (recipeLogic.getMaxProgress() * 1.0) * 100);
+            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+        }
+
+        ITextComponent isWorkingText = !recipeLogic.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
+                : !recipeLogic.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")
+                : new TextComponentTranslation("gregtech.multiblock.running");
+
+        isWorkingText.getStyle().setColor(!recipeLogic.isWorkingEnabled() ? YELLOW : !recipeLogic.isActive() ? WHITE : GREEN);
+        textList.add(isWorkingText);
+
+        if (energyContainer.getEnergyCanBeInserted() < recipeLogic.getProduction())
+            textList.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
     }
 
     @Override
     protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        return new FuelRecipeLogic(this, recipeMap, () -> energyContainer, () -> importFluidHandler, 0) {
+        return new TJFuelRecipeLogic(this, recipeMap, () -> energyContainer, () -> importFluidHandler, 0) {
 
             @Override
             protected int calculateFuelAmount(FuelRecipe currentRecipe) {
-                return (int) (super.calculateFuelAmount(currentRecipe) / ((MetaTileEntityIndustrialSteamEngine) metaTileEntity).getEfficiency());
+                return (int) ((super.calculateFuelAmount(currentRecipe) * 2) / ((MetaTileEntityIndustrialSteamEngine) metaTileEntity).getEfficiency());
             }
 
             @Override
             public long getMaxVoltage() {
                 return GTValues.V2[((MetaTileEntityIndustrialSteamEngine) metaTileEntity).getTier()];
+            }
+
+            @Override
+            protected int calculateRecipeDuration(FuelRecipe currentRecipe) {
+                return super.calculateRecipeDuration(currentRecipe) * 2;
+            }
+
+            @Override
+            protected boolean shouldVoidExcessiveEnergy() {
+                return false;
             }
         };
     }
@@ -81,7 +115,8 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        int tier = this.tier - 1;
         efficiency = Math.max(0, (float) (1.0 - ((double) tier / 10)));
     }
 
