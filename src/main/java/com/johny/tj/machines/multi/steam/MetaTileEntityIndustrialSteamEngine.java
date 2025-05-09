@@ -40,7 +40,7 @@ import static net.minecraft.util.text.TextFormatting.*;
 public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
-            GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+            GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private float efficiency;
     private int tier;
 

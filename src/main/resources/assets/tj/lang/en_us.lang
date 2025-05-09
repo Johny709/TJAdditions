@@ -81,9 +81,14 @@ tj.machine.super_input_bus.max.name=Super Input Bus (MAX)
 tj.machine.super_output_bus.max.name=Super Output Bus (MAX)
 tj.machine.super_input_hatch.max.name=Super Input Hatch (MAX)
 tj.machine.super_output_hatch.max.name=Super Output Hatch (MAX)
-
 tj.machine.fluid_input_quad_quad_luv.name=Quadruple Quadruple Input Hatch
 tj.machine.fluid_output_quad_quad_luv.name=Quadruple Quadruple Output Hatch
+tj.machine.steam_input_hatch.hv.name=Large Steam Input Hatch (HV)
+tj.machine.steam_output_hatch.hv.name=Large Steam Output Hatch (HV)
+tj.machine.steam_input_hatch.luv.name=XL Steam Input Hatch (LUV)
+tj.machine.steam_output_hatch.luv.name=XL Steam Output Hatch (LUV)
+tj.machine.steam_input_hatch.uhv.name=Max Steam Input Hatch (UHV)
+tj.machine.steam_output_hatch.uhv.name=Max Steam Output Hatch (UHV)
 gtadditions.machine.energy_hatch.input.max.4.name=Energy Input Hatch 4 Amps (MAX)
 gtadditions.machine.energy_hatch.input.max.16.name=Energy Input Hatch 16 Amps (MAX)
 gtadditions.machine.energy_hatch.output.max.16.name=Energy Output Hatch 16 Amps (MAX)

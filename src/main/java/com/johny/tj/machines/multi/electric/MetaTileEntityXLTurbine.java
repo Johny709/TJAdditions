@@ -41,6 +41,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -51,6 +52,7 @@ import static net.minecraft.util.text.TextFormatting.*;
 public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
 
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.STEAM};
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
 
@@ -202,6 +204,19 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     }
 
     @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        boolean hasInputEnergy = abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
+        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
+        boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
+
+        if (turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
+            return false;
+
+        return maintenanceCount == 1 && hasInputEnergy && hasInputFluid || hasSteamInput;
+    }
+
+    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.exportFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
@@ -284,16 +299,11 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
                         .where('S', selfPredicate())
                         .where('#', isAirPredicate())
                         .where('C', statePredicate(getCasingState()))
-                        .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(getAllowedAbilities())))
+                        .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                         .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                         .build();
     }
 
-    public MultiblockAbility[] getAllowedAbilities() {
-        return turbineType.hasOutputHatch ?
-                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH} :
-                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    }
     @Override
     public boolean canShare() {
         return false;

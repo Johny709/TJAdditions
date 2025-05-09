@@ -52,7 +52,7 @@ import static net.minecraft.util.text.TextFormatting.*;
 
 public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_ITEMS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.STEAM};
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
@@ -87,9 +87,13 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
         boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
+        boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
         boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
 
-        return maintenanceCount == 1 && hasInputFluid && hasOutputFluid;
+        if (turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
+            return false;
+
+        return maintenanceCount == 1 && hasOutputFluid && hasInputFluid || hasSteamInput;
     }
 
     @Override

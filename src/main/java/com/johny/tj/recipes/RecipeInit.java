@@ -21,6 +21,7 @@ import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.electric.MetaTileEntityAirCollector;
+import gregtech.common.metatileentities.storage.MetaTileEntityQuantumTank;
 import gregtech.loaders.recipe.CraftingComponent;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -32,11 +33,14 @@ import java.util.Arrays;
 import static com.johny.tj.TJValues.CIRCUIT_TIERS;
 import static com.johny.tj.items.TJMetaItems.UNIVERSAL_CIRCUITS;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
+import static com.johny.tj.recipes.AssemblerRecipes.materialTier;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
 import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
 import static gregtech.api.unification.material.Materials.*;
+import static gregtech.common.metatileentities.MetaTileEntities.QUANTUM_TANK;
+import static gregtech.common.metatileentities.MetaTileEntities.Super_tank;
 
 public class RecipeInit {
 
@@ -191,6 +195,22 @@ public class RecipeInit {
                     .duration(50)
                     .EUt(16)
                     .buildAndRegister();
+        }
+
+        MetaTileEntityQuantumTank[] superTanks = {QUANTUM_TANK[1], Super_tank[2], Super_tank[4]};
+        Material[] pipe = {StainlessSteel, Naquadah, TantalumHafniumSeaborgiumCarbide};
+        for (int i = 0; i < STEAM_INPUT_FLUID_HATCH.length; i++) {
+            int tier = 3 + (3 * i);
+            MetaTileEntityQuantumTank superTank = superTanks[i];
+            ModHandler.addShapedRecipe("steam_input_hatch." + GAValues.VN[tier], STEAM_INPUT_FLUID_HATCH[i].getStackForm(), "DPD", "DSD", "DPD",
+                    'D', new UnificationEntry(OrePrefix.plate, materialTier[0][tier -1]),
+                    'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
+                    'S', superTank.getStackForm());
+
+            ModHandler.addShapedRecipe("steam_output_hatch." + GAValues.VN[tier], STEAM_OUTPUT_FLUID_HATCH[i].getStackForm(), "DDD", "PSP", "DDD",
+                    'D', new UnificationEntry(OrePrefix.plate, materialTier[0][tier -1]),
+                    'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
+                    'S', superTank.getStackForm());
         }
 
         ModHandler.addShapedRecipe("linking_device", TJMetaItems.LINKING_DEVICE.getStackForm(), "SIS", "RLR", "CIC",

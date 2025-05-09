@@ -7,6 +7,7 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IGeneratorInfo;
 import com.johny.tj.capability.IHeatInfo;
+import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
 import gregtech.api.capability.GregtechCapabilities;
@@ -73,6 +74,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     private final int MAX_PROCESSES;
 
     public final MetaTileEntityLargeBoiler.BoilerType boilerType;
+    private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
 
     private int currentTemperature;
     private int progress;
@@ -396,8 +398,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
                 .where('P', statePredicate(boilerType.pipeState))
                 .where('X', state -> statePredicate(GTUtility.getAllPropertyValues(boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
                         .or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.MAINTENANCE_HATCH)).test(state))
-                .where('C', statePredicate(boilerType.casingState).or(abilityPartPredicate(
-                        MultiblockAbility.EXPORT_FLUIDS)))
+                .where('C', statePredicate(boilerType.casingState).or(abilityPartPredicate(OUTPUT_ABILITIES)))
                 .build();
     }
 

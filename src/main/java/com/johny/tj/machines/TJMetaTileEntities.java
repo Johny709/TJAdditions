@@ -87,6 +87,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
     public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_OUTPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
+    public static MetaTileEntityTJSteamHatch[] STEAM_INPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
+    public static MetaTileEntityTJSteamHatch[] STEAM_OUTPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
 
     public static void init() {
 
@@ -167,6 +169,7 @@ public class TJMetaTileEntities {
         LARGE_BATTERY_CHARGER = GregTechAPI.registerMetaTileEntity(5105, new MetaTileEntityLargeBatteryCharger(TJId("large_battery_charger")));
 
         VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5127, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
+        // 5128 and 5129 are free
 
         int energyHatchID = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
@@ -181,6 +184,13 @@ public class TJMetaTileEntities {
             SUPER_ITEM_OUTPUT_BUS[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperItemBus(TJId("super_output_bus." + GAValues.VN[tier]), tier, true));
             SUPER_FLUID_INPUT_HATCH[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperFluidHatch(TJId("super_input_hatch." + GAValues.VN[tier]), tier, false));
             SUPER_FLUID_OUTPUT_HATCH[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperFluidHatch(TJId("super_output_hatch." + GAValues.VN[tier]), tier, true));
+        }
+
+        int steamHatchID = 5130; // occupies ID range 5130 - 5135
+        for (int i = 0; i < STEAM_INPUT_FLUID_HATCH.length; i++) {
+            int tier = 3 + (3 * i);
+            STEAM_INPUT_FLUID_HATCH[i] = GregTechAPI.registerMetaTileEntity(steamHatchID++, new MetaTileEntityTJSteamHatch(TJId("steam_input_hatch." + GAValues.VN[tier]), tier, false));
+            STEAM_OUTPUT_FLUID_HATCH[i] = GregTechAPI.registerMetaTileEntity(steamHatchID++, new MetaTileEntityTJSteamHatch(TJId("steam_output_hatch." + GAValues.VN[tier]), tier, true));
         }
 
         ENERGY_INPUT_HATCH_4_AMPS.add(GregTechAPI.registerMetaTileEntity(5044, new GAMetaTileEntityEnergyHatch(location("energy_hatch.input.max.4"), 14, 4, false)));
