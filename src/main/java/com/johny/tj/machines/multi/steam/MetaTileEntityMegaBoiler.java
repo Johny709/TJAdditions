@@ -112,20 +112,24 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
+        boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
+        boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
 
-        return fluidInputsCount >= 1 &&
-                fluidOutputsCount >= 1 &&
-                abilities.containsKey(GregicAdditionsCapabilities.MAINTENANCE_HATCH);
+        return maintenanceCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput);
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        List<IFluidTank> fluidTanks = new ArrayList<>();
+        fluidTanks.addAll(getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        fluidTanks.addAll(getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
+
         this.fluidImportInventory = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.itemImportInventory = new ItemHandlerList(getAbilities(MultiblockAbility.IMPORT_ITEMS));
-        this.steamOutputTank = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        this.steamOutputTank = new FluidTankList(true, fluidTanks);
     }
 
     @Override

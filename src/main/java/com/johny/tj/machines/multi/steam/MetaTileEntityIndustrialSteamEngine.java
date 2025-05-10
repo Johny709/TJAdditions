@@ -10,6 +10,7 @@ import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.GTValues;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -31,9 +32,12 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.IFluidTank;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
@@ -113,8 +117,22 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
     }
 
     @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        boolean hasOutputEnergy = abilities.containsKey(MultiblockAbility.OUTPUT_ENERGY);
+        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
+        boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
+
+        return super.checkStructureComponents(parts, abilities) && hasOutputEnergy && (hasInputFluid || hasSteamInput);
+    }
+
+    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        List<IFluidTank> fluidTanks = new ArrayList<>();
+        fluidTanks.addAll(getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        fluidTanks.addAll(getAbilities(GregicAdditionsCapabilities.STEAM));
+
+        this.importFluidHandler = new FluidTankList(true, fluidTanks);
         this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         int tier = this.tier - 1;
         efficiency = Math.max(0, (float) (1.0 - ((double) tier / 10)));

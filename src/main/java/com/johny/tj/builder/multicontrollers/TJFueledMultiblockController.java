@@ -4,6 +4,7 @@ import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJHorizontoalTabListRenderer;
 import com.johny.tj.gui.TJTabGroup;
 import com.johny.tj.gui.TJWidgetGroup;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.GAFueledMultiblockController;
 import gregtech.api.gui.GuiTextures;
@@ -11,6 +12,8 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.ItemTabInfo;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,7 +24,9 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -31,6 +36,12 @@ public abstract class TJFueledMultiblockController extends GAFueledMultiblockCon
 
     public TJFueledMultiblockController(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
         super(metaTileEntityId, recipeMap, maxVoltage);
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        return maintenanceCount == 1;
     }
 
     @Override

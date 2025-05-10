@@ -63,12 +63,7 @@ public abstract class TJRotorHolderMultiblockController extends RotorHolderMulti
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        boolean canForm = super.checkStructureComponents(parts, abilities);
-        if (!canForm)
-            return false;
-
         int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
-
         return maintenanceCount == 1;
     }
 

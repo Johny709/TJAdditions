@@ -33,12 +33,14 @@ import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -205,20 +207,24 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
-        boolean hasInputEnergy = abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
+        boolean hasOutputEnergy = abilities.containsKey(MultiblockAbility.OUTPUT_ENERGY);
         boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
         boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
 
         if (turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
             return false;
 
-        return maintenanceCount == 1 && hasInputEnergy && hasInputFluid || hasSteamInput;
+        return super.checkStructureComponents(parts, abilities) && hasOutputEnergy && (hasInputFluid || hasSteamInput);
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        List<IFluidTank> fluidTanks = new ArrayList<>();
+        fluidTanks.addAll(getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        fluidTanks.addAll(getAbilities(GregicAdditionsCapabilities.STEAM));
+
+        this.importFluidHandler = new FluidTankList(true, fluidTanks);
         this.exportFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         this.importItemHandler = new ItemHandlerList(getAbilities(MultiblockAbility.IMPORT_ITEMS));
     }
