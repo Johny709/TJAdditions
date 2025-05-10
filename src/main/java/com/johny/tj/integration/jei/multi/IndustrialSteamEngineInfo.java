@@ -3,12 +3,11 @@ package com.johny.tj.integration.jei.multi;
 import com.google.common.collect.Lists;
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.common.blocks.BlockTurbineCasing;
-import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -28,7 +27,7 @@ public class IndustrialSteamEngineInfo extends MultiblockInfoPage {
     public List<MultiblockShapeInfo> getMatchingShapes() {
         MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("~~C~", "~CCC", "~~C~")
-                .aisle("mCCC", "SGRE", "ICCO")
+                .aisle("mCCC", "SFRE", "ICCO")
                 .aisle("CCCC", "CCCC", "CCCC")
                 .where('S', TJMetaTileEntities.INDUSTRIAL_STEAM_ENGINE, EnumFacing.WEST)
                 .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
@@ -37,7 +36,7 @@ public class IndustrialSteamEngineInfo extends MultiblockInfoPage {
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MV], EnumFacing.WEST)
                 .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.EAST)
                 .where('R', GAMetaBlocks.MOTOR_CASING.getDefaultState())
-                .where('G', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.BRONZE_GEARBOX))
+                .where('F', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TIERED_HULL_MV))
                 .build();
         return Lists.newArrayList(shapeInfo);
     }

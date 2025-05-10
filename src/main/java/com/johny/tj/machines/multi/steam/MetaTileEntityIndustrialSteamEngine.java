@@ -6,6 +6,8 @@ import com.johny.tj.builder.multicontrollers.TJFueledMultiblockController;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -22,8 +24,6 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipes.FuelRecipe;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.common.blocks.BlockTurbineCasing;
-import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
+import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static net.minecraft.util.text.TextFormatting.*;
 
 public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockController {
@@ -132,10 +134,13 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
         fluidTanks.addAll(getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         fluidTanks.addAll(getAbilities(GregicAdditionsCapabilities.STEAM));
 
+        int framework = context.getOrDefault("framework", GAMultiblockCasing.CasingType.TIERED_HULL_LV).getTier();
+        int framework2 = context.getOrDefault("framework2", GAMultiblockCasing2.CasingType.TIERED_HULL_UHV).getTier();
+        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
-        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.tier = Math.min(motor, Math.min(framework, framework2));
         int tier = this.tier - 1;
-        efficiency = Math.max(0, (float) (1.0 - ((double) tier / 10)));
+        this.efficiency = Math.max(0.1F, (1.0F - (tier / 10.0F)));
     }
 
     @Override
@@ -143,12 +148,12 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
         return FactoryBlockPattern.start()
                 .aisle("~CC", "CEC", "~CC")
                 .aisle("CCC", "CRC", "CCC")
-                .aisle("~CC", "CGC", "~CC")
+                .aisle("~CC", "CFC", "~CC")
                 .aisle("~CC", "~SC", "~CC")
                 .where('S', selfPredicate())
                 .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('E', abilityPartPredicate(MultiblockAbility.OUTPUT_ENERGY))
-                .where('G', statePredicate(MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.BRONZE_GEARBOX)))
+                .where('F', frameworkPredicate().or(frameworkPredicate2()))
                 .where('R', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('~', tile -> true)
                 .build();
