@@ -161,6 +161,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         if (isStructureFormed()) {
             textList.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.temperature", currentTemperature, boilerType.maxTemperature));
             textList.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", steamProduction, boilerType.baseSteamOutput));
+            textList.add(new TextComponentTranslation("machine.universal.consuming.ticks", waterConsumption, net.minecraft.util.text.translation.I18n.translateToLocal(Water.getUnlocalizedName())));
 
             ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency", (int) (getHeatEfficiencyMultiplier() * 100));
             withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");

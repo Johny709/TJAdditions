@@ -138,6 +138,8 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             totalEnergy.appendSibling(new TextComponentString(xlHotCoolantTurbineWorkableHandler.getProduction() + " EU/t"));
             textList.add(totalEnergy);
 
+            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", xlHotCoolantTurbineWorkableHandler.getConsumption(), xlHotCoolantTurbineWorkableHandler.getMaxProgress() / 20));
+
             ITextComponent toggleFastMode = new TextComponentTranslation("gregtech.multiblock.extreme_turbine.fast_mode");
             toggleFastMode.appendText(" ");
 

@@ -101,6 +101,8 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
             totalEnergy.appendSibling(new TextComponentString(xlTurbineWorkableHandler.getProduction() + " EU/t"));
             textList.add(totalEnergy);
 
+            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", xlTurbineWorkableHandler.getConsumption(), xlTurbineWorkableHandler.getMaxProgress() / 20));
+
             ITextComponent toggleFastMode = new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode");
             toggleFastMode.appendText(" ");
 
