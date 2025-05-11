@@ -148,6 +148,10 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         return true;
     }
 
+    public String getFuelName() {
+        return fuelName;
+    }
+
     @Override
     public int getProgress() {
         return progress;

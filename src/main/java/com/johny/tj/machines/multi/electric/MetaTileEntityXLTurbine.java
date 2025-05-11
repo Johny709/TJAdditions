@@ -96,12 +96,14 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (isStructureFormed()) {
+            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", xlTurbineWorkableHandler.getConsumption(),
+                    net.minecraft.util.text.translation.I18n.translateToLocal(xlTurbineWorkableHandler.getFuelName()),
+                    xlTurbineWorkableHandler.getMaxProgress() / 20));
+
             ITextComponent totalEnergy = new TextComponentTranslation("tj.multiblock.extreme_turbine.energy");
             totalEnergy.appendText(" ");
             totalEnergy.appendSibling(new TextComponentString(xlTurbineWorkableHandler.getProduction() + " EU/t"));
             textList.add(totalEnergy);
-
-            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", xlTurbineWorkableHandler.getConsumption(), xlTurbineWorkableHandler.getMaxProgress() / 20));
 
             ITextComponent toggleFastMode = new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode");
             toggleFastMode.appendText(" ");

@@ -283,6 +283,10 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
         return super.getCapability(capability);
     }
 
+    public String getFuelName() {
+        return fuelName;
+    }
+
     @Override
     public int getProgress() {
         return progress;

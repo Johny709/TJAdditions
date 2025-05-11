@@ -76,6 +76,10 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
 
         TJFuelRecipeLogic recipeLogic = (TJFuelRecipeLogic) workableHandler;
         if (recipeLogic.isActive()) {
+            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", recipeLogic.getConsumption(),
+                    net.minecraft.util.text.translation.I18n.translateToLocal(recipeLogic.getFuelName()),
+                    recipeLogic.getMaxProgress() / 20));
+
             textList.add(new TextComponentTranslation("gregtech.multiblock.generation_eu", recipeLogic.getMaxVoltage()));
             int currentProgress = (int) Math.floor(recipeLogic.getProgress() / (recipeLogic.getMaxProgress() * 1.0) * 100);
             textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));

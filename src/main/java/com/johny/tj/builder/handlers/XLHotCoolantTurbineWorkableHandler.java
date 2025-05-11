@@ -311,6 +311,10 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         return super.getCapability(capability);
     }
 
+    public String getFuelName() {
+        return fuelName;
+    }
+
     @Override
     public int getProgress() {
         return progress;

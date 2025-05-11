@@ -299,6 +299,10 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         return true;
     }
 
+    public String getFuelName() {
+        return fuelName;
+    }
+
     @Override
     public int getProgress() {
         return progress;

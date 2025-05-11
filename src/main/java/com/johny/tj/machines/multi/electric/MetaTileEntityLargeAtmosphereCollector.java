@@ -136,6 +136,11 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
             textList.add(toggleFastMode);
 
             if (airCollectorHandler.isActive()) {
+                textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", airCollectorHandler.getConsumption(),
+                        net.minecraft.util.text.translation.I18n.translateToLocal(airCollectorHandler.getFuelName()),
+                        airCollectorHandler.getMaxProgress() / 20));
+
+                textList.add(new TextComponentTranslation("tj.multiblock.large_atmosphere_collector.air", airCollectorHandler.getProduction()));
                 int currentProgress = (int) Math.floor(airCollectorHandler.getProgress() / (airCollectorHandler.getMaxProgress() * 1.0) * 100);
                 textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
             }

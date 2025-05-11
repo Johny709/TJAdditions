@@ -133,12 +133,14 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         if (isStructureFormed()) {
+            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", xlHotCoolantTurbineWorkableHandler.getConsumption(),
+                    net.minecraft.util.text.translation.I18n.translateToLocal(xlHotCoolantTurbineWorkableHandler.getFuelName()),
+                    xlHotCoolantTurbineWorkableHandler.getMaxProgress() / 20));
+
             ITextComponent totalEnergy = new TextComponentTranslation("gregtech.multiblock.extreme_turbine.energy");
             totalEnergy.appendText(" ");
             totalEnergy.appendSibling(new TextComponentString(xlHotCoolantTurbineWorkableHandler.getProduction() + " EU/t"));
             textList.add(totalEnergy);
-
-            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", xlHotCoolantTurbineWorkableHandler.getConsumption(), xlHotCoolantTurbineWorkableHandler.getMaxProgress() / 20));
 
             ITextComponent toggleFastMode = new TextComponentTranslation("gregtech.multiblock.extreme_turbine.fast_mode");
             toggleFastMode.appendText(" ");
