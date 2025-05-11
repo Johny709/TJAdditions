@@ -138,11 +138,16 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
         fluidTanks.addAll(getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         fluidTanks.addAll(getAbilities(GregicAdditionsCapabilities.STEAM));
 
-        int framework = context.getOrDefault("framework", GAMultiblockCasing.CasingType.TIERED_HULL_LV).getTier();
-        int framework2 = context.getOrDefault("framework2", GAMultiblockCasing2.CasingType.TIERED_HULL_UHV).getTier();
+        int framework = 0, framework2 = 0;
+        if (context.get("framework") instanceof GAMultiblockCasing.CasingType) {
+            framework = ((GAMultiblockCasing.CasingType) context.get("framework")).getTier();
+        }
+        if (context.get("framework2") instanceof GAMultiblockCasing2.CasingType) {
+            framework2 = ((GAMultiblockCasing2.CasingType) context.get("framework2")).getTier();
+        }
         int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
-        this.tier = Math.min(motor, Math.min(framework, framework2));
+        this.tier = Math.min(motor, Math.max(framework, framework2));
         int tier = this.tier - 1;
         this.efficiency = Math.max(0.1F, (1.0F - (tier / 10.0F)));
     }
