@@ -14,7 +14,6 @@ public class TJSimpleCapabilityManager {
         registerCapabilityWithNoDefault(LinkEntityInterDim.class);
         registerCapabilityWithNoDefault(IHeatInfo.class);
         registerCapabilityWithNoDefault(IGeneratorInfo.class);
-        registerCapabilityWithNoDefault(IFluidHandlerInfo.class);
-        registerCapabilityWithNoDefault(IItemHandlerInfo.class);
+        registerCapabilityWithNoDefault(IItemFluidHandlerInfo.class);
     }
 }

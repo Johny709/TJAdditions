@@ -484,9 +484,7 @@ tj.top.parallel_controller.maxeut=Max EU/t:
 tj.top.parallel_controller.energy_bonus=Current Energy Usage:
 tj.top.parallel_controller.energy_consumption=Energy Consumption:
 tj.top.parallel_controller.multiblock_recipe=Multiblock Recipe:
-tj.top.items.inputs=Item Inputs:
-tj.top.fluid.inputs=Fluid Inputs:
-tj.top.items.outputs=Item Outputs:
-tj.top.fluid.outputs=Fluid Outputs:
+tj.top.inputs=Item Inputs:
+tj.top.outputs=Item Outputs::
 
 item.is.empty=None

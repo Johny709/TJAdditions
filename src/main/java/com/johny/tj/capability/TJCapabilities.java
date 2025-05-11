@@ -31,11 +31,8 @@ public class TJCapabilities {
     @CapabilityInject(IHeatInfo.class)
     public static Capability<IHeatInfo> CAPABILITY_HEAT = null;
 
-    @CapabilityInject(IFluidHandlerInfo.class)
-    public static Capability<IFluidHandlerInfo> CAPABILITY_FLUID_HANDLING = null;
-
-    @CapabilityInject(IItemHandlerInfo.class)
-    public static Capability<IItemHandlerInfo> CAPABILITY_ITEM_HANDLING = null;
+    @CapabilityInject(IItemFluidHandlerInfo.class)
+    public static Capability<IItemFluidHandlerInfo> CAPABILITY_ITEM_FLUID_HANDLING = null;
 
     @CapabilityInject(IGeneratorInfo.class)
     public static Capability<IGeneratorInfo> CAPABILITY_GENERATOR = null;

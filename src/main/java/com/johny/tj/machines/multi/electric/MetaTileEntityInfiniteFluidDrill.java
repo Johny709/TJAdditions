@@ -6,7 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
-import com.johny.tj.capability.IFluidHandlerInfo;
+import com.johny.tj.capability.IItemFluidHandlerInfo;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.textures.TJTextures;
 import gregicadditions.GAValues;
@@ -54,7 +54,7 @@ import java.util.*;
 import static gregicadditions.GAMaterials.*;
 import static net.minecraft.util.text.TextFormatting.*;
 
-public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase implements IWorkable, IFluidHandlerInfo {
+public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase implements IWorkable, IItemFluidHandlerInfo {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
@@ -303,8 +303,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
         if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
             return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
-        if (capability == TJCapabilities.CAPABILITY_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_FLUID_HANDLING.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
+            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability, side);
     }
 

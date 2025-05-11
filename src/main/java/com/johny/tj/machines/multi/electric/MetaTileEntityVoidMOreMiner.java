@@ -7,9 +7,8 @@ import com.google.common.collect.Lists;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
-import com.johny.tj.capability.IFluidHandlerInfo;
 import com.johny.tj.capability.IHeatInfo;
-import com.johny.tj.capability.IItemHandlerInfo;
+import com.johny.tj.capability.IItemFluidHandlerInfo;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJWidgetGroup;
 import gregicadditions.GAUtility;
@@ -74,7 +73,7 @@ import static gregicadditions.GAMaterials.*;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
 import static net.minecraft.util.text.TextFormatting.*;
 
-public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase implements IHeatInfo, IWorkable, IFluidHandlerInfo, IItemHandlerInfo {
+public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase implements IHeatInfo, IWorkable, IItemFluidHandlerInfo {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private static final int CONSUME_START = 100;
@@ -423,10 +422,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
         if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
             return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
-        if (capability == TJCapabilities.CAPABILITY_ITEM_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_HANDLING.cast(this);
-        if (capability == TJCapabilities.CAPABILITY_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_FLUID_HANDLING.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
+            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability, side);
     }
 
