@@ -2,11 +2,25 @@ package com.johny.tj.capability;
 
 public interface IGeneratorInfo {
 
-    long getProduction();
+    default long getConsumption() {
+        return 0;
+    }
+
+    default long getProduction() {
+        return 0;
+    }
 
     /**
      * Everything is prefix until "suffix" String is passed in and will be part of suffix afterward.
      */
-    String[] productionInfo();
+    default String[] consumptionInfo() {
+        return null;
+    }
 
+    /**
+     * Everything is prefix until "suffix" String is passed in and will be part of suffix afterward.
+     */
+    default String[] productionInfo() {
+        return null;
+    }
 }

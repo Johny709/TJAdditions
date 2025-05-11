@@ -37,7 +37,9 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     private static final int BASE_ROTOR_DAMAGE = 220;
     private static final int BASE_EU_OUTPUT = 2048;
 
-    private int totalEnergyProduced ;
+    private int totalEnergyProduced;
+    private int consumption;
+    private String fuelName;
     private int fastModeMultiplier = 1;
     private int rotorDamageMultiplier = 1;
     private boolean isFastMode;
@@ -121,7 +123,9 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
             if (tankContents != null && tankContents.amount > 0) {
                 int fuelAmountUsed = this.tryAcquireNewRecipe(tankContents);
                 if (fuelAmountUsed > 0) {
-                    fluidTank.drain(fuelAmountUsed, true);
+                    FluidStack fluidStack = fluidTank.drain(fuelAmountUsed, true);
+                    consumption = fluidStack.amount;
+                    fuelName = fluidStack.getUnlocalizedName();
                     return true; //recipe is found and ready to use
                 }
             }
@@ -259,6 +263,8 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         tagCompound.setInteger("FastModeMultiplier", fastModeMultiplier);
         tagCompound.setInteger("DamageMultiplier", rotorDamageMultiplier);
         tagCompound.setBoolean("IsFastMode", isFastMode);
+        tagCompound.setInteger("Consumption", consumption);
+        tagCompound.setString("FuelName", fuelName);
         tagCompound.setInteger("TotalEnergy", totalEnergyProduced);
         tagCompound.setInteger("Progress", progress);
         tagCompound.setInteger("MaxProgress", maxProgress);
@@ -272,6 +278,8 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         fastModeMultiplier = compound.getInteger("FastModeMultiplier");
         rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
         isFastMode = compound.getBoolean("IsFastMode");
+        consumption = compound.getInteger("Consumption");
+        fuelName = compound.getString("FuelName");
         totalEnergyProduced = compound.getInteger("TotalEnergy");
         maxProgress = compound.getInteger("MaxProgress");
         progress = compound.getInteger("Progress");
@@ -302,8 +310,22 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     }
 
     @Override
+    public long getConsumption() {
+        return consumption;
+    }
+
+    @Override
     public long getProduction() {
         return totalEnergyProduced;
+    }
+
+    @Override
+    public String[] consumptionInfo() {
+        int seconds = maxProgress / 20;
+        String amount = String.valueOf(seconds);
+        String s = seconds < 2 ? "second" : "seconds";
+        String color = extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? "§7 " : "§b ";
+        return ArrayUtils.toArray("machine.universal.consumption", color, "suffix", "machine.universal.liters.short",  "§r ", fuelName, " ", "every", "§6 ", amount, "§r ", s);
     }
 
     @Override

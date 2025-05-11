@@ -28,6 +28,8 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     private int progress;
     private int maxProgress;
     private long energyProduced;
+    private int consumption;
+    private String fuelName;
 
     public TJFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
@@ -77,7 +79,9 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
             if (tankContents != null && tankContents.amount > 0) {
                 int fuelAmountUsed = this.tryAcquireNewRecipe(tankContents);
                 if (fuelAmountUsed > 0) {
-                    fluidTank.drain(fuelAmountUsed, true);
+                    FluidStack fluidStack = fluidTank.drain(fuelAmountUsed, true);
+                    consumption = fluidStack.amount;
+                    fuelName = fluidStack.getUnlocalizedName();
                     return true; //recipe is found and ready to use
                 }
             }
@@ -114,6 +118,8 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         NBTTagCompound tagCompound = super.serializeNBT();
         tagCompound.setInteger("Progress", progress);
         tagCompound.setInteger("MaxProgress", maxProgress);
+        tagCompound.setInteger("Consumption", consumption);
+        tagCompound.setString("FuelName", fuelName);
         tagCompound.setLong("Energy", energyProduced);
         return tagCompound;
     }
@@ -121,6 +127,8 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
+        consumption = compound.getInteger("Consumption");
+        fuelName = compound.getString("FuelName");
         energyProduced = compound.getLong("Energy");
         maxProgress = compound.getInteger("MaxProgress");
         progress = compound.getInteger("Progress");
@@ -151,8 +159,21 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     }
 
     @Override
+    public long getConsumption() {
+        return consumption;
+    }
+
+    @Override
     public long getProduction() {
         return energyProduced;
+    }
+
+    @Override
+    public String[] consumptionInfo() {
+        int seconds = maxProgress / 20;
+        String amount = String.valueOf(seconds);
+        String s = seconds < 2 ? "second" : "seconds";
+        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r ", fuelName, " ", "every", "§6 ", amount, "§r ", s);
     }
 
     @Override

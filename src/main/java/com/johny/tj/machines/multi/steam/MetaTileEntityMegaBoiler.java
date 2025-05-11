@@ -82,6 +82,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     private int throttlePercentage = 100;
     private boolean isActive;
     private boolean hasNoWater;
+    private int waterConsumption;
     private int steamProduction;
     String currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
     int currentItemsEngaged = 0;
@@ -265,8 +266,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
             return;
         }
         if (progress > 0) {
-            int waterToConsume = Math.round((float) steamProduction / 160);
-            boolean hasEnoughWater = hasEnoughWater(waterToConsume);
+            waterConsumption = Math.round((float) steamProduction / 160);
+            boolean hasEnoughWater = hasEnoughWater(waterConsumption);
             if (hasEnoughWater && hasNoWater) {
                 getWorld().setBlockToAir(this.getPos());
                 getWorld().createExplosion(null,
@@ -275,7 +276,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
             } else {
                 if (hasEnoughWater) {
                     steamOutputTank.fill(Steam.getFluid(steamProduction), true);
-                    fluidImportInventory.drain(Water.getFluid(waterToConsume), true);
+                    fluidImportInventory.drain(Water.getFluid(waterConsumption), true);
                 } else {
                     hasNoWater = true;
                 }
@@ -616,8 +617,18 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     }
 
     @Override
+    public long getConsumption() {
+        return waterConsumption;
+    }
+
+    @Override
     public long getProduction() {
         return steamProduction;
+    }
+
+    @Override
+    public String[] consumptionInfo() {
+        return ArrayUtils.toArray("machine.universal.consumption", "§9 ", "suffix", "machine.universal.liters.short",  "§r ", Water.getUnlocalizedName(), "machine.universal.tick");
     }
 
     @Override

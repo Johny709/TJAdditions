@@ -19,15 +19,24 @@ public class IGeneratorInfoProvider extends CapabilityInfoProvider<IGeneratorInf
 
     @Override
     protected void addProbeInfo(IGeneratorInfo capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-
+        long consumption = capability.getConsumption();
         long generation = capability.getProduction();
-        String[] info = capability.productionInfo();
+        String[] productionInfo = capability.productionInfo();
+        String[] consumptionInfo = capability.consumptionInfo();
+        IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
 
-        IProbeInfo pageInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+        this.pageInfo(consumptionInfo, consumption, pageInfo);
+        this.pageInfo(productionInfo, generation, pageInfo);
+    }
+
+    private void pageInfo(String[] info, long amount, IProbeInfo probeInfo) {
+        if (amount < 1 || info == null)
+            return;
         StringBuilder prefixBuilder = new StringBuilder(), suffixBuilder = new StringBuilder();
-
         boolean suffix = false;
         for (String text : info) {
+            if (text == null)
+                continue;
             if (text.equals("suffix")) {
                 suffix = true;
                 continue;
@@ -42,7 +51,7 @@ public class IGeneratorInfoProvider extends CapabilityInfoProvider<IGeneratorInf
             else
                 suffixBuilder.append(textInfo);
         }
-        pageInfo.text(TextStyleClass.INFO + prefixBuilder.toString() + String.format("%,d", generation) + suffixBuilder);
+        probeInfo.text(TextStyleClass.INFO + prefixBuilder.toString() + String.format("%,d", amount) + suffixBuilder);
     }
 
     @Override

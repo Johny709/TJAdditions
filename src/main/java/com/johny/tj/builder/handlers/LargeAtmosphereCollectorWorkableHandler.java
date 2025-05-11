@@ -37,6 +37,8 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
     private int rotorCycleLength = CYCLE_LENGTH;
 
     private int totalAirProduced;
+    private int consumption;
+    private String fuelName;
     private int fastModeMultiplier = 1;
     private int rotorDamageMultiplier = 1;
     private boolean isFastMode;
@@ -112,7 +114,9 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
             if (tankContents != null && tankContents.amount > 0) {
                 int fuelAmountUsed = this.tryAcquireNewRecipe(tankContents);
                 if (fuelAmountUsed > 0) {
-                    fluidTank.drain(fuelAmountUsed, true);
+                    FluidStack fluidStack = fluidTank.drain(fuelAmountUsed, true);
+                    consumption = fluidStack.amount;
+                    fuelName = fluidStack.getUnlocalizedName();
                     return true; //recipe is found and ready to use
                 }
             }
@@ -225,12 +229,26 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
     }
 
     @Override
+    protected int calculateFuelAmount(FuelRecipe currentRecipe) {
+        int durationMultiplier = airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 2 : 1;
+        return super.calculateFuelAmount(currentRecipe) * durationMultiplier;
+    }
+
+    @Override
+    protected int calculateRecipeDuration(FuelRecipe currentRecipe) {
+        int durationMultiplier = airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 2 : 1;
+        return super.calculateRecipeDuration(currentRecipe) * durationMultiplier;
+    }
+
+    @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tagCompound = super.serializeNBT();
         tagCompound.setInteger("CycleLength", rotorCycleLength);
         tagCompound.setInteger("FastModeMultiplier", fastModeMultiplier);
         tagCompound.setInteger("DamageMultiplier", rotorDamageMultiplier);
         tagCompound.setBoolean("IsFastMode", isFastMode);
+        tagCompound.setInteger("Consumption", consumption);
+        tagCompound.setString("FuelName", fuelName);
         tagCompound.setInteger("TotalAir", totalAirProduced);
         tagCompound.setInteger("Progress", progress);
         tagCompound.setInteger("MaxProgress", maxProgress);
@@ -244,6 +262,8 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
         fastModeMultiplier = compound.getInteger("FastModeMultiplier");
         rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
         isFastMode = compound.getBoolean("IsFastMode");
+        consumption = compound.getInteger("Consumption");
+        fuelName = compound.getString("FuelName");
         totalAirProduced = compound.getInteger("TotalAir");
         progress = compound.getInteger("Progress");
         maxProgress = compound.getInteger("MaxProgress");
@@ -274,8 +294,21 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
     }
 
     @Override
+    public long getConsumption() {
+        return consumption;
+    }
+
+    @Override
     public long getProduction() {
         return totalAirProduced;
+    }
+
+    @Override
+    public String[] consumptionInfo() {
+        int seconds = maxProgress / 20;
+        String amount = String.valueOf(seconds);
+        String s = seconds < 2 ? "second" : "seconds";
+        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r ", fuelName, " ", "every", "§6 ", amount, "§r ", s);
     }
 
     @Override

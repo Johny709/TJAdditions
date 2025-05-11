@@ -455,10 +455,17 @@ machine.universal.batch.amount=Batch Mode: §6%sx§7
 machine.universal.fluid.input.sec=Fluid Input: %s %dL/sec
 machine.universal.fluid.output.sec=Fluid Output: %s %dL/sec
 machine.universal.producing=Producing:
+machine.universal.consumption=Consuming:
 machine.universal.eu.tick=EU/t
 machine.universal.tick=/t
 machine.universal.output.full=Output Full or Not Enough Space
 machine.universal.liters.short=L
+
+every=Every
+seconds=Seconds
+second=Second
+ticks=Ticks
+tick=Tick
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks
