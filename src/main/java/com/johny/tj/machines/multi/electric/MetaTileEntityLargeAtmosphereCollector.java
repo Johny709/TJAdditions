@@ -83,6 +83,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_atmosphere_collector.description"));
+        tooltip.add(I18n.format("tj.multiblock.turbine.fast_mode.description"));
     }
 
     @Override

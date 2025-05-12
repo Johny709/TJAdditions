@@ -80,11 +80,11 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         }
 
         if (progress <= 0) {
+            toggleFastMode(isFastMode);
             if (extremeTurbine.getNumProblems() >= 6 || !isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
             progress = 1;
             setActive(true);
-            toggleFastMode(isFastMode);
         } else {
             progress++;
         }

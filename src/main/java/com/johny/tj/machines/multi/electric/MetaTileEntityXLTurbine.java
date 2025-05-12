@@ -85,6 +85,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
+        tooltip.add(I18n.format("tj.multiblock.turbine.fast_mode.description"));
         tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", turbineType.recipeMap.getLocalizedName()));
         tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
         tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));

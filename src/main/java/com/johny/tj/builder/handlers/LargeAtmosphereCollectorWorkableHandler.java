@@ -71,11 +71,11 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
         }
 
         if (progress <= 0) {
+            toggleFastMode(isFastMode);
             if (airCollector.getNumProblems() >= 6 || !isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
             progress = 1;
             setActive(true);
-            toggleFastMode(isFastMode);
         } else {
             progress++;
         }

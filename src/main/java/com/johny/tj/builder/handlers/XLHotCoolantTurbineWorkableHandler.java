@@ -82,11 +82,11 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         }
 
         if (progress <= 0) {
+            toggleFastMode(isFastMode);
             if (extremeTurbine.getNumProblems() >= 6 || !isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
             progress = 1;
             this.setActive(true);
-            toggleFastMode(isFastMode);
         } else {
             progress++;
         }

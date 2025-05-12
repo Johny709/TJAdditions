@@ -52,6 +52,6 @@ public class LargeAtmosphereCollectorInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.large_atmosphere_collector.description")};
+                I18n.format("tj.multiblock.large_atmosphere_collector.description"), I18n.format("tj.multiblock.turbine.fast_mode.description")};
     }
 }

@@ -76,7 +76,7 @@ public class XLHotCoolantTurbineInfo extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{I18n.format("tj.multiblock.turbine.description")};
+        return new String[]{I18n.format("tj.multiblock.turbine.description"), I18n.format("tj.multiblock.turbine.fast_mode.description")};
     }
 
     @Override
