@@ -34,6 +34,6 @@ public class CoverCreativeEnergy extends CoverBehavior implements ITickable {
 
     @Override
     public void update() {
-        this.energyContainer.addEnergy(Integer.MAX_VALUE);
+        this.energyContainer.addEnergy(Long.MAX_VALUE);
     }
 }
