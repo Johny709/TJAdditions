@@ -32,7 +32,7 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
         IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         inputInfo.text(TextStyleClass.INFO + "{*tj.top.inputs*} ");
 
-        if (fluidInputs != null) {
+        if (fluidInputs != null && !fluidInputs.isEmpty()) {
             for (FluidStack fluid : fluidInputs) {
                 if (fluid == null)
                     continue;
@@ -42,7 +42,7 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
             }
         }
 
-        if (itemInputs != null) {
+        if (itemInputs != null && !itemInputs.isEmpty()) {
             for (ItemStack item : itemInputs) {
                 if (item.isEmpty())
                     continue;
@@ -53,7 +53,7 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
         IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         outputInfo.text(TextStyleClass.INFO + "{*tj.top.outputs*} ");
 
-        if (fluidOutputs != null) {
+        if (fluidOutputs != null && !fluidOutputs.isEmpty()) {
             for (FluidStack fluid : fluidOutputs) {
                 if (fluid == null)
                     continue;
@@ -63,7 +63,7 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
             }
         }
 
-        if (itemOutputs != null) {
+        if (itemOutputs != null && !itemOutputs.isEmpty()) {
             for (ItemStack item : itemOutputs) {
                 if (item.isEmpty())
                     continue;
