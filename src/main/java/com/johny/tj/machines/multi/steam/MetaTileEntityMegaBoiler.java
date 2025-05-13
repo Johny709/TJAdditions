@@ -87,8 +87,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     private int waterConsumption;
     private int steamProduction;
     private String currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
-    private List<ItemStack> currentItem = new ArrayList<>();
-    private List<FluidStack> currentFluid = new ArrayList<>();
+    private final List<ItemStack> currentItem = new ArrayList<>();
+    private final List<FluidStack> currentFluid = new ArrayList<>();
     int currentItemsEngaged = 0;
 
     private FluidTankList fluidImportInventory;
@@ -164,7 +164,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         super.addDisplayText(textList);
         if (isStructureFormed()) {
             textList.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.temperature", currentTemperature, boilerType.maxTemperature));
-            boolean hasEnoughWater = hasEnoughWater(waterConsumption);
+            boolean hasEnoughWater = hasEnoughWater(waterConsumption) || waterConsumption == 0;
             ITextComponent waterText = hasEnoughWater ? new TextComponentTranslation("machine.universal.consuming.ticks", waterConsumption, net.minecraft.util.text.translation.I18n.translateToLocal(Water.getUnlocalizedName()))
                     : new TextComponentTranslation("tj.multiblock.not_enough_fluid", Water.getLocalizedName(), waterConsumption);
             waterText.getStyle().setColor(hasEnoughWater ? WHITE : RED);
