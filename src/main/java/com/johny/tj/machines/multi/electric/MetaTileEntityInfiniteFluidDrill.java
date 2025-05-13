@@ -163,7 +163,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
         tier = Math.min(motorTier, pumpTier);
 
         maxVoltage = (long) (Math.pow(4, tier) * 8);
-        outputVeinFluidAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 4000;
+        outputVeinFluidAmount = Math.min(Integer.MAX_VALUE, (int) Math.pow(4, (tier - GAValues.EV)) * 4000);
         drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
     }
 
