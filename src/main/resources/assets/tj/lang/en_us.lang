@@ -61,6 +61,7 @@ tj.machine.large_wireless_energy_emitter.name=Large Wireless Energy Emitter (LWE
 tj.machine.large_wireless_energy_receiver.name=Large Wireless Energy Receiver (LWER)
 tj.machine.large_battery_charger.name=Large Battery Charger (LBC)
 tj.machine.void_more_miner.name=Void MOre Miner (VMOM)
+tj.machine.teleporter.name=Teleporter
 tj.machine.super_input_bus.hv.name=Super Input Bus (HV)
 tj.machine.super_output_bus.hv.name=Super Output Bus (HV)
 tj.machine.super_input_hatch.hv.name=Super Input Hatch (HV)
@@ -271,6 +272,7 @@ tj.multiblock.tab.settings=Settings
 tj.multiblock.tab.debug=Debugging
 tj.multiblock.tab.fluid=Fluid
 tj.multiblock.tab.rotor=Rotors
+tj.multiblock.tab.pos=Pos
 
 tj.multiblock.structure_formed=Structure Formed.
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %s. Required: %dL
@@ -469,6 +471,9 @@ seconds=Seconds
 second=Second
 ticks=Ticks
 tick=Tick
+
+player.tp.success=Player %s teleported successfully
+player.tp.fail=Failed to teleport player %s
 
 machine.boiler.display.temperature=Current Temperature: §c%.1f°C
 machine.boiler.display.steam=Current Steam Generation: §b%.1fL§r in §b%.1f§r ticks

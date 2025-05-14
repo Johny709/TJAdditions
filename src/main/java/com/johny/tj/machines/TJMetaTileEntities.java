@@ -77,6 +77,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeWirelessEnergyReceiver LARGE_WIRELESS_ENERGY_RECEIVER;
     public static MetaTileEntityLargeBatteryCharger LARGE_BATTERY_CHARGER;
     public static MetaTileEntityVoidMOreMiner VOID_MORE_MINER;
+    public static MetaTileEntityTeleporter TELEPORTER;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -169,7 +170,8 @@ public class TJMetaTileEntities {
         LARGE_BATTERY_CHARGER = GregTechAPI.registerMetaTileEntity(5105, new MetaTileEntityLargeBatteryCharger(TJId("large_battery_charger")));
 
         VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5127, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
-        // 5128 and 5129 are free
+        TELEPORTER = GregTechAPI.registerMetaTileEntity(5128, new MetaTileEntityTeleporter(TJId("teleporter")));
+        //5129 is free
 
         int energyHatchID = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
