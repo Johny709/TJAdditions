@@ -1,7 +1,6 @@
 package com.johny.tj.integration.theoneprobe;
 
 import com.johny.tj.capability.LinkEntity;
-import com.johny.tj.capability.LinkEntityInterDim;
 import com.johny.tj.capability.TJCapabilities;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import mcjty.theoneprobe.api.ElementAlignment;
@@ -15,19 +14,15 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 
-import static com.johny.tj.capability.TJCapabilities.CAPABILITY_LINK_ENTITY_INTERDIM;
-
-public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity<Entity>> {
+public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
 
     @Override
-    protected Capability<LinkEntity<Entity>> getCapability() {
+    protected Capability<LinkEntity> getCapability() {
         return TJCapabilities.CAPABILITY_LINK_ENTITY;
     }
 
     @Override
-    protected void addProbeInfo(LinkEntity<Entity> capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        LinkEntityInterDim<Entity> interDimPos = tileEntity.getCapability(CAPABILITY_LINK_ENTITY_INTERDIM, null);
-
+    protected void addProbeInfo(LinkEntity capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
         int pageIndex = capability.getPageIndex();
         int pageSize = capability.getPageSize();
         int size = capability.getPosSize();
@@ -36,9 +31,9 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity<En
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
-            WorldServer world = interDimPos != null ? DimensionManager.getWorld(interDimPos.getDimension(i)) : (WorldServer) capability.world();
+            WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
             DimensionType worldType = world.provider.getDimensionType();
-            Entity entity = capability.getPos(i);
+            Entity entity = capability.getEntity(i);
             if (i < size && entity != null) {
 
                 IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));

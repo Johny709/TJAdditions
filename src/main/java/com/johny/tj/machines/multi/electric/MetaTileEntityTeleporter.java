@@ -4,9 +4,12 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import com.johny.tj.capability.IParallelController;
+import com.johny.tj.capability.LinkPos;
 import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
+import gregicadditions.GAValues;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregtech.api.capability.IEnergyContainer;
@@ -55,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
 import java.util.regex.Pattern;
 
 import static com.johny.tj.textures.TJTextures.FUSION_MK2;
@@ -67,16 +71,19 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FL
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 // TODO WIP
-public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase {
+public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, LinkPos {
 
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
+    private NBTTagCompound linkData;
     private long energyDrain;
     private int tier;
     private boolean isActive;
     private int progress;
     private int maxProgress = 20;
-    private String selectedPos;
+    private String selectedPosName;
+    private int selectedPosWorldID;
+    private BlockPos selectedPos;
     private String searchPrompt = "";
     private final Map<String, Pair<World, BlockPos>> posMap = new HashMap<>();
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
@@ -105,7 +112,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase {
         if (hasEnoughEnergy(energyDrain)) {
             if (progress <= 0) {
                 progress = 1;
-                Pair<World, BlockPos> worldPos = posMap.get(selectedPos);
+                Pair<World, BlockPos> worldPos = posMap.get(selectedPosName);
                 BlockPos targetPos = worldPos.getValue();
                 if (targetPos == null) {
                     return;
@@ -254,7 +261,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase {
         }
         if (componentData.startsWith("select")) {
             String[] selectedPos = componentData.split(":");
-            this.selectedPos = selectedPos[1];
+            this.selectedPosName = selectedPos[1];
         }
     }
 
@@ -300,6 +307,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase {
         data.setBoolean("Active", isActive);
         data.setInteger("Progress", progress);
         data.setInteger("MaxProgress", maxProgress);
+        if (linkData != null)
+            data.setTag("LinkData", linkData);
         return data;
     }
 
@@ -309,5 +318,66 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase {
         isActive = data.getBoolean("Active");
         maxProgress = data.getInteger("MaxProgress");
         progress = data.getInteger("Progress");
+        linkData = data.hasKey("LinkData") ? data.getCompoundTag("LinkData") : null;
+    }
+
+    @Override
+    public long getMaxEUt() {
+        return energyDrain;
+    }
+
+    @Override
+    public long getTotalEnergyConsumption() {
+        return energyDrain;
+    }
+
+    @Override
+    public long getVoltageTier() {
+        return GAValues.V[tier];
+    }
+
+    @Override
+    public boolean isInterDimensional() {
+        return true;
+    }
+
+    @Override
+    public int dimensionID() {
+        return getWorld().provider.getDimensionType().getId();
+    }
+
+    @Override
+    public void setDimension(IntSupplier dimensionID, int index) {
+        this.selectedPosWorldID = dimensionID.getAsInt();
+    }
+
+    @Override
+    public int getRange() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public int getPosSize() {
+        return 1;
+    }
+
+    @Override
+    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
+
+    }
+
+    @Override
+    public World world() {
+        return getWorld();
+    }
+
+    @Override
+    public NBTTagCompound getLinkData() {
+        return linkData;
+    }
+
+    @Override
+    public void setLinkData(NBTTagCompound linkData) {
+        this.linkData = linkData;
     }
 }

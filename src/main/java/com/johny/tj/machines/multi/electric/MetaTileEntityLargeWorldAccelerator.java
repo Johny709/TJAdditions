@@ -38,7 +38,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.pipenet.block.material.TileEntityMaterialPipeBase;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.api.util.GTUtility;
@@ -74,7 +73,7 @@ import java.util.stream.IntStream;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos<BlockPos>, LinkEvent, IParallelController {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -536,7 +535,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public void setPos(BlockPos pos, int index) {
+    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
         entityLinkBlockPos[index] = pos;
     }
 
@@ -581,7 +580,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public long getTotalEnergy() {
+    public long getTotalEnergyConsumption() {
         return energyPerTick;
     }
 
@@ -591,18 +590,11 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public RecipeMap<?> getMultiblockRecipe() {
-        return null;
-    }
-
-    @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == TJCapabilities.CAPABILITY_LINK_POS) {
+        if (capability == TJCapabilities.CAPABILITY_LINK_POS)
             return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
-        }
-        if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER) {
+        if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
-        }
         return super.getCapability(capability, side);
     }
 

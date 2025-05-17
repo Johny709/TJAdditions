@@ -1,4 +1,10 @@
 package com.johny.tj.capability;
 
-public interface LinkEntity<T> extends LinkPos<T> {
+import net.minecraft.entity.Entity;
+
+public interface LinkEntity extends LinkPos {
+
+    default Entity getEntity(int index) {
+        return null;
+    }
 }

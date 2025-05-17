@@ -1,7 +1,5 @@
 package com.johny.tj.capability;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
@@ -17,16 +15,10 @@ public class TJCapabilities {
     public static Capability<IParallelController> CAPABILITY_PARALLEL_CONTROLLER = null;
 
     @CapabilityInject(LinkPos.class)
-    public static Capability<LinkPos<BlockPos>> CAPABILITY_LINK_POS = null;
-
-    @CapabilityInject(LinkPosInterDim.class)
-    public static Capability<LinkPosInterDim<BlockPos>> CAPABILITY_LINK_POS_INTERDIM = null;
+    public static Capability<LinkPos> CAPABILITY_LINK_POS = null;
 
     @CapabilityInject(LinkEntity.class)
-    public static Capability<LinkEntity<Entity>> CAPABILITY_LINK_ENTITY = null;
-
-    @CapabilityInject(LinkEntityInterDim.class)
-    public static Capability<LinkEntityInterDim<Entity>> CAPABILITY_LINK_ENTITY_INTERDIM = null;
+    public static Capability<LinkEntity> CAPABILITY_LINK_ENTITY = null;
 
     @CapabilityInject(IHeatInfo.class)
     public static Capability<IHeatInfo> CAPABILITY_HEAT = null;

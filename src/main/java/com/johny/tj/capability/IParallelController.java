@@ -4,13 +4,21 @@ import gregtech.api.recipes.RecipeMap;
 
 public interface IParallelController {
 
-    long getMaxEUt();
+    default long getMaxEUt() {
+        return 0;
+    }
 
-    int getEUBonus();
+    default int getEUBonus() {
+        return 0;
+    }
 
-    long getTotalEnergy();
+    default long getTotalEnergyConsumption() {
+        return 0;
+    }
 
     long getVoltageTier();
 
-    RecipeMap<?> getMultiblockRecipe();
+    default RecipeMap<?> getMultiblockRecipe() {
+        return null;
+    }
 }

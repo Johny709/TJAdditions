@@ -5,7 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IParallelController;
-import com.johny.tj.capability.LinkEntityInterDim;
+import com.johny.tj.capability.LinkEntity;
 import com.johny.tj.capability.LinkEvent;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
@@ -34,7 +34,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.api.util.GTUtility;
@@ -48,6 +47,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
@@ -79,7 +79,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Nitrogen;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntityInterDim<Entity>, LinkEvent, IParallelController {
+public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntity, LinkEvent, IParallelController {
 
     private long totalEnergyPerTick;
     private long energyPerTick;
@@ -603,7 +603,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    public long getTotalEnergy() {
+    public long getTotalEnergyConsumption() {
         return totalEnergyPerTick;
     }
 
@@ -613,13 +613,13 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    public RecipeMap<?> getMultiblockRecipe() {
-        return null;
+    public int dimensionID() {
+        return getWorld().provider.getDimension();
     }
 
     @Override
-    public int dimensionID() {
-        return getWorld().provider.getDimension();
+    public boolean isInterDimensional() {
+        return true;
     }
 
     @Override
@@ -643,16 +643,14 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    public Entity getPos(int index) {
+    public Entity getEntity(int index) {
         return linkedPlayers[index];
     }
 
     @Override
-    public void setPos(Entity entity, int index) {
-        if (entity instanceof EntityPlayer) {
-            linkedPlayers[index] = (EntityPlayer) entity;
-            linkedPlayersID[index] = linkedPlayers[index].getUniqueID();
-        }
+    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
+        linkedPlayers[index] = player;
+        linkedPlayersID[index] = linkedPlayers[index].getUniqueID();
     }
 
     @Override
@@ -688,8 +686,6 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == TJCapabilities.CAPABILITY_LINK_ENTITY_INTERDIM)
-            return TJCapabilities.CAPABILITY_LINK_ENTITY_INTERDIM.cast(this);
         if (capability == TJCapabilities.CAPABILITY_LINK_ENTITY)
             return TJCapabilities.CAPABILITY_LINK_ENTITY.cast(this);
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)

@@ -110,7 +110,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    public long getTotalEnergy() {
+    public long getTotalEnergyConsumption() {
         return getPowerConsumptionSum();
     }
 

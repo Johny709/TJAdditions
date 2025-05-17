@@ -2,7 +2,11 @@ package com.johny.tj.capability;
 
 public interface IPageCapable {
 
-    int getPageIndex();
+    default int getPageIndex() {
+        return 0;
+    }
 
-    int getPageSize();
+    default int getPageSize() {
+        return 0;
+    }
 }

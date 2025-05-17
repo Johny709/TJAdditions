@@ -1,7 +1,6 @@
 package com.johny.tj.integration.theoneprobe;
 
 import com.johny.tj.capability.LinkPos;
-import com.johny.tj.capability.LinkPosInterDim;
 import com.johny.tj.capability.TJCapabilities;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -18,19 +17,15 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 
-import static com.johny.tj.capability.TJCapabilities.CAPABILITY_LINK_POS_INTERDIM;
-
-public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos<BlockPos>> {
+public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
     @Override
-    protected Capability<LinkPos<BlockPos>> getCapability() {
+    protected Capability<LinkPos> getCapability() {
         return TJCapabilities.CAPABILITY_LINK_POS;
     }
 
     @Override
-    protected void addProbeInfo(LinkPos<BlockPos> capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        LinkPosInterDim<BlockPos> interDimPos = tileEntity.getCapability(CAPABILITY_LINK_POS_INTERDIM, null);
-
+    protected void addProbeInfo(LinkPos capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
         int pageIndex = capability.getPageIndex();
         int pageSize = capability.getPageSize();
         int size = capability.getPosSize();
@@ -39,7 +34,7 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos<BlockP
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
-            WorldServer world = interDimPos != null ? DimensionManager.getWorld(interDimPos.getDimension(i)) : (WorldServer) capability.world();
+            WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
             DimensionType worldType = world.provider.getDimensionType();
             BlockPos pos = capability.getPos(i);
             if (i < size && pos != null) {

@@ -6,7 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.LinkEvent;
-import com.johny.tj.capability.LinkPosInterDim;
+import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
@@ -35,13 +35,13 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -80,7 +80,7 @@ import static gregtech.api.unification.material.Materials.Nitrogen;
 import static gregtech.api.unification.material.Materials.RedSteel;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPosInterDim<BlockPos>, LinkEvent, IParallelController {
+public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPos, LinkEvent, IParallelController {
 
     protected TransferType transferType;
     private long energyPerTick;
@@ -490,7 +490,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public long getTotalEnergy() {
+    public long getTotalEnergyConsumption() {
         return totalEnergyPerTick;
     }
 
@@ -500,16 +500,16 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public RecipeMap<?> getMultiblockRecipe() {
-        return null;
-    }
-
-    @Override
     public void onLink() {
         updateTotalEnergyPerTick();
         int dimensionID = getWorld().provider.getDimension();
         linkedWorldsCount = (int) Arrays.stream(entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
         fluidConsumption = 10 * linkedWorldsCount;
+    }
+
+    @Override
+    public boolean isInterDimensional() {
+        return true;
     }
 
     @Override
@@ -543,7 +543,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public void setPos(BlockPos pos, int index) {
+    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
         entityEnergyAmps[index] = 1;
         entityLinkBlockPos[index] = pos;
     }
@@ -575,8 +575,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == TJCapabilities.CAPABILITY_LINK_POS_INTERDIM)
-            return TJCapabilities.CAPABILITY_LINK_POS_INTERDIM.cast(this);
         if (capability == TJCapabilities.CAPABILITY_LINK_POS)
             return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)

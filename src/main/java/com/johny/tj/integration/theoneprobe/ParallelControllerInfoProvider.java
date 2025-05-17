@@ -24,7 +24,7 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
     protected void addProbeInfo(IParallelController capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
         long maxEUt = capability.getMaxEUt();
         int energyBonus = capability.getEUBonus();
-        long totalEnergy = capability.getTotalEnergy();
+        long totalEnergy = capability.getTotalEnergyConsumption();
         long voltageTier = capability.getVoltageTier();
         RecipeMap<?> multiblockRecipe = capability.getMultiblockRecipe();
 
