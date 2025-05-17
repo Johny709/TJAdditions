@@ -69,19 +69,23 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                                 if (yDiff <= linkPos.getRange() && yDiff >= -linkPos.getRange()) {
                                     if (zDiff <= linkPos.getRange() && zDiff >= -linkPos.getRange()) {
                                         if (linkI > 0) {
-                                            for (int i = 0; i < linkPos.getPosSize(); i++) {
-                                                BlockPos targetPos = linkPos.getPos(i);
-                                                if (targetPos != null && targetPos.getX() == linkX && targetPos.getY() == linkY && targetPos.getZ() == linkZ) {
-                                                    player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.occupied")
-                                                            .appendText(" ")
-                                                            .appendSibling(new TextComponentTranslation(linkedGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW))));
-                                                    return EnumActionResult.SUCCESS;
-                                                }
-                                                if (targetPos == null) {
-                                                    linkPos.setPos(new BlockPos(linkX, linkY, linkZ), Math.abs(linkI - linkPos.getPosSize()));
-                                                    nbt.setInteger("I", linkI - 1);
-                                                    linkPos.setLinkData(nbt);
-                                                    break;
+                                            int index = 0;
+                                            for (int i = 0; i < 2; i++) {
+                                                for (int j = 0; j < linkPos.getPosSize(); j++) {
+                                                    BlockPos targetPos = linkPos.getPos(j);
+                                                    if (i == 0 && targetPos != null && targetPos.getX() == linkX && targetPos.getY() == linkY && targetPos.getZ() == linkZ) {
+                                                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.occupied")
+                                                                .appendText(" ")
+                                                                .appendSibling(new TextComponentTranslation(linkedGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW))));
+                                                        return EnumActionResult.SUCCESS;
+                                                    }
+                                                    if (i == 1 && targetPos == null) {
+                                                        index = j;
+                                                        linkPos.setPos(new BlockPos(linkX, linkY, linkZ), index);
+                                                        nbt.setInteger("I", linkI - 1);
+                                                        linkPos.setLinkData(nbt);
+                                                        break;
+                                                    }
                                                 }
                                             }
 
@@ -89,7 +93,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour {
                                             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
                                                     .appendSibling(new TextComponentString(" " + (linkI - 1))));
                                             if (linkedGTTE instanceof LinkPosInterDim) {
-                                                ((LinkPosInterDim<?>) linkedGTTE).setDimension(world.provider::getDimension, Math.abs(linkI - linkPos.getPosSize()));
+                                                ((LinkPosInterDim<?>) linkedGTTE).setDimension(world.provider::getDimension, index);
                                             }
                                             if (targetGTTE instanceof LinkSet) {
                                                 ((LinkSet) targetGTTE).setLink(() -> linkedGTTE);
