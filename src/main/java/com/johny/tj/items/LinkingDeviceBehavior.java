@@ -37,6 +37,7 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
@@ -48,10 +49,10 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
     private ItemStack item;
     private QuintConsumer<String, BlockPos, EntityPlayer, World, Integer> posResponder;
     private Consumer<NBTTagCompound> nbtResponder;
+    private Supplier<Integer> rangeSupplier;
     private NBTTagCompound nbt;
     private EntityPlayer player;
     private World world;
-    private BlockPos pos;
     private boolean isPressed;
     private String name;
     private int index;
@@ -78,7 +79,6 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                     WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
                     this.player = player;
                     this.world = world;
-                    this.pos = pos;
                     this.worldID = world.provider.getDimensionType().getId();
                     BlockPos worldPos = new BlockPos(x, y, z);
                     getWorld.getChunk(worldPos);
@@ -87,6 +87,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                         LinkPos linkPos = (LinkPos) linkedGTTE;
                         this.posResponder = linkPos::setPos;
                         this.nbtResponder = linkPos::setLinkData;
+                        this.rangeSupplier = linkPos::getRange;
                         if (linkPos.getLinkData() != null) {
                             this.nbt = linkPos.getLinkData();
                             player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", this.nbt);
@@ -110,59 +111,42 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                             this.name = targetGTTE.getMetaFullName();
                             this.item = targetGTTE.getStackForm();
                         }
-                        int xDiff = (int) (this.x - x);
-                        int yDiff = (int) (this.y - y);
-                        int zDiff = (int) (this.z - z);
-                        if (xDiff <= linkPos.getRange() && xDiff >= -linkPos.getRange()) {
-                            if (yDiff <= linkPos.getRange() && yDiff >= -linkPos.getRange()) {
-                                if (zDiff <= linkPos.getRange() && zDiff >= -linkPos.getRange()) {
-                                    if (linkI > 0) {
-                                        for (int i = 0; i < 2; i++) {
-                                            for (int j = 0; j < linkPos.getPosSize(); j++) {
-                                                BlockPos targetPos = linkPos.getPos(j);
-                                                if (i == 0 && targetPos != null && targetPos.getX() == this.x && targetPos.getY() == this.y && targetPos.getZ() == this.z) {
-                                                    player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.occupied")
-                                                            .appendText(" ")
-                                                            .appendSibling(new TextComponentTranslation(linkedGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW))));
-                                                    return EnumActionResult.SUCCESS;
-                                                }
-                                                if (i == 1 && targetPos == null) {
-                                                    this.index = j;
-                                                    if (mode) {
-                                                        this.isPressed = false;
-                                                        PlayerInventoryHolder.openHandItemUI(player, hand);
-                                                        return EnumActionResult.SUCCESS;
-                                                    }
-                                                    this.nbt.setInteger("I", linkI - 1);
-                                                    this.posResponder.accept(name, new BlockPos(this.x, this.y, this.z), player, world, this.index);
-                                                    this.nbtResponder.accept(this.nbt);
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
-                                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
-                                                .appendSibling(new TextComponentString(" " + (linkI - 1))));
-                                        if (targetGTTE instanceof LinkSet) {
-                                            ((LinkSet) targetGTTE).setLink(() -> linkedGTTE);
-                                        }
-                                        if (linkedGTTE instanceof LinkEvent) {
-                                            ((LinkEvent) linkedGTTE).onLink();
-                                        }
-                                        if (targetGTTE instanceof LinkEvent) {
-                                            ((LinkEvent) targetGTTE).onLink();
-                                        }
-                                    } else {
-                                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
+                        if (linkI > 0) {
+                            for (int i = 0; i < 2; i++) {
+                                for (int j = 0; j < linkPos.getPosSize(); j++) {
+                                    BlockPos targetPos = linkPos.getPos(j);
+                                    if (i == 0 && targetPos != null && targetPos.getX() == this.x && targetPos.getY() == this.y && targetPos.getZ() == this.z) {
+                                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.occupied")
+                                                .appendText(" ")
+                                                .appendSibling(new TextComponentTranslation(linkedGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW))));
+                                        return EnumActionResult.SUCCESS;
                                     }
-                                    return EnumActionResult.SUCCESS;
+                                    if (i == 1 && targetPos == null) {
+                                        this.index = j;
+                                        if (mode) {
+                                            this.isPressed = false;
+                                            PlayerInventoryHolder.openHandItemUI(player, hand);
+                                            return EnumActionResult.SUCCESS;
+                                        }
+                                        if (this.inRange())
+                                            this.setPos();
+                                        break;
+                                    }
                                 }
                             }
+                            if (targetGTTE instanceof LinkSet) {
+                                ((LinkSet) targetGTTE).setLink(() -> linkedGTTE);
+                            }
+                            if (linkedGTTE instanceof LinkEvent) {
+                                ((LinkEvent) linkedGTTE).onLink();
+                            }
+                            if (targetGTTE instanceof LinkEvent) {
+                                ((LinkEvent) targetGTTE).onLink();
+                            }
+                        } else {
+                            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                         }
-                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.far"));
                         return EnumActionResult.SUCCESS;
-
                     }
                 } else {
                     player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.nolink"));
@@ -228,6 +212,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                     LinkEntity linkEntity = (LinkEntity) metaTileEntity;
                     this.posResponder = linkEntity::setPos;
                     this.nbtResponder = linkEntity::setLinkData;
+                    this.rangeSupplier = linkEntity::getRange;
                     if (linkEntity.getLinkData() != null) {
                         nbt = linkEntity.getLinkData();
                         player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
@@ -241,10 +226,8 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                                     return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
                                 }
                                 if (i == 1 && targetEntity == null) {
-                                    nbt.setInteger("I", linkI - 1);
-                                    this.posResponder.accept(name, new BlockPos(this.x, this.y, this.z), player, world, this.index);
-                                    this.nbtResponder.accept(nbt);
-                                    player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
+                                    if (this.inRange())
+                                        this.setPos();
                                     break;
                                 }
                             }
@@ -340,16 +323,36 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
     private void setPressed(boolean isPressed) {
         if (!this.isPressed) {
-            int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
             this.isPressed = isPressed;
-            nbt.setInteger("I", linkI - 1);
-            world.getChunk(pos);
-            posResponder.accept(name, new BlockPos(this.x, this.y, this.z), player, world, index);
-            nbtResponder.accept(nbt);
-            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
-            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
-                    .appendSibling(new TextComponentString(" " + (linkI - 1))));
+            if (this.inRange())
+                this.setPos();
         }
+    }
+
+    private boolean inRange() {
+        double x = this.nbt.hasKey("X") ? this.nbt.getDouble("X") : 0;
+        double y = this.nbt.hasKey("Y") ? this.nbt.getDouble("Y") : 0;
+        double z = this.nbt.hasKey("Z") ? this.nbt.getDouble("Z") : 0;
+        int xDiff = (int) (this.x - x);
+        int yDiff = (int) (this.y - y);
+        int zDiff = (int) (this.z - z);
+        int range = rangeSupplier.get();
+        if (xDiff <= range && xDiff >= -range)
+            if (yDiff <= range && yDiff >= -range)
+                return zDiff <= range && zDiff >= -range;
+        return false;
+    }
+
+    private void setPos() {
+        BlockPos pos = new BlockPos(this.x, this.y, this.z);
+        int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
+        nbt.setInteger("I", linkI - 1);
+        world.getChunk(pos);
+        posResponder.accept(name, pos, player, world, index);
+        nbtResponder.accept(nbt);
+        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
+        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
+                .appendSibling(new TextComponentString(" " + (linkI - 1))));
     }
 
     public String getName() {
