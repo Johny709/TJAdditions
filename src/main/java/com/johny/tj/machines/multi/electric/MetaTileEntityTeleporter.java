@@ -58,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntSupplier;
 import java.util.regex.Pattern;
 
 import static com.johny.tj.textures.TJTextures.FUSION_MK2;
@@ -347,11 +346,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
-    public void setDimension(IntSupplier dimensionID, int index) {
-        this.selectedPosWorldID = dimensionID.getAsInt();
-    }
-
-    @Override
     public int getRange() {
         return Integer.MAX_VALUE;
     }
@@ -362,7 +356,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
-    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
+    public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
 
     }
 

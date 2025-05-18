@@ -535,7 +535,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
+    public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
         entityLinkBlockPos[index] = pos;
     }
 

@@ -5,8 +5,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.function.IntSupplier;
-
 public interface LinkPos extends IPageCapable {
 
     default boolean isInterDimensional() {
@@ -16,8 +14,6 @@ public interface LinkPos extends IPageCapable {
     default int dimensionID() {
         return 0;
     }
-
-    default void setDimension(IntSupplier dimensionID, int index) {}
 
     default int getDimension(int index) {
         return 0;
@@ -31,7 +27,7 @@ public interface LinkPos extends IPageCapable {
         return null;
     }
 
-    default void setPos(BlockPos pos, EntityPlayer player, World world, int index) {}
+    default void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {}
 
     World world();
 

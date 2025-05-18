@@ -66,7 +66,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntSupplier;
 
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeBatteryCharger.TransferMode.INPUT;
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeBatteryCharger.TransferMode.OUTPUT;
@@ -623,11 +622,6 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    public void setDimension(IntSupplier dimensionID, int index) {
-        entityLinkWorld[index] = dimensionID.getAsInt();
-    }
-
-    @Override
     public int getDimension(int index) {
         return linkedPlayers[index].world.provider.getDimension();
     }
@@ -648,7 +642,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
+    public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
+        entityLinkWorld[index] = world.provider.getDimensionType().getId();
         linkedPlayers[index] = player;
         linkedPlayersID[index] = linkedPlayers[index].getUniqueID();
     }

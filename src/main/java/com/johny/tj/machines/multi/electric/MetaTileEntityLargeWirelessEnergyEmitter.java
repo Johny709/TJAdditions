@@ -67,7 +67,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntSupplier;
 
 import static gregicadditions.GAMaterials.Talonite;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -518,11 +517,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public void setDimension(IntSupplier dimensionID, int index) {
-        entityLinkWorld[index] = dimensionID.getAsInt();
-    }
-
-    @Override
     public int getDimension(int index) {
         return entityLinkWorld[index];
     }
@@ -543,7 +537,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public void setPos(BlockPos pos, EntityPlayer player, World world, int index) {
+    public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
+        entityLinkWorld[index] = world.provider.getDimensionType().getId();
         entityEnergyAmps[index] = 1;
         entityLinkBlockPos[index] = pos;
     }

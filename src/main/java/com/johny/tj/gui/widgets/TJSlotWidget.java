@@ -56,6 +56,11 @@ public class TJSlotWidget extends Widget implements INativeWidget {
         return new TJWidgetSlotItemHandler(itemHandler, index, 0, 0);
     }
 
+    public TJSlotWidget setSize(int width, int height) {
+        super.setSize(new Size(width, height));
+        return this;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
