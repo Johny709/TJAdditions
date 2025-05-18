@@ -49,6 +49,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -74,7 +75,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
-    private NBTTagCompound linkData;
+    private NBTTagCompound linkData = new NBTTagCompound();
     private long energyDrain;
     private int tier;
     private boolean isActive;
@@ -98,20 +99,20 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     protected void updateFormedValid() {
-        if (!isWorkingEnabled || getNumProblems() >= 6) {
-            if (isActive)
+        if (!this.isWorkingEnabled || getNumProblems() >= 6) {
+            if (this.isActive)
                 setActive(false);
             return;
         }
 
-        if (progress >= maxProgress) {
-            progress = 0;
+        if (this.progress >= this.maxProgress) {
+            this.progress = 0;
         }
 
-        if (hasEnoughEnergy(energyDrain)) {
-            if (progress <= 0) {
-                progress = 1;
-                Pair<World, BlockPos> worldPos = posMap.get(selectedPosName);
+        if (hasEnoughEnergy(this.energyDrain)) {
+            if (this.progress <= 0) {
+                this.progress = 1;
+                Pair<World, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
                 BlockPos targetPos = worldPos.getValue();
                 if (targetPos == null) {
                     return;
@@ -129,26 +130,26 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         int entityY = (int) entity.posY;
                         int entityZ = (int) entity.posZ;
                         if (entityX == x && entityY == y && entityZ == z && hasEnoughVoidDew(voidDew)) {
-                            inputFluidHandler.drain(voidDew, true);
+                            this.inputFluidHandler.drain(voidDew, true);
                             entity.setWorld(worldPos.getKey());
                             entity.setPosition(targetPos.getX(), targetPos.getY(), targetPos.getZ());
                         }
                     }
                 }
             }
-            energyContainer.removeEnergy(energyDrain);
+            this.energyContainer.removeEnergy(this.energyDrain);
         } else {
-            if (progress > 1)
-                progress--;
+            if (this.progress > 1)
+                this.progress--;
         }
     }
 
     private boolean hasEnoughEnergy(long amount) {
-        return energyContainer.getEnergyStored() >= amount;
+        return this.energyContainer.getEnergyStored() >= amount;
     }
 
     private boolean hasEnoughVoidDew(FluidStack fluid) {
-        FluidStack fluidStack = inputFluidHandler.drain(fluid, false);
+        FluidStack fluidStack = this.inputFluidHandler.drain(fluid, false);
         return fluidStack != null && fluidStack.amount == 1000;
     }
 
@@ -162,10 +163,10 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         if (context.get("framework2") instanceof GAMultiblockCasing2.CasingType) {
             framework2 = ((GAMultiblockCasing2.CasingType) context.get("framework2")).getTier();
         }
-        tier = Math.max(framework, framework2);
-        energyDrain = (long) (Math.pow(4, tier) * 8);
-        energyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
-        inputFluidHandler = new FluidTankList(true, getAbilities(IMPORT_FLUIDS));
+        this.tier = Math.max(framework, framework2);
+        this.energyDrain = (long) (Math.pow(4, this.tier) * 8);
+        this.energyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
+        this.inputFluidHandler = new FluidTankList(true, getAbilities(IMPORT_FLUIDS));
     }
 
     @Override
@@ -194,7 +195,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TELEPORTER_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive);
+        TELEPORTER_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.isActive);
     }
 
     @Override
@@ -220,21 +221,29 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private void addPosDisplayText(List<ITextComponent> textList) {
-        for (Map.Entry<String, Pair<World, BlockPos>> posEntry : posMap.entrySet()) {
+        for (Map.Entry<String, Pair<World, BlockPos>> posEntry : this.posMap.entrySet()) {
             String key = posEntry.getKey();
 
-            if (key.isEmpty() || key.contains(searchPrompt)) {
+            if (key.isEmpty() || key.contains(this.searchPrompt)) {
                 DimensionType world = posEntry.getValue().getKey().provider.getDimensionType();
                 String worldName = world.getName();
                 int worldID = world.getId();
 
                 BlockPos pos = posEntry.getValue().getValue();
 
-                ITextComponent keyPos = new TextComponentString("[§b" + key + "§r]")
-                        .appendSibling(withButton(new TextComponentString("[TP]"), "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ()))
-                        .appendSibling(withButton(new TextComponentString("[O]"), "select:" + key));
+                String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
+                String keyName = "select:" + key;
+                String remove = "remove:" + key;
 
-                ITextComponent blockPos = new TextComponentTranslation("machine.universal.linked.dimension", worldName)
+                ITextComponent keyPos = new TextComponentString("[§b" + key + "§r]")
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentString("[TP]"), tp))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentString("[O]"), keyName))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove));
+
+                ITextComponent blockPos = new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID)
                         .appendSibling(new TextComponentString("X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ()));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
@@ -255,17 +264,30 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             int posY = Integer.parseInt(yz[0]);
             int posZ = Integer.parseInt(yz[1]);
 
-            player.setWorld(DimensionManager.getWorld(worldID));
-            player.setPosition(posX, posY, posZ);
-        }
-        if (componentData.startsWith("select")) {
+            World dimension = DimensionManager.getWorld(worldID);
+            dimension.getChunk(new BlockPos(posX, posY, posZ));
+            player.setWorld(dimension);
+            this.teleport(player, posX, posY, posZ);
+
+        } else if (componentData.startsWith("select")) {
             String[] selectedPos = componentData.split(":");
             this.selectedPosName = selectedPos[1];
+
+        } else if (componentData.startsWith("remove")) {
+            String[] selectedName = componentData.split(":");
+            this.posMap.remove(selectedName[1]);
+            int index = this.linkData.getInteger("I");
+            this.linkData.setInteger("I", index + 1);
         }
     }
 
+    private void teleport(EntityPlayer player, int x, int y, int z) {
+        if (!player.attemptTeleport(x, y, z))
+            this.teleport(player, x, ++y, z);
+    }
+
     private String searchSupplier() {
-        return searchPrompt;
+        return this.searchPrompt;
     }
 
     private void searchResponder(String searchPrompt) {
@@ -291,7 +313,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeBoolean(isActive);
+        buf.writeBoolean(this.isActive);
     }
 
     @Override
@@ -303,36 +325,36 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setBoolean("Active", isActive);
-        data.setInteger("Progress", progress);
-        data.setInteger("MaxProgress", maxProgress);
-        if (linkData != null)
-            data.setTag("LinkData", linkData);
+        data.setBoolean("Active", this.isActive);
+        data.setInteger("Progress", this.progress);
+        data.setInteger("MaxProgress", this.maxProgress);
+        data.setTag("Link.XYZ", this.linkData);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        isActive = data.getBoolean("Active");
-        maxProgress = data.getInteger("MaxProgress");
-        progress = data.getInteger("Progress");
-        linkData = data.hasKey("LinkData") ? data.getCompoundTag("LinkData") : null;
+        this.isActive = data.getBoolean("Active");
+        this.maxProgress = data.getInteger("MaxProgress");
+        this.progress = data.getInteger("Progress");
+        if (data.hasKey("Link.XYZ"))
+            this.linkData = data.getCompoundTag("Link.XYZ");
     }
 
     @Override
     public long getMaxEUt() {
-        return energyDrain;
+        return this.energyDrain;
     }
 
     @Override
     public long getTotalEnergyConsumption() {
-        return energyDrain;
+        return this.energyDrain;
     }
 
     @Override
     public long getVoltageTier() {
-        return GAValues.V[tier];
+        return GAValues.V[this.tier];
     }
 
     @Override
@@ -357,7 +379,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
-
+        this.posMap.put(name, new ImmutablePair<>(world, pos));
+        this.linkData.setInteger("I", 1);
     }
 
     @Override
@@ -367,7 +390,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public NBTTagCompound getLinkData() {
-        return linkData;
+        return this.linkData;
     }
 
     @Override
