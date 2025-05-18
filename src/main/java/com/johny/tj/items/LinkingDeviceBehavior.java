@@ -40,11 +40,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import static com.johny.tj.items.LinkingMode.*;
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
+import static net.minecraft.util.EnumHand.MAIN_HAND;
+import static net.minecraft.util.EnumHand.OFF_HAND;
 
 public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
+    private LinkingMode linkingMode = BLOCK;
     private final IItemHandlerModifiable itemSlot = new ItemStackHandler(1);
     private ItemStack item;
     private QuintConsumer<String, BlockPos, EntityPlayer, World, Integer> posResponder;
@@ -64,39 +68,39 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
     @Override
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
         this.nbt = player.getHeldItem(hand).getOrCreateSubCompound("Link.XYZ");
-        NBTTagCompound modeNBT = player.getHeldItem(hand).getOrCreateSubCompound("Link.Mode");
         double x = this.nbt.hasKey("X") ? this.nbt.getDouble("X") : 0;
         double y = this.nbt.hasKey("Y") ? this.nbt.getDouble("Y") : 0;
         double z = this.nbt.hasKey("Z") ? this.nbt.getDouble("Z") : 0;
         int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
         String name = this.nbt.hasKey("Name") ? this.nbt.getString("Name") : "Null";
-        boolean mode = modeNBT.getBoolean("OpenUI");
         MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, pos);
         TileEntity targetTE = world.getTileEntity(pos);
-        if (!world.isRemote) {
+        if (!world.isRemote && hand == MAIN_HAND) {
             if (!player.isSneaking()) {
                 if (!name.equals("Null")) {
                     WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
-                    this.player = player;
-                    this.world = world;
-                    this.worldID = world.provider.getDimensionType().getId();
                     BlockPos worldPos = new BlockPos(x, y, z);
                     getWorld.getChunk(worldPos);
                     MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(getWorld, worldPos);
                     if (linkedGTTE instanceof LinkPos && !(linkedGTTE instanceof LinkEntity)) {
+                        if (!(this.linkingMode == BLOCK || this.linkingMode == BLOCK_PROMPT))
+                            return EnumActionResult.SUCCESS;
                         LinkPos linkPos = (LinkPos) linkedGTTE;
                         this.posResponder = linkPos::setPos;
                         this.nbtResponder = linkPos::setLinkData;
                         this.rangeSupplier = linkPos::getRange;
-                        if (linkPos.getLinkData() != null) {
-                            this.nbt = linkPos.getLinkData();
-                            player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", this.nbt);
-                        }
+                        this.player = player;
+                        this.world = world;
+                        this.worldID = world.provider.getDimensionType().getId();
                         this.x = pos.getX();
                         this.y = pos.getY();
                         this.z = pos.getZ();
                         this.name = world.getBlockState(pos).getBlock().getLocalizedName();
                         this.item = new ItemStack(world.getBlockState(pos).getBlock());
+                        if (linkPos.getLinkData() != null) {
+                            this.nbt = linkPos.getLinkData();
+                            player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", this.nbt);
+                        }
                         if (targetTE != null) {
                             this.x = targetTE.getPos().getX();
                             this.y = targetTE.getPos().getY();
@@ -123,7 +127,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                                     }
                                     if (i == 1 && targetPos == null) {
                                         this.index = j;
-                                        if (mode) {
+                                        if (this.linkingMode == BLOCK_PROMPT) {
                                             this.isPressed = false;
                                             PlayerInventoryHolder.openHandItemUI(player, hand);
                                             return EnumActionResult.SUCCESS;
@@ -195,27 +199,35 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        NBTTagCompound nbt = player.getHeldItem(hand).getOrCreateSubCompound("Link.XYZ");
+        this.nbt = player.getHeldItem(hand).getOrCreateSubCompound("Link.XYZ");
         NBTTagCompound modeNBT = player.getHeldItem(hand).getOrCreateSubCompound("Link.Mode");
-        double x = nbt.hasKey("X") ? nbt.getDouble("X") : 0;
-        double y = nbt.hasKey("Y") ? nbt.getDouble("Y") : 0;
-        double z = nbt.hasKey("Z") ? nbt.getDouble("Z") : 0;
-        int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
-        String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
+        double x = this.nbt.hasKey("X") ? this.nbt.getDouble("X") : 0;
+        double y = this.nbt.hasKey("Y") ? this.nbt.getDouble("Y") : 0;
+        double z = this.nbt.hasKey("Z") ? this.nbt.getDouble("Z") : 0;
+        int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
+        String name = this.nbt.hasKey("Name") ? this.nbt.getString("Name") : "Null";
         if (!world.isRemote) {
-            if (!name.equals("Null") && !player.isSneaking()) {
-                WorldServer getWorld = nbt.hasKey("DimensionID") ? DimensionManager.getWorld(nbt.getInteger("DimensionID")) : (WorldServer) world;
+            if (!name.equals("Null") && !player.isSneaking() && hand == MAIN_HAND) {
+                WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
                 BlockPos worldPos = new BlockPos(x, y, z);
                 getWorld.getChunk(worldPos);
                 MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(getWorld, worldPos);
                 if (metaTileEntity instanceof LinkEntity) {
+                    if (!(this.linkingMode == ENTITY || this.linkingMode == ENTITY_PROMPT))
+                        return ActionResult.newResult(EnumActionResult.PASS, player.getHeldItem(hand));
                     LinkEntity linkEntity = (LinkEntity) metaTileEntity;
                     this.posResponder = linkEntity::setPos;
                     this.nbtResponder = linkEntity::setLinkData;
                     this.rangeSupplier = linkEntity::getRange;
+                    this.player = player;
+                    this.world = world;
+                    this.worldID = world.provider.getDimensionType().getId();
+                    this.x = player.getPosition().getX();
+                    this.y = player.getPosition().getY();
+                    this.z = player.getPosition().getZ();
                     if (linkEntity.getLinkData() != null) {
-                        nbt = linkEntity.getLinkData();
-                        player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
+                        this.nbt = linkEntity.getLinkData();
+                        player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", this.nbt);
                     }
                     if (linkI > 0) {
                         for (int i = 0; i < 2; i++) {
@@ -226,6 +238,11 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                                     return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
                                 }
                                 if (i == 1 && targetEntity == null) {
+                                    if (this.linkingMode == ENTITY_PROMPT) {
+                                        this.isPressed = false;
+                                        PlayerInventoryHolder.openHandItemUI(player, hand);
+                                        return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+                                    }
                                     if (this.inRange())
                                         this.setPos();
                                     break;
@@ -236,10 +253,11 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                         player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                     }
                 }
-            } else {
-                boolean openUI = modeNBT.getBoolean("OpenUI");
-                modeNBT.setBoolean("OpenUI", !openUI);
-                player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.mode", !openUI));
+            } else if (hand == OFF_HAND) {
+                int mode = modeNBT.getInteger("Mode");
+                modeNBT.setInteger("Mode", mode > 3 ? 0 : ++mode);
+                this.linkingMode = LinkingMode.values()[modeNBT.getInteger("Mode")];
+                player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.mode", net.minecraft.util.text.translation.I18n.translateToLocal(this.linkingMode.getMode())));
             }
         }
         return ActionResult.newResult(EnumActionResult.PASS, player.getHeldItem(hand));
@@ -248,7 +266,6 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
     @Override
     public void addInformation(ItemStack itemStack, List<String> lines) {
         NBTTagCompound nbt = itemStack.getOrCreateSubCompound("Link.XYZ");
-        NBTTagCompound modeNBT = itemStack.getOrCreateSubCompound("Link.Mode");
         double x = nbt.hasKey("X") ? nbt.getDouble("X") : 0;
         double y = nbt.hasKey("Y") ? nbt.getDouble("Y") : 0;
         double z = nbt.hasKey("Z") ? nbt.getDouble("Z") : 0;
@@ -257,7 +274,6 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         int dimensionID = nbt.hasKey("DimensionID") ? nbt.getInteger("DimensionID") : 0;
         String dimensionName = DimensionType.getById(dimensionID).getName();
         String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
-        boolean openUI = modeNBT.getBoolean("OpenUI");
         lines.add(I18n.format("metaitem.linking.device.description"));
         lines.add(I18n.format("metaitem.linking.device.name") + I18n.format(name));
         lines.add(I18n.format("metaitem.linking.device.x", x));
@@ -267,7 +283,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         lines.add(I18n.format("metaitem.linking.device.range", range));
         lines.add(I18n.format("metaitem.linking.device.dimension", dimensionName, dimensionID));
         lines.add(I18n.format("metaitem.linking.device.message.mode.description"));
-        lines.add(I18n.format("metaitem.linking.device.message.mode", openUI));
+        lines.add(I18n.format("metaitem.linking.device.message.mode", net.minecraft.util.text.translation.I18n.translateToLocal(linkingMode.getMode())));
     }
 
     public IItemHandlerModifiable getItemSlot() {
@@ -336,7 +352,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         int xDiff = (int) (this.x - x);
         int yDiff = (int) (this.y - y);
         int zDiff = (int) (this.z - z);
-        int range = rangeSupplier.get();
+        int range = this.rangeSupplier.get();
         if (xDiff <= range && xDiff >= -range)
             if (yDiff <= range && yDiff >= -range)
                 return zDiff <= range && zDiff >= -range;
@@ -345,37 +361,37 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
     private void setPos() {
         BlockPos pos = new BlockPos(this.x, this.y, this.z);
-        int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
-        nbt.setInteger("I", linkI - 1);
-        world.getChunk(pos);
-        posResponder.accept(name, pos, player, world, index);
-        nbtResponder.accept(nbt);
-        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
-        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
+        int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
+        this.nbt.setInteger("I", linkI - 1);
+        this.world.getChunk(pos);
+        this.posResponder.accept(this.name, pos, this.player, this.world, this.index);
+        this.nbtResponder.accept(this.nbt);
+        this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
+        this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
                 .appendSibling(new TextComponentString(" " + (linkI - 1))));
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getWorldID() {
-        return String.valueOf(worldID);
+        return String.valueOf(this.worldID);
     }
 
     public String getX() {
-        return String.valueOf(x);
+        return String.valueOf(this.x);
     }
 
     public String getY() {
-        return String.valueOf(y);
+        return String.valueOf(this.y);
     }
 
     public String getZ() {
-        return String.valueOf(z);
+        return String.valueOf(this.z);
     }
 
     public boolean isPressed() {
-        return isPressed;
+        return this.isPressed;
     }
 }
