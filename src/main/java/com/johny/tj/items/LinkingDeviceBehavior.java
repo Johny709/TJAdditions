@@ -292,7 +292,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         widgetGroup.addWidget(new TJSlotWidget(this::getItemSlot, 0, 4, 10, false, false).setSize(40, 40));
         widgetGroup.addWidget(new TJTextFieldWidget(90, 14, 80, 18, true, this::getName, this::setName)
                 .setTooltipText("metaitem.linking.device.set.name")
-                .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_ ]*\\*?").matcher(str).matches()));
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
         widgetGroup.addWidget(new TJTextFieldWidget(90, 34, 80, 18, true, this::getWorldID, this::setWorldID)
                 .setTooltipText("metaitem.linking.device.set.world")
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));

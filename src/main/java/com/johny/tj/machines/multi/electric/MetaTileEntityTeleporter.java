@@ -7,6 +7,7 @@ import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.TJCapabilities;
+import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
@@ -20,6 +21,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.ScrollableListWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -48,6 +50,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -68,6 +71,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import static com.johny.tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
+import static com.johny.tj.gui.TJGuiTextures.SPACES_BUTTON;
 import static com.johny.tj.textures.TJTextures.FUSION_MK2;
 import static com.johny.tj.textures.TJTextures.TELEPORTER_OVERLAY;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -92,6 +97,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private int selectedPosWorldID;
     private BlockPos selectedPos;
     private String searchPrompt = "";
+    private boolean isCaseSensitive;
+    private boolean hasSpaces;
     private final Map<String, Pair<World, BlockPos>> posMap = new HashMap<>();
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
@@ -212,8 +219,15 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab(widgetPosGroup::addWidgets)));
     }
 
+    @Override
+    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
+                .setTooltipText("machine.universal.toggle.reset"));
+    }
+
     private AbstractWidgetGroup blockPosTab(Function<Widget, WidgetGroup> widgetGroup) {
-        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 38, 180, 80) {
+        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 30, 178, 97) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
@@ -221,17 +235,30 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         };
         scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addPosDisplayText, 0xFFFFFF)
                 .setClickHandler(this::handlePosDisplayClick)
-                .setMaxWidthLimit(180));
+                .setMaxWidthLimit(1000));
         widgetGroup.apply(scrollWidget);
+        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+                .setTooltipText("machine.universal.case_sensitive"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+                .setTooltipText("machine.universal.spaces"));
         return widgetGroup.apply(new TJTextFieldWidget(10, 18, 180, 18, false, this::searchSupplier, this::searchResponder)
-                .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
+                .setBackgroundText("machine.universal.search")
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }
 
     private void addPosDisplayText(List<ITextComponent> textList) {
+        int count = 0;
         for (Map.Entry<String, Pair<World, BlockPos>> posEntry : this.posMap.entrySet()) {
             String key = posEntry.getKey();
+            String result = key;
 
-            if (key.isEmpty() || key.contains(this.searchPrompt)) {
+            if (!this.isCaseSensitive)
+                result = result.toLowerCase();
+
+            if (!this.hasSpaces)
+                result = result.replace(" ", "");
+
+            if (result.isEmpty() || result.contains(this.searchPrompt)) {
                 DimensionType world = posEntry.getValue().getLeft().provider.getDimensionType();
                 String worldName = world.getName();
                 int worldID = world.getId();
@@ -241,17 +268,20 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
                 String keyName = "select:" + key;
                 String remove = "remove:" + key;
+                String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
 
-                ITextComponent keyPos = new TextComponentString("[§b" + key + "§r]")
-                        .appendText(" ")
+                ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + "§b" + key + "§r")
+                        .appendText("\n")
                         .appendSibling(withButton(new TextComponentString("[TP]"), tp))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentString("[O]"), keyName))
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), keyName))
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove));
 
-                ITextComponent blockPos = new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID)
-                        .appendSibling(new TextComponentString(" X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ()));
+                ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
+                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID))
+                        .appendText("\n")
+                        .appendSibling(new TextComponentString(position));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
                 textList.add(keyPos);
@@ -299,6 +329,33 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private void searchResponder(String searchPrompt) {
         this.searchPrompt = searchPrompt;
         markDirty();
+    }
+
+    private boolean isCaseSensitive() {
+        return this.isCaseSensitive;
+    }
+
+    private void setCaseSensitive(Boolean isCaseSensitive) {
+        this.isCaseSensitive = isCaseSensitive;
+        markDirty();
+    }
+
+    private boolean hasSpaces() {
+        return this.hasSpaces;
+    }
+
+    private void setSpaces(Boolean hasSpaces) {
+        this.hasSpaces = hasSpaces;
+        markDirty();
+    }
+
+    private boolean isReset() {
+        return false;
+    }
+
+    private void setReset(boolean reset) {
+        this.posMap.clear();
+        this.linkData.setInteger("I", getPosSize());
     }
 
     protected void setActive(boolean active) {
@@ -349,6 +406,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         }
         data.setTag("PosList", posList);
         data.setBoolean("Active", this.isActive);
+        data.setBoolean("CaseSensitive", this.isCaseSensitive);
+        data.setBoolean("HasSpaces", this.hasSpaces);
         data.setInteger("Progress", this.progress);
         data.setInteger("MaxProgress", this.maxProgress);
         data.setString("SelectedPos", this.selectedPosName);
@@ -361,6 +420,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.isActive = data.getBoolean("Active");
+        this.isCaseSensitive = data.getBoolean("CaseSensitive");
+        this.hasSpaces = data.getBoolean("HasSpaces");
         this.maxProgress = data.getInteger("MaxProgress");
         this.progress = data.getInteger("Progress");
         this.selectedPosName = data.getString("SelectedPos");
