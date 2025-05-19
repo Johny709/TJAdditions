@@ -25,12 +25,27 @@ public class TJClickButtonWidget extends ClickButtonWidget {
         super(xPosition, yPosition, width, height, displayText, onPressed);
     }
 
+    /**
+     * Translates the passed in String for display when cursor is hovering over this widget.
+     * @param tooltipText The String text to translate
+     */
     public TJClickButtonWidget setTooltipText(String tooltipText) {
         Preconditions.checkNotNull(tooltipText, "tooltipText");
         this.tooltipText = tooltipText;
         return this;
     }
 
+    /**
+     * The format args used for translating series of text for TooltipText. Text is constantly updated by the supplier.
+     *
+     * @apiNote
+     * <p>Very similar to I18n.format() where Object... param is the series of text being translated. See setTooltipText for String translateKey param.
+     * <pre>{@code
+     *     I18n.format(String translateKey, Object... parameters)
+     * }</pre>
+     *
+     * @param formatSupplier translate series of text
+     */
     public TJClickButtonWidget setTooltipFormat(Supplier<String[]> formatSupplier) {
         this.formatSupplier = formatSupplier;
         this.format = new String[formatSupplier.get().length];
@@ -40,8 +55,8 @@ public class TJClickButtonWidget extends ClickButtonWidget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        if(isMouseOverElement(mouseX, mouseY) && tooltipText != null) {
-            String tooltipHoverString = tooltipText;
+        if (isMouseOverElement(mouseX, mouseY) && this.tooltipText != null) {
+            String tooltipHoverString = this.tooltipText;
             String[] format = this.format != null ? this.format : ArrayUtils.toArray("");
             List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
             drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
@@ -51,19 +66,19 @@ public class TJClickButtonWidget extends ClickButtonWidget {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (formatSupplier != null)
-            IntStream.range(0, formatSupplier.get().length)
-                    .forEach(i -> writeUpdateInfo(i + 2, buffer -> buffer.writeString(formatSupplier.get()[i])));
+        if (this.formatSupplier != null)
+            IntStream.range(0, this.formatSupplier.get().length)
+                    .forEach(i -> writeUpdateInfo(i + 2, buffer -> buffer.writeString(this.formatSupplier.get()[i])));
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         super.readUpdateInfo(id, buffer);
-        if (formatSupplier != null)
-            IntStream.range(0, formatSupplier.get().length).forEach(i -> {
+        if (this.formatSupplier != null)
+            IntStream.range(0, this.formatSupplier.get().length).forEach(i -> {
                 if (i + 2 == id)
-                    format[i] = buffer.readString(Short.MAX_VALUE);
+                    this.format[i] = buffer.readString(Short.MAX_VALUE);
             });
     }
 }

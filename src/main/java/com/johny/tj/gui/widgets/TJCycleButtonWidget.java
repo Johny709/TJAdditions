@@ -32,12 +32,27 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
         this.buttonBackground = buttonBackground;
     }
 
+    /**
+     * The format args used for translating series of text for TooltipText. Text is constantly updated by the supplier.
+     *
+     * @apiNote
+     * <p>Very similar to I18n.format() where Object... param is the series of text being translated. See setTooltipText for String translateKey param.
+     * <pre>{@code
+     *     I18n.format(String translateKey, Object... parameters)
+     * }</pre>
+     *
+     * @param formatSupplier translate series of text
+     */
     public TJCycleButtonWidget setTooltipFormat(Supplier<String[]> formatSupplier) {
         this.formatSupplier = formatSupplier;
         this.format = new String[formatSupplier.get().length];
         return this;
     }
 
+    /**
+     * Set for this button widget to have an On or Off state.
+     * @param toggle toggle on/off
+     */
     public TJCycleButtonWidget setToggle(boolean toggle) {
         this.toggle = toggle;
         return this;
@@ -63,7 +78,7 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         boolean isHovered = isMouseOverElement(mouseX, mouseY);
-        boolean wasHovered = isMouseHovered;
+        boolean wasHovered = this.isMouseHovered;
         if (isHovered && !wasHovered) {
             this.isMouseHovered = true;
             this.hoverStartTime = System.currentTimeMillis();
@@ -71,9 +86,9 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
             this.isMouseHovered = false;
             this.hoverStartTime = 0L;
         } else if (isHovered) {
-            if (tooltipHoverString != null) {
+            if (this.tooltipHoverString != null) {
                 String[] format = this.format != null ? this.format : ArrayUtils.toArray("");
-                List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
+                List<String> hoverList = Arrays.asList(I18n.format(this.tooltipHoverString, format).split("/n"));
                 drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
             }
         }
@@ -82,19 +97,19 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (formatSupplier != null)
-            IntStream.range(0, formatSupplier.get().length)
-                    .forEach(i -> writeUpdateInfo(i + 2, buffer -> buffer.writeString(formatSupplier.get()[i])));
+        if (this.formatSupplier != null)
+            IntStream.range(0, this.formatSupplier.get().length)
+                    .forEach(i -> writeUpdateInfo(i + 2, buffer -> buffer.writeString(this.formatSupplier.get()[i])));
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         super.readUpdateInfo(id, buffer);
-        if (formatSupplier != null)
-            IntStream.range(0, formatSupplier.get().length).forEach(i -> {
+        if (this.formatSupplier != null)
+            IntStream.range(0, this.formatSupplier.get().length).forEach(i -> {
                 if (i + 2 == id)
-                    format[i] = buffer.readString(Short.MAX_VALUE);
+                    this.format[i] = buffer.readString(Short.MAX_VALUE);
             });
     }
 }
