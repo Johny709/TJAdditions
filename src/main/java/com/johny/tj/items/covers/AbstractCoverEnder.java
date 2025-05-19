@@ -24,6 +24,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
@@ -50,6 +51,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
     protected int maxTransferRate;
     protected int transferRate = maxTransferRate;
+    protected boolean isFilterPopUp;
 
     public AbstractCoverEnder(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -107,8 +109,14 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
             }
         };
-        listWidget.addWidget(new AdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF)
-                .setClickHandler(this::handleDisplayClick)
+        listWidget.addWidget(new AdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF) {
+            @Override
+            public boolean mouseClicked(int mouseX, int mouseY, int button) {
+                if (!isFilterPopUp())
+                    return super.mouseClicked(mouseX, mouseY, button);
+                return false;
+            }
+        }.setClickHandler(this::handleDisplayClick)
                 .setMaxWidthLimit(124));
         widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
@@ -187,7 +195,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             String text = (String) entry.getKey();
             ITextComponent textComponent = withButton(new TextComponentString("§e[§r" + text + "§e]"), "O" + text)
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentString("[X]"), "X" + text));
+                    .appendSibling(withButton(new TextComponentString("[X]") {}, "X" + text));
             textList.add(textComponent);
 
             if (entry.getValue() instanceof FluidTank) {
@@ -229,6 +237,33 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 break;
             }
         }
+    }
+
+    protected void setFilterPopUp(boolean isFilterPopUp) {
+        this.isFilterPopUp = isFilterPopUp;
+        this.writeUpdateData(1, buffer -> buffer.writeBoolean(this.isFilterPopUp));
+        this.markAsDirty();
+    }
+
+    protected boolean isFilterPopUp() {
+        return this.isFilterPopUp;
+    }
+
+    @Override
+    public void readUpdateData(int id, PacketBuffer packetBuffer) {
+        if (id == 1) {
+            this.isFilterPopUp = packetBuffer.readBoolean();
+        }
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer packetBuffer) {
+        packetBuffer.writeBoolean(this.isFilterPopUp);
+    }
+
+    @Override
+    public void readInitialSyncData(PacketBuffer packetBuffer) {
+        this.isFilterPopUp = packetBuffer.readBoolean();
     }
 
     @Override

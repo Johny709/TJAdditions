@@ -36,7 +36,6 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     private BooleanConsumer enableFluidPopUp;
     private final int capacity;
     private final int tier;
-    private boolean isFilterPopUp;
     private boolean isFilterBlacklist = true;
 
     public CoverEnderFluid(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
@@ -119,14 +118,10 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
         return isFilterBlacklist;
     }
 
-    private void setFilterPopUp(boolean isFilterPopUp) {
-        this.isFilterPopUp = isFilterPopUp;
+    @Override
+    protected void setFilterPopUp(boolean isFilterPopUp) {
         this.enableFluidPopUp.apply(isFilterPopUp);
-        markAsDirty();
-    }
-
-    private boolean isFilterPopUp() {
-        return isFilterPopUp;
+        super.setFilterPopUp(isFilterPopUp);
     }
 
     private IFluidTank getFluidTank() {

@@ -37,7 +37,6 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     private BooleanConsumer enableItemPopUp;
     private final int capacity;
     private final int tier;
-    private boolean isFilterPopUp;
     private boolean isFilterBlacklist = true;
 
     public CoverEnderItem(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
@@ -144,14 +143,10 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
         return isFilterBlacklist;
     }
 
-    private void setFilterPopUp(boolean isFilterPopUp) {
-        this.isFilterPopUp = isFilterPopUp;
+    @Override
+    protected void setFilterPopUp(boolean isFilterPopUp) {
         this.enableItemPopUp.apply(isFilterPopUp);
-        markAsDirty();
-    }
-
-    private boolean isFilterPopUp() {
-        return isFilterPopUp;
+        super.setFilterPopUp(isFilterPopUp);
     }
 
     private double getItemsStored() {
