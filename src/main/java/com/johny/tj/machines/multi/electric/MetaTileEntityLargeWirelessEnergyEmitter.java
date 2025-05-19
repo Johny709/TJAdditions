@@ -433,7 +433,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        linkData = data.hasKey("Link.XYZ") ? data.getCompoundTag("Link.XYZ") : null;
         totalEnergyPerTick = data.getLong("EnergyPerTick");
         entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
         entityLinkWorld = new int[data.getInteger("BlockPosSize")];
@@ -447,6 +446,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 entityLinkWorld[i] = Integer.MIN_VALUE;
             }
         }
+        if (data.hasKey("Link.XYZ"))
+            linkData = data.getCompoundTag("Link.XYZ");
     }
 
     protected void setActive(boolean active) {

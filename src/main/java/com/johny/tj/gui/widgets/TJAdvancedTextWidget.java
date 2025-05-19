@@ -24,7 +24,6 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
-        super.handleClientAction(id, buffer);
         if (id == 1) {
             ClickData clickData = ClickData.readFromBuf(buffer);
             String componentData = buffer.readString(128);

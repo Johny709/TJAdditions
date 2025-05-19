@@ -6,6 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.LinkPos;
+import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
@@ -35,9 +36,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -46,7 +50,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -75,7 +82,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
-    private NBTTagCompound linkData = new NBTTagCompound();
+    private NBTTagCompound linkData;
     private long energyDrain;
     private int tier;
     private boolean isActive;
@@ -225,7 +232,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             String key = posEntry.getKey();
 
             if (key.isEmpty() || key.contains(this.searchPrompt)) {
-                DimensionType world = posEntry.getValue().getKey().provider.getDimensionType();
+                DimensionType world = posEntry.getValue().getLeft().provider.getDimensionType();
                 String worldName = world.getName();
                 int worldID = world.getId();
 
@@ -244,7 +251,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove));
 
                 ITextComponent blockPos = new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID)
-                        .appendSibling(new TextComponentString("X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ()));
+                        .appendSibling(new TextComponentString(" X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ()));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
                 textList.add(keyPos);
@@ -264,8 +271,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             int posY = Integer.parseInt(yz[0]);
             int posZ = Integer.parseInt(yz[1]);
 
-            World dimension = DimensionManager.getWorld(worldID);
-            dimension.getChunk(new BlockPos(posX, posY, posZ));
+            WorldServer dimension = DimensionManager.getWorld(worldID);
             player.setWorld(dimension);
             this.teleport(player, posX, posY, posZ);
 
@@ -325,10 +331,29 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
+        NBTTagList posList = new NBTTagList();
+        for (Map.Entry<String, Pair<World, BlockPos>> posEntry : this.posMap.entrySet()) {
+            String name = posEntry.getKey();
+            int worldID = posEntry.getValue().getLeft().provider.getDimension();
+            int x = posEntry.getValue().getRight().getX();
+            int y = posEntry.getValue().getRight().getY();
+            int z = posEntry.getValue().getRight().getZ();
+
+            NBTTagCompound posTag = new NBTTagCompound();
+            posTag.setString("Name", name);
+            posTag.setInteger("WorldID", worldID);
+            posTag.setInteger("X", x);
+            posTag.setInteger("Y", y);
+            posTag.setInteger("Z", z);
+            posList.appendTag(posTag);
+        }
+        data.setTag("PosList", posList);
         data.setBoolean("Active", this.isActive);
         data.setInteger("Progress", this.progress);
         data.setInteger("MaxProgress", this.maxProgress);
-        data.setTag("Link.XYZ", this.linkData);
+        data.setString("SelectedPos", this.selectedPosName);
+        if (linkData != null)
+            data.setTag("Link.XYZ", this.linkData);
         return data;
     }
 
@@ -338,8 +363,26 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.isActive = data.getBoolean("Active");
         this.maxProgress = data.getInteger("MaxProgress");
         this.progress = data.getInteger("Progress");
+        this.selectedPosName = data.getString("SelectedPos");
         if (data.hasKey("Link.XYZ"))
             this.linkData = data.getCompoundTag("Link.XYZ");
+        if (!data.hasKey("PosList"))
+            return;
+        NBTTagList posList = data.getTagList("PosList", Constants.NBT.TAG_COMPOUND);
+        for (NBTBase compound : posList) {
+            NBTTagCompound tag = (NBTTagCompound) compound;
+            String name = tag.getString("Name");
+            World world = DimensionManager.getWorld(tag.getInteger("WorldID"));
+            BlockPos pos = new BlockPos(tag.getInteger("X"), tag.getInteger("Y"), tag.getInteger("Z"));
+            this.posMap.put(name, new ImmutablePair<>(world, pos));
+        }
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_LINK_POS)
+            return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
+        return super.getCapability(capability, side);
     }
 
     @Override

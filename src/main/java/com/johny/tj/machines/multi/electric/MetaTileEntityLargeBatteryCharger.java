@@ -544,7 +544,6 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        linkData = data.hasKey("Link.XYZ") ? data.getCompoundTag("Link.XYZ") : null;
         transferMode = TransferMode.values()[data.getInteger("TransferMode")];
         transferToOutput = data.getBoolean("TransferToOutput");
         linkedPlayers = new EntityPlayer[data.getInteger("LinkPlayersSize")];
@@ -558,6 +557,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 entityLinkWorld[i] = Integer.MIN_VALUE;
             }
         }
+        if (data.hasKey("Link.XYZ"))
+            linkData = data.getCompoundTag("Link.XYZ");
     }
 
     protected void setActive(boolean active) {

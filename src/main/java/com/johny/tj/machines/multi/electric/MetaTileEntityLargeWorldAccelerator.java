@@ -478,7 +478,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        linkData = data.hasKey("Link.XZY") ? data.getCompoundTag("Link.XYZ") : null;
         energyMultiplier = data.getInteger("EnergyMultiplier");
         energyPerTick = data.getLong("EnergyPerTick");
         acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
@@ -488,6 +487,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 entityLinkBlockPos[i] = new BlockPos(data.getDouble("EntityLinkX" + i), data.getDouble("EntityLinkY" + i), data.getDouble("EntityLinkZ" + i));
             }
         }
+        if (data.hasKey("Link.XYZ"))
+            linkData = data.getCompoundTag("Link.XYZ");
     }
 
     protected void setActive(boolean active) {
