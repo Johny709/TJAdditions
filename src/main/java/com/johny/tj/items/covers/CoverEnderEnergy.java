@@ -57,7 +57,7 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     public int getTier() {
-        return tier;
+        return this.tier;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new LabelWidget(30, 4, "metaitem.ender_energy_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
+        widget.accept(new LabelWidget(30, 4, "metaitem.ender_energy_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name"));
         widget.accept(new ProgressWidget(this::getEnergyStored, 7, 38, 18, 18) {
             private long energyStored;
             private long energyCapacity;
@@ -115,21 +115,21 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     protected void onAddEntry(Widget.ClickData clickData) {
-        EnderWorldData.getEnergyContainerMap().putIfAbsent(text, new BasicEnergyHandler(capacity));
+        EnderWorldData.getEnergyContainerMap().putIfAbsent(this.text, new BasicEnergyHandler(this.capacity));
     }
 
     @Override
     protected void onClear(Widget.ClickData clickData) {
-        EnderWorldData.getEnergyContainerMap().put(text, new BasicEnergyHandler(capacity));
+        EnderWorldData.getEnergyContainerMap().put(this.text, new BasicEnergyHandler(this.capacity));
     }
 
     @Override
     public void update() {
-        if (isWorkingEnabled) {
+        if (this.isWorkingEnabled) {
             BasicEnergyHandler enderEnergyContainer = getMap().get(text);
             if (enderEnergyContainer == null)
                 return;
-            if (pumpMode == CoverPump.PumpMode.IMPORT) {
+            if (this.pumpMode == CoverPump.PumpMode.IMPORT) {
                 importEnergy(enderEnergyContainer);
             } else {
                 exportEnergy(enderEnergyContainer);
@@ -140,16 +140,16 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
     private void importEnergy(BasicEnergyHandler enderEnergyContainer) {
         long energyRemainingToFill = enderEnergyContainer.getCapacity() - enderEnergyContainer.getStored();
         if (enderEnergyContainer.getStored() < 1 || energyRemainingToFill != 0) {
-            long energyExtracted = energyContainer.removeEnergy(Math.min(energyRemainingToFill, transferRate));
+            long energyExtracted = this.energyContainer.removeEnergy(Math.min(energyRemainingToFill, this.transferRate));
             enderEnergyContainer.addEnergy(Math.abs(energyExtracted));
         }
     }
 
     private void exportEnergy(BasicEnergyHandler enderEnergyContainer) {
-        long energyRemainingToFill = energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored();
-        if (energyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-            long energyExtracted = enderEnergyContainer.removeEnergy(Math.min(energyRemainingToFill, transferRate));
-            energyContainer.acceptEnergyFromNetwork(this.attachedSide, Math.abs(energyExtracted), 1);
+        long energyRemainingToFill = this.energyContainer.getEnergyCapacity() - this.energyContainer.getEnergyStored();
+        if (this.energyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyExtracted = enderEnergyContainer.removeEnergy(Math.min(energyRemainingToFill, this.transferRate));
+            this.energyContainer.acceptEnergyFromNetwork(this.attachedSide, Math.abs(energyExtracted), 1);
         }
     }
 }

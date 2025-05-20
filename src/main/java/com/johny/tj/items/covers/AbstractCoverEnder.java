@@ -31,6 +31,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,18 +41,22 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import static com.johny.tj.gui.TJGuiTextures.POWER_BUTTON;
+import static com.johny.tj.gui.TJGuiTextures.*;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
     protected String text = "default";
+    protected String searchPrompt = "";
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
     protected int maxTransferRate;
     protected int transferRate = maxTransferRate;
     protected boolean isFilterPopUp;
+    protected boolean isCaseSensitive;
+    protected boolean hasSpaces;
+    private int searchResults;
 
     public AbstractCoverEnder(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -121,13 +126,17 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 61, 115, 80, DISPLAY));
+        widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
         widgetGroup.addWidget(new TJTextFieldWidget(32, 43, 112, 18, false, this::getTextID, this::setTextID)
                 .setTooltipText("machine.universal.toggle.current.entry")
-                .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(32, 20, 110, 18, false, this::getTransferRate, this::setTransferRate)
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
+        widgetGroup.addWidget(new TJTextFieldWidget(32, 20, 112, 18, false, this::getTransferRate, this::setTransferRate)
                 .setTooltipText("metaitem.ender_cover.transfer")
-                        .setTooltipFormat(this::getTooltipFormat)
+                .setTooltipFormat(this::getTooltipFormat)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
+        widgetGroup.addWidget(new TJTextFieldWidget(32, 147, 112, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+                .setBackgroundText("machine.universal.search")
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
         widgetGroup.addWidget(new TJClickButtonWidget(151, 38, 18, 18, "O", this::onAddEntry)
                 .setTooltipText("machine.universal.toggle.add.entry"));
         widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
@@ -137,16 +146,29 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         widgetGroup.addWidget(new TJClickButtonWidget(7, 61, 18, 18, "", this::onClear)
                 .setTooltipText("machine.universal.toggle.clear")
                 .setButtonTexture(BUTTON_CLEAR_GRID));
-        widgetGroup.addWidget(new CycleButtonWidget(30, 145, 115, 18, CoverPump.PumpMode.class, this::getPumpMode, this::setPumpMode));
-        widgetGroup.addWidget(new ToggleButtonWidget(7, 145, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+        widgetGroup.addWidget(new ToggleButtonWidget(7, 142, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+                .setTooltipText("machine.universal.case_sensitive"));
+        widgetGroup.addWidget(new ToggleButtonWidget(151, 142, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+                .setTooltipText("machine.universal.spaces"));
+        widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, this::getPumpMode, this::setPumpMode));
+        widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
         addWidgets(addWidgetGroup::addWidget);
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 246)
-                .bindPlayerInventory(player.inventory, 165)
+        return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
+                .bindPlayerInventory(player.inventory, 181)
                 .widget(widgetGroup)
                 .widget(listWidget)
                 .widget(addWidgetGroup)
                 .build(this, player);
+    }
+
+    private void setSearchPrompt(String searchPrompt) {
+        this.searchPrompt = searchPrompt;
+        markAsDirty();
+    }
+
+    private String getSearchPrompt() {
+        return this.searchPrompt;
     }
 
     private String[] getTooltipFormat() {
@@ -154,21 +176,21 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void setTransferRate(String amount) {
-        this.transferRate = Math.min(Integer.parseInt(amount), maxTransferRate);
+        this.transferRate = Math.min(Integer.parseInt(amount), this.maxTransferRate);
         markAsDirty();
     }
 
     public String getTransferRate() {
-        return String.valueOf(transferRate);
+        return String.valueOf(this.transferRate);
     }
 
     private void onIncrement(Widget.ClickData clickData) {
-        transferRate = MathHelper.clamp(transferRate * 2, 1, maxTransferRate);
+        this.transferRate = MathHelper.clamp(this.transferRate * 2, 1, this.maxTransferRate);
         markAsDirty();
     }
 
     private void onDecrement(Widget.ClickData clickData) {
-        transferRate = MathHelper.clamp(transferRate / 2, 1, maxTransferRate);
+        this.transferRate = MathHelper.clamp(this.transferRate / 2, 1, this.maxTransferRate);
         markAsDirty();
     }
 
@@ -178,7 +200,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private CoverPump.PumpMode getPumpMode() {
-        return pumpMode;
+        return this.pumpMode;
     }
 
     private void setTextID(String text) {
@@ -187,22 +209,39 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private String getTextID() {
-        return text;
+        return this.text;
     }
 
     private void addDisplayText(List<ITextComponent> textList) {
+        int count = 0, searchResults = 0;
+        textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + this.searchResults + "§r/§e" + this.getMap().size() + "§r)"));
         for (Map.Entry<K, V> entry : getMap().entrySet()) {
             String text = (String) entry.getKey();
-            ITextComponent textComponent = withButton(new TextComponentString("§e[§r" + text + "§e]"), "O" + text)
+            String result = text, result2 = text;
+
+            if (!this.isCaseSensitive) {
+                result = result.toLowerCase();
+                result2 = result2.toUpperCase();
+            }
+
+            if (!this.hasSpaces)
+                result = result.replace(" ", "");
+
+            if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
+                continue;
+
+            ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
+                    .appendText("\n")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select" + text))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentString("[X]") {}, "X" + text));
-            textList.add(textComponent);
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + text));
+            textList.add(keyEntry);
 
             if (entry.getValue() instanceof FluidTank) {
                 FluidStack fluid = ((FluidTank) entry.getValue()).getFluid();
                 int capacity = ((FluidTank) entry.getValue()).getCapacity();
                 if (fluid != null)
-                    textComponent.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(fluid.getUnlocalizedName())
+                    keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(fluid.getUnlocalizedName())
                             .appendText(" ")
                             .appendText(fluid.amount + "L")
                             .appendText(" / ")
@@ -212,7 +251,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 ItemStack item = ((LargeItemStackHandler) entry.getValue()).getStackInSlot(0);
                 int capacity = ((LargeItemStackHandler) entry.getValue()).getCapacity();
                 if (!item.isEmpty())
-                    textComponent.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(item.getTranslationKey() + ".name")
+                    keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(item.getTranslationKey() + ".name")
                             .appendText(" ")
                             .appendText(String.valueOf(item.getCount()))
                             .appendText(" / ")
@@ -220,20 +259,21 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             }
             if (entry.getValue() instanceof BasicEnergyHandler) {
                 BasicEnergyHandler container = (BasicEnergyHandler) entry.getValue();
-                textComponent.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.energy.stored", container.getStored(), container.getCapacity())));
+                keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.energy.stored", container.getStored(), container.getCapacity())));
             }
+            this.searchResults = ++searchResults;
         }
     }
 
     private void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         for (Map.Entry<K, V> entry : getMap().entrySet()) {
             String key = (String) entry.getKey();
-            if (componentData.equals("O" + key)) {
-                setTextID(key);
+            if (componentData.equals("select" + key)) {
+                this.setTextID(key);
                 break;
             }
-            if (componentData.equals("X" + key) && !key.equals("default")) {
-                getMap().remove(key);
+            if (componentData.equals("remove" + key) && !key.equals("default")) {
+                this.getMap().remove(key);
                 break;
             }
         }
@@ -269,29 +309,51 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setString("Text", text);
-        data.setInteger("PumpMode", pumpMode.ordinal());
-        data.setBoolean("IsWorking", isWorkingEnabled);
-        data.setInteger("TransferRate", transferRate);
+        data.setString("Text", this.text);
+        data.setInteger("PumpMode", this.pumpMode.ordinal());
+        data.setBoolean("IsWorking", this.isWorkingEnabled);
+        data.setBoolean("CaseSensitive", this.isCaseSensitive);
+        data.setBoolean("HasSpaces", this.hasSpaces);
+        data.setInteger("TransferRate", this.transferRate);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        text = data.hasKey("Text") ? data.getString("Text") : "default";
-        pumpMode = CoverPump.PumpMode.values()[data.getInteger("PumpMode")];
-        isWorkingEnabled = data.getBoolean("IsWorking");
-        transferRate = data.getInteger("TransferRate");
+        this.text = data.hasKey("Text") ? data.getString("Text") : "default";
+        this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("PumpMode")];
+        this.isWorkingEnabled = data.getBoolean("IsWorking");
+        this.isCaseSensitive = data.getBoolean("CaseSensitive");
+        this.hasSpaces = data.getBoolean("HasSpaces");
+        this.transferRate = data.getInteger("TransferRate");
     }
 
     @Override
     public boolean isWorkingEnabled() {
-        return isWorkingEnabled;
+        return this.isWorkingEnabled;
     }
 
     @Override
     public void setWorkingEnabled(boolean isWorkingEnabled) {
         this.isWorkingEnabled = isWorkingEnabled;
+        markAsDirty();
+    }
+
+    private boolean isCaseSensitive() {
+        return this.isCaseSensitive;
+    }
+
+    private void setCaseSensitive(Boolean isCaseSensitive) {
+        this.isCaseSensitive = isCaseSensitive;
+        markAsDirty();
+    }
+
+    private boolean hasSpaces() {
+        return this.hasSpaces;
+    }
+
+    private void setSpaces(Boolean hasSpaces) {
+        this.hasSpaces = hasSpaces;
         markAsDirty();
     }
 }

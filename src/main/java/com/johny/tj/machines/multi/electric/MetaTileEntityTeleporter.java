@@ -99,6 +99,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private String searchPrompt = "";
     private boolean isCaseSensitive;
     private boolean hasSpaces;
+    private int searchResults;
     private final Map<String, Pair<World, BlockPos>> posMap = new HashMap<>();
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
@@ -247,45 +248,52 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private void addPosDisplayText(List<ITextComponent> textList) {
-        int count = 0;
+        int count = 0, searchResults = 0;
+        textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + this.searchResults + "§r/§e" + this.posMap.size() + "§r)"));
         for (Map.Entry<String, Pair<World, BlockPos>> posEntry : this.posMap.entrySet()) {
             String key = posEntry.getKey();
-            String result = key;
+            String result = key, result2 = key;
 
-            if (!this.isCaseSensitive)
+            if (!this.isCaseSensitive) {
                 result = result.toLowerCase();
-
-            if (!this.hasSpaces)
-                result = result.replace(" ", "");
-
-            if (result.isEmpty() || result.contains(this.searchPrompt)) {
-                DimensionType world = posEntry.getValue().getLeft().provider.getDimensionType();
-                String worldName = world.getName();
-                int worldID = world.getId();
-
-                BlockPos pos = posEntry.getValue().getValue();
-
-                String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
-                String keyName = "select:" + key;
-                String remove = "remove:" + key;
-                String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
-
-                ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + "§b" + key + "§r")
-                        .appendText("\n")
-                        .appendSibling(withButton(new TextComponentString("[TP]"), tp))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), keyName))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove));
-
-                ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
-                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID))
-                        .appendText("\n")
-                        .appendSibling(new TextComponentString(position));
-
-                keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
-                textList.add(keyPos);
+                result2 = result2.toUpperCase();
             }
+
+            if (!this.hasSpaces) {
+                result = result.replace(" ", "");
+                result2 = result2.replace(" ", "");
+            }
+
+            if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
+                continue;
+
+            DimensionType world = posEntry.getValue().getLeft().provider.getDimensionType();
+            String worldName = world.getName();
+            int worldID = world.getId();
+
+            BlockPos pos = posEntry.getValue().getValue();
+
+            String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
+            String keyName = "select:" + key;
+            String remove = "remove:" + key;
+            String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
+
+            ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + key + "§r")
+                    .appendText("\n")
+                    .appendSibling(withButton(new TextComponentString("[TP]"), tp))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), keyName))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove));
+
+            ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
+                    .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID))
+                    .appendText("\n")
+                    .appendSibling(new TextComponentString(position));
+
+            keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
+            textList.add(keyPos);
+            this.searchResults = ++searchResults;
         }
     }
 
@@ -478,7 +486,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public int getPosSize() {
-        return 1;
+        return this.posMap.size();
     }
 
     @Override

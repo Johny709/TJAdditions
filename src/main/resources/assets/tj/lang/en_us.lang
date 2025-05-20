@@ -272,7 +272,7 @@ tj.multiblock.tab.settings=Settings
 tj.multiblock.tab.debug=Debugging
 tj.multiblock.tab.fluid=Fluid
 tj.multiblock.tab.rotor=Rotors
-tj.multiblock.tab.pos=Pos
+tj.multiblock.tab.pos=Positions
 
 tj.multiblock.structure_formed=Structure Formed.
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %s. Required: %dL
@@ -448,6 +448,7 @@ machine.universal.toggle.filter.open.disabled=Filter Closed
 machine.universal.toggle.reset.enabled=Resetting
 machine.universal.toggle.reset.disabled=Reset
 machine.universal.toggle.clear=Clear
+machine.universal.entries=Entries
 machine.universal.toggle.add.entry=Add Entry
 machine.universal.toggle.current.entry=Current Entry
 machine.universal.linked.entity.null=Not linked

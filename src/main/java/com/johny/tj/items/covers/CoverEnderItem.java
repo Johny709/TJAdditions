@@ -76,7 +76,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     public int getTier() {
-        return tier;
+        return this.tier;
     }
 
     @Override
@@ -89,13 +89,13 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
         PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
         popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                 .setTooltipText("cover.filter.blacklist"));
-        itemFilter.initUI(popUpWidgetGroup::addWidget);
-        enableItemPopUp = popUpWidgetGroup::setEnabled;
+        this.itemFilter.initUI(popUpWidgetGroup::addWidget);
+        this.enableItemPopUp = popUpWidgetGroup::setEnabled;
         widget.accept(popUpWidgetGroup);
-        widget.accept(new LabelWidget(30, 4, "metaitem.ender_item_cover_" + GAValues.VN[tier].toLowerCase() + ".name"));
-        widget.accept(new ToggleButtonWidget(151, 145, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
+        widget.accept(new LabelWidget(30, 4, "metaitem.ender_item_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name"));
+        widget.accept(new ToggleButtonWidget(151, 161, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
                 .setTooltipText("machine.universal.toggle.filter.open"));
-        widget.accept(new ImageWidget(151, 145, 18, 18, ITEM_FILTER));
+        widget.accept(new ImageWidget(151, 161, 18, 18, ITEM_FILTER));
         widget.accept(new ProgressWidget(this::getItemsStored, 7, 38, 18, 18) {
             private int itemStored;
             private int itemCapacity;
@@ -140,7 +140,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     private boolean isFilterBlacklist() {
-        return isFilterBlacklist;
+        return this.isFilterBlacklist;
     }
 
     @Override
@@ -150,7 +150,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     private double getItemsStored() {
-        LargeItemStackHandler itemHandler = getMap().get(text);
+        LargeItemStackHandler itemHandler = getMap().get(this.text);
         if (itemHandler == null)
             return 0;
         return (double) itemHandler.getStackInSlot(0).getCount() / itemHandler.getCapacity();
@@ -158,33 +158,33 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     protected void onAddEntry(Widget.ClickData clickData) {
-        EnderWorldData.getItemChestMap().putIfAbsent(text, new LargeItemStackHandler(1, capacity));
+        EnderWorldData.getItemChestMap().putIfAbsent(this.text, new LargeItemStackHandler(1, this.capacity));
     }
 
     @Override
     protected void onClear(Widget.ClickData clickData) {
-        EnderWorldData.getItemChestMap().put(text, new LargeItemStackHandler(1, capacity));
+        EnderWorldData.getItemChestMap().put(this.text, new LargeItemStackHandler(1, this.capacity));
     }
 
     @Override
     public void update() {
-        if (isWorkingEnabled) {
-            LargeItemStackHandler itemStackHandler = getMap().get(text);
+        if (this.isWorkingEnabled) {
+            LargeItemStackHandler itemStackHandler = getMap().get(this.text);
             if (itemStackHandler == null)
                 return;
-            if (pumpMode == IMPORT) {
-                moveInventoryItems(itemInventory, itemStackHandler);
+            if (this.pumpMode == IMPORT) {
+                moveInventoryItems(this.itemInventory, itemStackHandler);
             } else {
-                moveInventoryItems(itemStackHandler, itemInventory);
+                moveInventoryItems(itemStackHandler, this.itemInventory);
             }
         }
     }
 
     private void moveInventoryItems(IItemHandler sourceInventory, IItemHandler targetInventory) {
         for (int srcIndex = 0; srcIndex < sourceInventory.getSlots(); srcIndex++) {
-            ItemStack sourceStack = sourceInventory.extractItem(srcIndex, Math.min(transferRate, maxTransferRate), true);
-            boolean isFilterStack = itemFilter.matchItemStack(sourceStack) != null;
-            if (sourceStack.isEmpty() || isFilterBlacklist == isFilterStack) {
+            ItemStack sourceStack = sourceInventory.extractItem(srcIndex, Math.min(this.transferRate, this.maxTransferRate), true);
+            boolean isFilterStack = this.itemFilter.matchItemStack(sourceStack) != null;
+            if (sourceStack.isEmpty() || this.isFilterBlacklist == isFilterStack) {
                 continue;
             }
             ItemStack remainder = ItemHandlerHelper.insertItemStacked(targetInventory, sourceStack, true);
