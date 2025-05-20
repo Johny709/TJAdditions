@@ -36,6 +36,7 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
     private final String basePath;
     private final OverlayFace[] faces;
     private final String modID;
+    private final String overlay;
 
     @SideOnly(Side.CLIENT)
     private Map<OverlayFace, ActivePredicate> sprites;
@@ -56,11 +57,16 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
         }
     }
 
-    public TJOrientedOverlayRenderer(String modID, String basePath, OverlayFace... faces) {
+    public TJOrientedOverlayRenderer(String modID, String basePath, String overlay, OverlayFace... faces) {
         this.modID = modID;
         this.basePath = basePath;
         this.faces = faces;
+        this.overlay = overlay;
         TJTextures.iconRegisters.add(this);
+    }
+
+    public TJOrientedOverlayRenderer(String modID, String basePath, OverlayFace... faces) {
+        this(modID, basePath, null, faces);
     }
 
     @Override
@@ -68,7 +74,7 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
     public void registerIcons(TextureMap textureMap) {
         this.sprites = new HashMap<>();
         for (OverlayFace overlayFace : faces) {
-            String faceName = overlayFace.name().toLowerCase();
+            String faceName = this.overlay != null ? this.overlay : overlayFace.name().toLowerCase();
             ResourceLocation normalLocation = new ResourceLocation(modID, String.format("blocks/%s/overlay_%s", basePath, faceName));
             ResourceLocation activeLocation = new ResourceLocation(modID, String.format("blocks/%s/overlay_%s_active", basePath, faceName));
             TextureAtlasSprite normalSprite = textureMap.registerSprite(normalLocation);
