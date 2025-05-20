@@ -211,6 +211,12 @@ tj.mulitblock.greenhouse.treemode=[Tree Mode]
 tj.multiblock.drilling_rig.voltage=Requires §d%s§7 voltage or higher. Overclocks up to §d%s§7.
 tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%dL§7 Drilling Mud and outputs §c%dL§7 Used Drilling Mud per second.
 
+tj.multiblock.teleporter.selected.world=Selected World: %s %d
+tj.multiblock.teleporter.selected.pos=Selected Pos: %s %s %s
+tj.multiblock.teleporter.queue=Queued %s for teleportation
+tj.multiblock.teleporter.success=Teleport Successful
+tj.multiblock.teleporter.fail=Teleport Failed
+
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven
 recipemap.heat_exchanger.tj.name=Heat Exchanger
