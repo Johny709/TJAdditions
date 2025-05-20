@@ -239,23 +239,27 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
             if (entry.getValue() instanceof FluidTank) {
                 FluidStack fluid = ((FluidTank) entry.getValue()).getFluid();
-                int capacity = ((FluidTank) entry.getValue()).getCapacity();
-                if (fluid != null)
-                    keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(fluid.getUnlocalizedName())
-                            .appendText(" ")
-                            .appendText(fluid.amount + "L")
-                            .appendText(" / ")
-                            .appendText(capacity + "L")));
+                boolean empty = fluid == null;
+                String name = !empty ? fluid.getUnlocalizedName() : I18n.translateToLocal("metaitem.fluid_cell.empty");
+                int capacity = !empty ? ((FluidTank) entry.getValue()).getCapacity() : 0;
+                int amount = !empty ? fluid.amount : 0;
+                keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
+                        .appendText("§b ")
+                        .appendText(amount + "L")
+                        .appendText(" §r/§b ")
+                        .appendText(capacity + "L")));
             }
             if (entry.getValue() instanceof LargeItemStackHandler) {
                 ItemStack item = ((LargeItemStackHandler) entry.getValue()).getStackInSlot(0);
-                int capacity = ((LargeItemStackHandler) entry.getValue()).getCapacity();
-                if (!item.isEmpty())
-                    keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(item.getTranslationKey() + ".name")
-                            .appendText(" ")
-                            .appendText(String.valueOf(item.getCount()))
-                            .appendText(" / ")
-                            .appendText(String.valueOf(capacity))));
+                boolean empty = item.isEmpty();
+                String name = !empty ? item.getTranslationKey() + ".name" : I18n.translateToLocal("metaitem.fluid_cell.empty");
+                int capacity = !empty ? ((LargeItemStackHandler) entry.getValue()).getCapacity() : 0;
+                int amount = !empty ? item.getCount() : 0;
+                keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
+                        .appendText("§b ")
+                        .appendText(String.valueOf(amount))
+                        .appendText(" §r/§b ")
+                        .appendText(String.valueOf(capacity))));
             }
             if (entry.getValue() instanceof BasicEnergyHandler) {
                 BasicEnergyHandler container = (BasicEnergyHandler) entry.getValue();
