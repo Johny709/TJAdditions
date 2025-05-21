@@ -3,6 +3,7 @@ package com.johny.tj.integration.jei.multi;
 import com.google.common.collect.Lists;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
@@ -28,15 +29,18 @@ public class TeleporterInfo extends MultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
-                .aisle("ICC", "C~C", "C~C", "C~C", "CCC")
-                .aisle("SFE", "~#~", "~#~", "~#~", "MFC")
-                .aisle("CCC", "C~C", "C~C", "C~C", "CCC")
-                .where('S', getController(), EnumFacing.WEST)
+                .aisle("~CFC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
+                .aisle("CCCCC", "~CCC~", "~C#C~", "~C#C~", "~C#C~", "~CCC~", "~~C~~")
+                .aisle("FCfCF", "~ISE~", "~###~", "~###~", "~###~", "~MFC~", "~CfC~")
+                .aisle("CCCCC", "~CCC~", "~C#C~", "~C#C~", "~C#C~", "~CCC~", "~~C~~")
+                .aisle("~CFC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
+                .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2))
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.ZPM], EnumFacing.WEST)
                 .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.ZPM], EnumFacing.EAST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('F', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TIERED_HULL_ZPM))
+                .where('f', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.FIELD_GENERATOR_ZPM))
                 .build();
         return Lists.newArrayList(shapeInfo);
     }

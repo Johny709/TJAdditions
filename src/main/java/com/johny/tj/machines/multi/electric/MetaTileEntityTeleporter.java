@@ -14,6 +14,8 @@ import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
+import gregicadditions.item.components.FieldGenCasing;
+import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -143,18 +145,18 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 World world = worldPos.getLeft();
                 BlockPos targetPos = worldPos.getValue();
                 FluidStack voidDew = FluidRegistry.getFluidStack("ender_distillation", 1000);
-                BlockPos pos = getPos().offset(getFrontFacing().getOpposite()).up();
+                BlockPos pos = this.getPos().up();
                 int x = pos.getX();
                 int y = pos.getY();
                 int z = pos.getZ();
                 // cast both entity blockPos and this tile entity's blockPos to int so all entities within the same target block gets affected
-                ClassInheritanceMultiMap<Entity>[] entityLists = getWorld().getChunk(pos).getEntityLists();
+                ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
                 for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
                     for (Entity entity : entities) {
                         int entityX = (int) entity.posX;
                         int entityY = (int) entity.posY;
                         int entityZ = (int) entity.posZ;
-                        if (entityX == x && entityY == y && entityZ == z && hasEnoughVoidDew(voidDew)) {
+                        if (entityX == x && entityY == y && entityZ == z && this.hasEnoughVoidDew(voidDew)) {
                             this.inputFluidHandler.drain(voidDew, true);
                             this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
                         }
@@ -214,21 +216,26 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         if (context.get("framework2") instanceof GAMultiblockCasing2.CasingType) {
             framework2 = ((GAMultiblockCasing2.CasingType) context.get("framework2")).getTier();
         }
-        this.tier = Math.max(framework, framework2);
+        int fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
+        this.tier = Math.min(fieldGen, Math.max(framework, framework2));
         this.energyDrain = (long) (Math.pow(4, this.tier) * 8);
-        this.energyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
-        this.inputFluidHandler = new FluidTankList(true, getAbilities(IMPORT_FLUIDS));
+        this.energyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
+        this.inputFluidHandler = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
     }
 
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
-                .aisle("CCC", "C~C", "C~C", "C~C", "CCC")
-                .aisle("CFC", "~#~", "~#~", "~#~", "CFC")
-                .aisle("CSC", "C~C", "C~C", "C~C", "CCC")
-                .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .aisle("~CFC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
+                .aisle("CHHHC", "~HHH~", "~C#C~", "~C#C~", "~C#C~", "~HHH~", "~~H~~")
+                .aisle("FHfHF", "~HSH~", "~###~", "~###~", "~###~", "~HFH~", "~HfH~")
+                .aisle("CHHHC", "~HHH~", "~C#C~", "~C#C~", "~C#C~", "~HHH~", "~~H~~")
+                .aisle("~CFC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
+                .where('S', this.selfPredicate())
+                .where('C', statePredicate(this.getCasingState()))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', frameworkPredicate().or(frameworkPredicate2()))
+                .where('f', LargeSimpleRecipeMapMultiblockController.fieldGenPredicate())
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
                 .build();
