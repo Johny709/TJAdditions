@@ -46,7 +46,7 @@ public class MultiblockDisplayBuilder {
         String fluidName = fluidStack.getLocalizedName();
         boolean hasEnoughFluid = hasEnoughAmount || amount == 0;
         ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentTranslation("machine.universal.fluid.input.sec", fluidName, amount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", fluidName, amount);
+                : new TextComponentTranslation("tj.multiblock.not_enough_fluid", fluidName, amount);
         fluidInputText.getStyle().setColor(hasEnoughFluid ? WHITE : RED);
         textList.add(fluidInputText);
         return this;

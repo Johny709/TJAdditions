@@ -50,6 +50,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -64,8 +65,6 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,7 +97,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private int tier;
     private boolean isActive;
     private int progress;
-    private int maxProgress = 100;
+    private int maxProgress = 20;
     private String selectedPosName;
     private String searchPrompt = "";
     private String queuePrompt = "";
@@ -109,6 +108,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private final Map<String, Pair<World, BlockPos>> posMap = new HashMap<>();
     private final Queue<Triple<Entity, World, BlockPos>> markEntitiesToTransport = new ArrayDeque<>();
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private static final Random random = new Random();
 
     public MetaTileEntityTeleporter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -137,42 +137,33 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 this.transportEntity();
         }
 
-        if (this.hasEnoughEnergy(this.energyDrain)) {
-            if (this.progress <= 0) {
-                this.progress = 1;
-                if (!this.isActive)
-                    this.setActive(true);
-                Pair<World, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
-                if (worldPos == null) {
-                    return;
-                }
-                World world = worldPos.getLeft();
-                BlockPos targetPos = worldPos.getValue();
-                FluidStack voidDew = FluidRegistry.getFluidStack("ender_distillation", 1000);
-                BlockPos pos = this.getPos().up();
-                int x = pos.getX();
-                int y = pos.getY();
-                int z = pos.getZ();
-                ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
-                for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
-                    for (Entity entity : entities) {
-                        BlockPos entityPos = entity.getPosition();
-                        int entityX = entityPos.getX();
-                        int entityY = entityPos.getY();
-                        int entityZ = entityPos.getZ();
-                        if (entityX == x && entityY == y && entityZ == z && this.hasEnoughVoidDew(voidDew)) {
-                            this.inputFluidHandler.drain(voidDew, true);
-                            this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
-                        }
-                    }
-                }
-            } else {
-                this.progress++;
+        if (this.progress <= 0) {
+            this.progress = 1;
+            if (!this.isActive)
+                this.setActive(true);
+            Pair<World, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
+            if (worldPos == null) {
+                return;
             }
-            this.energyContainer.removeEnergy(this.energyDrain);
+            World world = worldPos.getLeft();
+            BlockPos targetPos = worldPos.getValue();
+            BlockPos pos = this.getPos().up();
+            int x = pos.getX();
+            int y = pos.getY();
+            int z = pos.getZ();
+            ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
+            for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
+                for (Entity entity : entities) {
+                    BlockPos entityPos = entity.getPosition();
+                    int entityX = entityPos.getX();
+                    int entityY = entityPos.getY();
+                    int entityZ = entityPos.getZ();
+                    if (entityX == x && entityY == y && entityZ == z && this.markEntitiesToTransport.isEmpty())
+                        this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
+                }
+            }
         } else {
-            if (this.progress > 1)
-                this.progress--;
+            this.progress++;
         }
     }
 
@@ -182,8 +173,27 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         WorldServer dimension = (WorldServer) entityPos.getMiddle();
         BlockPos pos = entityPos.getRight();
         int worldID = dimension.provider.getDimension();
+        long energyX = Math.abs(pos.getX() - this.getPos().getX()) * 1000L;
+        long energyY = Math.abs(pos.getY() - this.getPos().getY()) * 1000L;
+        long energyZ = Math.abs(pos.getZ() - this.getPos().getZ()) * 1000L;
 
-        if (getWorld().provider.getDimension() != worldID) {
+        boolean interDimensional = false;
+        if (worldID != this.getWorld().provider.getDimension()) {
+            interDimensional = true;
+            energyX = Math.abs(pos.getX() * 1000);
+            energyY = Math.abs(pos.getY() * 1000);
+            energyZ = Math.abs(pos.getZ() * 1000);
+        }
+
+        long totalEnergyConsumption = 1000000 + energyX + energyY + energyZ;
+        if (!hasEnoughEnergy(totalEnergyConsumption)) {
+            entity.sendMessage(new TextComponentString(I18n.translateToLocal("gregtech.multiblock.not_enough_energy") + "\n" + I18n.translateToLocal("tj.multiblock.teleporter.fail")));
+            return;
+        }
+        this.energyContainer.removeEnergy(totalEnergyConsumption);
+        this.generateParticles(this.getWorld(), entity, this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
+
+        if (interDimensional) {
             entity.setWorld(dimension);
             entity.changeDimension(worldID, new Teleporter(dimension) {
                 @Override
@@ -197,17 +207,26 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         } else {
             entity.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
         }
+        this.generateParticles(dimension, entity, pos.getX(), pos.getY(), pos.getZ());
         entity.sendMessage(new TextComponentTranslation("tj.multiblock.teleporter.success"));
         DimensionManager.keepDimensionLoaded(worldID, false);
     }
 
-    private boolean hasEnoughEnergy(long amount) {
-        return this.energyContainer.getEnergyStored() >= amount;
+    private void generateParticles(World world, Entity entity, int posX, int posY, int posZ) {
+        for (int j = 0; j < 128; ++j) {
+            double d6 = (double) j / 127.0D;
+            float f = (random.nextFloat() - 0.5F) * 0.2F;
+            float f1 = (random.nextFloat() - 0.5F) * 0.2F;
+            float f2 = (random.nextFloat() - 0.5F) * 0.2F;
+            double d3 = (double) posX + (posX - (double) posX) * d6 + (random.nextDouble() - 0.5D) * (double) entity.width * 2.0D;
+            double d4 = (double) posY + (posY - (double) posY) * d6 + random.nextDouble() * (double) entity.height;
+            double d5 = (double) posZ + (posZ - (double) posZ) * d6 + (random.nextDouble() - 0.5D) * (double) entity.width * 2.0D;
+            world.spawnParticle(EnumParticleTypes.PORTAL, d3, d4, d5, f, f1, f2);
+        }
     }
 
-    private boolean hasEnoughVoidDew(FluidStack fluid) {
-        FluidStack fluidStack = this.inputFluidHandler.drain(fluid, false);
-        return fluidStack != null && fluidStack.amount == 1000;
+    private boolean hasEnoughEnergy(long amount) {
+        return this.energyContainer.getEnergyStored() >= amount;
     }
 
     @Override
@@ -306,7 +325,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        FluidStack voidDew = FluidRegistry.getFluidStack("ender_distillation", 1000);
         MultiblockDisplayBuilder.start(textList)
                 .voltageTier(this.energyContainer)
                 .custom(text -> {
@@ -319,7 +337,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
                     }
                 })
-                .fluidInput(hasEnoughVoidDew(voidDew), voidDew, 1000)
                 .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
     }
 
