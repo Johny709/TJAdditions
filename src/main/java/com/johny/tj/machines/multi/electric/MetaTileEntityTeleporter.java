@@ -153,13 +153,13 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 int x = pos.getX();
                 int y = pos.getY();
                 int z = pos.getZ();
-                // cast both entity blockPos and this tile entity's blockPos to int so all entities within the same target block gets affected
                 ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
                 for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
                     for (Entity entity : entities) {
-                        int entityX = (int) entity.posX;
-                        int entityY = (int) entity.posY;
-                        int entityZ = (int) entity.posZ;
+                        BlockPos entityPos = entity.getPosition();
+                        int entityX = entityPos.getX();
+                        int entityY = entityPos.getY();
+                        int entityZ = entityPos.getZ();
                         if (entityX == x && entityY == y && entityZ == z && this.hasEnoughVoidDew(voidDew)) {
                             this.inputFluidHandler.drain(voidDew, true);
                             this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
@@ -369,8 +369,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
             keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
             textList.add(keyPos);
-            this.searchResults = ++searchResults;
+            searchResults++;
         }
+        this.searchResults = searchResults;
     }
 
     private void addQueueDisplayText(List<ITextComponent> textList) {
@@ -409,8 +410,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
             keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
             textList.add(keyPos);
-            this.queueCount = ++queueCount;
+            queueCount++;
         }
+        this.queueCount = queueCount;
     }
 
     private void handlePosDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {

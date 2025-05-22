@@ -265,8 +265,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 BasicEnergyHandler container = (BasicEnergyHandler) entry.getValue();
                 keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.energy.stored", container.getStored(), container.getCapacity())));
             }
-            this.searchResults = ++searchResults;
+            searchResults++;
         }
+        this.searchResults = searchResults;
     }
 
     private void handleDisplayClick(String componentData, Widget.ClickData clickData) {
