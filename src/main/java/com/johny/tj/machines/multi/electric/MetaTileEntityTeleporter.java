@@ -11,6 +11,7 @@ import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
+import com.johny.tj.gui.widgets.TJClickButtonWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMultiblockCasing;
@@ -23,11 +24,9 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.IWorkable;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
-import gregtech.api.gui.widgets.ScrollableListWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -84,6 +83,8 @@ import static com.johny.tj.textures.TJTextures.TELEPORTER_OVERLAY;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
+import static gregtech.api.gui.GuiTextures.BUTTON_CLEAR_GRID;
+import static gregtech.api.gui.GuiTextures.DISPLAY;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
@@ -278,6 +279,11 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
+    protected ModularUI.Builder createUITemplate(EntityPlayer player) {
+        return this.createUI(player, 18);
+    }
+
+    @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
         TJWidgetGroup widgetPosGroup = new TJWidgetGroup();
@@ -292,21 +298,26 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private AbstractWidgetGroup blockPosTab(Function<Widget, WidgetGroup> widgetGroup) {
-        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 30, 178, 97) {
+        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 12, 178, 97) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
             }
         };
-        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addPosDisplayText, 0xFFFFFF)
+        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addPosDisplayText2, 0xFFFFFF)
                 .setClickHandler(this::handlePosDisplayClick)
                 .setMaxWidthLimit(1000));
+        widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addPosDisplayText, 0xFFFFFF));
         widgetGroup.apply(scrollWidget);
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
                 .setTooltipText("machine.universal.case_sensitive"));
         widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
                 .setTooltipText("machine.universal.spaces"));
-        return widgetGroup.apply(new TJTextFieldWidget(10, 18, 180, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+        widgetGroup.apply(new ImageWidget(7, 112, 162, 18, DISPLAY));
+        widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
+                .setTooltipText("machine.universal.toggle.clear")
+                .setButtonTexture(BUTTON_CLEAR_GRID));
+        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 162, 18, false, this::getSearchPrompt, this::setSearchPrompt)
                 .setBackgroundText("machine.universal.search")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }
@@ -330,8 +341,11 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private void addPosDisplayText(List<ITextComponent> textList) {
-        int count = 0, searchResults = 0;
         textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + this.searchResults + "§r/§e" + this.posMap.size() + "§r)"));
+    }
+
+    private void addPosDisplayText2(List<ITextComponent> textList) {
+        int count = 0, searchResults = 0;
         for (Map.Entry<String, Pair<World, BlockPos>> posEntry : this.posMap.entrySet()) {
             String key = posEntry.getKey();
             String result = key, result2 = key;
@@ -419,6 +433,10 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private void setSearchPrompt(String searchPrompt) {
         this.searchPrompt = searchPrompt;
         this.markDirty();
+    }
+
+    private void onClear(Widget.ClickData clickData) {
+        this.setSearchPrompt("");
     }
 
     private boolean isCaseSensitive() {
