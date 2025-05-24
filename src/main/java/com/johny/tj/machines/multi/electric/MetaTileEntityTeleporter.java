@@ -280,7 +280,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        TJWidgetGroup widgetPosGroup = new TJWidgetGroup(), widgetQueueGroup = new TJWidgetGroup();
+        TJWidgetGroup widgetPosGroup = new TJWidgetGroup();
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), this.blockPosTab(widgetPosGroup::addWidgets)));
     }
 
@@ -398,7 +398,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             }
             WorldServer dimension = DimensionManager.getWorld(worldID);
             BlockPos blockPos = new BlockPos(posX, posY, posZ);
-            player.sendMessage(new TextComponentTranslation("tj.multiblock.teleporter.queue", player.getName()));
             this.transportEntity(player, dimension, blockPos);
 
         } else if (componentData.startsWith("select")) {
@@ -428,7 +427,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private void setCaseSensitive(Boolean isCaseSensitive) {
         this.isCaseSensitive = isCaseSensitive;
-       this.markDirty();
+        this.markDirty();
     }
 
     private boolean hasSpaces() {

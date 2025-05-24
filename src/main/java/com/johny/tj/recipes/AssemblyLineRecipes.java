@@ -19,10 +19,10 @@ import static gregicadditions.GAMaterials.*;
 import static gregicadditions.item.GAMetaItems.*;
 import static gregicadditions.machines.GATileEntities.*;
 import static gregicadditions.recipes.GARecipeMaps.ASSEMBLY_LINE_RECIPES;
-import static gregtech.api.unification.material.MarkerMaterials.Tier.Infinite;
-import static gregtech.api.unification.material.MarkerMaterials.Tier.Master;
+import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.items.MetaItems.*;
+import static gregtech.common.metatileentities.MetaTileEntities.HULL;
 
 public class AssemblyLineRecipes {
 
@@ -563,6 +563,25 @@ public class AssemblyLineRecipes {
                 .inputs(VOID_MINER[2].getStackForm())
                 .outputs(VOID_MORE_MINER.getStackForm())
                 .EUt(64000000)
+                .duration(600)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(4608))
+                .fluidInputs(EnderPearl.getFluid(10000))
+                .fluidInputs(EnderEye.getFluid(10000))
+                .inputs(HULL[7].getStackForm())
+                .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 44))
+                .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 42))
+                .inputs(new ItemStack(Item.getByNameOrId("draconicevolution:dislocator_advanced")))
+                .inputs(FIELD_GENERATOR_ZPM.getStackForm(2))
+                .inputs(EMITTER_ZPM.getStackForm(2))
+                .inputs(SENSOR_ZPM.getStackForm(2))
+                .input(OrePrefix.circuit, Superconductor, 4)
+                .input(OrePrefix.wireGtSingle, Naquadah, 16)
+                .input(OrePrefix.screw, Enderium, 64)
+                .outputs(TELEPORTER.getStackForm())
+                .EUt(GAValues.VA[7])
                 .duration(600)
                 .buildAndRegister();
     }
