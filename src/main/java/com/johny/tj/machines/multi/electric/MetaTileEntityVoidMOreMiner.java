@@ -116,8 +116,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     }
 
     @Override
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        super.addNewTabs(tabs);
+    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
+        super.addNewTabs(tabs, extended);
         TJWidgetGroup widgetFluidGroup = new TJWidgetGroup();
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab(widgetFluidGroup::addWidgets)));
     }

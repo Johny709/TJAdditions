@@ -54,20 +54,20 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
 
         TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM), new Position(-10, 1 + extended));
         List<Triple<String, ItemStack, AbstractWidgetGroup>> tabList = new ArrayList<>();
-        this.addNewTabs(tabList::add);
+        this.addNewTabs(tabList::add, extended);
         tabList.forEach(tabs -> tabGroup.addTab(new ItemTabInfo(tabs.getLeft(), tabs.getMiddle()), tabs.getRight()));
         builder.widget(tabGroup);
         return builder;
     }
 
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
+    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
         TJWidgetGroup widgetDisplayGroup = new TJWidgetGroup(), widgetMaintenanceGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), this.mainDisplayTab(widgetDisplayGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), this.maintenanceTab(widgetMaintenanceGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), this.mainDisplayTab(widgetDisplayGroup::addWidgets, extended)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), this.maintenanceTab(widgetMaintenanceGroup::addWidgets, extended)));
     }
 
-    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addDisplayText, 0xFFFFFF)
+    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
+        widgetGroup.apply(new AdvancedTextWidget(10, 18 - extended, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
         widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
@@ -75,8 +75,8 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    protected AbstractWidgetGroup maintenanceTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
+    protected AbstractWidgetGroup maintenanceTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
+        return widgetGroup.apply(new AdvancedTextWidget(10, 18 - extended, this::addMaintenanceDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }
 
