@@ -213,6 +213,7 @@ tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%dL§7 Drilling Mud 
 
 tj.multiblock.teleporter.selected.world=Selected World: §6%s§r (§b%d§r)
 tj.multiblock.teleporter.selected.pos=Selected Pos: X: §b%d§r Y: §b%d§r Z: §b%d§r
+tj.multiblock.teleporter.queue=Queued §r%s§r for teleportation
 tj.multiblock.teleporter.success=Teleport Successful
 tj.multiblock.teleporter.fail=Teleport Failed
 
@@ -280,6 +281,7 @@ tj.multiblock.tab.debug=Debugging
 tj.multiblock.tab.fluid=Fluid
 tj.multiblock.tab.rotor=Rotors
 tj.multiblock.tab.pos=Positions
+tj.multiblock.tab.queue=Queue
 
 tj.multiblock.structure_formed=Structure Formed.
 tj.multiblock.not_enough_fluid=WARNING: not enough fluid %s. Required: %dL

@@ -37,6 +37,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -73,8 +74,8 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.johny.tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
 import static com.johny.tj.gui.TJGuiTextures.SPACES_BUTTON;
@@ -102,10 +103,13 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private int maxProgress = 20;
     private String selectedPosName;
     private String searchPrompt = "";
+    private String queuePrompt = "";
     private boolean isCaseSensitive;
     private boolean hasSpaces;
     private int searchResults;
+    private int queueCount;
     private final Map<String, Pair<World, BlockPos>> posMap = new HashMap<>();
+    private final Queue<Triple<Entity, World, BlockPos>> markEntitiesToTransport = new ArrayDeque<>();
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private static final Random random = new Random();
 
@@ -132,8 +136,16 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
         if (this.progress >= this.maxProgress) {
             this.progress = 0;
-            if(this.isActive)
+            if (this.isActive)
                 this.setActive(false);
+            if (!this.markEntitiesToTransport.isEmpty())
+                this.transportEntity();
+        }
+
+        if (this.progress <= 0) {
+            this.progress = 1;
+            if (!this.isActive)
+                this.setActive(true);
             Pair<World, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
             if (worldPos == null) {
                 return;
@@ -149,29 +161,27 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 DimensionManager.initDimension(worldID);
                 DimensionManager.keepDimensionLoaded(worldID, true);
             }
-            List<ClassInheritanceMultiMap<Entity>> entityLists = Arrays.stream(this.getWorld().getChunk(pos).getEntityLists()).collect(Collectors.toCollection(ArrayList::new));
+            ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
             for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
                 for (Entity entity : entities) {
                     BlockPos entityPos = entity.getPosition();
                     int entityX = entityPos.getX();
                     int entityY = entityPos.getY();
                     int entityZ = entityPos.getZ();
-                    if (entityX == x && entityY == y && entityZ == z)
-                        this.transportEntity(entity, world, targetPos);
+                    if (entityX == x && entityY == y && entityZ == z && this.markEntitiesToTransport.isEmpty())
+                        this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
                 }
             }
-        }
-
-        if (this.progress <= 0) {
-            this.progress = 1;
-            if (!this.isActive)
-                this.setActive(true);
         } else {
             this.progress++;
         }
     }
 
-    private void transportEntity(Entity entity, World world, BlockPos pos) {
+    private void transportEntity() {
+        Triple<Entity, World, BlockPos> entityPos = this.markEntitiesToTransport.poll();
+        Entity entity = entityPos.getLeft();
+        WorldServer world = (WorldServer) entityPos.getMiddle();
+        BlockPos pos = entityPos.getRight();
         int worldID = world.provider.getDimension();
         long energyX = Math.abs(pos.getX() - this.getPos().getX()) * 1000L;
         long energyY = Math.abs(pos.getY() - this.getPos().getY()) * 1000L;
@@ -194,7 +204,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
         if (interDimensional) {
             entity.setWorld(world);
-            entity.changeDimension(worldID, new Teleporter((WorldServer) world) {
+            entity.changeDimension(worldID, new Teleporter(world) {
                 @Override
                 public void placeEntity(World world, Entity entity, float yaw) {
                     entity.setLocationAndAngles(pos.getX(), pos.getY(), pos.getZ(), entity.rotationYaw, 0.0F);
@@ -286,8 +296,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
-        TJWidgetGroup widgetPosGroup = new TJWidgetGroup();
+        TJWidgetGroup widgetPosGroup = new TJWidgetGroup(), widgetQueueGroup = new TJWidgetGroup();
         tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), this.blockPosTab(widgetPosGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), this.queueTab(widgetQueueGroup::addWidgets)));
     }
 
     @Override
@@ -305,26 +316,34 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private AbstractWidgetGroup blockPosTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return this.addScrollWidgets(widgetGroup, this::addPosDisplayText, this::addPosDisplayText2, this::getSearchPrompt, this::setSearchPrompt, this::onClear);
+    }
+
+    private AbstractWidgetGroup queueTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return this.addScrollWidgets(widgetGroup, this::addQueueDisplayText, this::addQueueDisplayText2, this::getQueuePrompt, this::setQueuePrompt, this::onClear2);
+    }
+
+    private AbstractWidgetGroup addScrollWidgets(Function<Widget, WidgetGroup> widgetGroup, Consumer<List<ITextComponent>> displayText, Consumer<List<ITextComponent>> displayText2, Supplier<String> searchSupplier, Consumer<String> searchResponder, Consumer<Widget.ClickData> onClear) {
         ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 12, 178, 97) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
             }
         };
-        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addPosDisplayText2, 0xFFFFFF)
+        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, displayText2, 0xFFFFFF)
                 .setClickHandler(this::handlePosDisplayClick)
                 .setMaxWidthLimit(1000));
-        widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addPosDisplayText, 0xFFFFFF));
+        widgetGroup.apply(new AdvancedTextWidget(10, 0, displayText, 0xFFFFFF));
         widgetGroup.apply(scrollWidget);
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
                 .setTooltipText("machine.universal.case_sensitive"));
         widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
                 .setTooltipText("machine.universal.spaces"));
         widgetGroup.apply(new ImageWidget(7, 112, 162, 18, DISPLAY));
-        widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
+        widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", onClear)
                 .setTooltipText("machine.universal.toggle.clear")
                 .setButtonTexture(BUTTON_CLEAR_GRID));
-        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, searchSupplier, searchResponder)
                 .setBackgroundText("machine.universal.search")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }
@@ -401,6 +420,50 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.searchResults = searchResults;
     }
 
+    private void addQueueDisplayText(List<ITextComponent> textList) {
+        textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + this.queueCount + "§r/§e" + this.markEntitiesToTransport.size() + "§r)"));
+    }
+
+    private void addQueueDisplayText2(List<ITextComponent> textList) {
+        int count = 0, queueCount = 0;
+        for (Triple<Entity, World, BlockPos> queueEntry : this.markEntitiesToTransport) {
+            String key = queueEntry.getLeft().getName();
+            String result = key, result2 = key;
+
+            if (!this.isCaseSensitive) {
+                result = result.toLowerCase();
+                result2 = result2.toUpperCase();
+            }
+
+            if (!this.hasSpaces) {
+                result = result.replace(" ", "");
+                result2 = result2.replace(" ", "");
+            }
+
+            if (!result.isEmpty() && !result.contains(this.queuePrompt) && !result2.contains(this.queuePrompt))
+                continue;
+
+            BlockPos pos = queueEntry.getRight();
+            DimensionType world = queueEntry.getMiddle().provider.getDimensionType();
+            String worldName = world.getName();
+            int worldID = world.getId();
+
+            String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
+
+            ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + key + "§r");
+
+            ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
+                    .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID))
+                    .appendText("\n")
+                    .appendSibling(new TextComponentString(position));
+
+            keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
+            textList.add(keyPos);
+            queueCount++;
+        }
+        this.queueCount = queueCount;
+    }
+
     private void handlePosDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.startsWith("tp")) {
             String[] world = componentData.split("w");
@@ -419,7 +482,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             }
             WorldServer dimension = DimensionManager.getWorld(worldID);
             BlockPos blockPos = new BlockPos(posX, posY, posZ);
-            this.transportEntity(player, dimension, blockPos);
+            player.sendMessage(new TextComponentTranslation("tj.multiblock.teleporter.queue", player.getName()));
+            this.markEntitiesToTransport.add(new ImmutableTriple<>(player, dimension, blockPos));
 
         } else if (componentData.startsWith("select")) {
             String[] selectedPos = componentData.split(":");
@@ -465,8 +529,21 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.markDirty();
     }
 
+    private String getQueuePrompt() {
+        return this.queuePrompt;
+    }
+
+    private void setQueuePrompt(String queuePrompt) {
+        this.queuePrompt = queuePrompt;
+        this.markDirty();
+    }
+
     private void onClear(Widget.ClickData clickData) {
         this.setSearchPrompt("");
+    }
+
+    private void onClear2(Widget.ClickData clickData) {
+        this.setQueuePrompt("");
     }
 
     private boolean isCaseSensitive() {
