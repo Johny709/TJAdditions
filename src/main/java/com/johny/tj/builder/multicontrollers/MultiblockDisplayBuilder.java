@@ -1,9 +1,11 @@
 package com.johny.tj.builder.multicontrollers;
 
+import com.johny.tj.TJValues;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -15,13 +17,15 @@ import static net.minecraft.util.text.TextFormatting.*;
 public class MultiblockDisplayBuilder {
 
     private final List<ITextComponent> textList;
+    private final boolean isStructureFormed;
 
-    public MultiblockDisplayBuilder(List<ITextComponent> textList) {
+    public MultiblockDisplayBuilder(List<ITextComponent> textList, boolean isStructureFormed) {
         this.textList = textList;
+        this.isStructureFormed = isStructureFormed;
     }
 
-    public static MultiblockDisplayBuilder start(List<ITextComponent> textList) {
-        return new MultiblockDisplayBuilder(textList);
+    public static MultiblockDisplayBuilder start(List<ITextComponent> textList, boolean isStructureFormed) {
+        return new MultiblockDisplayBuilder(textList, isStructureFormed);
     }
 
     public MultiblockDisplayBuilder custom(Consumer<List<ITextComponent>> textList) {
@@ -29,12 +33,21 @@ public class MultiblockDisplayBuilder {
         return this;
     }
 
-    public MultiblockDisplayBuilder voltageTier(IEnergyContainer energyContainer) {
-        return this.voltageTier(energyContainer, true);
+    public MultiblockDisplayBuilder voltageTier(int tier) {
+        if (this.isStructureFormed && tier > 0) {
+            String color = TJValues.VCC[tier];
+            this.textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                    .appendText(" ")
+                    .appendSibling(new TextComponentString(color + GAValues.V[tier] + "§r"))
+                    .appendText(" (")
+                    .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
+                    .appendText(")"));
+        }
+        return this;
     }
 
-    public MultiblockDisplayBuilder voltageTier(IEnergyContainer energyContainer, boolean isStructureFormed) {
-        if (isStructureFormed && energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
+    public MultiblockDisplayBuilder voltageIn(IEnergyContainer energyContainer) {
+        if (this.isStructureFormed && energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
             long maxVoltage = energyContainer.getInputVoltage();
             String voltageName = GAValues.VN[GAUtility.getTierByVoltage(maxVoltage)];
             textList.add(new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, voltageName));
@@ -53,6 +66,8 @@ public class MultiblockDisplayBuilder {
     }
 
     public MultiblockDisplayBuilder isWorking(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
+        if (!this.isStructureFormed)
+            return this;
         int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentTranslation("gregtech.multiblock.work_paused")
                 : !isActive ? new TextComponentTranslation("gregtech.multiblock.idling")

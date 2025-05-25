@@ -13,6 +13,7 @@ import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
 import com.johny.tj.gui.widgets.TJClickButtonWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
+import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
@@ -90,7 +91,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
-// TODO re-add the queue to check if it still crashes when marking then teleport mobs in subsequent ticks
+
 public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, IWorkable, LinkPos {
 
     private IEnergyContainer energyContainer;
@@ -250,6 +251,12 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         }
         int fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
         this.tier = Math.min(fieldGen, Math.max(framework, framework2));
+        boolean energyHatchTierMatches = this.getAbilities(INPUT_ENERGY).stream()
+                .allMatch(energyContainer -> GAUtility.getTierByVoltage(energyContainer.getInputVoltage()) <= this.tier);
+        if (!energyHatchTierMatches) {
+            this.invalidateStructure();
+            return;
+        }
         this.energyDrain = (long) (Math.pow(4, this.tier) * 8);
         this.energyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.inputFluidHandler = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
@@ -351,8 +358,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        MultiblockDisplayBuilder.start(textList)
-                .voltageTier(this.energyContainer)
+        MultiblockDisplayBuilder.start(textList, this.isStructureFormed())
+                .voltageIn(this.energyContainer)
+                .voltageTier(this.tier)
                 .custom(text -> {
                     Pair<World, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
                     if (selectedPos != null) {
