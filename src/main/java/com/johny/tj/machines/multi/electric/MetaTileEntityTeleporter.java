@@ -51,6 +51,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -63,18 +64,17 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.johny.tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
 import static com.johny.tj.gui.TJGuiTextures.SPACES_BUTTON;
@@ -89,7 +89,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
-// TODO WIP
+// TODO re-add the queue to check if it still crashes when marking then teleport mobs in subsequent ticks
 public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, IWorkable, LinkPos {
 
     private IEnergyContainer energyContainer;
@@ -120,7 +120,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     protected void updateFormedValid() {
-        if (!this.isWorkingEnabled || this.getNumProblems() >= 6) {
+        if (!this.isWorkingEnabled || this.getNumProblems() >= 6 || this.maxProgress < 1) {
             if (this.isActive)
                 this.setActive(false);
             return;
@@ -149,7 +149,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 DimensionManager.initDimension(worldID);
                 DimensionManager.keepDimensionLoaded(worldID, true);
             }
-            ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
+            List<ClassInheritanceMultiMap<Entity>> entityLists = Arrays.stream(this.getWorld().getChunk(pos).getEntityLists()).collect(Collectors.toCollection(ArrayList::new));
             for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
                 for (Entity entity : entities) {
                     BlockPos entityPos = entity.getPosition();
@@ -293,6 +293,13 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
+        widgetGroup.apply(new ImageWidget(28, 112, 141, 18, DISPLAY));
+        widgetGroup.apply(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
+                .setTooltipText("machine.universal.tick.speed")
+                .setTooltipFormat(this::getTickSpeedFormat)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
+        widgetGroup.apply(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
+        widgetGroup.apply(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
         return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
@@ -317,7 +324,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
                 .setTooltipText("machine.universal.toggle.clear")
                 .setButtonTexture(BUTTON_CLEAR_GRID));
-        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 162, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
                 .setBackgroundText("machine.universal.search")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }
@@ -426,6 +433,29 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         }
     }
 
+    private String[] getTickSpeedFormat() {
+        return ArrayUtils.toArray(String.valueOf(this.maxProgress));
+    }
+
+    private void onIncrement(Widget.ClickData clickData) {
+        this.maxProgress = MathHelper.clamp(this.maxProgress * 2, 1, Integer.MAX_VALUE);
+        this.markDirty();
+    }
+
+    private void onDecrement(Widget.ClickData clickData) {
+        this.maxProgress = MathHelper.clamp(this.maxProgress / 2, 1, Integer.MAX_VALUE);
+        this.markDirty();
+    }
+
+    private String getTickSpeed() {
+        return String.valueOf(this.maxProgress);
+    }
+
+    private void setTickSpeed(String maxProgress) {
+        this.maxProgress = maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress);
+        this.markDirty();
+    }
+
     private String getSearchPrompt() {
         return this.searchPrompt;
     }
@@ -463,7 +493,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private void setReset(boolean reset) {
         this.posMap.clear();
-        this.linkData.setInteger("I", getPosSize());
+        this.linkData.setInteger("I", this.getPosSize());
     }
 
     protected void setActive(boolean active) {
@@ -485,12 +515,14 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
         buf.writeBoolean(this.isActive);
+        buf.writeInt(this.maxProgress);
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.isActive = buf.readBoolean();
+        this.maxProgress = buf.readInt();
     }
 
     @Override
