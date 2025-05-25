@@ -566,7 +566,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public void onLink() {
+    public void onLink(MetaTileEntity tileEntity) {
         updateEnergyPerTick();
     }
 

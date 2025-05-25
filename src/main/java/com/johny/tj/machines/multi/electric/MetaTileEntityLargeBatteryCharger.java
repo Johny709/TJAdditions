@@ -675,7 +675,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    public void onLink() {
+    public void onLink(MetaTileEntity tileEntity) {
         updateTotalEnergyPerTick();
         updateFluidConsumption();
     }

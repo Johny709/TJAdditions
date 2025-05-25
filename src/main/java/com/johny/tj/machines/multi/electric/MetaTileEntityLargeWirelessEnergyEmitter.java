@@ -500,7 +500,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    public void onLink() {
+    public void onLink(MetaTileEntity tileEntity) {
         updateTotalEnergyPerTick();
         int dimensionID = getWorld().provider.getDimension();
         linkedWorldsCount = (int) Arrays.stream(entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();

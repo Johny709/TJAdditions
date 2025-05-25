@@ -1,10 +1,13 @@
 package com.johny.tj;
 
 
+import com.johny.tj.capability.LinkEvent;
+import com.johny.tj.event.MTELinkEvent;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.recipes.LateRecipes;
 import com.johny.tj.recipes.RecipeInit;
 import com.johny.tj.util.EnderWorldData;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.blocks.VariantItemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -81,6 +84,16 @@ public class CommonProxy {
     @SubscribeEvent
     public static void onWorldSave(WorldEvent.Save event) {
         EnderWorldData.setDirty();
+    }
+
+    @SubscribeEvent
+    public static void onLink(MTELinkEvent event) {
+        MetaTileEntity transmitter = event.getTransmitter();
+        MetaTileEntity receiver = event.getReceiver();
+        if (transmitter instanceof LinkEvent)
+            ((LinkEvent) transmitter).onLink(receiver);
+        if (receiver instanceof LinkEvent)
+            ((LinkEvent) receiver).onLink(transmitter);
     }
 
 

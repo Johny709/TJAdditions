@@ -1,9 +1,9 @@
 package com.johny.tj.items;
 
 import com.johny.tj.capability.LinkEntity;
-import com.johny.tj.capability.LinkEvent;
 import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.LinkSet;
+import com.johny.tj.event.MTELinkEvent;
 import com.johny.tj.gui.widgets.TJSlotWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.util.QuintConsumer;
@@ -32,6 +32,7 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -138,12 +139,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                             if (targetGTTE instanceof LinkSet) {
                                 ((LinkSet) targetGTTE).setLink(() -> linkedGTTE);
                             }
-                            if (linkedGTTE instanceof LinkEvent) {
-                                ((LinkEvent) linkedGTTE).onLink();
-                            }
-                            if (targetGTTE instanceof LinkEvent) {
-                                ((LinkEvent) targetGTTE).onLink();
-                            }
+                            MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE));
                         } else {
                             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                         }
@@ -357,6 +353,12 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
     private void setPos() {
         BlockPos pos = new BlockPos(this.x, this.y, this.z);
+        double x = this.nbt.getDouble("X");
+        double y = this.nbt.getDouble("Y");
+        double z = this.nbt.getDouble("Z");
+        WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
+        MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(getWorld, new BlockPos(x, y, z));
+        MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(this.world, pos);
         int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
         this.nbt.setInteger("I", linkI - 1);
         this.world.getChunk(pos);
@@ -365,6 +367,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
         this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
                 .appendSibling(new TextComponentString(" " + this.nbt.getInteger("I"))));
+        MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE));
     }
 
     public String getName() {
