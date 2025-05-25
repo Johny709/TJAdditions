@@ -2,7 +2,6 @@ package com.johny.tj.items;
 
 import com.johny.tj.capability.LinkEntity;
 import com.johny.tj.capability.LinkPos;
-import com.johny.tj.capability.LinkSet;
 import com.johny.tj.event.MTELinkEvent;
 import com.johny.tj.gui.widgets.TJSlotWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
@@ -135,9 +134,6 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                                         break;
                                     }
                                 }
-                            }
-                            if (targetGTTE instanceof LinkSet) {
-                                ((LinkSet) targetGTTE).setLink(() -> linkedGTTE);
                             }
                             MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE));
                         } else {

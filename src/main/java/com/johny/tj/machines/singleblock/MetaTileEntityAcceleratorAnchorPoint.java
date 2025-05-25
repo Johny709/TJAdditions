@@ -4,7 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJValues;
-import com.johny.tj.capability.LinkSet;
+import com.johny.tj.capability.LinkEvent;
 import com.johny.tj.machines.multi.electric.MetaTileEntityLargeWorldAccelerator;
 import com.johny.tj.textures.TJTextures;
 import gregicadditions.GAUtility;
@@ -35,11 +35,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity implements LinkSet {
+public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity implements LinkEvent {
 
-    private Supplier<MetaTileEntity> entitySupplier;
+    private MetaTileEntity metaTileEntity;
     private boolean isActive;
     private int tier;
     private boolean redStonePowered;
@@ -64,10 +63,10 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     @Override
     public void update() {
         super.update();
-        if (getWorld().isRemote || entitySupplier == null)
+        if (getWorld().isRemote || metaTileEntity == null)
             return;
-        if (getOffsetTimer() % 5 == 0 && entitySupplier.get() instanceof MetaTileEntityLargeWorldAccelerator) {
-            MetaTileEntityLargeWorldAccelerator accelerator = (MetaTileEntityLargeWorldAccelerator)entitySupplier.get();
+        if (getOffsetTimer() % 5 == 0 && metaTileEntity instanceof MetaTileEntityLargeWorldAccelerator) {
+            MetaTileEntityLargeWorldAccelerator accelerator = (MetaTileEntityLargeWorldAccelerator) metaTileEntity;
             setActive(accelerator.isActive());
             if (isActive)
                 this.redStonePowered = Arrays.stream(EnumFacing.values()).anyMatch(enumFacing -> getInputRedstoneSignal(enumFacing, true) > 0);
@@ -124,36 +123,14 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     }
 
     private void addDisplayText(List<ITextComponent> textList) {
-        textList.add(entitySupplier != null ? new TextComponentTranslation(entitySupplier.get().getMetaFullName())
+        textList.add(metaTileEntity != null ? new TextComponentTranslation(metaTileEntity.getMetaFullName())
                 .appendText("\n")
                 .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius", tier, tier))
                 .appendText("\n")
-                .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentString("" + entitySupplier.get().getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + entitySupplier.get().getPos().getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + entitySupplier.get().getPos().getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentString("" + metaTileEntity.getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + metaTileEntity.getPos().getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
+                .appendSibling(new TextComponentString(" Z: ").appendSibling(new TextComponentString("" + metaTileEntity.getPos().getZ()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
                 : new TextComponentTranslation("machine.universal.linked.entity.null"));
-    }
-
-    @Override
-    public void setLink(Supplier<MetaTileEntity> entitySupplier) {
-        if (entitySupplier.get() instanceof MetaTileEntityLargeWorldAccelerator) {
-            MetaTileEntityLargeWorldAccelerator accelerator = (MetaTileEntityLargeWorldAccelerator) entitySupplier.get();
-            this.tier = (int) GAUtility.getTierByVoltage(accelerator.getVoltageTier());
-            this.entitySupplier = entitySupplier;
-            if (!getWorld().isRemote) {
-                writeCustomData(2, buf -> buf.writeInt(tier));
-                markDirty();
-            }
-        } else {
-            this.tier = 0;
-            writeCustomData(2, buf -> buf.writeInt(tier));
-            markDirty();
-        }
-    }
-
-    @Override
-    public MetaTileEntity getLink() {
-        return this;
     }
 
     public boolean isRedStonePowered() {
@@ -217,5 +194,22 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
         this.tier = data.getInteger("Tier");
         this.isActive = data.getBoolean("IsActive");
         this.inverted = data.getBoolean("Inverted");
+    }
+
+    @Override
+    public void onLink(MetaTileEntity tileEntity) {
+        if (tileEntity instanceof MetaTileEntityLargeWorldAccelerator) {
+            MetaTileEntityLargeWorldAccelerator accelerator = (MetaTileEntityLargeWorldAccelerator) tileEntity;
+            this.tier = GAUtility.getTierByVoltage(accelerator.getVoltageTier());
+            this.metaTileEntity = tileEntity;
+            if (!getWorld().isRemote) {
+                writeCustomData(2, buf -> buf.writeInt(tier));
+                markDirty();
+            }
+        } else {
+            this.tier = 0;
+            writeCustomData(2, buf -> buf.writeInt(tier));
+            markDirty();
+        }
     }
 }

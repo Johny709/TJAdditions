@@ -6,7 +6,10 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
-import com.johny.tj.capability.*;
+import com.johny.tj.capability.IParallelController;
+import com.johny.tj.capability.LinkEvent;
+import com.johny.tj.capability.LinkPos;
+import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.items.TJMetaItems;
@@ -371,8 +374,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             Arrays.stream(entityLinkBlockPos)
                     .filter(Objects::nonNull)
                     .map(blockPos -> BlockMachine.getMetaTileEntity(getWorld(), blockPos))
-                    .filter(entity -> entity instanceof LinkSet)
-                    .forEach(entity -> ((LinkSet) entity).setLink(() -> metaTileEntity));
+                    .filter(entity -> entity instanceof LinkEvent)
+                    .forEach(entity -> ((LinkEvent) entity).onLink(metaTileEntity));
     }
 
     @Override
