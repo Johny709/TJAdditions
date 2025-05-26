@@ -13,6 +13,7 @@ import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.items.TJMetaItems;
+import com.johny.tj.util.PlayerWorldIDData;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.CellCasing;
@@ -349,7 +350,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         if (this.progress > 0 && !this.isActive)
             this.setActive(true);
 
-        if (getOffsetTimer() % 100 == 0)
+        if (getOffsetTimer() % 200 == 0)
             this.playerLinkUpdate();
 
         if (this.progress >= this.maxProgress) {
@@ -495,10 +496,10 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         for (int i = 0; i < this.linkedPlayersID.length; i++) {
             if (this.linkedPlayersID[i] == null)
                 continue;
-            if (linkedPlayers[i] == null)
-                this.linkedPlayers[i] = DimensionManager.getWorld(this.entityLinkWorld[i]).getPlayerEntityByUUID(this.linkedPlayersID[i]);
-            else
-                this.entityLinkWorld[i] = this.linkedPlayers[i].world.provider.getDimension();
+
+            int worldID = PlayerWorldIDData.getPlayerWorldIDMap().get(this.linkedPlayersID[i]);
+            this.linkedPlayers[i] = DimensionManager.getWorld(worldID).getPlayerEntityByUUID(this.linkedPlayersID[i]);
+            this.entityLinkWorld[i] = worldID;
         }
         this.updateFluidConsumption();
     }
