@@ -3,6 +3,7 @@ package com.johny.tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.LinkEntity;
@@ -10,23 +11,20 @@ import com.johny.tj.capability.LinkEvent;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
+import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.items.TJMetaItems;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
-import gregtech.api.capability.IElectricItem;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
+import gregtech.api.capability.*;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -36,7 +34,6 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
-import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -48,6 +45,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
@@ -56,6 +54,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +65,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeBatteryCharger.TransferMode.INPUT;
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeBatteryCharger.TransferMode.OUTPUT;
@@ -73,12 +73,13 @@ import static gregicadditions.GAMaterials.Talonite;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.MetaTileEntityBatteryTower.cellPredicate;
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM;
+import static gregtech.api.gui.GuiTextures.DISPLAY;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Nitrogen;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntity, LinkEvent, IParallelController {
+public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntity, LinkEvent, IParallelController, IWorkable {
 
     private long totalEnergyPerTick;
     private long energyPerTick;
@@ -88,6 +89,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     private int pageIndex;
     private boolean isActive;
     private boolean transferToOutput;
+    private int progress;
+    private int maxProgress = 1;
     private TransferMode transferMode = INPUT;
     private IItemHandlerModifiable importItemHandler;
     private IItemHandlerModifiable exportItemHandler;
@@ -108,7 +111,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeBatteryCharger(metaTileEntityId);
+        return new MetaTileEntityLargeBatteryCharger(this.metaTileEntityId);
     }
 
     @Override
@@ -118,42 +121,24 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        if (isStructureFormed()) {
-            Style style = new Style().setColor(TextFormatting.GREEN);
-            textList.add(hasEnoughEnergy(totalEnergyPerTick) ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", getMaxEUt())
-                    .appendText("\n")
-                    .appendSibling(new TextComponentTranslation("tj.multiblock.parallel.sum", totalEnergyPerTick))
-                    .appendText("\n")
-                    .appendSibling(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                            .appendText(" ")
-                            .appendSibling(new TextComponentString(String.valueOf(getVoltageTier())).setStyle(style))
-                            .appendText(" (")
-                            .appendSibling(new TextComponentString(String.valueOf(GAValues.VN[GTUtility.getGATierByVoltage(getVoltageTier())])).setStyle(style))
-                            .appendText(")"))
-                    : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
-                    .setStyle(new Style().setColor(TextFormatting.RED)));
-            textList.add(isWorkingEnabled ? (isActive ? new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN))
-                    : new TextComponentTranslation("gregtech.multiblock.idling"))
-                    : new TextComponentTranslation("gregtech.multiblock.work_paused").setStyle(new Style().setColor(TextFormatting.YELLOW)));
-            textList.add(hasEnoughFluid(fluidConsumption) || fluidConsumption == 0 ? new TextComponentTranslation("tj.multiblock.enough_fluid")
-                    .appendText(" ")
-                    .appendSibling(new TextComponentTranslation(Nitrogen.getPlasma(fluidConsumption).getUnlocalizedName())
-                            .setStyle(new Style().setColor(TextFormatting.DARK_AQUA)))
-                    .appendText(" ")
-                    .appendText("§3" + fluidConsumption)
-                    .appendText("§7 L/t")
-                    : new TextComponentTranslation("tj.multiblock.not_enough_fluid").setStyle(new Style().setColor(TextFormatting.RED)));
-            textList.add(new TextComponentTranslation("machine.universal.item.output.transfer")
-                    .appendText(" ")
-                    .appendSibling(transferToOutput ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "transferEnabled")
-                            : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "transferDisabled")));
-            textList.add(new TextComponentTranslation("machine.universal.mode.transfer")
-                    .appendText(" ")
-                    .appendSibling(transferMode == INPUT ? withButton(new TextComponentTranslation("machine.universal.mode.transfer.input"), "input")
-                            : withButton(new TextComponentTranslation("machine.universal.mode.transfer.output"), "output")));
-        } else {
-            super.addDisplayText(textList);
-        }
+        super.addDisplayText(textList);
+        if (this.isStructureFormed())
+            MultiblockDisplayBuilder.start(textList)
+                    .voltageIn(this.inputEnergyContainer)
+                    .voltageTier(this.tier)
+                    .energyInput(hasEnoughEnergy(this.energyPerTick), this.energyPerTick)
+                    .fluidInput(hasEnoughFluid(this.fluidConsumption), Nitrogen.getPlasma(this.fluidConsumption), this.fluidConsumption)
+                    .custom(text -> {
+                        text.add(new TextComponentTranslation("machine.universal.item.output.transfer")
+                                .appendText(" ")
+                                .appendSibling(transferToOutput ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "transferEnabled")
+                                        : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "transferDisabled")));
+                        text.add(new TextComponentTranslation("machine.universal.mode.transfer")
+                                .appendText(" ")
+                                .appendSibling(transferMode == INPUT ? withButton(new TextComponentTranslation("machine.universal.mode.transfer.input"), "input")
+                                        : withButton(new TextComponentTranslation("machine.universal.mode.transfer.output"), "output")));
+                    })
+                    .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
     }
 
     private void addDisplayLinkedPlayersText(List<ITextComponent> textList) {
@@ -165,17 +150,17 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
 
-        for (int i = pageIndex, linkedEntitiesPos = i + 1; i < pageIndex + pageSize; i++, linkedEntitiesPos++) {
-            if (i < linkedPlayers.length && linkedPlayers[i] != null) {
+        for (int i = this.pageIndex, linkedEntitiesPos = i + 1; i < this.pageIndex + this.pageSize; i++, linkedEntitiesPos++) {
+            if (i < this.linkedPlayers.length && this.linkedPlayers[i] != null) {
 
-                String name = linkedPlayers[i].getName();
-                String customName = linkedPlayers[i].getCustomNameTag();
-                String inDimensionName = linkedPlayers[i].world.provider.getDimensionType().getName();
-                boolean hasCustomName = linkedPlayers[i].hasCustomName();
+                String name = this.linkedPlayers[i].getName();
+                String customName = this.linkedPlayers[i].getCustomNameTag();
+                String inDimensionName = this.linkedPlayers[i].world.provider.getDimensionType().getName();
+                boolean hasCustomName = this.linkedPlayers[i].hasCustomName();
                 long totalEnergyStored = 0;
                 long totalEnergyCapacity = 0;
 
-                for (ItemStack stack : linkedPlayers[i].inventory.armorInventory) {
+                for (ItemStack stack : this.linkedPlayers[i].inventory.armorInventory) {
                     if (stack.isEmpty())
                         continue;
 
@@ -191,7 +176,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     }
                 }
 
-                for (ItemStack stack : linkedPlayers[i].inventory.mainInventory) {
+                for (ItemStack stack : this.linkedPlayers[i].inventory.mainInventory) {
                     if (stack.isEmpty())
                         continue;
 
@@ -207,7 +192,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     }
                 }
 
-                for (ItemStack stack : linkedPlayers[i].inventory.offHandInventory) {
+                for (ItemStack stack : this.linkedPlayers[i].inventory.offHandInventory) {
                     if (stack.isEmpty())
                         continue;
 
@@ -232,19 +217,23 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                                         .appendText("\n")
                                         .appendSibling(new TextComponentTranslation("machine.universal.energy.stored", totalEnergyStored, totalEnergyCapacity))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentString(String.valueOf(linkedPlayers[i].posX))
+                                        .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentString(String.valueOf(this.linkedPlayers[i].posX))
                                                 .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString("Y: ").appendSibling(new TextComponentString(String.valueOf(linkedPlayers[i].posY))
+                                        .appendSibling(new TextComponentString("Y: ").appendSibling(new TextComponentString(String.valueOf(this.linkedPlayers[i].posY))
                                                 .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentString(String.valueOf(linkedPlayers[i].posZ))
+                                        .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentString(String.valueOf(this.linkedPlayers[i].posZ))
                                                 .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + i)));
-
             }
         }
+    }
+
+    @Override
+    protected ModularUI.Builder createUITemplate(EntityPlayer player) {
+        return createUI(player, 18);
     }
 
     @Override
@@ -257,13 +246,43 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     @Override
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
         super.mainDisplayTab(widgetGroup, extended);
+        widgetGroup.apply(new ImageWidget(28, 112, 141, 18, DISPLAY));
+        widgetGroup.apply(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
+                .setTooltipText("machine.universal.tick.speed")
+                .setTooltipFormat(this::getTickSpeedFormat)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
+        widgetGroup.apply(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
+        widgetGroup.apply(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
         return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
     private AbstractWidgetGroup linkedPlayersTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayLinkedPlayersText, 0xFFFFFF)
+        return widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addDisplayLinkedPlayersText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleLinkedPlayersClick));
+    }
+
+    private String[] getTickSpeedFormat() {
+        return ArrayUtils.toArray(String.valueOf(this.maxProgress));
+    }
+
+    private void onIncrement(Widget.ClickData clickData) {
+        this.maxProgress = MathHelper.clamp(this.maxProgress * 2, 1, Integer.MAX_VALUE);
+        this.markDirty();
+    }
+
+    private void onDecrement(Widget.ClickData clickData) {
+        this.maxProgress = MathHelper.clamp(this.maxProgress / 2, 1, Integer.MAX_VALUE);
+        this.markDirty();
+    }
+
+    private String getTickSpeed() {
+        return String.valueOf(this.maxProgress);
+    }
+
+    private void setTickSpeed(String maxProgress) {
+        this.maxProgress = maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress);
+        this.markDirty();
     }
 
     private boolean isReset() {
@@ -274,28 +293,28 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         Arrays.fill(linkedPlayers, null);
         Arrays.fill(linkedPlayersID, null);
         Arrays.fill(entityLinkWorld, Integer.MIN_VALUE);
-        linkData.setInteger("I", getPosSize());
-        updateTotalEnergyPerTick();
-        updateFluidConsumption();
+        this.linkData.setInteger("I", this.getPosSize());
+        this.updateTotalEnergyPerTick();
+        this.updateFluidConsumption();
     }
 
     private void handleLinkedPlayersClick(String componentData, Widget.ClickData clickData) {
-        if (componentData.equals("leftPage") && pageIndex > 0) {
-            pageIndex -= pageSize;
+        if (componentData.equals("leftPage") && this.pageIndex > 0) {
+            this.pageIndex -= this.pageSize;
             return;
         }
-        if (componentData.equals("rightPage") && pageIndex < linkedPlayers.length - pageSize) {
-            pageIndex += pageSize;
+        if (componentData.equals("rightPage") && this.pageIndex < this.linkedPlayers.length - this.pageSize) {
+            this.pageIndex += this.pageSize;
             return;
         }
         for (int i = 0; i < linkedPlayers.length; i++) {
             if (componentData.equals("remove" + i)) {
-                int index = linkData.getInteger("I");
-                linkData.setInteger("I", index + 1);
-                linkedPlayers[i] = null;
-                linkedPlayersID[i] = null;
-                entityLinkWorld[i] = Integer.MIN_VALUE;
-                updateTotalEnergyPerTick();
+                int index = this.linkData.getInteger("I");
+                this.linkData.setInteger("I", index + 1);
+                this.linkedPlayers[i] = null;
+                this.linkedPlayersID[i] = null;
+                this.entityLinkWorld[i] = Integer.MIN_VALUE;
+                this.updateTotalEnergyPerTick();
                 break;
             }
         }
@@ -305,109 +324,123 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         switch (componentData) {
             case "transferEnabled":
-                transferToOutput = false;
+                this.transferToOutput = false;
                 break;
             case "transferDisabled":
-                transferToOutput = true;
+                this.transferToOutput = true;
                 break;
             case "input":
-                transferMode = OUTPUT;
+                this.transferMode = OUTPUT;
                 break;
             default:
-                transferMode = INPUT;
+                this.transferMode = INPUT;
         }
     }
 
     @Override
     protected void updateFormedValid() {
-        if (!isWorkingEnabled || !hasEnoughEnergy(totalEnergyPerTick) || getNumProblems() >= 6) {
-            if (isActive)
+        if (!this.isWorkingEnabled || !this.hasEnoughEnergy(totalEnergyPerTick) || this.getNumProblems() >= 6 || this.maxProgress < 1) {
+            if (this.isActive)
                 setActive(false);
             return;
         }
-        if (!isActive)
-            setActive(true);
-        calculateMaintenance(1);
+
+        this.calculateMaintenance(1);
+        if (this.progress > 0 && !this.isActive)
+            this.setActive(true);
 
         if (getOffsetTimer() % 100 == 0)
-            playerLinkUpdate();
+            this.playerLinkUpdate();
 
-        for (EntityPlayer linkedPlayer : linkedPlayers) {
-            if (linkedPlayer == null)
-                continue;
-
-            if (getWorld().provider.getDimension() != linkedPlayer.world.provider.getDimension()) {
-                if (!hasEnoughFluid(fluidConsumption))
+        if (this.progress >= this.maxProgress) {
+            for (EntityPlayer linkedPlayer : this.linkedPlayers) {
+                if (linkedPlayer == null)
                     continue;
-                consumeFluid();
-            }
 
-            for (ItemStack stack : linkedPlayer.inventory.armorInventory) {
+                if (getWorld().provider.getDimension() != linkedPlayer.world.provider.getDimension()) {
+                    if (!hasEnoughFluid(this.fluidConsumption))
+                        continue;
+                    this.consumeFluid();
+                }
+
+                for (ItemStack stack : linkedPlayer.inventory.armorInventory) {
+                    if (stack.isEmpty())
+                        continue;
+                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
+                    this.transferRF((int) this.energyPerTick, RFContainer, this.transferMode, stack, false);
+
+                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
+                    this.transferEU(this.energyPerTick, EUContainer, this.transferMode, stack, false);
+                }
+
+                for (ItemStack stack : linkedPlayer.inventory.mainInventory) {
+                    if (stack.isEmpty())
+                        continue;
+                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
+                    this.transferRF((int) this.energyPerTick, RFContainer, this.transferMode, stack, false);
+
+                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
+                    this.transferEU(this.energyPerTick, EUContainer, this.transferMode, stack, false);
+                }
+
+                for (ItemStack stack : linkedPlayer.inventory.offHandInventory) {
+                    if (stack.isEmpty())
+                        continue;
+                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
+                    this.transferRF((int) this.energyPerTick, RFContainer, this.transferMode, stack, false);
+
+                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
+                    this.transferEU(this.energyPerTick, EUContainer, this.transferMode, stack, false);
+                }
+            }
+            for (int i = 0; i < this.importItemHandler.getSlots(); i++) {
+                ItemStack stack = this.importItemHandler.getStackInSlot(i);
                 if (stack.isEmpty())
                     continue;
+
                 IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                transferRF((int) energyPerTick, RFContainer, transferMode, stack, false);
+                this.transferRF((int) this.energyPerTick, RFContainer, this.transferMode, stack, this.transferToOutput);
 
                 IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                transferEU(energyPerTick, EUContainer, transferMode, stack, false);
+                this.transferEU(this.energyPerTick, EUContainer, this.transferMode, stack, this.transferToOutput);
             }
-
-            for (ItemStack stack : linkedPlayer.inventory.mainInventory) {
-                if (stack.isEmpty())
-                    continue;
-                IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                transferRF((int) energyPerTick, RFContainer, transferMode, stack, false);
-
-                IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                transferEU(energyPerTick, EUContainer, transferMode, stack, false);
-            }
-
-            for (ItemStack stack : linkedPlayer.inventory.offHandInventory) {
-                if (stack.isEmpty())
-                    continue;
-                IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                transferRF((int) energyPerTick, RFContainer, transferMode, stack, false);
-
-                IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                transferEU(energyPerTick, EUContainer, transferMode, stack, false);
-            }
+            this.progress = 0;
+            if (this.isActive)
+                this.setActive(false);
         }
-        for (int i = 0; i < importItemHandler.getSlots(); i++) {
-            ItemStack stack = importItemHandler.getStackInSlot(i);
-            if (stack.isEmpty())
-                continue;
 
-            IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-            transferRF((int) energyPerTick, RFContainer, transferMode, stack, transferToOutput);
-
-            IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-            transferEU(energyPerTick, EUContainer, transferMode, stack, transferToOutput);
+        if (this.progress <= 0) {
+            this.progress = 1;
+            if (!this.isActive)
+                this.setActive(true);
+        } else {
+            this.progress++;
         }
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        importItemHandler = new ItemHandlerList(getAbilities(IMPORT_ITEMS));
-        exportItemHandler = new ItemHandlerList(getAbilities(EXPORT_ITEMS));
-        importFluidHandler = new FluidTankList(true, getAbilities(IMPORT_FLUIDS));
-        inputEnergyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
-        outputEnergyContainer = new EnergyContainerList(getAbilities(OUTPUT_ENERGY));
-        tier = context.getOrDefault("CellType", CellCasing.CellType.CELL_EV).getTier();
-        linkedPlayers = linkedPlayers != null ? Arrays.copyOf(linkedPlayers, tier) : new EntityPlayer[tier];
-        linkedPlayersID = linkedPlayersID != null ? Arrays.copyOf(linkedPlayersID, tier) : new UUID[tier];
-        entityLinkWorld = entityLinkWorld != null ? Arrays.copyOf(entityLinkWorld, tier) : new int[tier];
-        energyPerTick = (long) (Math.pow(4, tier) * 8);
-        updateTotalEnergyPerTick();
-        updateFluidConsumption();
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
+        this.exportItemHandler = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
+        this.importFluidHandler = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
+        this.inputEnergyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
+        this.outputEnergyContainer = new EnergyContainerList(this.getAbilities(OUTPUT_ENERGY));
+        this.tier = context.getOrDefault("CellType", CellCasing.CellType.CELL_EV).getTier();
+        this.linkedPlayers = this.linkedPlayers != null ? Arrays.copyOf(this.linkedPlayers, this.tier) : new EntityPlayer[this.tier];
+        this.linkedPlayersID = this.linkedPlayersID != null ? Arrays.copyOf(this.linkedPlayersID, this.tier) : new UUID[this.tier];
+        this.entityLinkWorld = this.entityLinkWorld != null ? Arrays.copyOf(this.entityLinkWorld, this.tier) : new int[this.tier];
+        this.energyPerTick = (long) (Math.pow(4, this.tier) * 8);
+        this.updateTotalEnergyPerTick();
+        this.updateFluidConsumption();
     }
 
     private void transferToOutput(ItemStack stack, boolean transferToOutput) {
-        if (transferToOutput && !getAbilities(EXPORT_ITEMS).isEmpty()) {
-            for (int i = 0; i < exportItemHandler.getSlots(); i++) {
-                if (exportItemHandler.getStackInSlot(i).isEmpty()) {
+        if (transferToOutput && !this.getAbilities(EXPORT_ITEMS).isEmpty()) {
+            for (int i = 0; i < this.exportItemHandler.getSlots(); i++) {
+                if (this.exportItemHandler.getStackInSlot(i).isEmpty()) {
                     ItemStack newStack = stack.copy();
-                    exportItemHandler.setStackInSlot(i, newStack);
+                    this.exportItemHandler.setStackInSlot(i, newStack);
                     stack.setCount(0);
                 }
             }
@@ -421,16 +454,18 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
             int energyRemainingToFill = RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored();
             if (RFContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
                 int energyInserted = RFContainer.receiveEnergy(Math.min(Integer.MAX_VALUE, energyRemainingToFill >= energyToAdd ? (energyToAdd * 4) : energyRemainingToFill), false);
-                inputEnergyContainer.removeEnergy(energyInserted / 4);
-            } else
-                transferToOutput(stack, transferToOutput);
+                this.inputEnergyContainer.removeEnergy(energyInserted / 4);
+            } else {
+                this.transferToOutput(stack, transferToOutput);
+            }
         } else {
-            long energyRemainingToFill = (outputEnergyContainer.getEnergyCapacity() - outputEnergyContainer.getEnergyStored());
-            if (outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyRemainingToFill = (this.outputEnergyContainer.getEnergyCapacity() - this.outputEnergyContainer.getEnergyStored());
+            if (this.outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
                 int energyExtracted = RFContainer.extractEnergy((int) Math.min(Integer.MAX_VALUE, Math.min(energyToAdd * 4L, energyRemainingToFill)), false);
-                outputEnergyContainer.addEnergy(energyExtracted / 4);
-            } else
-                transferToOutput(stack, transferToOutput);
+                this.outputEnergyContainer.addEnergy(energyExtracted / 4);
+            }
+            if (RFContainer.getEnergyStored() < 1)
+                this.transferToOutput(stack, transferToOutput);
         }
     }
 
@@ -440,55 +475,57 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         if (transferMode == INPUT) {
             long energyRemainingToFill = EUContainer.getMaxCharge() - EUContainer.getCharge();
             if (EUContainer.getCharge() < 1 || energyRemainingToFill != 0) {
-                long energyInserted = EUContainer.charge(Math.min(energyRemainingToFill, energyToAdd), tier, true, false);
-                inputEnergyContainer.removeEnergy(Math.abs(energyInserted));
-            } else
-                transferToOutput(stack, transferToOutput);
+                long energyInserted = EUContainer.charge(Math.min(energyRemainingToFill, energyToAdd), this.tier, true, false);
+                this.inputEnergyContainer.removeEnergy(Math.abs(energyInserted));
+            } else {
+                this.transferToOutput(stack, transferToOutput);
+            }
         } else {
-            long energyRemainingToFill = outputEnergyContainer.getEnergyCapacity() - outputEnergyContainer.getEnergyStored();
-            if (outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyRemainingToFill = this.outputEnergyContainer.getEnergyCapacity() - this.outputEnergyContainer.getEnergyStored();
+            if (this.outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
                 long energyExtracted = EUContainer.discharge(Math.min(energyRemainingToFill, energyToAdd), tier, true, true,false);
-                outputEnergyContainer.addEnergy(energyExtracted);
-            } else
-                transferToOutput(stack, transferToOutput);
+                this.outputEnergyContainer.addEnergy(energyExtracted);
+            }
+            if (EUContainer.getCharge() < 1)
+                this.transferToOutput(stack, transferToOutput);
         }
     }
 
     private void playerLinkUpdate() {
-        for (int i = 0; i < linkedPlayersID.length; i++) {
-            if (linkedPlayersID[i] == null)
+        for (int i = 0; i < this.linkedPlayersID.length; i++) {
+            if (this.linkedPlayersID[i] == null)
                 continue;
             if (linkedPlayers[i] == null)
-                linkedPlayers[i] = DimensionManager.getWorld(entityLinkWorld[i]).getPlayerEntityByUUID(linkedPlayersID[i]);
+                this.linkedPlayers[i] = DimensionManager.getWorld(this.entityLinkWorld[i]).getPlayerEntityByUUID(this.linkedPlayersID[i]);
             else
-                entityLinkWorld[i] = linkedPlayers[i].world.provider.getDimension();
+                this.entityLinkWorld[i] = this.linkedPlayers[i].world.provider.getDimension();
         }
-        updateFluidConsumption();
+        this.updateFluidConsumption();
     }
 
     private void consumeFluid() {
-        int fluidToConsume = fluidConsumption / linkedWorldsCount;
-        importFluidHandler.drain(Nitrogen.getPlasma(fluidToConsume), true);
+        int fluidToConsume = this.fluidConsumption / this.linkedWorldsCount;
+        this.importFluidHandler.drain(Nitrogen.getPlasma(fluidToConsume), true);
     }
 
     private void updateFluidConsumption() {
         int dimensionID = getWorld().provider.getDimension();
-        linkedWorldsCount = (int) Arrays.stream(entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
-        fluidConsumption = 10 * linkedWorldsCount;
+        this.linkedWorldsCount = (int) Arrays.stream(this.entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
+        this.fluidConsumption = 10 * this.linkedWorldsCount;
     }
 
     private void updateTotalEnergyPerTick() {
-        int slots = importItemHandler.getSlots();
-        long amps = slots + Arrays.stream(linkedPlayers).filter(Objects::nonNull).count();
-        totalEnergyPerTick = (long) (Math.pow(4, tier) * 8) * amps;
+        int slots = this.importItemHandler.getSlots();
+        long amps = slots + Arrays.stream(this.linkedPlayers).filter(Objects::nonNull).count();
+        this.totalEnergyPerTick = (long) (Math.pow(4, this.tier) * 8) * amps;
     }
 
     protected boolean hasEnoughEnergy(long amount) {
-        return inputEnergyContainer.getEnergyStored() >= amount;
+        return this.inputEnergyContainer.getEnergyStored() >= amount;
     }
 
     private boolean hasEnoughFluid(int amount) {
-        FluidStack fluidStack = importFluidHandler.drain(Nitrogen.getPlasma(amount), false);
+        FluidStack fluidStack = this.importFluidHandler.drain(Nitrogen.getPlasma(amount), false);
         return fluidStack != null && fluidStack.amount == amount;
     }
 
@@ -500,9 +537,9 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 .aisle("HHHHH", "HHHHH", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
                 .aisle("HHHHH", "HHHHH", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("HHHHH", "~HSH~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
-                .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('S', this.selfPredicate())
+                .where('C', statePredicate(this.getCasingState()))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('B', cellPredicate())
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Talonite).getDefaultState()))
                 .where('~', tile -> true)
@@ -521,51 +558,55 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive);
+        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.isActive);
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        for (int i = 0; i < linkedPlayersID.length; i++) {
-            if (linkedPlayersID[i] != null && linkedPlayers[i] != null) {
-                data.setUniqueId("PlayerID" + i, linkedPlayersID[i]);
-                data.setInteger("EntityWorld" + i, linkedPlayers[i].world.provider.getDimension());
+        for (int i = 0; i < this.linkedPlayersID.length; i++) {
+            if (this.linkedPlayersID[i] != null && this.linkedPlayers[i] != null) {
+                data.setUniqueId("PlayerID" + i, this.linkedPlayersID[i]);
+                data.setInteger("EntityWorld" + i, this.linkedPlayers[i].world.provider.getDimension());
             }
         }
-        data.setInteger("TransferMode", transferMode.ordinal());
-        data.setBoolean("TransferToOutput", transferToOutput);
-        data.setInteger("LinkPlayersSize", linkedPlayers.length);
-        if (linkData != null)
-            data.setTag("Link.XYZ", linkData);
+        data.setInteger("TransferMode", this.transferMode.ordinal());
+        data.setInteger("Progress", this.progress);
+        data.setInteger("MaxProgress", this.maxProgress);
+        data.setBoolean("TransferToOutput", this.transferToOutput);
+        data.setInteger("LinkPlayersSize", this.linkedPlayers.length);
+        if (this.linkData != null)
+            data.setTag("Link.XYZ", this.linkData);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        transferMode = TransferMode.values()[data.getInteger("TransferMode")];
-        transferToOutput = data.getBoolean("TransferToOutput");
-        linkedPlayers = new EntityPlayer[data.getInteger("LinkPlayersSize")];
-        linkedPlayersID = new UUID[data.getInteger("LinkPlayersSize")];
-        entityLinkWorld = new int[data.getInteger("LinkPlayersSize")];
-        for (int i = 0; i < linkedPlayersID.length; i++) {
+        this.transferMode = TransferMode.values()[data.getInteger("TransferMode")];
+        this.transferToOutput = data.getBoolean("TransferToOutput");
+        this.linkedPlayers = new EntityPlayer[data.getInteger("LinkPlayersSize")];
+        this.linkedPlayersID = new UUID[data.getInteger("LinkPlayersSize")];
+        this.entityLinkWorld = new int[data.getInteger("LinkPlayersSize")];
+        this.maxProgress = data.hasKey("MaxProgress") ? data.getInteger("MaxProgress") : 1;
+        this.progress = data.getInteger("Progress");
+        for (int i = 0; i < this.linkedPlayersID.length; i++) {
             if (data.hasUniqueId("PlayerID" + i)) {
-                linkedPlayersID[i] = data.getUniqueId("PlayerID" + i);
-                entityLinkWorld[i] = data.getInteger("EntityWorld" + i);
+                this.linkedPlayersID[i] = data.getUniqueId("PlayerID" + i);
+                this.entityLinkWorld[i] = data.getInteger("EntityWorld" + i);
             } else {
-                entityLinkWorld[i] = Integer.MIN_VALUE;
+                this.entityLinkWorld[i] = Integer.MIN_VALUE;
             }
         }
         if (data.hasKey("Link.XYZ"))
-            linkData = data.getCompoundTag("Link.XYZ");
+            this.linkData = data.getCompoundTag("Link.XYZ");
     }
 
     protected void setActive(boolean active) {
         this.isActive = active;
-        markDirty();
-        if (!getWorld().isRemote) {
-            writeCustomData(1, buf -> buf.writeBoolean(active));
+        this.markDirty();
+        if (!this.getWorld().isRemote) {
+            this.writeCustomData(1, buf -> buf.writeBoolean(active));
         }
     }
 
@@ -575,13 +616,13 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         if (dataId == 1) {
             this.isActive = buf.readBoolean();
         }
-        getHolder().scheduleChunkForRenderUpdate();
+        this.getHolder().scheduleChunkForRenderUpdate();
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeBoolean(isActive);
+        buf.writeBoolean(this.isActive);
     }
 
     @Override
@@ -592,8 +633,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public long getMaxEUt() {
-        return inputEnergyContainer != null ? inputEnergyContainer.getInputVoltage()
-                : outputEnergyContainer != null ? outputEnergyContainer.getInputVoltage()
+        return this.inputEnergyContainer != null ? this.inputEnergyContainer.getInputVoltage()
+                : this.outputEnergyContainer != null ? this.outputEnergyContainer.getInputVoltage()
                 : 0;
     }
 
@@ -604,17 +645,17 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public long getTotalEnergyConsumption() {
-        return totalEnergyPerTick;
+        return this.totalEnergyPerTick;
     }
 
     @Override
     public long getVoltageTier() {
-        return GAValues.V[tier];
+        return GAValues.V[this.tier];
     }
 
     @Override
     public int dimensionID() {
-        return getWorld().provider.getDimension();
+        return this.getWorld().provider.getDimension();
     }
 
     @Override
@@ -624,7 +665,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public int getDimension(int index) {
-        return linkedPlayers[index].world.provider.getDimension();
+        return this.linkedPlayers[index].world.provider.getDimension();
     }
 
     @Override
@@ -634,29 +675,29 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public int getPosSize() {
-        return linkedPlayers.length;
+        return this.linkedPlayers.length;
     }
 
     @Override
     public Entity getEntity(int index) {
-        return linkedPlayers[index];
+        return this.linkedPlayers[index];
     }
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
-        entityLinkWorld[index] = world.provider.getDimensionType().getId();
-        linkedPlayers[index] = player;
-        linkedPlayersID[index] = linkedPlayers[index].getUniqueID();
+        this.entityLinkWorld[index] = world.provider.getDimensionType().getId();
+        this.linkedPlayers[index] = player;
+        this.linkedPlayersID[index] = linkedPlayers[index].getUniqueID();
     }
 
     @Override
     public World world() {
-        return getWorld();
+        return this.getWorld();
     }
 
     @Override
     public NBTTagCompound getLinkData() {
-        return linkData;
+        return this.linkData;
     }
 
     @Override
@@ -666,27 +707,39 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public int getPageIndex() {
-        return pageIndex;
+        return this.pageIndex;
     }
 
     @Override
     public int getPageSize() {
-        return pageSize;
+        return this.pageSize;
     }
 
     @Override
     public void onLink(MetaTileEntity tileEntity) {
-        updateTotalEnergyPerTick();
-        updateFluidConsumption();
+        this.updateTotalEnergyPerTick();
+        this.updateFluidConsumption();
     }
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
+            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
         if (capability == TJCapabilities.CAPABILITY_LINK_ENTITY)
             return TJCapabilities.CAPABILITY_LINK_ENTITY.cast(this);
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public int getProgress() {
+        return this.progress;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return this.maxProgress;
     }
 
     public enum TransferMode {
