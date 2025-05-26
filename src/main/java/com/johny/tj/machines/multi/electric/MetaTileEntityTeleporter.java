@@ -148,7 +148,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             if (!this.isActive)
                 this.setActive(true);
             Pair<World, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
-            if (worldPos == null) {
+            if (worldPos == null || !this.markEntitiesToTransport.isEmpty()) {
                 return;
             }
             World world = worldPos.getLeft();
@@ -169,7 +169,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                     int entityX = entityPos.getX();
                     int entityY = entityPos.getY();
                     int entityZ = entityPos.getZ();
-                    if (entityX == x && entityY == y && entityZ == z && this.markEntitiesToTransport.isEmpty())
+                    if (entityX == x && entityY == y && entityZ == z)
                         this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
                 }
             }

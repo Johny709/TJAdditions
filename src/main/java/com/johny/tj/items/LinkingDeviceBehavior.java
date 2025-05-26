@@ -337,14 +337,15 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         double x = this.nbt.hasKey("X") ? this.nbt.getDouble("X") : 0;
         double y = this.nbt.hasKey("Y") ? this.nbt.getDouble("Y") : 0;
         double z = this.nbt.hasKey("Z") ? this.nbt.getDouble("Z") : 0;
-        int xDiff = (int) (this.x - x);
-        int yDiff = (int) (this.y - y);
-        int zDiff = (int) (this.z - z);
+        int xDiff = (int) Math.abs(this.x - x);
+        int yDiff = (int) Math.abs(this.y - y);
+        int zDiff = (int) Math.abs(this.z - z);
+        int targetRange = xDiff + yDiff + zDiff;
         int range = this.rangeSupplier.get();
-        if (xDiff <= range && xDiff >= -range)
-            if (yDiff <= range && yDiff >= -range)
-                return zDiff <= range && zDiff >= -range;
-        return false;
+        boolean inRange = range >= targetRange;
+        if (!inRange)
+            this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.far"));
+        return inRange;
     }
 
     private void setPos() {
