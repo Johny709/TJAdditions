@@ -48,6 +48,6 @@ public class TeleporterInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.default.description")};
+                I18n.format("tj.multiblock.teleporter.description")};
     }
 }

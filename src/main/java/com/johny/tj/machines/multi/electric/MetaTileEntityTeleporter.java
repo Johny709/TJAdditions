@@ -66,11 +66,14 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -121,6 +124,12 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityTeleporter(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.teleporter.description"));
     }
 
     @Override
@@ -360,21 +369,40 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (this.isStructureFormed())
+        if (this.isStructureFormed()) {
+            Pair<World, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
+            int distance;
+            long distanceEU;
+            World world;
+            BlockPos pos;
+            if (selectedPos != null) {
+                world = selectedPos.getLeft();
+                pos = selectedPos.getRight();
+                boolean interdimensional = world.provider.getDimension() != this.getWorld().provider.getDimension();
+                int x = Math.abs(interdimensional ? pos.getX() : pos.getX() - this.getPos().getX());
+                int y = Math.abs(interdimensional ? pos.getY() : pos.getY() - this.getPos().getY());
+                int z = Math.abs(interdimensional ? pos.getZ() : pos.getZ() - this.getPos().getZ());
+                distance = x + y + z;
+                distanceEU = 1000000 + distance * 1000L;
+            } else {
+                distance = 0;
+                distanceEU = 0;
+                pos = null;
+                world = null;
+            }
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
                     .custom(text -> {
-                        Pair<World, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
-                        if (selectedPos != null) {
-                            World world = selectedPos.getLeft();
-                            BlockPos pos = selectedPos.getRight();
-
-                            text.add(new TextComponentTranslation("tj.multiblock.teleporter.selected.world", world.provider.getDimensionType().getName(), world.provider.getDimension()));
-                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
-                        }
+                        if (selectedPos == null)
+                            return;
+                        text.add(new TextComponentTranslation("tj.multiblock.teleporter.selected.world", world.provider.getDimensionType().getName(), world.provider.getDimension()));
+                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
+                        text.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
                     })
+                    .energyInput(hasEnoughEnergy(distanceEU), distanceEU, this.maxProgress)
                     .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
+        }
     }
 
     private void addPosDisplayText(List<ITextComponent> textList) {

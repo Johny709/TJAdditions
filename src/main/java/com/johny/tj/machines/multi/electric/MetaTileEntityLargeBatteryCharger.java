@@ -127,7 +127,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.inputEnergyContainer)
                     .voltageTier(this.tier)
-                    .energyInput(hasEnoughEnergy(this.energyPerTick), this.energyPerTick)
+                    .energyInput(hasEnoughEnergy(this.energyPerTick), this.energyPerTick, this.maxProgress)
                     .fluidInput(hasEnoughFluid(this.fluidConsumption), Nitrogen.getPlasma(this.fluidConsumption), this.fluidConsumption)
                     .custom(text -> {
                         text.add(new TextComponentTranslation("machine.universal.item.output.transfer")

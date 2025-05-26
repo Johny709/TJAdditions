@@ -127,7 +127,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.inputEnergyContainer)
                     .voltageTier(this.tier)
-                    .energyInput(hasEnoughEnergy(this.totalEnergyPerTick), this.totalEnergyPerTick)
+                    .energyInput(hasEnoughEnergy(this.totalEnergyPerTick), this.totalEnergyPerTick, this.maxProgress)
                     .fluidInput(hasEnoughFluid(this.fluidConsumption), Nitrogen.getPlasma(this.fluidConsumption), this.fluidConsumption)
                     .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
 

@@ -4,7 +4,9 @@ import com.johny.tj.TJValues;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
@@ -31,10 +33,12 @@ public class MultiblockDisplayBuilder {
         return this;
     }
 
-    public MultiblockDisplayBuilder energyInput(boolean hasEnoughEnergy, long amount) {
-        this.textList.add(hasEnoughEnergy ? new TextComponentTranslation("tj.multiblock.parallel.sum", amount)
-                : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
-                .setStyle(new Style().setColor(TextFormatting.RED)));
+    public MultiblockDisplayBuilder energyInput(boolean hasEnoughEnergy, long amount, int maxProgress) {
+        ITextComponent textComponent = !hasEnoughEnergy ? new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
+                : maxProgress > 1 ? new TextComponentTranslation("tj.multiblock.parallel.sum.2", amount, maxProgress)
+                : new TextComponentTranslation("tj.multiblock.parallel.sum", amount) ;
+        textComponent.getStyle().setColor(hasEnoughEnergy ? WHITE : RED);
+        this.textList.add(textComponent);
         return this;
     }
 
