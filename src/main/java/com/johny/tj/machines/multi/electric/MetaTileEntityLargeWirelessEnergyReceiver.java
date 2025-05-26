@@ -24,7 +24,7 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeWirelessEnergyReceiver(metaTileEntityId, transferType);
+        return new MetaTileEntityLargeWirelessEnergyReceiver(this.metaTileEntityId, this.transferType);
     }
 
     @Override
@@ -36,10 +36,10 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     protected void transferRF(int energyToAdd, IEnergyStorage RFContainer) {
         if (RFContainer == null)
             return;
-        long energyRemainingToFill = (outputEnergyContainer.getEnergyCapacity() - outputEnergyContainer.getEnergyStored());
-        if (outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+        long energyRemainingToFill = (this.outputEnergyContainer.getEnergyCapacity() - this.outputEnergyContainer.getEnergyStored());
+        if (this.outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
             int energyExtracted = RFContainer.extractEnergy((int) Math.min(Integer.MAX_VALUE, Math.min(energyToAdd * 4L, energyRemainingToFill)), false);
-            outputEnergyContainer.addEnergy(energyExtracted / 4);
+            this.outputEnergyContainer.addEnergy(energyExtracted / 4);
         }
     }
 
@@ -47,17 +47,17 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     protected void transferEU(long energyToAdd, IEnergyContainer EUContainer) {
         if (EUContainer == null)
             return;
-        long energyRemainingToFill = outputEnergyContainer.getEnergyCapacity() - outputEnergyContainer.getEnergyStored();
-        if (outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+        long energyRemainingToFill = this.outputEnergyContainer.getEnergyCapacity() - this.outputEnergyContainer.getEnergyStored();
+        if (this.outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
             long energyExtracted = EUContainer.removeEnergy(energyToAdd);
-            outputEnergyContainer.addEnergy(Math.abs(energyExtracted));
+            this.outputEnergyContainer.addEnergy(Math.abs(energyExtracted));
         }
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        outputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.OUTPUT_ENERGY));
+        this.outputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.OUTPUT_ENERGY));
     }
 
     @Override

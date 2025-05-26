@@ -4,9 +4,7 @@ import com.johny.tj.TJValues;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.*;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
@@ -14,18 +12,18 @@ import java.util.function.Consumer;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
+;
+
 public class MultiblockDisplayBuilder {
 
     private final List<ITextComponent> textList;
-    private final boolean isStructureFormed;
 
-    public MultiblockDisplayBuilder(List<ITextComponent> textList, boolean isStructureFormed) {
+    public MultiblockDisplayBuilder(List<ITextComponent> textList) {
         this.textList = textList;
-        this.isStructureFormed = isStructureFormed;
     }
 
-    public static MultiblockDisplayBuilder start(List<ITextComponent> textList, boolean isStructureFormed) {
-        return new MultiblockDisplayBuilder(textList, isStructureFormed);
+    public static MultiblockDisplayBuilder start(List<ITextComponent> textList) {
+        return new MultiblockDisplayBuilder(textList);
     }
 
     public MultiblockDisplayBuilder custom(Consumer<List<ITextComponent>> textList) {
@@ -33,8 +31,15 @@ public class MultiblockDisplayBuilder {
         return this;
     }
 
+    public MultiblockDisplayBuilder energyInput(boolean hasEnoughEnergy, long amount) {
+        this.textList.add(hasEnoughEnergy ? new TextComponentTranslation("tj.multiblock.parallel.sum", amount)
+                : new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+        return this;
+    }
+
     public MultiblockDisplayBuilder voltageTier(int tier) {
-        if (this.isStructureFormed && tier > 0) {
+        if (tier > 0) {
             String color = TJValues.VCC[tier];
             this.textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
                     .appendText(" ")
@@ -47,7 +52,7 @@ public class MultiblockDisplayBuilder {
     }
 
     public MultiblockDisplayBuilder voltageIn(IEnergyContainer energyContainer) {
-        if (this.isStructureFormed && energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
+        if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
             long maxVoltage = energyContainer.getInputVoltage();
             String voltageName = GAValues.VN[GAUtility.getTierByVoltage(maxVoltage)];
             textList.add(new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, voltageName));
@@ -66,8 +71,6 @@ public class MultiblockDisplayBuilder {
     }
 
     public MultiblockDisplayBuilder isWorking(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
-        if (!this.isStructureFormed)
-            return this;
         int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentTranslation("gregtech.multiblock.work_paused")
                 : !isActive ? new TextComponentTranslation("gregtech.multiblock.idling")

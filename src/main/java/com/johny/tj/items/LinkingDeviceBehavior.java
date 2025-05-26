@@ -180,6 +180,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         nbt.setDouble("Y", targetGTTE.getPos().getY());
         nbt.setDouble("Z", targetGTTE.getPos().getZ());
         nbt.setInteger("I", linkPos.getPosSize());
+        nbt.setInteger("Size", linkPos.getPosSize());
         nbt.setInteger("Range", linkPos.getRange());
         nbt.removeTag("DimensionID");
         if (linkPos.isInterDimensional())

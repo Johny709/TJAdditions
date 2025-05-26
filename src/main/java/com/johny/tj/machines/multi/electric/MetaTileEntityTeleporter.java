@@ -120,7 +120,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityTeleporter(metaTileEntityId);
+        return new MetaTileEntityTeleporter(this.metaTileEntityId);
     }
 
     @Override
@@ -181,6 +181,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private void transportEntity() {
         Triple<Entity, World, BlockPos> entityPos = this.markEntitiesToTransport.poll();
         Entity entity = entityPos.getLeft();
+        if (entity == null)
+            return;
         WorldServer world = (WorldServer) entityPos.getMiddle();
         BlockPos pos = entityPos.getRight();
         int worldID = world.provider.getDimension();
@@ -358,20 +360,21 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        MultiblockDisplayBuilder.start(textList, this.isStructureFormed())
-                .voltageIn(this.energyContainer)
-                .voltageTier(this.tier)
-                .custom(text -> {
-                    Pair<World, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
-                    if (selectedPos != null) {
-                        World world = selectedPos.getLeft();
-                        BlockPos pos = selectedPos.getRight();
+        if (this.isStructureFormed())
+            MultiblockDisplayBuilder.start(textList)
+                    .voltageIn(this.energyContainer)
+                    .voltageTier(this.tier)
+                    .custom(text -> {
+                        Pair<World, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
+                        if (selectedPos != null) {
+                            World world = selectedPos.getLeft();
+                            BlockPos pos = selectedPos.getRight();
 
-                        text.add(new TextComponentTranslation("tj.multiblock.teleporter.selected.world", world.provider.getDimensionType().getName(), world.provider.getDimension()));
-                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
-                    }
-                })
-                .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
+                            text.add(new TextComponentTranslation("tj.multiblock.teleporter.selected.world", world.provider.getDimensionType().getName(), world.provider.getDimension()));
+                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
+                        }
+                    })
+                    .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
     }
 
     private void addPosDisplayText(List<ITextComponent> textList) {
@@ -648,7 +651,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.isActive = data.getBoolean("Active");
         this.isCaseSensitive = data.getBoolean("CaseSensitive");
         this.hasSpaces = data.getBoolean("HasSpaces");
-        this.maxProgress = data.getInteger("MaxProgress");
+        this.maxProgress = data.hasKey("MaxProgress") ? data.getInteger("MaxProgress") : 20;
         this.progress = data.getInteger("Progress");
         this.selectedPosName = data.getString("SelectedPos");
         if (data.hasKey("Link.XYZ"))
