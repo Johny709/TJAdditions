@@ -3,7 +3,6 @@ package com.johny.tj.items;
 import com.johny.tj.capability.LinkEntity;
 import com.johny.tj.capability.LinkPos;
 import com.johny.tj.event.MTELinkEvent;
-import com.johny.tj.gui.widgets.TJSlotWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.util.QuintConsumer;
 import gregtech.api.block.machines.BlockMachine;
@@ -32,8 +31,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -48,8 +45,6 @@ import static net.minecraft.util.EnumHand.OFF_HAND;
 
 public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
-    private final IItemHandlerModifiable itemSlot = new ItemStackHandler(1);
-    private ItemStack item;
     private QuintConsumer<String, BlockPos, EntityPlayer, World, Integer> posResponder;
     private Consumer<NBTTagCompound> nbtResponder;
     private Supplier<Integer> rangeSupplier;
@@ -83,7 +78,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                     BlockPos worldPos = new BlockPos(x, y, z);
                     getWorld.getChunk(worldPos);
                     MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(getWorld, worldPos);
-                    if (linkedGTTE instanceof LinkPos && (linkingMode == BLOCK || linkingMode == BLOCK_PROMPT)) {
+                    if (linkedGTTE instanceof LinkPos && !(linkedGTTE instanceof LinkEntity) &&(linkingMode == BLOCK || linkingMode == BLOCK_PROMPT)) {
                         LinkPos linkPos = (LinkPos) linkedGTTE;
                         this.posResponder = linkPos::setPos;
                         this.nbtResponder = linkPos::setLinkData;
@@ -95,7 +90,6 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                         this.y = pos.getY();
                         this.z = pos.getZ();
                         this.name = world.getBlockState(pos).getBlock().getLocalizedName();
-                        this.item = new ItemStack(world.getBlockState(pos).getBlock());
                         this.nbt = linkPos.getLinkData();
                         player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", this.nbt);
                         if (targetTE != null) {
@@ -103,14 +97,12 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                             this.y = targetTE.getPos().getY();
                             this.z = targetTE.getPos().getZ();
                             this.name = targetTE.getBlockType().getLocalizedName();
-                            this.item = new ItemStack(targetTE.getBlockType());
                         }
                         if (targetGTTE != null) {
                             this.x = targetGTTE.getPos().getX();
                             this.y = targetGTTE.getPos().getY();
                             this.z = targetGTTE.getPos().getZ();
                             this.name = targetGTTE.getMetaFullName();
-                            this.item = targetGTTE.getStackForm();
                         }
                         if (linkI > 0) {
                             for (int i = 0; i < 2; i++) {
@@ -198,7 +190,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
         String name = this.nbt.hasKey("Name") ? this.nbt.getString("Name") : "Null";
         if (!world.isRemote) {
-            if (!name.equals("Null") && !player.isSneaking() && hand == MAIN_HAND) {
+            if (!name.equals("Null") && player.isSneaking() && hand == MAIN_HAND) {
                 WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
                 BlockPos worldPos = new BlockPos(x, y, z);
                 getWorld.getChunk(worldPos);
@@ -275,28 +267,22 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         lines.add(I18n.format("metaitem.linking.device.message.mode", net.minecraft.util.text.translation.I18n.translateToLocal(linkingMode.getMode())));
     }
 
-    public IItemHandlerModifiable getItemSlot() {
-        return itemSlot;
-    }
-
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        itemSlot.setStackInSlot(0, item);
         WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new TJSlotWidget(this::getItemSlot, 0, 4, 10, false, false).setSize(40, 40));
-        widgetGroup.addWidget(new TJTextFieldWidget(90, 14, 80, 18, true, this::getName, this::setName)
+        widgetGroup.addWidget(new TJTextFieldWidget(4, 14, 166, 18, true, this::getName, this::setName)
                 .setTooltipText("metaitem.linking.device.set.name")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(90, 34, 80, 18, true, this::getWorldID, this::setWorldID)
+        widgetGroup.addWidget(new TJTextFieldWidget(4, 34, 166, 18, true, this::getWorldID, this::setWorldID)
                 .setTooltipText("metaitem.linking.device.set.world")
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(90, 54, 80, 18, true, this::getX, this::setX)
+        widgetGroup.addWidget(new TJTextFieldWidget(4, 54, 166, 18, true, this::getX, this::setX)
                 .setTooltipText("metaitem.linking.device.set.x")
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(90, 74, 80, 18, true, this::getY, this::setY)
+        widgetGroup.addWidget(new TJTextFieldWidget(4, 74, 166, 18, true, this::getY, this::setY)
                 .setTooltipText("metaitem.linking.device.set.y")
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(90, 94, 80, 18, true, this::getZ, this::setZ)
+        widgetGroup.addWidget(new TJTextFieldWidget(4, 94, 166, 18, true, this::getZ, this::setZ)
                 .setTooltipText("metaitem.linking.device.set.z")
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
         widgetGroup.addWidget(new ToggleButtonWidget(4, 114, 166, 18, TOGGLE_BUTTON_BACK, this::isPressed, this::setPressed));
