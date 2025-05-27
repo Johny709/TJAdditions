@@ -122,7 +122,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 return false;
             }
         }.setClickHandler(this::handleDisplayClick)
-                .setMaxWidthLimit(124));
+                .setMaxWidthLimit(1000));
         widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 61, 115, 80, DISPLAY));
@@ -135,6 +135,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .setTooltipFormat(this::getTooltipFormat)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
         widgetGroup.addWidget(new TJTextFieldWidget(32, 147, 112, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+                .setTextLength(256)
                 .setBackgroundText("machine.universal.search")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
         widgetGroup.addWidget(new TJClickButtonWidget(151, 38, 18, 18, "O", this::onAddEntry)

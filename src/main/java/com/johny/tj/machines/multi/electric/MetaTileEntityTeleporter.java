@@ -362,6 +362,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 .setTooltipText("machine.universal.toggle.clear")
                 .setButtonTexture(BUTTON_CLEAR_GRID));
         return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, searchSupplier, searchResponder)
+                .setTextLength(256)
                 .setBackgroundText("machine.universal.search")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }

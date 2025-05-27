@@ -271,6 +271,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new TJTextFieldWidget(4, 14, 166, 18, true, this::getName, this::setName)
+                .setTextLength(256)
                 .setTooltipText("metaitem.linking.device.set.name")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
         widgetGroup.addWidget(new TJTextFieldWidget(4, 34, 166, 18, true, this::getWorldID, this::setWorldID)

@@ -77,6 +77,16 @@ public class TJTextFieldWidget extends TextFieldWidget {
         return this.setBackgroundText(backgroundText, 0xAAAAAA);
     }
 
+    /**
+     * Sets the maximum length for the text in this textbox. default is set to 32.
+     * @param length max length
+     */
+    public TJTextFieldWidget setTextLength(int length) {
+        if (isClientSide())
+            this.textField.setMaxStringLength(length);
+        return this;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
