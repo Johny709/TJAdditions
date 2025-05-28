@@ -26,12 +26,12 @@ public class PopUpWidgetGroup extends AbstractWidgetGroup {
 
     public void setEnabled(Boolean isEnabled) {
         this.isEnabled = isEnabled;
-        writeUpdateInfo(2, buffer -> buffer.writeBoolean(isEnabled));
+        this.writeUpdateInfo(2, buffer -> buffer.writeBoolean(isEnabled));
     }
 
     @Override
     public void setVisible(boolean visible) {
-        super.setVisible(visible && isEnabled);
+        super.setVisible(visible && this.isEnabled);
     }
 
     @Override
@@ -42,9 +42,9 @@ public class PopUpWidgetGroup extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        if (isEnabled) {
-            if (textureArea != null)
-                textureArea.draw(getPosition().getX(), getPosition().getY(), width, height);
+        if (this.isEnabled) {
+            if (this.textureArea != null)
+                this.textureArea.draw(getPosition().getX(), getPosition().getY(), width, height);
             super.drawInBackground(mouseX, mouseY, context);
         }
     }
@@ -55,7 +55,7 @@ public class PopUpWidgetGroup extends AbstractWidgetGroup {
         super.readUpdateInfo(id, buffer);
         if (id == 2) {
             this.isEnabled = buffer.readBoolean();
-            setVisible(isEnabled);
+            this.setVisible(this.isEnabled);
         }
     }
 }

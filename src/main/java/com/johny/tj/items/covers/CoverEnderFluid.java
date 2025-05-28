@@ -97,6 +97,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
         PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
         popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                 .setTooltipText("cover.filter.blacklist"));
+        popUpWidgetGroup.setEnabled(this.isFilterPopUp);
         this.enableFluidPopUp = popUpWidgetGroup::setEnabled;
         this.fluidFilter.initUI(popUpWidgetGroup::addWidget);
         widget.accept(popUpWidgetGroup);

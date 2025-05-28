@@ -89,6 +89,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
         PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
         popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                 .setTooltipText("cover.filter.blacklist"));
+        popUpWidgetGroup.setEnabled(this.isFilterPopUp);
         this.itemFilter.initUI(popUpWidgetGroup::addWidget);
         this.enableItemPopUp = popUpWidgetGroup::setEnabled;
         widget.accept(popUpWidgetGroup);
