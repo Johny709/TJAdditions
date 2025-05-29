@@ -10,6 +10,9 @@ import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
+import com.johny.tj.gui.uifactory.IPlayerUIFactory;
+import com.johny.tj.gui.uifactory.PlayerHolder;
+import com.johny.tj.gui.widgets.OnTextFieldWidget;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
 import com.johny.tj.gui.widgets.TJClickButtonWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
@@ -30,6 +33,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.MetaTileEntityUIFactory;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -42,6 +46,7 @@ import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -88,14 +93,13 @@ import static com.johny.tj.textures.TJTextures.TELEPORTER_OVERLAY;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
-import static gregtech.api.gui.GuiTextures.BUTTON_CLEAR_GRID;
-import static gregtech.api.gui.GuiTextures.DISPLAY;
+import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 
-public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, IWorkable, LinkPos {
+public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, IWorkable, LinkPos, IPlayerUIFactory {
 
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
@@ -108,6 +112,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private String selectedPosName;
     private String searchPrompt = "";
     private String queuePrompt = "";
+    private String renamePrompt = "";
     private boolean isCaseSensitive;
     private boolean hasSpaces;
     private int searchResults;
@@ -436,17 +441,20 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             BlockPos pos = posEntry.getValue().getValue();
 
             String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
-            String keyName = "select:" + key;
+            String select = "select:" + key;
             String remove = "remove:" + key;
+            String rename = "rename:" + key;
             String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
 
             ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + key + "§r")
                     .appendText("\n")
                     .appendSibling(withButton(new TextComponentString("[TP]"), tp))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), keyName))
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), select))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove));
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), rename));
 
             ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
                     .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID))
@@ -532,9 +540,41 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         } else if (componentData.startsWith("remove")) {
             String[] selectedName = componentData.split(":");
             this.posMap.remove(selectedName[1]);
-            int index = this.linkData.getInteger("I");
-            this.linkData.setInteger("I", index + 1);
+
+        } else if (componentData.startsWith("rename")) {
+            String[] rename = componentData.split(":");
+            this.renamePrompt = rename[1];
+            PlayerHolder playerHolder = new PlayerHolder(player, this);
+            playerHolder.openUI();
         }
+    }
+
+    @Override
+    public ModularUI createUI(PlayerHolder holder, EntityPlayer player) {
+        ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 80);
+        builder.widget(new ImageWidget(10, 10, 156, 18, DISPLAY));
+        OnTextFieldWidget onTextFieldWidget = new OnTextFieldWidget(15, 15, 151, 18, false, this::getRename, this::setRename);
+        onTextFieldWidget.setTooltipText("machine.universal.set.name");
+        onTextFieldWidget.setBackgroundText("machine.universal.set.name");
+        onTextFieldWidget.setValidator(str -> Pattern.compile(".*").matcher(str).matches());
+        builder.widget(onTextFieldWidget);
+        builder.widget(new TJClickButtonWidget(10, 38, 156, 18, "OK", onTextFieldWidget::onResponder)
+                .setClickHandler(this::onPlayerPressed));
+        return builder.build(holder, player);
+    }
+
+    private String getRename() {
+        return this.renamePrompt;
+    }
+
+    private void setRename(String name) {
+        Pair<World, BlockPos> pos = this.posMap.get(this.renamePrompt);
+        this.posMap.remove(this.renamePrompt);
+        this.posMap.put(name, pos);
+    }
+
+    private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
+        MetaTileEntityUIFactory.INSTANCE.openUI(getHolder(), (EntityPlayerMP) player);
     }
 
     private String[] getTickSpeedFormat() {

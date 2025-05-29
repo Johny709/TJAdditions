@@ -7,6 +7,10 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJValues;
 import com.johny.tj.builder.handlers.BasicEnergyHandler;
+import com.johny.tj.gui.uifactory.IPlayerUIFactory;
+import com.johny.tj.gui.uifactory.PlayerHolder;
+import com.johny.tj.gui.widgets.OnTextFieldWidget;
+import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
 import com.johny.tj.gui.widgets.TJClickButtonWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.items.handlers.LargeItemStackHandler;
@@ -14,6 +18,7 @@ import com.johny.tj.textures.TJSimpleOverlayRenderer;
 import com.johny.tj.textures.TJTextures;
 import gregtech.api.capability.IControllable;
 import gregtech.api.cover.CoverBehavior;
+import gregtech.api.cover.CoverBehaviorUIFactory;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.ModularUI;
@@ -45,7 +50,7 @@ import static com.johny.tj.gui.TJGuiTextures.*;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
+public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, IPlayerUIFactory, ITickable, IControllable {
 
     protected String text = "default";
     protected String searchPrompt = "";
@@ -57,6 +62,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected boolean isCaseSensitive;
     protected boolean hasSpaces;
     private int searchResults;
+    private String renamePrompt = "";
 
     public AbstractCoverEnder(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -105,6 +111,34 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     protected abstract void onClear(Widget.ClickData clickData);
 
+    private String getRename() {
+        return this.renamePrompt;
+    }
+
+    private void setRename(String name) {
+        V value = getMap().get(this.renamePrompt);
+        getMap().remove(this.renamePrompt);
+        getMap().put((K) name, value);
+    }
+
+    private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
+        CoverBehaviorUIFactory.INSTANCE.openUI(this, (EntityPlayerMP) player);
+    }
+
+    @Override
+    public ModularUI createUI(PlayerHolder holder, EntityPlayer player) {
+        ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 80);
+        builder.widget(new ImageWidget(10, 10, 156, 18, DISPLAY));
+        OnTextFieldWidget onTextFieldWidget = new OnTextFieldWidget(15, 15, 151, 18, false, this::getRename, this::setRename);
+        onTextFieldWidget.setTooltipText("machine.universal.set.name");
+        onTextFieldWidget.setBackgroundText("machine.universal.set.name");
+        onTextFieldWidget.setValidator(str -> Pattern.compile(".*").matcher(str).matches());
+        builder.widget(onTextFieldWidget);
+        builder.widget(new TJClickButtonWidget(10, 38, 156, 18, "OK", onTextFieldWidget::onResponder)
+                .setClickHandler(this::onPlayerPressed));
+        return builder.build(holder, player);
+    }
+
     @Override
     public ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup(), addWidgetGroup = new WidgetGroup();
@@ -114,7 +148,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
             }
         };
-        listWidget.addWidget(new AdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF) {
+        listWidget.addWidget(new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF) {
             @Override
             public boolean mouseClicked(int mouseX, int mouseY, int button) {
                 if (!isFilterPopUp())
@@ -165,7 +199,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void setSearchPrompt(String searchPrompt) {
         this.searchPrompt = searchPrompt;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private String getSearchPrompt() {
@@ -178,7 +212,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void setTransferRate(String amount) {
         this.transferRate = Math.min(Integer.parseInt(amount), this.maxTransferRate);
-        markAsDirty();
+        this.markAsDirty();
     }
 
     public String getTransferRate() {
@@ -187,17 +221,17 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void onIncrement(Widget.ClickData clickData) {
         this.transferRate = MathHelper.clamp(this.transferRate * 2, 1, this.maxTransferRate);
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private void onDecrement(Widget.ClickData clickData) {
         this.transferRate = MathHelper.clamp(this.transferRate / 2, 1, this.maxTransferRate);
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private void setPumpMode(CoverPump.PumpMode pumpMode) {
         this.pumpMode = pumpMode;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private CoverPump.PumpMode getPumpMode() {
@@ -206,7 +240,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void setTextID(String text) {
         this.text = text;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private String getTextID() {
@@ -233,9 +267,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
             ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
                     .appendText("\n")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select" + text))
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select:" + text))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + text));
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + text))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + text));
             textList.add(keyEntry);
 
             if (entry.getValue() instanceof FluidTank) {
@@ -271,17 +307,20 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.searchResults = searchResults;
     }
 
-    private void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        for (Map.Entry<K, V> entry : getMap().entrySet()) {
-            String key = (String) entry.getKey();
-            if (componentData.equals("select" + key)) {
-                this.setTextID(key);
-                break;
-            }
-            if (componentData.equals("remove" + key) && !key.equals("default")) {
-                this.getMap().remove(key);
-                break;
-            }
+    private void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
+        if (componentData.startsWith("select")) {
+            String[] select = componentData.split(":");
+            this.setTextID(select[1]);
+
+        } else if (componentData.startsWith("remove")) {
+            String[] remove = componentData.split(":");
+            this.getMap().remove(remove[1]);
+
+        } else if (componentData.startsWith("rename")) {
+            String[] rename = componentData.split(":");
+            this.renamePrompt = rename[1];
+            PlayerHolder holder = new PlayerHolder(player, this);
+            holder.openUI();
         }
     }
 
@@ -342,7 +381,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public void setWorkingEnabled(boolean isWorkingEnabled) {
         this.isWorkingEnabled = isWorkingEnabled;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private boolean isCaseSensitive() {
@@ -351,7 +390,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void setCaseSensitive(Boolean isCaseSensitive) {
         this.isCaseSensitive = isCaseSensitive;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private boolean hasSpaces() {
@@ -360,6 +399,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void setSpaces(Boolean hasSpaces) {
         this.hasSpaces = hasSpaces;
-        markAsDirty();
+        this.markAsDirty();
     }
 }

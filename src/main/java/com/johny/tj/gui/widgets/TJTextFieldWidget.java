@@ -82,6 +82,7 @@ public class TJTextFieldWidget extends TextFieldWidget {
      * @param length max length
      */
     public TJTextFieldWidget setTextLength(int length) {
+        this.maxStringLength = length;
         if (isClientSide())
             this.textField.setMaxStringLength(length);
         return this;

@@ -2,6 +2,7 @@ package com.johny.tj;
 
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.capability.TJSimpleCapabilityManager;
+import com.johny.tj.gui.uifactory.PlayerUIFactory;
 import com.johny.tj.integration.theoneprobe.TheOneProbeCompatibility;
 import com.johny.tj.items.TJCoverBehaviours;
 import com.johny.tj.machines.TJMetaTileEntities;
@@ -31,9 +32,9 @@ public class TJ
     private static Logger logger;
 
     @EventHandler
-    public void preInit(FMLPreInitializationEvent event)
-    {
+    public void preInit(FMLPreInitializationEvent event) {
         proxy.onPreLoad();
+        PlayerUIFactory.INSTANCE.init();
         TJMetaBlocks.init();
         TJMetaTileEntities.init();
         TJSimpleCapabilityManager.init();
@@ -41,8 +42,7 @@ public class TJ
     }
 
     @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
+    public void init(FMLInitializationEvent event) {
         proxy.onLoad();
         if (GTValues.isModLoaded(GTValues.MODID_TOP)) {
             GTLog.logger.info("TheOneProbe found. Enabling integration...");

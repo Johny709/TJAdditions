@@ -469,6 +469,7 @@ machine.universal.linked.dimension=Dimension: §e%s§r (§e%s§r)
 machine.universal.linked.pos=Position:
 machine.universal.linked.remove=[Remove]
 machine.universal.linked.select=[Select]
+machine.universal.linked.rename=[Rename]
 machine.universal.linked.players=Linked Players
 machine.universal.energy.stored=Energy Stored: §e%s§r / §e%s§r
 machine.universal.item.stored=Items Stored: §e%s§r / §e%s§r
@@ -496,6 +497,7 @@ machine.universal.case_sensitive.disabled=Case Sensitive Off
 machine.universal.spaces.enabled=Spaces On
 machine.universal.spaces.disabled=Spaces Off
 machine.universal.search=Search
+machine.universal.set.name=Set Name
 machine.universal.tick.speed=Tick Speed: §e%.1f§r/t
 
 every=Every
