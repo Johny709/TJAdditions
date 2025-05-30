@@ -142,7 +142,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup(), addWidgetGroup = new WidgetGroup();
-        ScrollableListWidget listWidget = new ScrollableListWidget(30, 61, 127, 80) {
+        ScrollableListWidget listWidget = new ScrollableListWidget(3, 61, 182, 80) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
@@ -159,9 +159,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .setMaxWidthLimit(1000));
         widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
-        widgetGroup.addWidget(new ImageWidget(30, 61, 115, 80, DISPLAY));
+        widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
         widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
+        widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
         widgetGroup.addWidget(new TJTextFieldWidget(32, 43, 112, 18, false, this::getTextID, this::setTextID)
+                .setTextLength(256)
                 .setTooltipText("machine.universal.toggle.current.entry")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
         widgetGroup.addWidget(new TJTextFieldWidget(32, 20, 112, 18, false, this::getTransferRate, this::setTransferRate)
@@ -178,7 +180,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .setTooltipText("machine.universal.toggle.increment.disabled"));
         widgetGroup.addWidget(new TJClickButtonWidget(7, 15, 18, 18, "-", this::onDecrement)
                 .setTooltipText("machine.universal.toggle.decrement.disabled"));
-        widgetGroup.addWidget(new TJClickButtonWidget(7, 61, 18, 18, "", this::onClear)
+        widgetGroup.addWidget(new TJClickButtonWidget(-20, 38, 18, 18, "", this::onClear)
                 .setTooltipText("machine.universal.toggle.clear")
                 .setButtonTexture(BUTTON_CLEAR_GRID));
         widgetGroup.addWidget(new ToggleButtonWidget(7, 142, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
@@ -188,7 +190,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, this::getPumpMode, this::setPumpMode));
         widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        addWidgets(addWidgetGroup::addWidget);
+        this.addWidgets(addWidgetGroup::addWidget);
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
                 .bindPlayerInventory(player.inventory, 181)
                 .widget(widgetGroup)

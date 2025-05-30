@@ -6,6 +6,8 @@ public class TJGuiTextures {
 
     public static final TextureArea NEW_MULTIBLOCK_DISPLAY = TextureArea.fullImage("textures/gui/base/multiblock_display_2.png");
     public static final TextureArea NEW_MULTIBLOCK_DISPLAY_EXTENDED = TextureArea.fullImage("textures/gui/base/multiblock_display_2_extended.png");
+    public static final TextureArea BORDERED_BACKGROUND_RIGHT = TextureArea.fullImage("textures/gui/base/bordered_background_right_tab.png");
+
     public static final TextureArea POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
     public static final TextureArea CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
     public static final TextureArea DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");
