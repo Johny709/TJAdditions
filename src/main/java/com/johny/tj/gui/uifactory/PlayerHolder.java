@@ -19,7 +19,7 @@ public class PlayerHolder implements IUIHolder {
     }
 
     protected ModularUI createUI(EntityPlayer player) {
-        IPlayerUIFactory factory = (IPlayerUIFactory) this.holder;
+        IPlayerUI factory = (IPlayerUI) this.holder;
         return factory.createUI(this, player);
     }
 

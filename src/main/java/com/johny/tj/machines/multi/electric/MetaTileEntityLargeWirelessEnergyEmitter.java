@@ -11,6 +11,11 @@ import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
+import com.johny.tj.gui.uifactory.IPlayerUI;
+import com.johny.tj.gui.uifactory.PlayerHolder;
+import com.johny.tj.gui.widgets.OnTextFieldWidget;
+import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
+import com.johny.tj.gui.widgets.TJClickButtonWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.items.TJMetaItems;
 import gregicadditions.GAValues;
@@ -32,6 +37,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.MetaTileEntityUIFactory;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -43,6 +49,7 @@ import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -70,12 +77,14 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import static gregicadditions.GAMaterials.Talonite;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
+import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
 import static gregtech.api.gui.GuiTextures.DISPLAY;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -83,7 +92,7 @@ import static gregtech.api.unification.material.Materials.Nitrogen;
 import static gregtech.api.unification.material.Materials.RedSteel;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPos, LinkEvent, IParallelController, IWorkable {
+public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPos, LinkEvent, IParallelController, IWorkable, IPlayerUI {
 
     protected TransferType transferType;
     private long energyPerTick;
@@ -93,6 +102,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     private IMultipleTankHandler importFluidHandler;
     private IEnergyContainer inputEnergyContainer;
     private int tier;
+    private String[] entityLinkName;
     private BlockPos[] entityLinkBlockPos;
     private int[] entityLinkWorld;
     private int[] entityEnergyAmps;
@@ -101,6 +111,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     private int pageIndex;
     private int progress;
     private int maxProgress = 1;
+    private String renamePrompt = "";
     private NBTTagCompound linkData;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
 
@@ -127,6 +138,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.inputEnergyContainer)
                     .voltageTier(this.tier)
+                    .energyStored(this.getEnergyStored(), this.getEnergyCapacity())
                     .energyInput(hasEnoughEnergy(this.totalEnergyPerTick), this.totalEnergyPerTick, this.maxProgress)
                     .fluidInput(hasEnoughFluid(this.fluidConsumption), Nitrogen.getPlasma(this.fluidConsumption), this.fluidConsumption)
                     .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
@@ -156,14 +168,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 IEnergyContainer EUContainer = isMetaTileEntity ? getMetaTileEntity.getCapability(CAPABILITY_ENERGY_CONTAINER, null) : null;
                 long EUStored = EUContainer != null ? EUContainer.getEnergyStored() : 0;
                 long EUCapacity = EUContainer != null ? EUContainer.getEnergyCapacity() : 0;
+                String name = this.entityLinkName[i];
 
                 textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
-                        .appendSibling(new TextComponentTranslation(isMetaTileEntity ? getMetaTileEntity.getMetaFullName()
-                                : isTileEntity ? getTileEntity.getBlockType().getTranslationKey() + ".name"
-                                : "machine.universal.linked.entity.null")).setStyle(new Style()
-                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(isMetaTileEntity ? getMetaTileEntity.getMetaFullName()
-                                        : isTileEntity ? getTileEntity.getBlockType().getTranslationKey() + ".name"
-                                        : "machine.universal.linked.entity.null")
+                        .appendSibling(new TextComponentString(name)).setStyle(new Style()
+                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendText("\n")
                                         .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimensionType().getId() : 0))
                                         .appendText("\n")
@@ -180,11 +189,13 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                         .appendText(" ")
                         .appendSibling(new TextComponentTranslation("machine.universal.energy.amps", this.entityEnergyAmps[i])
                                 .appendText(" ")
-                                .appendSibling(withButton(new TextComponentString("[+]"), "increment" + i))
+                                .appendSibling(withButton(new TextComponentString("[+]"), "increment:" + i))
                                 .appendText(" ")
-                                .appendSibling(withButton(new TextComponentString("[-]"), "decrement" + i)))
+                                .appendSibling(withButton(new TextComponentString("[-]"), "decrement:" + i)))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + i)));
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + i)));
 
             }
         }
@@ -193,6 +204,20 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer player) {
         return this.createUI(player, 18);
+    }
+
+    @Override
+    public ModularUI createUI(PlayerHolder holder, EntityPlayer player) {
+        ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 80);
+        builder.widget(new ImageWidget(10, 10, 156, 18, DISPLAY));
+        OnTextFieldWidget onTextFieldWidget = new OnTextFieldWidget(15, 15, 151, 18, false, this::getRename, this::setRename);
+        onTextFieldWidget.setTooltipText("machine.universal.set.name");
+        onTextFieldWidget.setBackgroundText("machine.universal.set.name");
+        onTextFieldWidget.setValidator(str -> Pattern.compile(".*").matcher(str).matches());
+        builder.widget(onTextFieldWidget);
+        builder.widget(new TJClickButtonWidget(10, 38, 156, 18, "OK", onTextFieldWidget::onResponder)
+                .setClickHandler(this::onPlayerPressed));
+        return builder.build(holder, player);
     }
 
     @Override
@@ -217,8 +242,22 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addDisplayLinkedEntitiesText, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
+        return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedEntitiesText, 0xFFFFFF)
+                .setMaxWidthLimit(1000).setClickHandler(this::handleDisplayClick));
+    }
+
+    private String getRename() {
+        return this.renamePrompt;
+    }
+
+    private void setRename(String name) {
+        IntStream.range(0, this.entityLinkName.length)
+                .filter(i -> this.entityLinkName[i].equals(this.renamePrompt))
+                .forEach(i -> this.entityLinkName[i] = name);
+    }
+
+    private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
+        MetaTileEntityUIFactory.INSTANCE.openUI(this.getHolder(), (EntityPlayerMP) player);
     }
 
     private String[] getTickSpeedFormat() {
@@ -256,8 +295,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         this.updateTotalEnergyPerTick();
     }
 
-    @Override
-    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
             return;
@@ -266,26 +304,34 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             this.pageIndex += this.pageSize;
             return;
         }
-        for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
-            if (componentData.equals("increment" + i)) {
-                this.entityEnergyAmps[i] = MathHelper.clamp(this.entityEnergyAmps[i] + 1, 0, 256);
-                this.updateTotalEnergyPerTick();
-                break;
-            }
-            if (componentData.equals("decrement" + i)) {
-                this.entityEnergyAmps[i] = MathHelper.clamp(this.entityEnergyAmps[i] - 1, 0, 256);
-                this.updateTotalEnergyPerTick();
-                break;
-            }
-            if (componentData.equals("remove" + i)) {
-                int index = linkData.getInteger("I");
-                this.linkData.setInteger("I", index + 1);
-                this.entityLinkBlockPos[i] = null;
-                this.entityLinkWorld[i] = Integer.MIN_VALUE;
-                this.entityEnergyAmps[i] = 0;
-                this.updateTotalEnergyPerTick();
-                break;
-            }
+        if (componentData.startsWith("increment")) {
+            String[] increment = componentData.split(":");
+            int i = Integer.parseInt(increment[1]);
+            this.entityEnergyAmps[i] = MathHelper.clamp(this.entityEnergyAmps[i] + 1, 0, 256);
+            this.updateTotalEnergyPerTick();
+        }
+        if (componentData.startsWith("decrement")) {
+            String[] decrement = componentData.split(":");
+            int i = Integer.parseInt(decrement[1]);
+            this.entityEnergyAmps[i] = MathHelper.clamp(this.entityEnergyAmps[i] - 1, 0, 256);
+            this.updateTotalEnergyPerTick();
+        }
+        if (componentData.startsWith("remove")) {
+            String[] remove = componentData.split(":");
+            int i = Integer.parseInt(remove[1]);
+            int j = linkData.getInteger("I");
+            this.linkData.setInteger("I", j + 1);
+            this.entityLinkName[i] = null;
+            this.entityLinkBlockPos[i] = null;
+            this.entityLinkWorld[i] = Integer.MIN_VALUE;
+            this.entityEnergyAmps[i] = 0;
+            this.updateTotalEnergyPerTick();
+        }
+        if (componentData.startsWith("rename")) {
+            String[] rename = componentData.split(":");
+            this.renamePrompt = rename[1];
+            PlayerHolder holder = new PlayerHolder(player, this);
+            holder.openUI();
         }
     }
 
@@ -422,6 +468,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         }
         this.tier = Math.max(framework, framework2);
         int linkAmount = tier * 2;
+        this.entityLinkName = this.entityLinkName != null ? Arrays.copyOf(this.entityLinkName, linkAmount) : new String[linkAmount];
         this.entityLinkBlockPos = this.entityLinkBlockPos != null ? Arrays.copyOf(this.entityLinkBlockPos, linkAmount) : new BlockPos[linkAmount];
         this.entityEnergyAmps = this.entityEnergyAmps != null ? Arrays.copyOf(this.entityEnergyAmps, linkAmount) : new int[linkAmount];
         if (this.entityLinkWorld != null) {
@@ -464,6 +511,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 data.setDouble("EntityLinkZ" + i, this.entityLinkBlockPos[i].getZ());
                 data.setInteger("EntityWorld" + i, this.entityLinkWorld[i]);
                 data.setInteger("EntityEnergyAmps" + i, this.entityEnergyAmps[i]);
+                data.setString("EntityName" + i, this.entityLinkName[i]);
             }
         }
         data.setLong("EnergyPerTick", this.totalEnergyPerTick);
@@ -479,6 +527,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.totalEnergyPerTick = data.getLong("EnergyPerTick");
+        this.entityLinkName = new String[data.getInteger("BlockPosSize")];
         this.entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
         this.entityLinkWorld = new int[data.getInteger("BlockPosSize")];
         this.entityEnergyAmps = new int[data.getInteger("BlockPosSize")];
@@ -489,6 +538,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 this.entityLinkBlockPos[i] = new BlockPos(data.getDouble("EntityLinkX" + i), data.getDouble("EntityLinkY" + i), data.getDouble("EntityLinkZ" + i));
                 this.entityLinkWorld[i] = data.getInteger("EntityWorld" + i);
                 this.entityEnergyAmps[i] = data.getInteger("EntityEnergyAmps" + i);
+                this.entityLinkName[i] = data.getString("EntityName" + i);
             } else {
                 this.entityLinkWorld[i] = Integer.MIN_VALUE;
             }
@@ -524,6 +574,16 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.isActive = buf.readBoolean();
+    }
+
+    @Override
+    public long getEnergyStored() {
+        return this.inputEnergyContainer.getEnergyStored();
+    }
+
+    @Override
+    public long getEnergyCapacity() {
+        return this.inputEnergyContainer.getEnergyCapacity();
     }
 
     @Override
@@ -586,6 +646,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
+        this.entityLinkName[index] = name;
         this.entityLinkWorld[index] = world.provider.getDimensionType().getId();
         this.entityEnergyAmps[index] = 1;
         this.entityLinkBlockPos[index] = pos;
