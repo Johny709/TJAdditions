@@ -48,7 +48,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -59,6 +61,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -613,13 +616,18 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
+        NBTTagList linkList = new NBTTagList();
         for (int i = 0; i < this.linkedPlayersID.length; i++) {
-            if (this.linkedPlayersID[i] != null && this.linkedPlayers[i] != null) {
-                data.setUniqueId("PlayerID" + i, this.linkedPlayersID[i]);
-                data.setString("EntityName" + i, this.entityLinkName[i]);
-                data.setInteger("EntityWorld" + i, this.linkedPlayers[i].world.provider.getDimension());
+            if (this.linkedPlayersID[i] != null) {
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setInteger("Index", i);
+                tag.setUniqueId("PlayerID", this.linkedPlayersID[i]);
+                tag.setString("Name", this.entityLinkName[i]);
+                tag.setInteger("World", this.linkedPlayers[i].world.provider.getDimension());
+                linkList.appendTag(tag);
             }
         }
+        data.setTag("Links", linkList);
         data.setInteger("TransferMode", this.transferMode.ordinal());
         data.setInteger("Progress", this.progress);
         data.setInteger("MaxProgress", this.maxProgress);
@@ -641,14 +649,13 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         this.entityLinkWorld = new int[data.getInteger("LinkPlayersSize")];
         this.maxProgress = data.hasKey("MaxProgress") ? data.getInteger("MaxProgress") : 1;
         this.progress = data.getInteger("Progress");
-        for (int i = 0; i < this.linkedPlayersID.length; i++) {
-            if (data.hasUniqueId("PlayerID" + i)) {
-                this.linkedPlayersID[i] = data.getUniqueId("PlayerID" + i);
-                this.entityLinkName[i] = data.getString("EntityName" + i);
-                this.entityLinkWorld[i] = data.getInteger("EntityWorld" + i);
-            } else {
-                this.entityLinkWorld[i] = Integer.MIN_VALUE;
-            }
+        NBTTagList linkList = data.getTagList("Links", Constants.NBT.TAG_COMPOUND);
+        for (NBTBase nbtBase : linkList) {
+            NBTTagCompound tag = (NBTTagCompound) nbtBase;
+            int i = tag.getInteger("Index");
+            this.linkedPlayersID[i] = tag.getUniqueId("PlayerID");
+            this.entityLinkName[i] = tag.getString("Name");
+            this.entityLinkWorld[i] = tag.getInteger("World");
         }
         if (data.hasKey("Link.XYZ"))
             this.linkData = data.getCompoundTag("Link.XYZ");

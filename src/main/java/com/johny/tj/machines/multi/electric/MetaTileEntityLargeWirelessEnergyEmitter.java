@@ -51,7 +51,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -65,6 +67,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.ArrayUtils;
@@ -504,16 +507,21 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
+        NBTTagList linkList = new NBTTagList();
         for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
             if (this.entityLinkBlockPos[i] != null) {
-                data.setDouble("EntityLinkX" + i, this.entityLinkBlockPos[i].getX());
-                data.setDouble("EntityLinkY" + i, this.entityLinkBlockPos[i].getY());
-                data.setDouble("EntityLinkZ" + i, this.entityLinkBlockPos[i].getZ());
-                data.setInteger("EntityWorld" + i, this.entityLinkWorld[i]);
-                data.setInteger("EntityEnergyAmps" + i, this.entityEnergyAmps[i]);
-                data.setString("EntityName" + i, this.entityLinkName[i]);
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setInteger("Index", i);
+                tag.setDouble("X", this.entityLinkBlockPos[i].getX());
+                tag.setDouble("Y", this.entityLinkBlockPos[i].getY());
+                tag.setDouble("Z", this.entityLinkBlockPos[i].getZ());
+                tag.setInteger("World", this.entityLinkWorld[i]);
+                tag.setInteger("EnergyAmps", this.entityEnergyAmps[i]);
+                tag.setString("Name", this.entityLinkName[i]);
+                linkList.appendTag(tag);
             }
         }
+        data.setTag("Links", linkList);
         data.setLong("EnergyPerTick", this.totalEnergyPerTick);
         data.setInteger("Progress", this.progress);
         data.setInteger("MaxProgress", this.maxProgress);
@@ -533,15 +541,14 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         this.entityEnergyAmps = new int[data.getInteger("BlockPosSize")];
         this.maxProgress = data.hasKey("MaxProgress") ? data.getInteger("MaxProgress") : 1;
         this.progress = data.getInteger("Progress");
-        for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
-            if (data.hasKey("EntityLinkX" + i) && data.hasKey("EntityLinkY" + i) && data.hasKey("EntityLinkY" + i)) {
-                this.entityLinkBlockPos[i] = new BlockPos(data.getDouble("EntityLinkX" + i), data.getDouble("EntityLinkY" + i), data.getDouble("EntityLinkZ" + i));
-                this.entityLinkWorld[i] = data.getInteger("EntityWorld" + i);
-                this.entityEnergyAmps[i] = data.getInteger("EntityEnergyAmps" + i);
-                this.entityLinkName[i] = data.getString("EntityName" + i);
-            } else {
-                this.entityLinkWorld[i] = Integer.MIN_VALUE;
-            }
+        NBTTagList linkList = data.getTagList("Links", Constants.NBT.TAG_COMPOUND);
+        for (NBTBase nbtBase : linkList) {
+            NBTTagCompound tag = (NBTTagCompound) nbtBase;
+            int i = tag.getInteger("Index");
+            this.entityLinkBlockPos[i] = new BlockPos(tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z"));
+            this.entityLinkWorld[i] = tag.getInteger("World");
+            this.entityEnergyAmps[i] = tag.getInteger("EnergyAmps");
+            this.entityLinkName[i] = tag.getString("Name");
         }
         if (data.hasKey("Link.XYZ"))
             this.linkData = data.getCompoundTag("Link.XYZ");
