@@ -4,6 +4,14 @@ import gregtech.api.recipes.RecipeMap;
 
 public interface IParallelController {
 
+    default long getEnergyStored() {
+        return 0L;
+    }
+
+    default long getEnergyCapacity() {
+        return 0L;
+    }
+
     default long getMaxEUt() {
         return 0;
     }

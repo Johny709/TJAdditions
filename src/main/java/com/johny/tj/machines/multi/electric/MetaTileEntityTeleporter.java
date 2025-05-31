@@ -10,7 +10,7 @@ import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
-import com.johny.tj.gui.uifactory.IPlayerUIFactory;
+import com.johny.tj.gui.uifactory.IPlayerUI;
 import com.johny.tj.gui.uifactory.PlayerHolder;
 import com.johny.tj.gui.widgets.OnTextFieldWidget;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
@@ -99,7 +99,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FL
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 
-public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, IWorkable, LinkPos, IPlayerUIFactory {
+public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, IWorkable, LinkPos, IPlayerUI {
 
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;

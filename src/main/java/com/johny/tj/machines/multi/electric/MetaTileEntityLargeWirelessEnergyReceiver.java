@@ -64,4 +64,14 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return ClientHandler.RED_STEEL_CASING;
     }
+
+    @Override
+    public long getEnergyStored() {
+        return this.outputEnergyContainer.getEnergyStored();
+    }
+
+    @Override
+    public long getEnergyCapacity() {
+        return this.outputEnergyContainer.getEnergyCapacity();
+    }
 }

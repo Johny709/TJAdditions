@@ -11,6 +11,7 @@ import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.capabilities.Capability;
 
 public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IParallelController> {
@@ -22,6 +23,8 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
 
     @Override
     protected void addProbeInfo(IParallelController capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
+        long energyStored = capability.getEnergyStored();
+        long energyCapacity = capability.getEnergyCapacity();
         long maxEUt = capability.getMaxEUt();
         int energyBonus = capability.getEUBonus();
         long totalEnergy = capability.getTotalEnergyConsumption();
@@ -30,7 +33,18 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
 
         IProbeInfo controllerInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.maxeut*}§e " + maxEUt + " §r(" + GAValues.VN[GAUtility.getTierByVoltage(maxEUt)] + ")");
-        if (energyBonus != -1)
+        if (energyStored > 0 && energyCapacity > 0) {
+            int progressScaled = (int) Math.floor(energyStored / (energyCapacity * 1.0) * 100);
+            String displayEnergy = "% | " + energyStored +  " / " + energyCapacity + " °C";
+            IProbeInfo energyStoredInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+            energyStoredInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity));
+            energyStoredInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
+                    .suffix(displayEnergy)
+                    .alternateFilledColor(0xFFF10000)
+                    .filledColor(0xFFF10000)
+                    .width((displayEnergy.length() * 12) / 2));
+        }
+        if (energyBonus > 0)
             controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_bonus*}§b " + (100 - energyBonus) + "%");
         controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_consumption*}§e " + totalEnergy + " §7EU/t");
         controllerInfo.text(TextStyleClass.INFO + "{*machine.universal.tooltip.voltage_tier*}§a " + voltageTier + " §r(§a" + GAValues.VN[GAUtility.getTierByVoltage(voltageTier)] + "§r)");

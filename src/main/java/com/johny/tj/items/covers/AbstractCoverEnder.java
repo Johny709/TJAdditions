@@ -7,7 +7,7 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJValues;
 import com.johny.tj.builder.handlers.BasicEnergyHandler;
-import com.johny.tj.gui.uifactory.IPlayerUIFactory;
+import com.johny.tj.gui.uifactory.IPlayerUI;
 import com.johny.tj.gui.uifactory.PlayerHolder;
 import com.johny.tj.gui.widgets.OnTextFieldWidget;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
@@ -50,7 +50,7 @@ import static com.johny.tj.gui.TJGuiTextures.*;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, IPlayerUIFactory, ITickable, IControllable {
+public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, IPlayerUI, ITickable, IControllable {
 
     protected String text = "default";
     protected String searchPrompt = "";

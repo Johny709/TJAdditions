@@ -7,6 +7,7 @@ import gregtech.api.capability.IEnergyContainer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
@@ -30,6 +31,11 @@ public class MultiblockDisplayBuilder {
 
     public MultiblockDisplayBuilder custom(Consumer<List<ITextComponent>> textList) {
         textList.accept(this.textList);
+        return this;
+    }
+
+    public MultiblockDisplayBuilder energyStored(long energyStored, long energyCapacity) {
+        this.textList.add(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)));
         return this;
     }
 
