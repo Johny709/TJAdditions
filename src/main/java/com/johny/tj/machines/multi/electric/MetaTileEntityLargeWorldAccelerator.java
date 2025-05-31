@@ -183,8 +183,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i)))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name))
-                );
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
             }
         }
     }
@@ -231,7 +230,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedEntities, 0xFFFFFF)
-                .setMaxWidthLimit(1000).setClickHandler(this::handleDisplayClick));
+                .setClickHandler(this::handleLinkedDisplayClick)
+                .setMaxWidthLimit(1000));
     }
 
     private String getRename() {
@@ -282,7 +282,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         this.updateEnergyPerTick();
     }
 
-    protected void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
+    protected void handleLinkedDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
 

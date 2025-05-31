@@ -243,7 +243,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedEntitiesText, 0xFFFFFF)
-                .setMaxWidthLimit(1000).setClickHandler(this::handleDisplayClick));
+                .setClickHandler(this::handleLinkedDisplayClick)
+                .setMaxWidthLimit(1000));
     }
 
     private String getRename() {
@@ -296,7 +297,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         this.updateTotalEnergyPerTick();
     }
 
-    protected void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
+    protected void handleLinkedDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
 
