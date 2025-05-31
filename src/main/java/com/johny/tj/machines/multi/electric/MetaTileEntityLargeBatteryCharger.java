@@ -241,8 +241,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                                         .appendText("\n")
                                         .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentString(String.valueOf(this.linkedPlayers[i].posZ))
                                                 .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + i))
+                        .appendText("\n")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
             }
@@ -292,7 +292,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     private AbstractWidgetGroup linkedPlayersTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedPlayersText, 0xFFFFFF)
                 .setClickHandler(this::handleLinkedPlayersClick)
-                .setMaxWidthLimit(1000));
+                .setMaxWidthLimit(180));
     }
 
     private String getRename() {
@@ -300,9 +300,10 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     private void setRename(String name) {
+        String finalName = this.checkDuplicateNames(name, 1);
         IntStream.range(0, this.entityLinkName.length)
                 .filter(i -> this.entityLinkName[i].equals(this.renamePrompt))
-                .forEach(i -> this.entityLinkName[i] = name);
+                .forEach(i -> this.entityLinkName[i] = finalName);
     }
 
     private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
@@ -758,10 +759,25 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
+        name = this.checkDuplicateNames(name, 1);
         this.entityLinkName[index] = name;
         this.entityLinkWorld[index] = world.provider.getDimensionType().getId();
         this.linkedPlayers[index] = player;
         this.linkedPlayersID[index] = linkedPlayers[index].getUniqueID();
+    }
+
+    private String checkDuplicateNames(String name, int count) {
+        if (!Arrays.asList(this.entityLinkName).contains(name))
+            return name;
+        if (count > 1) {
+            String[] split = name.split(" ");
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < split.length - 1; i++)
+                builder.append(split[i]);
+            name = builder.toString();
+        }
+        name = name + " (" + count + ")";
+        return this.checkDuplicateNames(name, ++count);
     }
 
     @Override

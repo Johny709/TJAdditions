@@ -568,6 +568,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private void setRename(String name) {
+        name = this.checkDuplicateNames(name, 1);
         Pair<World, BlockPos> pos = this.posMap.get(this.renamePrompt);
         this.posMap.remove(this.renamePrompt);
         this.posMap.put(name, pos);
@@ -783,8 +784,23 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
+        name = this.checkDuplicateNames(name, 1);
         this.posMap.put(name, new ImmutablePair<>(world, pos));
         this.linkData.setInteger("I", 1);
+    }
+
+    private String checkDuplicateNames(String name, int count) {
+        if (!this.posMap.containsKey(name))
+            return name;
+        if (count > 1) {
+            String[] split = name.split(" ");
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < split.length - 1; i++)
+                builder.append(split[i]);
+            name = builder.toString();
+        }
+        name = name + " (" + count + ")";
+        return this.checkDuplicateNames(name, ++count);
     }
 
     @Override

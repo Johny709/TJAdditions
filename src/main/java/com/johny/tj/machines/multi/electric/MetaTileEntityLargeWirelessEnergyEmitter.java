@@ -189,7 +189,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                                         .appendText("\n")
                                         .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentTranslation(this.entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(this.entityLinkBlockPos[i].getZ()))
                                                 .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
-                        .appendText(" ")
+                        .appendText("\n")
                         .appendSibling(new TextComponentTranslation("machine.universal.energy.amps", this.entityEnergyAmps[i])
                                 .appendText(" ")
                                 .appendSibling(withButton(new TextComponentString("[+]"), "increment:" + i))
@@ -247,7 +247,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedEntitiesText, 0xFFFFFF)
                 .setClickHandler(this::handleLinkedDisplayClick)
-                .setMaxWidthLimit(1000));
+                .setMaxWidthLimit(180));
     }
 
     private String getRename() {
@@ -255,9 +255,10 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     private void setRename(String name) {
+        String finalName = this.checkDuplicateNames(name, 1);
         IntStream.range(0, this.entityLinkName.length)
                 .filter(i -> this.entityLinkName[i].equals(this.renamePrompt))
-                .forEach(i -> this.entityLinkName[i] = name);
+                .forEach(i -> this.entityLinkName[i] = finalName);
     }
 
     private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
@@ -653,10 +654,25 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
+        name = this.checkDuplicateNames(name, 1);
         this.entityLinkName[index] = name;
         this.entityLinkWorld[index] = world.provider.getDimensionType().getId();
         this.entityEnergyAmps[index] = 1;
         this.entityLinkBlockPos[index] = pos;
+    }
+
+    private String checkDuplicateNames(String name, int count) {
+        if (!Arrays.asList(this.entityLinkName).contains(name))
+            return name;
+        if (count > 1) {
+            String[] split = name.split(" ");
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < split.length - 1; i++)
+                builder.append(split[i]);
+            name = builder.toString();
+        }
+        name = name + " (" + count + ")";
+        return this.checkDuplicateNames(name, ++count);
     }
 
     @Override
