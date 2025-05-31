@@ -13,6 +13,11 @@ import com.johny.tj.capability.LinkPos;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
+import com.johny.tj.gui.uifactory.IPlayerUI;
+import com.johny.tj.gui.uifactory.PlayerHolder;
+import com.johny.tj.gui.widgets.OnTextFieldWidget;
+import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
+import com.johny.tj.gui.widgets.TJClickButtonWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
 import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.machines.AcceleratorBlacklist;
@@ -37,6 +42,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.MetaTileEntityUIFactory;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -48,6 +54,7 @@ import gregtech.api.render.Textures;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -77,11 +84,12 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
 import static gregtech.api.gui.GuiTextures.DISPLAY;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController, IWorkable {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController, IWorkable, IPlayerUI {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
@@ -93,12 +101,14 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     private int tier;
     private int gtAcceleratorTier;
     private int energyMultiplier = 1;
+    private String[] entityLinkName;
     private BlockPos[] entityLinkBlockPos;
     private int fluidConsumption;
     private final int pageSize = 4;
     private int pageIndex;
     private int progress;
     private int maxProgress = 1;
+    private String renamePrompt;
     private NBTTagCompound linkData;
 
     public MetaTileEntityLargeWorldAccelerator(ResourceLocation metaTileEntityId) {
@@ -151,17 +161,12 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         for (int i = this.pageIndex, linkedEntitiesPos = i + 1; i < this.pageIndex + this.pageSize; i++, linkedEntitiesPos++) {
             if (i < this.entityLinkBlockPos.length && this.entityLinkBlockPos[i] != null) {
 
-                TileEntity tileEntity = world.getTileEntity(this.entityLinkBlockPos[i]);
                 MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(world, this.entityLinkBlockPos[i]);
-                boolean isTileEntity = tileEntity != null;
                 boolean isMetaTileEntity = metaTileEntity != null;
+                String name = this.entityLinkName[i];
 
                 textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
-                        .appendSibling(new TextComponentTranslation(isMetaTileEntity ? metaTileEntity.getMetaFullName()
-                                : isTileEntity ? tileEntity.getBlockType().getTranslationKey() + ".name"
-                                : "machine.universal.linked.entity.null")).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(isMetaTileEntity ? metaTileEntity.getMetaFullName()
-                                    : isTileEntity ? tileEntity.getBlockType().getTranslationKey() + ".name"
-                                    : "machine.universal.linked.entity.null")
+                        .appendSibling(new TextComponentString(name).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                     .appendText("\n")
                                     .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius",
                                         isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? this.tier : 0,
@@ -176,7 +181,9 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                                     .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentTranslation(this.entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(this.entityLinkBlockPos[i].getZ()))
                                         .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove" + i))
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i)))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name))
                 );
             }
         }
@@ -185,6 +192,20 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer player) {
         return this.createUI(player, 18);
+    }
+
+    @Override
+    public ModularUI createUI(PlayerHolder holder, EntityPlayer player) {
+        ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 80);
+        builder.widget(new ImageWidget(10, 10, 156, 18, DISPLAY));
+        OnTextFieldWidget onTextFieldWidget = new OnTextFieldWidget(15, 15, 151, 18, false, this::getRename, this::setRename);
+        onTextFieldWidget.setTooltipText("machine.universal.set.name");
+        onTextFieldWidget.setBackgroundText("machine.universal.set.name");
+        onTextFieldWidget.setValidator(str -> Pattern.compile(".*").matcher(str).matches());
+        builder.widget(onTextFieldWidget);
+        builder.widget(new TJClickButtonWidget(10, 38, 156, 18, "OK", onTextFieldWidget::onResponder)
+                .setClickHandler(this::onPlayerPressed));
+        return builder.build(holder, player);
     }
 
     @Override
@@ -206,6 +227,25 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         widgetGroup.apply(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
         return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
+    }
+
+    private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedEntities, 0xFFFFFF)
+                .setMaxWidthLimit(1000).setClickHandler(this::handleDisplayClick));
+    }
+
+    private String getRename() {
+        return this.renamePrompt;
+    }
+
+    private void setRename(String name) {
+        IntStream.range(0, this.entityLinkName.length)
+                .filter(i -> this.entityLinkName[i].equals(this.renamePrompt))
+                .forEach(i -> this.entityLinkName[i] = name);
+    }
+
+    private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
+        MetaTileEntityUIFactory.INSTANCE.openUI(this.getHolder(), (EntityPlayerMP) player);
     }
 
     private String[] getTickSpeedFormat() {
@@ -236,34 +276,33 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     private void setReset(boolean reset) {
+        Arrays.fill(this.entityLinkName, null);
         Arrays.fill(this.entityLinkBlockPos, null);
         this.linkData.setInteger("I", getPosSize());
         this.updateEnergyPerTick();
     }
 
-    private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addDisplayLinkedEntities, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
-    }
-
-    @Override
-    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
-            return;
-        }
-        if (componentData.equals("rightPage") && this.pageIndex < this.entityLinkBlockPos.length - this.pageSize) {
+
+        } else if (componentData.equals("rightPage") && this.pageIndex < this.entityLinkBlockPos.length - this.pageSize) {
             this.pageIndex += this.pageSize;
-            return;
-        }
-        for (int i = 0; i < entityLinkBlockPos.length; i++) {
-            if (componentData.equals("remove" + i)) {
-                int index = linkData.getInteger("I");
-                this.linkData.setInteger("I", index + 1);
-                this.entityLinkBlockPos[i] = null;
-                this.updateEnergyPerTick();
-                break;
-            }
+
+        } else if (componentData.startsWith("remove")) {
+            String[] remove = componentData.split(":");
+            int i = Integer.parseInt(remove[1]);
+            int index = linkData.getInteger("I");
+            this.linkData.setInteger("I", index + 1);
+            this.entityLinkBlockPos[i] = null;
+            this.entityLinkName[i] = null;
+            this.updateEnergyPerTick();
+
+        } else if (componentData.startsWith("rename")) {
+            String[] rename = componentData.split(":");
+            this.renamePrompt = rename[1];
+            PlayerHolder holder = new PlayerHolder(player, this);
+            holder.openUI();
         }
     }
 
@@ -409,8 +448,10 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         this.tier = Math.min(fieldGen.getTier(), emitter.getTier());
         this.gtAcceleratorTier = this.tier - GAValues.UHV;
         if (this.acceleratorMode == AcceleratorMode.GT_TILE_ENTITY) {
+            this.entityLinkName = this.entityLinkName != null ? this.entityLinkName : new String[1];
             this.entityLinkBlockPos = this.entityLinkBlockPos != null ? this.entityLinkBlockPos : new BlockPos[1];
         } else {
+            this.entityLinkName = this.entityLinkName != null ? Arrays.copyOf(this.entityLinkName, this.tier) : new String[this.tier];
             this.entityLinkBlockPos = this.entityLinkBlockPos != null ? Arrays.copyOf(this.entityLinkBlockPos, this.tier) : new BlockPos[this.tier];
         }
         this.fluidConsumption = (int) Math.pow(4, this.gtAcceleratorTier - 1) * 1000;
@@ -464,18 +505,21 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             case RANDOM_TICK:
                 this.acceleratorMode = AcceleratorMode.TILE_ENTITY;
                 this.energyMultiplier = 1;
+                this.entityLinkName = new String[this.tier];
                 this.entityLinkBlockPos = new BlockPos[this.tier];
                 tileMode = "gregtech.machine.world_accelerator.mode.tile";
                 break;
              case TILE_ENTITY:
                  this.acceleratorMode = AcceleratorMode.GT_TILE_ENTITY;
                  this.energyMultiplier = 64;
+                 this.entityLinkName = new String[1];
                  this.entityLinkBlockPos = new BlockPos[1];
                  tileMode = "tj.multiblock.large_world_accelerator.mode.GT";
                  break;
             case GT_TILE_ENTITY:
                 this.acceleratorMode = AcceleratorMode.RANDOM_TICK;
                 this.energyMultiplier = 1;
+                this.entityLinkName = new String[this.tier];
                 this.entityLinkBlockPos = new BlockPos[this.tier];
                 tileMode = "gregtech.machine.world_accelerator.mode.entity";
         }
@@ -498,6 +542,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 data.setDouble("EntityLinkX" + i, this.entityLinkBlockPos[i].getX());
                 data.setDouble("EntityLinkY" + i, this.entityLinkBlockPos[i].getY());
                 data.setDouble("EntityLinkZ" + i, this.entityLinkBlockPos[i].getZ());
+                data.setString("EntityName" + i, this.entityLinkName[i]);
             }
         }
         data.setLong("EnergyPerTick", this.energyPerTick);
@@ -517,12 +562,14 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         this.energyMultiplier = data.getInteger("EnergyMultiplier");
         this.energyPerTick = data.getLong("EnergyPerTick");
         this.acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
+        this.entityLinkName = new String[data.getInteger("BlockPosSize")];
         this.entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
         this.maxProgress = data.hasKey("MaxProgress") ? data.getInteger("MaxProgress") : 1;
         this.progress = data.getInteger("Progress");
         for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
             if (data.hasKey("EntityLinkX" + i) && data.hasKey("EntityLinkY" + i) && data.hasKey("EntityLinkY" + i)) {
                 this.entityLinkBlockPos[i] = new BlockPos(data.getDouble("EntityLinkX" + i), data.getDouble("EntityLinkY" + i), data.getDouble("EntityLinkZ" + i));
+                this.entityLinkName[i] = data.getString("EntityName" + i);
             }
         }
         if (data.hasKey("Link.XYZ"))
@@ -575,6 +622,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
+        this.entityLinkName[index] = name;
         this.entityLinkBlockPos[index] = pos;
     }
 

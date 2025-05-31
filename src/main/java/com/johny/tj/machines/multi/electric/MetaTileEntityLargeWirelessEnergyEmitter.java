@@ -195,7 +195,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + i)));
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
 
             }
         }
@@ -288,6 +288,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     private void setReset(boolean reset) {
+        Arrays.fill(this.entityLinkName, null);
         Arrays.fill(this.entityLinkBlockPos, null);
         Arrays.fill(this.entityLinkWorld, Integer.MIN_VALUE);
         Arrays.fill(this.entityEnergyAmps, 0);
@@ -298,25 +299,23 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
-            return;
-        }
-        if (componentData.equals("rightPage") && this.pageIndex < this.entityLinkBlockPos.length - this.pageSize) {
+
+        } else if (componentData.equals("rightPage") && this.pageIndex < this.entityLinkBlockPos.length - this.pageSize) {
             this.pageIndex += this.pageSize;
-            return;
-        }
-        if (componentData.startsWith("increment")) {
+
+        } else  if (componentData.startsWith("increment")) {
             String[] increment = componentData.split(":");
             int i = Integer.parseInt(increment[1]);
             this.entityEnergyAmps[i] = MathHelper.clamp(this.entityEnergyAmps[i] + 1, 0, 256);
             this.updateTotalEnergyPerTick();
-        }
-        if (componentData.startsWith("decrement")) {
+
+        } else if (componentData.startsWith("decrement")) {
             String[] decrement = componentData.split(":");
             int i = Integer.parseInt(decrement[1]);
             this.entityEnergyAmps[i] = MathHelper.clamp(this.entityEnergyAmps[i] - 1, 0, 256);
             this.updateTotalEnergyPerTick();
-        }
-        if (componentData.startsWith("remove")) {
+
+        } else if (componentData.startsWith("remove")) {
             String[] remove = componentData.split(":");
             int i = Integer.parseInt(remove[1]);
             int j = linkData.getInteger("I");
@@ -326,8 +325,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             this.entityLinkWorld[i] = Integer.MIN_VALUE;
             this.entityEnergyAmps[i] = 0;
             this.updateTotalEnergyPerTick();
-        }
-        if (componentData.startsWith("rename")) {
+
+        } else if (componentData.startsWith("rename")) {
             String[] rename = componentData.split(":");
             this.renamePrompt = rename[1];
             PlayerHolder holder = new PlayerHolder(player, this);
