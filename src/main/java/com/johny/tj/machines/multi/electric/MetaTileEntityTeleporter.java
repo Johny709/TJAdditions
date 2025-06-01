@@ -445,7 +445,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             String remove = "remove:" + key;
             String rename = "rename:" + key;
 
-            ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + key + "§r")
+            ITextComponent keyPos = new TextComponentString(": [§a" + (++count) + "§r] " + key + "§r")
                     .appendText("\n")
                     .appendSibling(withButton(new TextComponentString("[TP]"), tp))
                     .appendText(" ")
@@ -709,7 +709,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         data.setInteger("MaxProgress", this.maxProgress);
         if (this.selectedPosName != null)
             data.setString("SelectedPos", this.selectedPosName);
-        if (linkData != null)
+        if (this.linkData != null)
             data.setTag("Link.XYZ", this.linkData);
         return data;
     }

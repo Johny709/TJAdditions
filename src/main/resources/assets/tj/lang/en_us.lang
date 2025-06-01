@@ -499,6 +499,7 @@ machine.universal.spaces.disabled=Spaces Off
 machine.universal.search=Search
 machine.universal.set.name=Set Name
 machine.universal.tick.speed=Tick Speed: §e%.1f§r/t
+machine.universal.empty=§7Empty§r
 
 every=Every
 seconds=Seconds

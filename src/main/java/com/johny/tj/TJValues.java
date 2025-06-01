@@ -1,6 +1,7 @@
 package com.johny.tj;
 
 import gregtech.api.unification.material.type.Material;
+import net.minecraft.util.math.BlockPos;
 
 import static gregicadditions.GAMaterials.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
@@ -11,4 +12,6 @@ public class TJValues {
     public static final String[] VCC = {"§0", "§7", "§c", "§6", "§8", "§f", "§d", "§b", "§2", "§9", "§1", "§e", "§5", "§4", "§k"};
 
     public static final Material[] CIRCUIT_TIERS = {Primitive, Basic, Good, Advanced, Extreme, Elite, Master, Ultimate, Superconductor, Infinite, UEV, UIV, UMV, UXV, MAX};
+
+    public static final BlockPos DUMMY_POS = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
 }

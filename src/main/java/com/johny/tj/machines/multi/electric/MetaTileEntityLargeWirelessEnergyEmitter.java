@@ -3,6 +3,7 @@ package com.johny.tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.TJValues;
 import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IParallelController;
@@ -85,13 +86,14 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static com.johny.tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
+import static com.johny.tj.gui.TJGuiTextures.SPACES_BUTTON;
 import static gregicadditions.GAMaterials.Talonite;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
-import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static gregtech.api.gui.GuiTextures.DISPLAY;
+import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Nitrogen;
@@ -118,6 +120,10 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     private int progress;
     private int maxProgress = 1;
     private String renamePrompt = "";
+    private String searchPrompt = "";
+    private boolean isCaseSensitive;
+    private boolean hasSpaces;
+    private int searchResults;
     private NBTTagCompound linkData;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
 
@@ -152,53 +158,63 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     private void addDisplayLinkedEntitiesText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("tj.multiblock.large_world_accelerator.linked")
-                .setStyle(new Style().setBold(true).setUnderlined(true)));
-        textList.add(new TextComponentString(":")
-                .appendText(" ")
-                .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))
-                .appendText(" ")
-                .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
+        textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + this.searchResults + "§r/§e" + this.entityLinkName.length + "§r)"));
+    }
 
-        for (int i = this.pageIndex, linkedEntitiesPos = i + 1; i < this.pageIndex + this.pageSize; i++, linkedEntitiesPos++) {
-            if (i < this.entityLinkBlockPos.length && this.entityLinkBlockPos[i] != null) {
+    private void addDisplayLinkedEntitiesText2(List<ITextComponent> textList) {
+        int searchResults = 0;
+        for (int i = 0; i < this.entityLinkName.length; i++) {
+            String name = this.entityLinkName[i] != null ? this.entityLinkName[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
+            String result = name, result2 = name;
 
-                BlockPos pos = this.entityLinkBlockPos[i];
-                WorldServer world = DimensionManager.getWorld(this.entityLinkWorld[i]);
-                TileEntity getTileEntity = world != null ? world.getTileEntity(pos) : null;
-                MetaTileEntity getMetaTileEntity = world != null ? BlockMachine.getMetaTileEntity(world, pos) : null;
-                boolean isTileEntity = getTileEntity != null;
-                boolean isMetaTileEntity = getMetaTileEntity != null;
-                IEnergyStorage RFContainer = isTileEntity ? getTileEntity.getCapability(ENERGY, null) : null;
-                long RFStored = RFContainer != null ? RFContainer.getEnergyStored() : 0;
-                long RFCapacity = RFContainer != null ? RFContainer.getMaxEnergyStored() : 0;
-                IEnergyContainer EUContainer = isMetaTileEntity ? getMetaTileEntity.getCapability(CAPABILITY_ENERGY_CONTAINER, null) : null;
-                long EUStored = EUContainer != null ? EUContainer.getEnergyStored() : 0;
-                long EUCapacity = EUContainer != null ? EUContainer.getEnergyCapacity() : 0;
-                String name = this.entityLinkName[i];
-
-                textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
-                        .appendSibling(new TextComponentString(name)).setStyle(new Style()
-                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimensionType().getId() : 0)))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity)))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ()))))))
-                        .appendText("\n")
-                        .appendSibling(new TextComponentTranslation("machine.universal.energy.amps", this.entityEnergyAmps[i])
-                                .appendText(" ")
-                                .appendSibling(withButton(new TextComponentString("[+]"), "increment:" + i))
-                                .appendText(" ")
-                                .appendSibling(withButton(new TextComponentString("[-]"), "decrement:" + i)))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
-
+            if (!this.isCaseSensitive) {
+                result = result.toLowerCase();
+                result2 = result2.toUpperCase();
             }
+
+            if (!this.hasSpaces) {
+                result = result.replace(" ", "");
+                result2 = result2.replace(" ", "");
+            }
+
+            if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
+                continue;
+
+            BlockPos pos = this.entityLinkBlockPos[i] != null ? this.entityLinkBlockPos[i] : TJValues.DUMMY_POS;
+            WorldServer world = DimensionManager.getWorld(this.entityLinkWorld[i]);
+            TileEntity getTileEntity = world != null ? world.getTileEntity(pos) : null;
+            MetaTileEntity getMetaTileEntity = world != null ? BlockMachine.getMetaTileEntity(world, pos) : null;
+            boolean isTileEntity = getTileEntity != null;
+            boolean isMetaTileEntity = getMetaTileEntity != null;
+            IEnergyStorage RFContainer = isTileEntity ? getTileEntity.getCapability(ENERGY, null) : null;
+            long RFStored = RFContainer != null ? RFContainer.getEnergyStored() : 0;
+            long RFCapacity = RFContainer != null ? RFContainer.getMaxEnergyStored() : 0;
+            IEnergyContainer EUContainer = isMetaTileEntity ? getMetaTileEntity.getCapability(CAPABILITY_ENERGY_CONTAINER, null) : null;
+            long EUStored = EUContainer != null ? EUContainer.getEnergyStored() : 0;
+            long EUCapacity = EUContainer != null ? EUContainer.getEnergyCapacity() : 0;
+
+            textList.add(new TextComponentString(": [§a" + (++searchResults) + "§r] ")
+                    .appendSibling(new TextComponentString(name)).setStyle(new Style()
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity)))
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimensionType().getId() : 0)))
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ()))))))
+                    .appendText("\n")
+                    .appendSibling(new TextComponentTranslation("machine.universal.energy.amps", this.entityEnergyAmps[i])
+                            .appendText(" ")
+                            .appendSibling(withButton(new TextComponentString("[+]"), "increment:" + i))
+                            .appendText(" ")
+                            .appendSibling(withButton(new TextComponentString("[-]"), "decrement:" + i)))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
+
         }
+        this.searchResults = searchResults;
     }
 
     @Override
@@ -224,7 +240,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
         super.addNewTabs(tabs, extended);
         TJWidgetGroup widgetLinkedEntitiesGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab(widgetLinkedEntitiesGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), this.linkedEntitiesDisplayTab(widgetLinkedEntitiesGroup::addWidgets)));
     }
 
     @Override
@@ -242,9 +258,29 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     private AbstractWidgetGroup linkedEntitiesDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedEntitiesText, 0xFFFFFF)
+        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 12, 178, 97) {
+            @Override
+            public boolean isWidgetClickable(Widget widget) {
+                return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
+            }
+        };
+        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedEntitiesText2, 0xFFFFFF)
                 .setClickHandler(this::handleLinkedDisplayClick)
-                .setMaxWidthLimit(180));
+                .setMaxWidthLimit(1000));
+        widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addDisplayLinkedEntitiesText, 0xFFFFFF));
+        widgetGroup.apply(scrollWidget);
+        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+                .setTooltipText("machine.universal.case_sensitive"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+                .setTooltipText("machine.universal.spaces"));
+        widgetGroup.apply(new ImageWidget(7, 112, 162, 18, DISPLAY));
+        widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
+                .setTooltipText("machine.universal.toggle.clear")
+                .setButtonTexture(BUTTON_CLEAR_GRID));
+        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+                .setTextLength(256)
+                .setBackgroundText("machine.universal.search")
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }
 
     private String getRename() {
@@ -282,6 +318,37 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     private void setTickSpeed(String maxProgress) {
         this.maxProgress = maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress);
+        this.markDirty();
+    }
+
+    private String getSearchPrompt() {
+        return this.searchPrompt;
+    }
+
+    private void setSearchPrompt(String searchPrompt) {
+        this.searchPrompt = searchPrompt;
+        this.markDirty();
+    }
+
+    private void onClear(Widget.ClickData clickData) {
+        this.setSearchPrompt("");
+    }
+
+    private boolean isCaseSensitive() {
+        return this.isCaseSensitive;
+    }
+
+    private void setCaseSensitive(Boolean isCaseSensitive) {
+        this.isCaseSensitive = isCaseSensitive;
+        this.markDirty();
+    }
+
+    private boolean hasSpaces() {
+        return this.hasSpaces;
+    }
+
+    private void setSpaces(Boolean hasSpaces) {
+        this.hasSpaces = hasSpaces;
         this.markDirty();
     }
 
@@ -352,7 +419,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
                 if (this.entityLinkBlockPos[i] == null)
                     continue;
-                if (getWorld().provider.getDimension() != this.entityLinkWorld[i]) {
+                if (this.getWorld().provider.getDimension() != this.entityLinkWorld[i]) {
                     if (!hasEnoughFluid(this.fluidConsumption))
                         continue;
                     int fluidToConsume = this.fluidConsumption / this.linkedWorldsCount;

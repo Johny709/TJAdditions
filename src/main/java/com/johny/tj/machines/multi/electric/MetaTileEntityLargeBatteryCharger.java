@@ -82,14 +82,15 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static com.johny.tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
+import static com.johny.tj.gui.TJGuiTextures.SPACES_BUTTON;
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeBatteryCharger.TransferMode.INPUT;
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeBatteryCharger.TransferMode.OUTPUT;
 import static gregicadditions.GAMaterials.Talonite;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.MetaTileEntityBatteryTower.cellPredicate;
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM;
-import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static gregtech.api.gui.GuiTextures.DISPLAY;
+import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Nitrogen;
@@ -118,7 +119,11 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     private String[] entityLinkName;
     private int[] entityLinkWorld;
     private int linkedWorldsCount;
-    private String renamePrompt;
+    private String renamePrompt = "";
+    private String searchPrompt = "";
+    private boolean isCaseSensitive;
+    private boolean hasSpaces;
+    private int searchResults;
     private NBTTagCompound linkData;
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, OUTPUT_ENERGY, IMPORT_FLUIDS, MAINTENANCE_HATCH};
@@ -161,87 +166,103 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     private void addDisplayLinkedPlayersText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("machine.universal.linked.players")
-                .setStyle(new Style().setBold(true).setUnderlined(true)));
-        textList.add(new TextComponentString(":")
-                .appendText(" ")
-                .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))
-                .appendText(" ")
-                .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
+        textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.linked.players") + "§r(§e" + this.searchResults + "§r/§e" + this.entityLinkName.length + "§r)"));
+    }
 
-        for (int i = this.pageIndex, linkedEntitiesPos = i + 1; i < this.pageIndex + this.pageSize; i++, linkedEntitiesPos++) {
-            if (i < this.linkedPlayers.length && this.linkedPlayers[i] != null) {
+    private void addDisplayLinkedPlayersText2(List<ITextComponent> textList) {
+        int searchResults = 0;
+        for (int i = 0; i < this.entityLinkName.length; i++) {
+            String name = this.entityLinkName[i] != null ? this.entityLinkName[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
+            String result = name, result2 = name;
 
-                String name = this.entityLinkName[i];
-                EntityPlayer player = this.linkedPlayers[i];
-                String inDimensionName = this.linkedPlayers[i].world.provider.getDimensionType().getName();
-                long totalEnergyStored = 0;
-                long totalEnergyCapacity = 0;
-
-                for (ItemStack stack : this.linkedPlayers[i].inventory.armorInventory) {
-                    if (stack.isEmpty())
-                        continue;
-
-                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                    if (RFContainer != null) {
-                        totalEnergyStored += RFContainer.getEnergyStored() / 4;
-                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
-                    }
-                    if (EUContainer != null) {
-                        totalEnergyStored += EUContainer.getCharge();
-                        totalEnergyCapacity += EUContainer.getMaxCharge();
-                    }
-                }
-
-                for (ItemStack stack : this.linkedPlayers[i].inventory.mainInventory) {
-                    if (stack.isEmpty())
-                        continue;
-
-                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                    if (RFContainer != null) {
-                        totalEnergyStored += RFContainer.getEnergyStored() / 4;
-                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
-                    }
-                    if (EUContainer != null) {
-                        totalEnergyStored += EUContainer.getCharge();
-                        totalEnergyCapacity += EUContainer.getMaxCharge();
-                    }
-                }
-
-                for (ItemStack stack : this.linkedPlayers[i].inventory.offHandInventory) {
-                    if (stack.isEmpty())
-                        continue;
-
-                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
-                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
-                    if (RFContainer != null) {
-                        totalEnergyStored += RFContainer.getEnergyStored() / 4;
-                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
-                    }
-                    if (EUContainer != null) {
-                        totalEnergyStored += EUContainer.getCharge();
-                        totalEnergyCapacity += EUContainer.getMaxCharge();
-                    }
-                }
-
-                textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
-                        .appendSibling(new TextComponentString(name))
-                            .setStyle(new Style()
-                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", inDimensionName, this.getDimension(i))))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", totalEnergyStored, totalEnergyCapacity)))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", (int) player.posX, (int) player.posY, (int) player.posZ))))))
-                        .appendText("\n")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
+            if (!this.isCaseSensitive) {
+                result = result.toLowerCase();
+                result2 = result2.toUpperCase();
             }
+
+            if (!this.hasSpaces) {
+                result = result.replace(" ", "");
+                result2 = result2.replace(" ", "");
+            }
+
+            if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
+                continue;
+
+            EntityPlayer player = this.linkedPlayers[i];
+            String dimensionName = player != null ? player.world.provider.getDimensionType().getName() : "";
+            int dimensionID = player != null ? this.getDimension(i) : 0;
+            int x = player != null ? (int) player.posX : Integer.MIN_VALUE;
+            int y = player != null ? (int) player.posY : Integer.MIN_VALUE;
+            int z = player != null ? (int) player.posZ : Integer.MIN_VALUE;
+            long totalEnergyStored = 0;
+            long totalEnergyCapacity = 0;
+
+            if (player != null) {
+                for (ItemStack stack : player.inventory.armorInventory) {
+                    if (stack.isEmpty())
+                        continue;
+
+                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
+                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
+                    if (RFContainer != null) {
+                        totalEnergyStored += RFContainer.getEnergyStored() / 4;
+                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
+                    }
+                    if (EUContainer != null) {
+                        totalEnergyStored += EUContainer.getCharge();
+                        totalEnergyCapacity += EUContainer.getMaxCharge();
+                    }
+                }
+
+                for (ItemStack stack : player.inventory.mainInventory) {
+                    if (stack.isEmpty())
+                        continue;
+
+                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
+                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
+                    if (RFContainer != null) {
+                        totalEnergyStored += RFContainer.getEnergyStored() / 4;
+                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
+                    }
+                    if (EUContainer != null) {
+                        totalEnergyStored += EUContainer.getCharge();
+                        totalEnergyCapacity += EUContainer.getMaxCharge();
+                    }
+                }
+
+                for (ItemStack stack : player.inventory.offHandInventory) {
+                    if (stack.isEmpty())
+                        continue;
+
+                    IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);
+                    IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
+                    if (RFContainer != null) {
+                        totalEnergyStored += RFContainer.getEnergyStored() / 4;
+                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
+                    }
+                    if (EUContainer != null) {
+                        totalEnergyStored += EUContainer.getCharge();
+                        totalEnergyCapacity += EUContainer.getMaxCharge();
+                    }
+                }
+            }
+
+            textList.add(new TextComponentString(": [§a" + (++searchResults) + "§r] ")
+                    .appendSibling(new TextComponentString(name))
+                    .setStyle(new Style()
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", totalEnergyStored, totalEnergyCapacity)))
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", dimensionName, dimensionID)))
+                                    .appendText("\n")
+                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", x, y, z))))))
+                    .appendText("\n")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
         }
+        this.searchResults = searchResults;
     }
 
     @Override
@@ -267,7 +288,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
         super.addNewTabs(tabs, extended);
         TJWidgetGroup widgetLinkedPlayersGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedPlayersTab(widgetLinkedPlayersGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), this.linkedPlayersTab(widgetLinkedPlayersGroup::addWidgets)));
     }
 
     @Override
@@ -285,9 +306,29 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     private AbstractWidgetGroup linkedPlayersTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new TJAdvancedTextWidget(10, 0, this::addDisplayLinkedPlayersText, 0xFFFFFF)
+        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 12, 178, 97) {
+            @Override
+            public boolean isWidgetClickable(Widget widget) {
+                return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
+            }
+        };
+        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedPlayersText2, 0xFFFFFF)
                 .setClickHandler(this::handleLinkedPlayersClick)
-                .setMaxWidthLimit(180));
+                .setMaxWidthLimit(1000));
+        widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addDisplayLinkedPlayersText, 0xFFFFFF));
+        widgetGroup.apply(scrollWidget);
+        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+                .setTooltipText("machine.universal.case_sensitive"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+                .setTooltipText("machine.universal.spaces"));
+        widgetGroup.apply(new ImageWidget(7, 112, 162, 18, DISPLAY));
+        widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
+                .setTooltipText("machine.universal.toggle.clear")
+                .setButtonTexture(BUTTON_CLEAR_GRID));
+        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+                .setTextLength(256)
+                .setBackgroundText("machine.universal.search")
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }
 
     private String getRename() {
@@ -325,6 +366,37 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     private void setTickSpeed(String maxProgress) {
         this.maxProgress = maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress);
+        this.markDirty();
+    }
+
+    private String getSearchPrompt() {
+        return this.searchPrompt;
+    }
+
+    private void setSearchPrompt(String searchPrompt) {
+        this.searchPrompt = searchPrompt;
+        this.markDirty();
+    }
+
+    private void onClear(Widget.ClickData clickData) {
+        this.setSearchPrompt("");
+    }
+
+    private boolean isCaseSensitive() {
+        return this.isCaseSensitive;
+    }
+
+    private void setCaseSensitive(Boolean isCaseSensitive) {
+        this.isCaseSensitive = isCaseSensitive;
+        this.markDirty();
+    }
+
+    private boolean hasSpaces() {
+        return this.hasSpaces;
+    }
+
+    private void setSpaces(Boolean hasSpaces) {
+        this.hasSpaces = hasSpaces;
         this.markDirty();
     }
 
@@ -606,7 +678,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.isActive);
+        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.isActive);
     }
 
     @Override
@@ -619,7 +691,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 tag.setInteger("Index", i);
                 tag.setUniqueId("PlayerID", this.linkedPlayersID[i]);
                 tag.setString("Name", this.entityLinkName[i]);
-                tag.setInteger("World", this.linkedPlayers[i].world.provider.getDimension());
+                tag.setInteger("World", this.entityLinkWorld[i]);
                 linkList.appendTag(tag);
             }
         }
