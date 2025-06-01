@@ -60,7 +60,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -160,9 +163,10 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         for (int i = this.pageIndex, linkedEntitiesPos = i + 1; i < this.pageIndex + this.pageSize; i++, linkedEntitiesPos++) {
             if (i < this.entityLinkBlockPos.length && this.entityLinkBlockPos[i] != null) {
 
+                BlockPos pos = this.entityLinkBlockPos[i];
                 WorldServer world = DimensionManager.getWorld(this.entityLinkWorld[i]);
-                TileEntity getTileEntity = world != null ? world.getTileEntity(this.entityLinkBlockPos[i]) : null;
-                MetaTileEntity getMetaTileEntity = world != null ? BlockMachine.getMetaTileEntity(world, this.entityLinkBlockPos[i]) : null;
+                TileEntity getTileEntity = world != null ? world.getTileEntity(pos) : null;
+                MetaTileEntity getMetaTileEntity = world != null ? BlockMachine.getMetaTileEntity(world, pos) : null;
                 boolean isTileEntity = getTileEntity != null;
                 boolean isMetaTileEntity = getMetaTileEntity != null;
                 IEnergyStorage RFContainer = isTileEntity ? getTileEntity.getCapability(ENERGY, null) : null;
@@ -177,18 +181,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                         .appendSibling(new TextComponentString(name)).setStyle(new Style()
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimensionType().getId() : 0))
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimensionType().getId() : 0)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentTranslation("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity))
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentTranslation(this.entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(this.entityLinkBlockPos[i].getX()))
-                                                .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString("Y: ").appendSibling(new TextComponentTranslation(this.entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(this.entityLinkBlockPos[i].getY()))
-                                                .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentTranslation(this.entityLinkBlockPos[i] == null ? "machine.universal.linked.entity.empty" : String.valueOf(this.entityLinkBlockPos[i].getZ()))
-                                                .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ()))))))
                         .appendText("\n")
                         .appendSibling(new TextComponentTranslation("machine.universal.energy.amps", this.entityEnergyAmps[i])
                                 .appendText(" ")

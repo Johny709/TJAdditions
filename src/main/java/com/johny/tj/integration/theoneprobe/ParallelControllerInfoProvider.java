@@ -11,7 +11,6 @@ import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.capabilities.Capability;
 
 public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IParallelController> {
@@ -35,13 +34,13 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
         controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.maxeut*}§e " + maxEUt + " §r(" + GAValues.VN[GAUtility.getTierByVoltage(maxEUt)] + ")");
         if (energyStored > 0 && energyCapacity > 0) {
             int progressScaled = (int) Math.floor(energyStored / (energyCapacity * 1.0) * 100);
-            String displayEnergy = "% | " + energyStored +  " / " + energyCapacity + " °C";
+            String displayEnergy = "% | " + energyStored +  " / " + energyCapacity + " EU";
             IProbeInfo energyStoredInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            energyStoredInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity));
+            energyStoredInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_stored*} ");
             energyStoredInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
                     .suffix(displayEnergy)
-                    .alternateFilledColor(0xFFF10000)
-                    .filledColor(0xFFF10000)
+                    .alternateFilledColor(0xFFF8EB34)
+                    .filledColor(0xFFF8EB34)
                     .width((displayEnergy.length() * 12) / 2));
         }
         if (energyBonus > 0)

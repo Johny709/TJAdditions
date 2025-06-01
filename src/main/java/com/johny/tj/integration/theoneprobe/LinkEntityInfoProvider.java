@@ -9,6 +9,7 @@ import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -30,11 +31,11 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
         IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
-        for (int i = pageIndex; i < pageIndex + pageSize; i++) {
+        for (int i = pageIndex; i < pageIndex + pageSize && i < size; i++) {
             WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
             DimensionType worldType = world.provider.getDimensionType();
             Entity entity = capability.getEntity(i);
-            if (i < size && entity != null) {
+            if (entity != null) {
 
                 IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
@@ -42,9 +43,9 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
                 IProbeInfo entityInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 entityInfo.text(TextStyleClass.INFO + (entity.hasCustomName() ? entity.getCustomNameTag() : entity.getName()));
 
-                IProbeInfo posInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                posInfo.text(TextStyleClass.INFO + "X:§e " + entity.posX + ", §rY:§e " + entity.posY + ", §rZ:§e " + entity.posZ);
-                posInfo.text(TextStyleClass.INFO + " " + worldType.getName() + " (" + worldType.getId() + ")");
+                IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldType.getId()));
+                posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.pos", (int) entity.posX, (int) entity.posY, (int) entity.posZ));
             }
         }
     }

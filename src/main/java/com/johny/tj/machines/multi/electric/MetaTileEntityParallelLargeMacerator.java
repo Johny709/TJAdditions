@@ -3,7 +3,6 @@ package com.johny.tj.machines.multi.electric;
 import com.johny.tj.TJConfig;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
-import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -23,14 +22,16 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -119,15 +120,6 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (isStructureFormed()) {
-            Style style = new Style().setColor(TextFormatting.GREEN);
-            textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                    .appendText(" ")
-                    .appendSibling(new TextComponentString(String.valueOf(maxVoltage)).setStyle(style))
-                    .appendText(" (")
-                    .appendSibling(new TextComponentString(String.valueOf(GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])).setStyle(style))
-                    .appendText(")"));
-        }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
                 .appendSibling(new TextComponentTranslation("recipemap." + MACERATOR_RECIPES.getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.YELLOW))));

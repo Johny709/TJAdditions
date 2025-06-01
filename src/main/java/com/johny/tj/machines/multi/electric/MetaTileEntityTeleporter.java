@@ -444,7 +444,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             String select = "select:" + key;
             String remove = "remove:" + key;
             String rename = "rename:" + key;
-            String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
 
             ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + key + "§r")
                     .appendText("\n")
@@ -457,9 +456,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), rename));
 
             ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
-                    .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID))
+                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
                     .appendText("\n")
-                    .appendSibling(new TextComponentString(position));
+                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ())));
 
             keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
             textList.add(keyPos);
@@ -740,11 +739,23 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
+            return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
         if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
             return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
         if (capability == TJCapabilities.CAPABILITY_LINK_POS)
             return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public long getEnergyStored() {
+        return this.energyContainer.getEnergyStored();
+    }
+
+    @Override
+    public long getEnergyCapacity() {
+        return this.energyContainer.getEnergyCapacity();
     }
 
     @Override

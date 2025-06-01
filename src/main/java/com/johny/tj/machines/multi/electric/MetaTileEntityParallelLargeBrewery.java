@@ -4,7 +4,6 @@ import com.johny.tj.TJConfig;
 import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
-import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
@@ -30,7 +29,6 @@ import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
-import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -38,7 +36,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -158,15 +157,6 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (isStructureFormed()) {
-            Style style = new Style().setColor(TextFormatting.GREEN);
-            textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                    .appendText(" ")
-                    .appendSibling(new TextComponentString(String.valueOf(maxVoltage)).setStyle(style))
-                    .appendText(" (")
-                    .appendSibling(new TextComponentString(String.valueOf(GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])).setStyle(style))
-                    .appendText(")"));
-        }
         RecipeMap<?> recipeMap;
         switch (getRecipeMapIndex()) {
             case 1:

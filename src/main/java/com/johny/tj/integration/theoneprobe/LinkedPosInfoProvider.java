@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -33,11 +34,11 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
         IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
-        for (int i = pageIndex; i < pageIndex + pageSize; i++) {
+        for (int i = pageIndex; i < pageIndex + pageSize && i < size; i++) {
             WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
             DimensionType worldType = world.provider.getDimensionType();
             BlockPos pos = capability.getPos(i);
-            if (i < size && pos != null) {
+            if (pos != null) {
                 TileEntity entity = world.getTileEntity(pos);
                 MetaTileEntity gregEntity = BlockMachine.getMetaTileEntity(world, pos);
 
@@ -48,10 +49,12 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
                     nameInfo.item(gregEntity != null ? gregEntity.getStackForm() : new ItemStack(entity.getBlockType()));
                     nameInfo.text(TextStyleClass.INFO + (gregEntity != null ? " {*" + gregEntity.getMetaFullName() + "*}" : "{*" + entity.getBlockType().getTranslationKey() + ".name*}"));
 
-                    IProbeInfo posInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                    posInfo.text(TextStyleClass.INFO + (gregEntity != null ? "X:§e " + gregEntity.getPos().getX() + ", §rY:§e " + gregEntity.getPos().getY() + ", §rZ:§e " + gregEntity.getPos().getZ()
-                            : "X:§e " + entity.getPos().getX() + ", §rY:§e " + entity.getPos().getY() + ", §rZ:§e " + entity.getPos().getZ()));
-                    posInfo.text(TextStyleClass.INFO + " " +  worldType.getName() + " (" + worldType.getId() + ")");
+                    IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                    int x = gregEntity != null ? gregEntity.getPos().getX() : entity.getPos().getX();
+                    int y = gregEntity != null ? gregEntity.getPos().getY() : entity.getPos().getY();
+                    int z = gregEntity != null ? gregEntity.getPos().getZ() : entity.getPos().getZ();
+                    posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldType.getId()));
+                    posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.pos", x, y, z));
                 }
             }
         }

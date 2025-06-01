@@ -4,7 +4,6 @@ import com.johny.tj.TJConfig;
 import com.johny.tj.builder.MultiRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
-import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -33,7 +32,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -146,16 +146,6 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (isStructureFormed()) {
-            textList.add(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus).setStyle(new Style().setColor(TextFormatting.AQUA)));
-            Style style = new Style().setColor(TextFormatting.GREEN);
-            textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                    .appendText(" ")
-                    .appendSibling(new TextComponentString(String.valueOf(maxVoltage)).setStyle(style))
-                    .appendText(" (")
-                    .appendSibling(new TextComponentString(String.valueOf(GAValues.VN[GTUtility.getGATierByVoltage(maxVoltage)])).setStyle(style))
-                    .appendText(")"));
-        }
         textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
                 .appendSibling(getRecipeMapIndex() == 0 ? withButton(new TextComponentTranslation("recipemap." + LARGE_CHEMICAL_RECIPES.getUnlocalizedName() + ".name"), "chemicalReactor")
                         : withButton(new TextComponentTranslation("recipemap." + CHEMICAL_PLANT_RECIPES.getUnlocalizedName() + ".name"), "chemicalPlant")));

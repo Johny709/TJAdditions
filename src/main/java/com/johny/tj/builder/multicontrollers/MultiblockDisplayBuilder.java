@@ -39,10 +39,14 @@ public class MultiblockDisplayBuilder {
         return this;
     }
 
+    public MultiblockDisplayBuilder energyInput(boolean hasEnoughEnergy, long amount) {
+        return this.energyInput(hasEnoughEnergy, amount, 1);
+    }
+
     public MultiblockDisplayBuilder energyInput(boolean hasEnoughEnergy, long amount, int maxProgress) {
         ITextComponent textComponent = !hasEnoughEnergy ? new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
-                : maxProgress > 1 ? new TextComponentTranslation("tj.multiblock.parallel.sum.2", amount, maxProgress)
-                : new TextComponentTranslation("tj.multiblock.parallel.sum", amount) ;
+                : maxProgress > 1 ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum.2", amount, maxProgress))
+                : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum", amount)) ;
         textComponent.getStyle().setColor(hasEnoughEnergy ? WHITE : RED);
         this.textList.add(textComponent);
         return this;

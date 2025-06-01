@@ -56,7 +56,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -169,10 +172,9 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         for (int i = this.pageIndex, linkedEntitiesPos = i + 1; i < this.pageIndex + this.pageSize; i++, linkedEntitiesPos++) {
             if (i < this.linkedPlayers.length && this.linkedPlayers[i] != null) {
 
-                String name = this.linkedPlayers[i].getName();
-                String customName = this.linkedPlayers[i].getCustomNameTag();
+                String name = this.entityLinkName[i];
+                EntityPlayer player = this.linkedPlayers[i];
                 String inDimensionName = this.linkedPlayers[i].world.provider.getDimensionType().getName();
-                boolean hasCustomName = this.linkedPlayers[i].hasCustomName();
                 long totalEnergyStored = 0;
                 long totalEnergyCapacity = 0;
 
@@ -184,7 +186,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
                     if (RFContainer != null) {
                         totalEnergyStored += RFContainer.getEnergyStored() / 4;
-                        totalEnergyCapacity += RFContainer.getMaxEnergyStored()/ 4;
+                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
                     }
                     if (EUContainer != null) {
                         totalEnergyStored += EUContainer.getCharge();
@@ -200,7 +202,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
                     if (RFContainer != null) {
                         totalEnergyStored += RFContainer.getEnergyStored() / 4;
-                        totalEnergyCapacity += RFContainer.getMaxEnergyStored()/ 4;
+                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
                     }
                     if (EUContainer != null) {
                         totalEnergyStored += EUContainer.getCharge();
@@ -216,7 +218,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
                     if (RFContainer != null) {
                         totalEnergyStored += RFContainer.getEnergyStored() / 4;
-                        totalEnergyCapacity += RFContainer.getMaxEnergyStored()/ 4;
+                        totalEnergyCapacity += RFContainer.getMaxEnergyStored() / 4;
                     }
                     if (EUContainer != null) {
                         totalEnergyStored += EUContainer.getCharge();
@@ -225,22 +227,15 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 }
 
                 textList.add(new TextComponentString(": [" + linkedEntitiesPos + "] ")
-                        .appendSibling(new TextComponentTranslation(hasCustomName ? customName : name))
+                        .appendSibling(new TextComponentString(name))
                             .setStyle(new Style()
-                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(hasCustomName ? customName : name)
+                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", inDimensionName, getDimension(i)))
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", inDimensionName, this.getDimension(i))))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentTranslation("machine.universal.energy.stored", totalEnergyStored, totalEnergyCapacity))
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", totalEnergyStored, totalEnergyCapacity)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentString(String.valueOf(this.linkedPlayers[i].posX))
-                                                .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString("Y: ").appendSibling(new TextComponentString(String.valueOf(this.linkedPlayers[i].posY))
-                                                .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
-                                        .appendText("\n")
-                                        .appendSibling(new TextComponentString("Z: ").appendSibling(new TextComponentString(String.valueOf(this.linkedPlayers[i].posZ))
-                                                .setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true))))))
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", (int) player.posX, (int) player.posY, (int) player.posZ))))))
                         .appendText("\n")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
                         .appendText(" ")
@@ -272,7 +267,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
         super.addNewTabs(tabs, extended);
         TJWidgetGroup widgetLinkedPlayersGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab_linked_players_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedPlayersTab(widgetLinkedPlayersGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedPlayersTab(widgetLinkedPlayersGroup::addWidgets)));
     }
 
     @Override
@@ -401,7 +396,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         if (this.progress > 0 && !this.isActive)
             this.setActive(true);
 
-        if (getOffsetTimer() % 200 == 0)
+        if (this.getOffsetTimer() % 200 == 0)
             this.playerLinkUpdate();
 
         if (this.progress >= this.maxProgress) {
@@ -763,7 +758,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         this.entityLinkName[index] = name;
         this.entityLinkWorld[index] = world.provider.getDimensionType().getId();
         this.linkedPlayers[index] = player;
-        this.linkedPlayersID[index] = linkedPlayers[index].getUniqueID();
+        this.linkedPlayersID[index] = this.linkedPlayers[index].getUniqueID();
     }
 
     private String checkDuplicateNames(String name, int count) {
