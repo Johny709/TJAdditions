@@ -1,11 +1,11 @@
 package com.johny.tj.integration.jei;
 
+import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.Gregicality;
 import gregtech.api.GregTechAPI;
 import gregtech.api.gui.impl.ModularUIGuiHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IModPlugin;
@@ -32,10 +32,9 @@ public class JEIPlugin implements IModPlugin {
 
         for (ResourceLocation metaTileEntityId : GregTechAPI.META_TILE_ENTITY_REGISTRY.getKeys()) {
             MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(metaTileEntityId);
-            assert metaTileEntity != null;
             if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
-                for (RecipeMap<?> recipeMap : ((ParallelRecipeMapMultiblockController)metaTileEntity).getRecipeMaps()) {
-                    String recipeName = recipeMap.getUnlocalizedName();
+                for (ParallelRecipeMap recipeMap : ((ParallelRecipeMapMultiblockController) metaTileEntity).parallelRecipeMap) {
+                    String recipeName = recipeMap.getRecipeMap().getUnlocalizedName();
                     registry.addRecipeCatalyst(metaTileEntity.getStackForm(), Gregicality.MODID + ":" + recipeName);
                 }
             }

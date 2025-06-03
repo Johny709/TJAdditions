@@ -307,7 +307,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected Recipe findRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, boolean useOptimizedRecipeLookUp) {
-        return controller.multiRecipeMap.findRecipe(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp, occupiedRecipes, distinct);
+        return controller.parallelRecipeMap[controller.getRecipeMapIndex()].findRecipe(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp, this.occupiedRecipes, distinct);
     }
 
     protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs) {
@@ -893,7 +893,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                         ));
             }
 
-            occupiedRecipes[recipeIndex] = controller.multiRecipeMap.findAndGet(new Recipe(inputIngredients, outputItemStackCollection, chancedOutputCollection, inputFluidStackCollection, outputFluidStackCollection,
+            this.occupiedRecipes[recipeIndex] = this.controller.parallelRecipeMap[this.controller.getRecipeMapIndex()].findAndGet(new Recipe(inputIngredients, outputItemStackCollection, chancedOutputCollection, inputFluidStackCollection, outputFluidStackCollection,
                     recipeDurationList.getCompoundTagAt(i).getInteger("RecipeDuration" + recipeIndex), recipeEnergyList.getCompoundTagAt(i).getInteger("RecipeEnergy" + recipeIndex), false));
         }
     }

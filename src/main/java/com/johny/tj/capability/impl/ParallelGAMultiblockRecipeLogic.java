@@ -58,7 +58,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     }
 
     public RecipeMap<?> getRecipeMap() {
-        return this.recipeMap;
+        return this.controller.getMultiblockRecipe();
     }
 
     @Override

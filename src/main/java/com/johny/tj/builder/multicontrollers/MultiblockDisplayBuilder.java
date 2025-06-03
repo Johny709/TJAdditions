@@ -4,6 +4,7 @@ import com.johny.tj.TJValues;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.recipes.RecipeMap;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -13,6 +14,7 @@ import net.minecraftforge.fluids.FluidStack;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static net.minecraft.util.text.TextFormatting.*;
 
 ;
@@ -93,6 +95,12 @@ public class MultiblockDisplayBuilder {
         textList.add(isWorkingText);
         if (isActive)
             textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+        return this;
+    }
+
+    public MultiblockDisplayBuilder recipeMap(RecipeMap<?> recipeMap) {
+        this.textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
+                .appendSibling(withButton(new TextComponentString("[" + I18n.translateToLocal("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
         return this;
     }
 }

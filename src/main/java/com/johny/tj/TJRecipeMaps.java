@@ -1,7 +1,7 @@
 package com.johny.tj;
 
 
-import com.johny.tj.builder.MultiRecipeMap;
+import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.SteamRecipeBuilder;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.gui.GuiTextures;
@@ -37,70 +37,70 @@ public class TJRecipeMaps {
 
     public static final RecipeMap<SimpleRecipeBuilder> ROCK_BREAKER_RECIPES = new RecipeMap<>("rock_breaker", 1, 1, 1, 1, 0, 2, 0, 0, new SimpleRecipeBuilder()).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
 
-    public static MultiRecipeMap PARALLEL_CHEMICAL_REACTOR_RECIPES;
-    public static MultiRecipeMap PARALLEL_CHEMICAL_PLANT_RECIPES;
-    public static MultiRecipeMap PARALLEL_MACERATOR_RECIPES;
-    public static MultiRecipeMap PARALLEL_ORE_WASHER_RECIPES;
-    public static MultiRecipeMap PARALLEL_CHEMICAL_BATH_RECIPES;
-    public static MultiRecipeMap PARALLEL_SIMPLE_ORE_WASHER_RECIPES;
-    public static MultiRecipeMap PARALLEL_AUTOCLAVE_RECIPES;
-    public static MultiRecipeMap PARALLEL_CENTRIFUGE_RECIPES;
-    public static MultiRecipeMap PARALLEL_THERMAL_CENTRIFUGE_RECIPES;
-    public static MultiRecipeMap PARALLEL_GAS_CENTRIFUGE_RECIPES;
-    public static MultiRecipeMap PARALLEL_SIFTER_RECIPES;
-    public static MultiRecipeMap PARALLEL_ELECTROLYZER_RECIPES;
-    public static MultiRecipeMap PARALLEL_BREWING_MACHINE_RECIPES;
-    public static MultiRecipeMap PARALLEL_FERMENTING_RECIPES;
-    public static MultiRecipeMap PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES;
-    public static MultiRecipeMap PARALLEL_CRACKING_UNIT_RECIPES;
+    public static ParallelRecipeMap PARALLEL_CHEMICAL_REACTOR_RECIPES;
+    public static ParallelRecipeMap PARALLEL_CHEMICAL_PLANT_RECIPES;
+    public static ParallelRecipeMap PARALLEL_MACERATOR_RECIPES;
+    public static ParallelRecipeMap PARALLEL_ORE_WASHER_RECIPES;
+    public static ParallelRecipeMap PARALLEL_CHEMICAL_BATH_RECIPES;
+    public static ParallelRecipeMap PARALLEL_SIMPLE_ORE_WASHER_RECIPES;
+    public static ParallelRecipeMap PARALLEL_AUTOCLAVE_RECIPES;
+    public static ParallelRecipeMap PARALLEL_CENTRIFUGE_RECIPES;
+    public static ParallelRecipeMap PARALLEL_THERMAL_CENTRIFUGE_RECIPES;
+    public static ParallelRecipeMap PARALLEL_GAS_CENTRIFUGE_RECIPES;
+    public static ParallelRecipeMap PARALLEL_SIFTER_RECIPES;
+    public static ParallelRecipeMap PARALLEL_ELECTROLYZER_RECIPES;
+    public static ParallelRecipeMap PARALLEL_BREWING_MACHINE_RECIPES;
+    public static ParallelRecipeMap PARALLEL_FERMENTING_RECIPES;
+    public static ParallelRecipeMap PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES;
+    public static ParallelRecipeMap PARALLEL_CRACKING_UNIT_RECIPES;
 
     public static void multiRecipesInit() {
-        PARALLEL_CHEMICAL_REACTOR_RECIPES = new MultiRecipeMap(
-                0, 3, 0, 3, 0, 5, 0, 4, GARecipeMaps.LARGE_CHEMICAL_RECIPES.getRecipeList());
+        PARALLEL_CHEMICAL_REACTOR_RECIPES = new ParallelRecipeMap(
+                0, 3, 0, 3, 0, 5, 0, 4, GARecipeMaps.LARGE_CHEMICAL_RECIPES);
 
-        PARALLEL_CHEMICAL_PLANT_RECIPES = new MultiRecipeMap(
-                0, 6, 0, 4, 0, 5, 0, 4, GARecipeMaps.CHEMICAL_PLANT_RECIPES.getRecipeList());
+        PARALLEL_CHEMICAL_PLANT_RECIPES = new ParallelRecipeMap(
+                0, 6, 0, 4, 0, 5, 0, 4, GARecipeMaps.CHEMICAL_PLANT_RECIPES);
 
-        PARALLEL_MACERATOR_RECIPES = new MultiRecipeMap(
-                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.MACERATOR_RECIPES.getRecipeList());
+        PARALLEL_MACERATOR_RECIPES = new ParallelRecipeMap(
+                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.MACERATOR_RECIPES);
 
-        PARALLEL_ORE_WASHER_RECIPES = new MultiRecipeMap(
-                1, 1, 1, 3, 0, 1, 0, 0, RecipeMaps.ORE_WASHER_RECIPES.getRecipeList());
+        PARALLEL_ORE_WASHER_RECIPES = new ParallelRecipeMap(
+                1, 1, 1, 3, 0, 1, 0, 0, RecipeMaps.ORE_WASHER_RECIPES);
 
-        PARALLEL_CHEMICAL_BATH_RECIPES = new MultiRecipeMap(
-                1, 1, 1, 3, 1, 1, 0, 0, RecipeMaps.CHEMICAL_BATH_RECIPES.getRecipeList());
+        PARALLEL_CHEMICAL_BATH_RECIPES = new ParallelRecipeMap(
+                1, 1, 1, 3, 1, 1, 0, 0, RecipeMaps.CHEMICAL_BATH_RECIPES);
 
-        PARALLEL_SIMPLE_ORE_WASHER_RECIPES = new MultiRecipeMap(
-                1, 1, 1, 1, 0, 1, 0, 0, GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES.getRecipeList());
+        PARALLEL_SIMPLE_ORE_WASHER_RECIPES = new ParallelRecipeMap(
+                1, 1, 1, 1, 0, 1, 0, 0, GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES);
 
-        PARALLEL_AUTOCLAVE_RECIPES = new MultiRecipeMap(
-                1, 1, 1, 1, 1, 1, 0, 0, RecipeMaps.AUTOCLAVE_RECIPES.getRecipeList());
+        PARALLEL_AUTOCLAVE_RECIPES = new ParallelRecipeMap(
+                1, 1, 1, 1, 1, 1, 0, 0, RecipeMaps.AUTOCLAVE_RECIPES);
 
-        PARALLEL_CENTRIFUGE_RECIPES = new MultiRecipeMap(
-                0, 1, 0, 6, 0, 1, 0, 6, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES.getRecipeList());
+        PARALLEL_CENTRIFUGE_RECIPES = new ParallelRecipeMap(
+                0, 1, 0, 6, 0, 1, 0, 6, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES);
 
-        PARALLEL_THERMAL_CENTRIFUGE_RECIPES = new MultiRecipeMap(
-                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES.getRecipeList());
+        PARALLEL_THERMAL_CENTRIFUGE_RECIPES = new ParallelRecipeMap(
+                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES);
 
-        PARALLEL_GAS_CENTRIFUGE_RECIPES = new MultiRecipeMap(
-                0, 1, 0, 0, 1, 1, 1, 1, GARecipeMaps.GAS_CENTRIFUGE_RECIPES.getRecipeList());
+        PARALLEL_GAS_CENTRIFUGE_RECIPES = new ParallelRecipeMap(
+                0, 1, 0, 0, 1, 1, 1, 1, GARecipeMaps.GAS_CENTRIFUGE_RECIPES);
 
-        PARALLEL_SIFTER_RECIPES = new MultiRecipeMap(
-                1, 1, 0, 6, 0, 0, 0, 0, RecipeMaps.SIFTER_RECIPES.getRecipeList());
+        PARALLEL_SIFTER_RECIPES = new ParallelRecipeMap(
+                1, 1, 0, 6, 0, 0, 0, 0, RecipeMaps.SIFTER_RECIPES);
 
-        PARALLEL_ELECTROLYZER_RECIPES = new MultiRecipeMap(
-                0, 1, 0, 6, 0, 1, 0, 6, RecipeMaps.ELECTROLYZER_RECIPES.getRecipeList());
+        PARALLEL_ELECTROLYZER_RECIPES = new ParallelRecipeMap(
+                0, 1, 0, 6, 0, 1, 0, 6, RecipeMaps.ELECTROLYZER_RECIPES);
 
-        PARALLEL_BREWING_MACHINE_RECIPES = new MultiRecipeMap(
-                1, 1, 0, 0, 1, 1, 1, 1, RecipeMaps.BREWING_RECIPES.getRecipeList());
+        PARALLEL_BREWING_MACHINE_RECIPES = new ParallelRecipeMap(
+                1, 1, 0, 0, 1, 1, 1, 1, RecipeMaps.BREWING_RECIPES);
 
-        PARALLEL_FERMENTING_RECIPES = new MultiRecipeMap(
-                0, 0, 0, 0, 1, 1, 1, 1, RecipeMaps.FERMENTING_RECIPES.getRecipeList());
+        PARALLEL_FERMENTING_RECIPES = new ParallelRecipeMap(
+                0, 0, 0, 0, 1, 1, 1, 1, RecipeMaps.FERMENTING_RECIPES);
 
-        PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES = new MultiRecipeMap(
-                0, 2, 0, 9, 0, 2, 0, 2, GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES.getRecipeList());
+        PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES = new ParallelRecipeMap(
+                0, 2, 0, 9, 0, 2, 0, 2, GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES);
 
-        PARALLEL_CRACKING_UNIT_RECIPES = new MultiRecipeMap(
-                0, 0, 0, 0, 2, 2, 1, 2, RecipeMaps.CRACKING_RECIPES.getRecipeList());
+        PARALLEL_CRACKING_UNIT_RECIPES = new ParallelRecipeMap(
+                0, 0, 0, 0, 2, 2, 1, 2, RecipeMaps.CRACKING_RECIPES);
     }
 }

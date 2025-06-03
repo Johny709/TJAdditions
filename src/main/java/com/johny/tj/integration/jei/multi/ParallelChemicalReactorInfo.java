@@ -1,7 +1,7 @@
 package com.johny.tj.integration.jei.multi;
 
 import com.johny.tj.machines.TJMetaTileEntities;
-import com.johny.tj.machines.multi.electric.MetaTileEntityParallelLargeChemicalReactor;
+import com.johny.tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;

@@ -1,6 +1,7 @@
-package com.johny.tj.machines.multi.electric;
+package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
+import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import gregicadditions.GAConfig;
@@ -20,7 +21,6 @@ import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.BlockWireCoil;
@@ -44,7 +44,6 @@ import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
-import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
 public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
@@ -53,14 +52,14 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     private int energyBonus;
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, PARALLEL_CHEMICAL_REACTOR_RECIPES);
+        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES});
         this.recipeMapWorkable = new ParallelMultiblockChemicalReactorWorkableHandler(this);
         this.isWorkingEnabled = false;
     }
 
     @Override
     public MetaTileEntityParallelLargeChemicalReactor createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityParallelLargeChemicalReactor(metaTileEntityId);
+        return new MetaTileEntityParallelLargeChemicalReactor(this.metaTileEntityId);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
         factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
         factoryPattern.aisle("HHSHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH")
-                .where('S', selfPredicate())
+                .where('S', this.selfPredicate())
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('C', statePredicate(getCasingState()).or(machineControllerPredicate))
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
@@ -98,7 +97,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
         return factoryPattern.build();
     }
 
-    protected IBlockState getCasingState() {
+    private static IBlockState getCasingState() {
         return GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT);
     }
 
@@ -147,13 +146,10 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
         if (isStructureFormed()) {
             textList.add(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus).setStyle(new Style().setColor(TextFormatting.AQUA)));
         }
-        textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(new TextComponentTranslation("recipemap." + LARGE_CHEMICAL_RECIPES.getUnlocalizedName() + ".name")
-                        .setStyle(new Style().setColor(TextFormatting.YELLOW))));
+        super.addDisplayText(textList);
     }
 
     @Override
@@ -161,8 +157,8 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
         super.formStructure(context);
         PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
         int min = pump.getTier();
-        maxVoltage = (long) (Math.pow(4, min) * 8);
-        energyBonus = context.getOrDefault("coilLevel", 0) * 5;
+        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
     }
 
     @Override
@@ -173,22 +169,12 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     @Override
     public int getEUBonus() {
-        return energyBonus;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{LARGE_CHEMICAL_RECIPES};
+        return this.energyBonus;
     }
 
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelChemicalReactor.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?> getMultiblockRecipe() {
-        return LARGE_CHEMICAL_RECIPES;
     }
 
     private static class ParallelMultiblockChemicalReactorWorkableHandler extends ParallelMultiblockRecipeLogic {

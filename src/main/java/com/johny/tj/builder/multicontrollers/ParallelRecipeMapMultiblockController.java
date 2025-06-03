@@ -5,7 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
-import com.johny.tj.builder.MultiRecipeMap;
+import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.capability.IParallelController;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
@@ -60,11 +60,12 @@ import java.util.function.Function;
 import java.util.stream.LongStream;
 
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
+import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController {
 
-    public final MultiRecipeMap multiRecipeMap;
+    public final ParallelRecipeMap[] parallelRecipeMap;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
     protected int parallelLayer;
     protected long maxVoltage = 0;
@@ -72,6 +73,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected final int pageSize = 6;
     protected boolean advancedText;
     protected boolean isDistinctBus;
+    protected int recipeMapIndex;
 
     protected IItemHandlerModifiable inputInventory;
     protected IItemHandlerModifiable outputInventory;
@@ -79,9 +81,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected IMultipleTankHandler outputFluidInventory;
     protected IEnergyContainer energyContainer;
 
-    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, MultiRecipeMap recipeMap) {
+    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, ParallelRecipeMap[] recipeMap) {
         super(metaTileEntityId);
-        this.multiRecipeMap = recipeMap;
+        this.parallelRecipeMap = recipeMap;
     }
 
     public IEnergyContainer getEnergyContainer() {
@@ -126,7 +128,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return -1;
     }
 
-    public abstract RecipeMap<?>[] getRecipeMaps();
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        return this.parallelRecipeMap[this.recipeMapIndex].getRecipeMap();
+    }
+
+    public int getRecipeMapIndex() {
+        return this.recipeMapIndex;
+    }
 
     /**
      * Performs extra checks for validity of given recipe before multiblock
@@ -201,7 +210,20 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .energyInput(this.energyContainer.getEnergyStored() >= totalEnergyConsumption, totalEnergyConsumption)
-                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage));
+                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .recipeMap(this.getMultiblockRecipe());
+        }
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        if (this.recipeMapWorkable.isActive())
+            return;
+        this.recipeMapWorkable.previousRecipe.clear();
+        this.recipeMapIndex = this.recipeMapIndex >= this.parallelRecipeMap.length - 1 ? 0 : this.recipeMapIndex + 1;
+        if (!this.getWorld().isRemote) {
+            this.writeCustomData(RECIPE_MAP_INDEX, buf -> buf.writeInt(this.recipeMapIndex));
+            this.markDirty();
         }
     }
 
@@ -413,8 +435,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         //noinspection SuspiciousMethodCalls
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         //noinspection SuspiciousMethodCalls
-        return itemInputsCount >= multiRecipeMap.getMinInputs() &&
-                fluidInputsCount >= multiRecipeMap.getMinFluidInputs() &&
+        return itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
+                fluidInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinFluidInputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
 
@@ -496,24 +518,31 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             this.structurePattern = this.createStructurePattern();
             this.scheduleRenderUpdate();
         }
+        if (dataId == RECIPE_MAP_INDEX) {
+            this.recipeMapIndex = buf.readInt();
+            this.scheduleRenderUpdate();
+        }
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
         buf.writeInt(this.parallelLayer);
+        buf.writeByte(this.recipeMapIndex);
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
+        this.recipeMapIndex = buf.readByte();
         this.structurePattern = this.createStructurePattern();
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         NBTTagCompound tagCompound = super.writeToNBT(data);
+        tagCompound.setInteger("RecipeMapIndex", this.recipeMapIndex);
         tagCompound.setInteger("Parallel", this.parallelLayer);
         tagCompound.setBoolean("DistinctBus", this.isDistinctBus);
         tagCompound.setBoolean("UseOptimizedRecipeLookUp", this.recipeMapWorkable.getUseOptimizedRecipeLookUp());
@@ -522,14 +551,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
+        this.recipeMapIndex = data.getInteger("RecipeMapIndex");
         this.parallelLayer = data.getInteger("Parallel");
         this.isDistinctBus = data.getBoolean("DistinctBus");
         if (data.hasKey("Parallel"))
             this.structurePattern = this.createStructurePattern();
-        if (data.hasKey("UseOptimizedRecipeLookUp")) {
+        if (data.hasKey("UseOptimizedRecipeLookUp"))
             this.recipeMapWorkable.setUseOptimizedRecipeLookUp(data.getBoolean("UseOptimizedRecipeLookUp"));
-        }
+        super.readFromNBT(data);
     }
 
     @Override

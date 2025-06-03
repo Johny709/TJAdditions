@@ -4,6 +4,7 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.MatchingMode;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.map.MapFluidIngredient;
 import gregtech.api.recipes.map.MapItemStackIngredient;
 import gregtech.api.util.GTUtility;
@@ -16,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 
-public final class MultiRecipeMap {
+public final class ParallelRecipeMap {
 
     private final int minInputs, maxInputs;
     private final int minOutputs, maxOutputs;
@@ -26,8 +27,10 @@ public final class MultiRecipeMap {
     private final Map<MapFluidIngredient, Collection<Recipe>> recipeFluidMap;
     private final Map<MapItemStackIngredient, Collection<Recipe>> recipeItemMap;
     private final Map<Recipe, Byte> recipeIngredientCountMap = new HashMap<>();
+    private final RecipeMap<?> recipeMap;
 
-    public MultiRecipeMap(int minInputs, int maxInputs, int minOutputs, int maxOutputs, int minFluidInputs, int maxFluidInputs, int minFluidOutputs, int maxFluidOutputs, Collection<Recipe> listOfRecipes) {
+    public ParallelRecipeMap(int minInputs, int maxInputs, int minOutputs, int maxOutputs, int minFluidInputs, int maxFluidInputs, int minFluidOutputs, int maxFluidOutputs, RecipeMap<?> recipeMap) {
+        this.recipeMap = recipeMap;
         this.minInputs = minInputs;
         this.minFluidInputs = minFluidInputs;
         this.minOutputs = minOutputs;
@@ -38,10 +41,10 @@ public final class MultiRecipeMap {
         this.maxOutputs = maxOutputs;
         this.maxFluidOutputs = maxFluidOutputs;
 
-        this.recipeList = Collections.unmodifiableCollection(listOfRecipes);
+        this.recipeList = Collections.unmodifiableCollection(recipeMap.getRecipeList());
         Map<MapFluidIngredient, Collection<Recipe>> recipeFluidMapInit = new HashMap<>();
         Map<MapItemStackIngredient, Collection<Recipe>> recipeItemMapInit = new HashMap<>();
-        listOfRecipes.forEach(recipe -> {
+        this.recipeList.forEach(recipe -> {
 
             HashSet<MapFluidIngredient> uniqueFluidIngredients = new HashSet<>();
             for (FluidStack fluid : recipe.getFluidInputs()) {
@@ -68,6 +71,10 @@ public final class MultiRecipeMap {
 
         this.recipeFluidMap = Collections.unmodifiableMap(recipeFluidMapInit);
         this.recipeItemMap = Collections.unmodifiableMap(recipeItemMapInit);
+    }
+
+    public RecipeMap<?> getRecipeMap() {
+        return recipeMap;
     }
 
     public int getMinFluidOutputs() {

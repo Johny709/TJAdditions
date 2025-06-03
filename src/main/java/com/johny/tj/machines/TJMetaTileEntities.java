@@ -4,6 +4,7 @@ import com.johny.tj.TJ;
 import com.johny.tj.TJConfig;
 import com.johny.tj.TJRecipeMaps;
 import com.johny.tj.machines.multi.electric.*;
+import com.johny.tj.machines.multi.parallel.*;
 import com.johny.tj.machines.multi.steam.*;
 import com.johny.tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
 import com.johny.tj.machines.singleblock.MetaTileEntityCoalBoiler;
