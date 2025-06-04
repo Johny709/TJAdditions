@@ -146,29 +146,33 @@ public class TJMetaTileEntities {
         INDUSTRIAL_STEAM_ENGINE = GregTechAPI.registerMetaTileEntity(5082, new MetaTileEntityIndustrialSteamEngine(TJId("industrial_steam_engine")));
         ADVANCED_PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5083, new MetaTileEntityParallelAdvancedLargeChemicalReactor(TJId("advanced_parallel_chemical_reactor")));
         WATER_RESERVOIR_HATCH = GregTechAPI.registerMetaTileEntity(5084, new MetaTileEntityWaterReservoirHatch(TJId("water_reservoir"), 9));
+
+        // range 5085 - 5105 -> parallel
         PARALLEL_LARGE_MACERATOR = GregTechAPI.registerMetaTileEntity(5085, new MetaTileEntityParallelLargeMacerator(TJId("parallel_large_macerator")));
         PARALLEL_LARGE_WASHING_MACHINE = GregTechAPI.registerMetaTileEntity(5086, new MetaTileEntityParallelLargeWashingMachine(TJId("parallel_large_washing_machine")));
         PARALLEL_LARGE_CENTRIFUGE = GregTechAPI.registerMetaTileEntity(5087, new MetaTileEntityParallelLargeCentrifuge(TJId("parallel_large_centrifuge")));
         PARALLEL_LARGE_ELECTROLYZER = GregTechAPI.registerMetaTileEntity(5088, new MetaTileEntityParallelLargeElectrolyzer(TJId("parallel_large_electrolyzer")));
         PARALLEL_LARGE_SIFTER = GregTechAPI.registerMetaTileEntity(5089, new MetaTileEntityParallelLargeSifter(TJId("parallel_large_sifter")));
         PARALLEL_LARGE_BREWERY = GregTechAPI.registerMetaTileEntity(5090, new MetaTileEntityParallelLargeBrewery(TJId("parallel_large_brewery")));
-        ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5091, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
-        ROTOR_HOLDER_UMV = GregTechAPI.registerMetaTileEntity(5092, new MetaTileEntityRotorHolderUHVPlus(TJId("rotor_holder.umv"), GAValues.UMV, 2.5f));
-        COOLANT_ROTOR_HOLDER_UMV = GregTechAPI.registerMetaTileEntity(5093, new MetaTileEntityRotorHolderForNuclearCoolantUHVPlus(TJId("coolant_rotor_holder.umv"), GAValues.UMV, 2.5f));
 
-        COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5094, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
-        COAL_BOILER[1] = GregTechAPI.registerMetaTileEntity(5095, new MetaTileEntityCoalBoiler(TJId("coal_boiler_steel"), STEEL));
-        COAL_BOILER[2] = GregTechAPI.registerMetaTileEntity(5096, new MetaTileEntityCoalBoiler(TJId("coal_boiler_lv"), LV));
-        SOLAR_BOILER[0] = GregTechAPI.registerMetaTileEntity(5097, new MetaTileEntitySolarBoiler(TJId("solar_boiler_bronze"), BRONZE));
-        SOLAR_BOILER[1] = GregTechAPI.registerMetaTileEntity(5098, new MetaTileEntitySolarBoiler(TJId("solar_boiler_steel"), STEEL));
-        SOLAR_BOILER[2] = GregTechAPI.registerMetaTileEntity(5099, new MetaTileEntitySolarBoiler(TJId("solar_boiler_lv"), LV));
-        FLUID_BOILER[0] = GregTechAPI.registerMetaTileEntity(5100, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_bronze"), BRONZE));
-        FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5101, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
-        FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5102, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
+        // range 5300+ -> singleblocks
+        COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
+        COAL_BOILER[1] = GregTechAPI.registerMetaTileEntity(5301, new MetaTileEntityCoalBoiler(TJId("coal_boiler_steel"), STEEL));
+        COAL_BOILER[2] = GregTechAPI.registerMetaTileEntity(5302, new MetaTileEntityCoalBoiler(TJId("coal_boiler_lv"), LV));
+        SOLAR_BOILER[0] = GregTechAPI.registerMetaTileEntity(5303, new MetaTileEntitySolarBoiler(TJId("solar_boiler_bronze"), BRONZE));
+        SOLAR_BOILER[1] = GregTechAPI.registerMetaTileEntity(5304, new MetaTileEntitySolarBoiler(TJId("solar_boiler_steel"), STEEL));
+        SOLAR_BOILER[2] = GregTechAPI.registerMetaTileEntity(5305, new MetaTileEntitySolarBoiler(TJId("solar_boiler_lv"), LV));
+        FLUID_BOILER[0] = GregTechAPI.registerMetaTileEntity(5306, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_bronze"), BRONZE));
+        FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5317, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
+        FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5319, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
 
-        LARGE_WIRELESS_ENERGY_EMITTER = GregTechAPI.registerMetaTileEntity(5103, new MetaTileEntityLargeWirelessEnergyEmitter(TJId("large_wireless_energy_emitter"), INPUT));
-        LARGE_WIRELESS_ENERGY_RECEIVER = GregTechAPI.registerMetaTileEntity(5104, new MetaTileEntityLargeWirelessEnergyReceiver(TJId("large_wireless_energy_receiver"), OUTPUT));
-        LARGE_BATTERY_CHARGER = GregTechAPI.registerMetaTileEntity(5105, new MetaTileEntityLargeBatteryCharger(TJId("large_battery_charger")));
+        // range 5500+ -> misc
+        ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
+        ROTOR_HOLDER_UMV = GregTechAPI.registerMetaTileEntity(5501, new MetaTileEntityRotorHolderUHVPlus(TJId("rotor_holder.umv"), GAValues.UMV, 2.5f));
+        COOLANT_ROTOR_HOLDER_UMV = GregTechAPI.registerMetaTileEntity(5502, new MetaTileEntityRotorHolderForNuclearCoolantUHVPlus(TJId("coolant_rotor_holder.umv"), GAValues.UMV, 2.5f));
+        LARGE_WIRELESS_ENERGY_EMITTER = GregTechAPI.registerMetaTileEntity(5503, new MetaTileEntityLargeWirelessEnergyEmitter(TJId("large_wireless_energy_emitter"), INPUT));
+        LARGE_WIRELESS_ENERGY_RECEIVER = GregTechAPI.registerMetaTileEntity(5504, new MetaTileEntityLargeWirelessEnergyReceiver(TJId("large_wireless_energy_receiver"), OUTPUT));
+        LARGE_BATTERY_CHARGER = GregTechAPI.registerMetaTileEntity(5505, new MetaTileEntityLargeBatteryCharger(TJId("large_battery_charger")));
 
         VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5127, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
         TELEPORTER = GregTechAPI.registerMetaTileEntity(5128, new MetaTileEntityTeleporter(TJId("teleporter")));
