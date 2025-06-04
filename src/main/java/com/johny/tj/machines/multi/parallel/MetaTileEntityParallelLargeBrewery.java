@@ -1,7 +1,6 @@
 package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
@@ -41,7 +40,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.johny.tj.TJRecipeMaps.*;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_LARGE_BREWERY_RECIPEMAP;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.GAMaterials.Grisium;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -56,7 +55,7 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeBrewery(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BREWING_MACHINE_RECIPES, PARALLEL_FERMENTING_RECIPES, PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES, PARALLEL_CRACKING_UNIT_RECIPES});
+        super(metaTileEntityId, PARALLEL_LARGE_BREWERY_RECIPEMAP);
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, null, TJConfig.parallelLargeBrewery.eutPercentage,
                 TJConfig.parallelLargeBrewery.durationPercentage, TJConfig.parallelLargeBrewery.chancePercentage, TJConfig.parallelLargeBrewery.stack) {
             @Override

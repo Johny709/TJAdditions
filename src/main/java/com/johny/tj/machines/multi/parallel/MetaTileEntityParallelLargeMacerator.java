@@ -1,7 +1,6 @@
 package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -39,7 +38,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.johny.tj.TJRecipeMaps.PARALLEL_MACERATOR_RECIPES;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_LARGE_MACERATOR_RECIPEMAP;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.MACERATOR_RECIPES;
@@ -50,7 +49,7 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeMacerator(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_MACERATOR_RECIPES});
+        super(metaTileEntityId, PARALLEL_LARGE_MACERATOR_RECIPEMAP);
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, MACERATOR_RECIPES, TJConfig.parallelLargeMacerator.eutPercentage,
                 TJConfig.parallelLargeMacerator.durationPercentage, TJConfig.parallelLargeMacerator.chancePercentage, TJConfig.parallelLargeMacerator.stack) {
             @Override

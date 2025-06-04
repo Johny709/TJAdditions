@@ -1,7 +1,6 @@
 package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import gregicadditions.GAConfig;
@@ -43,7 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_LARGE_CHEMICAL_REACTOR_RECIPEMAP;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.CHEMICAL_RECIPES;
@@ -55,7 +54,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     private int energyBonus;
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES});
+        super(metaTileEntityId, PARALLEL_LARGE_CHEMICAL_REACTOR_RECIPEMAP);
         this.recipeMapWorkable = new ParallelMultiblockChemicalReactorWorkableHandler(this);
         this.isWorkingEnabled = false;
     }

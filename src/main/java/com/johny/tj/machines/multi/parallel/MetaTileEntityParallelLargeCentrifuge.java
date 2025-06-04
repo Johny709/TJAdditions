@@ -1,7 +1,6 @@
 package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -43,7 +42,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.johny.tj.TJRecipeMaps.*;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_LARGE_CENTRIFUGE_RECIPEMAP;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.GAS_CENTRIFUGE_RECIPES;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CENTRIFUGE_RECIPES;
@@ -59,7 +58,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CENTRIFUGE_RECIPES, PARALLEL_THERMAL_CENTRIFUGE_RECIPES, PARALLEL_GAS_CENTRIFUGE_RECIPES});
+        super(metaTileEntityId, PARALLEL_LARGE_CENTRIFUGE_RECIPEMAP);
         this.recipeMapWorkable = new ParallelLargeCentrifugeWorkableHandler(this, null, TJConfig.parallelLargeCentrifuge.eutPercentage,
                 TJConfig.parallelLargeCentrifuge.durationPercentage, TJConfig.parallelLargeCentrifuge.chancePercentage, TJConfig.parallelLargeCentrifuge.stack);
     }

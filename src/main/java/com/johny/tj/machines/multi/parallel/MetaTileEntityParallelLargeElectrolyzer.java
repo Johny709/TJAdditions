@@ -1,7 +1,6 @@
 package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
-import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -40,7 +39,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.johny.tj.TJRecipeMaps.PARALLEL_ELECTROLYZER_RECIPES;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_LARGE_ELECTROLYZER_RECIPEMAP;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
@@ -52,7 +51,7 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeElectrolyzer(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ELECTROLYZER_RECIPES});
+        super(metaTileEntityId, PARALLEL_LARGE_ELECTROLYZER_RECIPEMAP);
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, ELECTROLYZER_RECIPES, TJConfig.parallelLargeElectrolyzer.eutPercentage,
                 TJConfig.parallelLargeElectrolyzer.durationPercentage, TJConfig.parallelLargeElectrolyzer.chancePercentage, TJConfig.parallelLargeElectrolyzer.stack) {
             @Override
