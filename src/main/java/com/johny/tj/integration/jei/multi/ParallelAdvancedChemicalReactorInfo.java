@@ -21,7 +21,7 @@ import java.util.List;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
-public class AdvancedParallelChemicalReactorInfo extends MultiblockInfoPage {
+public class ParallelAdvancedChemicalReactorInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {

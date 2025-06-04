@@ -45,21 +45,21 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
-public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS,
             MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private int energyBonus;
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
-    public MetaTileEntityAdvancedParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, PARALLEL_ADVANCED_LARGE_CHEMICAL_REACTOR_RECIPEMAP);
         this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityAdvancedParallelLargeChemicalReactor(this.metaTileEntityId);
+        return new MetaTileEntityParallelAdvancedLargeChemicalReactor(this.metaTileEntityId);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
 
         @Override
         public boolean isBatching() {
-            return ((MetaTileEntityAdvancedParallelLargeChemicalReactor) this.controller).recipeMapIndex == 0;
+            return ((MetaTileEntityParallelAdvancedLargeChemicalReactor) this.controller).recipeMapIndex == 0;
         }
 
         @Override

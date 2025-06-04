@@ -65,7 +65,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeRockBreaker LARGE_ROCK_BREAKER;
     public static MetaTileEntityInfiniteFluidDrill INFINITE_FLUID_DRILL;
     public static MetaTileEntityIndustrialSteamEngine INDUSTRIAL_STEAM_ENGINE;
-    public static MetaTileEntityAdvancedParallelLargeChemicalReactor ADVANCED_PARALLEL_CHEMICAL_REACTOR;
+    public static MetaTileEntityParallelAdvancedLargeChemicalReactor ADVANCED_PARALLEL_CHEMICAL_REACTOR;
     public static MetaTileEntityWaterReservoirHatch WATER_RESERVOIR_HATCH;
     public static MetaTileEntityParallelLargeMacerator PARALLEL_LARGE_MACERATOR;
     public static MetaTileEntityParallelLargeWashingMachine PARALLEL_LARGE_WASHING_MACHINE;
@@ -144,7 +144,7 @@ public class TJMetaTileEntities {
 
         INFINITE_FLUID_DRILL = GregTechAPI.registerMetaTileEntity(5081, new MetaTileEntityInfiniteFluidDrill(TJId("infinite_fluid_drill")));
         INDUSTRIAL_STEAM_ENGINE = GregTechAPI.registerMetaTileEntity(5082, new MetaTileEntityIndustrialSteamEngine(TJId("industrial_steam_engine")));
-        ADVANCED_PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5083, new MetaTileEntityAdvancedParallelLargeChemicalReactor(TJId("advanced_parallel_chemical_reactor")));
+        ADVANCED_PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5083, new MetaTileEntityParallelAdvancedLargeChemicalReactor(TJId("advanced_parallel_chemical_reactor")));
         WATER_RESERVOIR_HATCH = GregTechAPI.registerMetaTileEntity(5084, new MetaTileEntityWaterReservoirHatch(TJId("water_reservoir"), 9));
         PARALLEL_LARGE_MACERATOR = GregTechAPI.registerMetaTileEntity(5085, new MetaTileEntityParallelLargeMacerator(TJId("parallel_large_macerator")));
         PARALLEL_LARGE_WASHING_MACHINE = GregTechAPI.registerMetaTileEntity(5086, new MetaTileEntityParallelLargeWashingMachine(TJId("parallel_large_washing_machine")));
