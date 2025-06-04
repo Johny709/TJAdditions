@@ -29,17 +29,17 @@ public final class ParallelRecipeMap {
     private final Map<Recipe, Byte> recipeIngredientCountMap = new HashMap<>();
     private final RecipeMap<?> recipeMap;
 
-    public ParallelRecipeMap(int minInputs, int maxInputs, int minOutputs, int maxOutputs, int minFluidInputs, int maxFluidInputs, int minFluidOutputs, int maxFluidOutputs, RecipeMap<?> recipeMap) {
+    public ParallelRecipeMap(RecipeMap<?> recipeMap) {
         this.recipeMap = recipeMap;
-        this.minInputs = minInputs;
-        this.minFluidInputs = minFluidInputs;
-        this.minOutputs = minOutputs;
-        this.minFluidOutputs = minFluidOutputs;
+        this.minInputs = recipeMap.getMinInputs();
+        this.minFluidInputs = recipeMap.getMinFluidInputs();
+        this.minOutputs = recipeMap.getMinOutputs();
+        this.minFluidOutputs = recipeMap.getMinFluidOutputs();
 
-        this.maxInputs = maxInputs;
-        this.maxFluidInputs = maxFluidInputs;
-        this.maxOutputs = maxOutputs;
-        this.maxFluidOutputs = maxFluidOutputs;
+        this.maxInputs = recipeMap.getMaxInputs();
+        this.maxFluidInputs = recipeMap.getMaxFluidInputs();
+        this.maxOutputs = recipeMap.getMaxOutputs();
+        this.maxFluidOutputs = recipeMap.getMaxFluidOutputs();
 
         this.recipeList = Collections.unmodifiableCollection(recipeMap.getRecipeList());
         Map<MapFluidIngredient, Collection<Recipe>> recipeFluidMapInit = new HashMap<>();

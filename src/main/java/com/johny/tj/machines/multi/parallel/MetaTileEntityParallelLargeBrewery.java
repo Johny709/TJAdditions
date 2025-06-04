@@ -21,6 +21,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
@@ -47,7 +48,7 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.BREWING_RECIPES;
+import static gregtech.api.recipes.RecipeMaps.*;
 
 public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultiblockController {
 
@@ -149,5 +150,10 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeBrewery.maximumParallel;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{BREWING_RECIPES, FERMENTING_RECIPES, CHEMICAL_DEHYDRATOR_RECIPES, CRACKING_RECIPES};
     }
 }

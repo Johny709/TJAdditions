@@ -14,6 +14,7 @@ import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregicadditions.GAUtility;
+import gregicadditions.capabilities.IMultiRecipe;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
@@ -49,6 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -63,9 +65,9 @@ import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController {
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController, IMultiRecipe {
 
-    public final ParallelRecipeMap[] parallelRecipeMap;
+    public ParallelRecipeMap[] parallelRecipeMap;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
     protected int parallelLayer;
     protected long maxVoltage = 0;
@@ -133,8 +135,24 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return this.parallelRecipeMap[this.recipeMapIndex].getRecipeMap();
     }
 
+    /**
+     * Used to get the current index of the selected RecipeMap
+     *
+     * @return index of the current recipe
+     */
+    @Override
     public int getRecipeMapIndex() {
         return this.recipeMapIndex;
+    }
+
+    /**
+     * Used to add new RecipeMaps to a given MultiBlock
+     *
+     * @param recipeMaps to add to the MultiBlock
+     */
+    @Override
+    public void addRecipeMaps(RecipeMap<?>[] recipeMaps) {
+        ArrayUtils.addAll(this.parallelRecipeMap, recipeMaps);
     }
 
     /**

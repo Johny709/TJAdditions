@@ -22,7 +22,6 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -46,8 +45,11 @@ import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+import static gregicadditions.recipes.GARecipeMaps.GAS_CENTRIFUGE_RECIPES;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CENTRIFUGE_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.CENTRIFUGE_RECIPES;
+import static gregtech.api.recipes.RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
 
 public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMultiblockController {
 
@@ -71,7 +73,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                LARGE_CENTRIFUGE_RECIPES.getLocalizedName() + ", " + RecipeMaps.THERMAL_CENTRIFUGE_RECIPES.getLocalizedName()
+                LARGE_CENTRIFUGE_RECIPES.getLocalizedName() + ", " + THERMAL_CENTRIFUGE_RECIPES.getLocalizedName()
                         + ", " + GARecipeMaps.GAS_CENTRIFUGE_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeCentrifuge.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeCentrifuge.durationPercentage / 100.0)));
@@ -152,6 +154,11 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeCentrifuge.maximumParallel;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{CENTRIFUGE_RECIPES, LARGE_CENTRIFUGE_RECIPES, THERMAL_CENTRIFUGE_RECIPES, GAS_CENTRIFUGE_RECIPES};
     }
 
     private static class ParallelLargeCentrifugeWorkableHandler extends ParallelGAMultiblockRecipeLogic {

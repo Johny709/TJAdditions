@@ -19,6 +19,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -43,6 +44,7 @@ import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLE
 import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_PLANT_RECIPES;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
 public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
@@ -157,6 +159,11 @@ public class MetaTileEntityAdvancedParallelLargeChemicalReactor extends Parallel
     @Override
     public int getEUBonus() {
         return this.energyBonus;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{CHEMICAL_RECIPES, CHEMICAL_PLANT_RECIPES};
     }
 
     private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {

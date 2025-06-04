@@ -3,13 +3,13 @@ package com.johny.tj;
 
 import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.SteamRecipeBuilder;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.builders.SimpleRecipeBuilder;
 
+import static gregicadditions.recipes.GARecipeMaps.*;
+import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.Materials.Steam;
 import static gregtech.api.unification.material.Materials.Water;
 
@@ -55,52 +55,21 @@ public class TJRecipeMaps {
     public static ParallelRecipeMap PARALLEL_CRACKING_UNIT_RECIPES;
 
     public static void multiRecipesInit() {
-        PARALLEL_CHEMICAL_REACTOR_RECIPES = new ParallelRecipeMap(
-                0, 3, 0, 3, 0, 5, 0, 4, GARecipeMaps.LARGE_CHEMICAL_RECIPES);
-
-        PARALLEL_CHEMICAL_PLANT_RECIPES = new ParallelRecipeMap(
-                0, 6, 0, 4, 0, 5, 0, 4, GARecipeMaps.CHEMICAL_PLANT_RECIPES);
-
-        PARALLEL_MACERATOR_RECIPES = new ParallelRecipeMap(
-                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.MACERATOR_RECIPES);
-
-        PARALLEL_ORE_WASHER_RECIPES = new ParallelRecipeMap(
-                1, 1, 1, 3, 0, 1, 0, 0, RecipeMaps.ORE_WASHER_RECIPES);
-
-        PARALLEL_CHEMICAL_BATH_RECIPES = new ParallelRecipeMap(
-                1, 1, 1, 3, 1, 1, 0, 0, RecipeMaps.CHEMICAL_BATH_RECIPES);
-
-        PARALLEL_SIMPLE_ORE_WASHER_RECIPES = new ParallelRecipeMap(
-                1, 1, 1, 1, 0, 1, 0, 0, GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES);
-
-        PARALLEL_AUTOCLAVE_RECIPES = new ParallelRecipeMap(
-                1, 1, 1, 1, 1, 1, 0, 0, RecipeMaps.AUTOCLAVE_RECIPES);
-
-        PARALLEL_CENTRIFUGE_RECIPES = new ParallelRecipeMap(
-                0, 1, 0, 6, 0, 1, 0, 6, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES);
-
-        PARALLEL_THERMAL_CENTRIFUGE_RECIPES = new ParallelRecipeMap(
-                1, 1, 1, 3, 0, 0, 0, 0, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES);
-
-        PARALLEL_GAS_CENTRIFUGE_RECIPES = new ParallelRecipeMap(
-                0, 1, 0, 0, 1, 1, 1, 1, GARecipeMaps.GAS_CENTRIFUGE_RECIPES);
-
-        PARALLEL_SIFTER_RECIPES = new ParallelRecipeMap(
-                1, 1, 0, 6, 0, 0, 0, 0, RecipeMaps.SIFTER_RECIPES);
-
-        PARALLEL_ELECTROLYZER_RECIPES = new ParallelRecipeMap(
-                0, 1, 0, 6, 0, 1, 0, 6, RecipeMaps.ELECTROLYZER_RECIPES);
-
-        PARALLEL_BREWING_MACHINE_RECIPES = new ParallelRecipeMap(
-                1, 1, 0, 0, 1, 1, 1, 1, RecipeMaps.BREWING_RECIPES);
-
-        PARALLEL_FERMENTING_RECIPES = new ParallelRecipeMap(
-                0, 0, 0, 0, 1, 1, 1, 1, RecipeMaps.FERMENTING_RECIPES);
-
-        PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES = new ParallelRecipeMap(
-                0, 2, 0, 9, 0, 2, 0, 2, GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES);
-
-        PARALLEL_CRACKING_UNIT_RECIPES = new ParallelRecipeMap(
-                0, 0, 0, 0, 2, 2, 1, 2, RecipeMaps.CRACKING_RECIPES);
+        PARALLEL_CHEMICAL_REACTOR_RECIPES = new ParallelRecipeMap(LARGE_CHEMICAL_RECIPES);
+        PARALLEL_CHEMICAL_PLANT_RECIPES = new ParallelRecipeMap(CHEMICAL_PLANT_RECIPES);
+        PARALLEL_MACERATOR_RECIPES = new ParallelRecipeMap(MACERATOR_RECIPES);
+        PARALLEL_ORE_WASHER_RECIPES = new ParallelRecipeMap(ORE_WASHER_RECIPES);
+        PARALLEL_CHEMICAL_BATH_RECIPES = new ParallelRecipeMap(CHEMICAL_BATH_RECIPES);
+        PARALLEL_SIMPLE_ORE_WASHER_RECIPES = new ParallelRecipeMap(SIMPLE_ORE_WASHER_RECIPES);
+        PARALLEL_AUTOCLAVE_RECIPES = new ParallelRecipeMap(AUTOCLAVE_RECIPES);
+        PARALLEL_CENTRIFUGE_RECIPES = new ParallelRecipeMap(LARGE_CENTRIFUGE_RECIPES);
+        PARALLEL_THERMAL_CENTRIFUGE_RECIPES = new ParallelRecipeMap(THERMAL_CENTRIFUGE_RECIPES);
+        PARALLEL_GAS_CENTRIFUGE_RECIPES = new ParallelRecipeMap(GAS_CENTRIFUGE_RECIPES);
+        PARALLEL_SIFTER_RECIPES = new ParallelRecipeMap(SIFTER_RECIPES);
+        PARALLEL_ELECTROLYZER_RECIPES = new ParallelRecipeMap(ELECTROLYZER_RECIPES);
+        PARALLEL_BREWING_MACHINE_RECIPES = new ParallelRecipeMap(BREWING_RECIPES);
+        PARALLEL_FERMENTING_RECIPES = new ParallelRecipeMap(FERMENTING_RECIPES);
+        PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES = new ParallelRecipeMap(CHEMICAL_DEHYDRATOR_RECIPES);
+        PARALLEL_CRACKING_UNIT_RECIPES = new ParallelRecipeMap(CRACKING_RECIPES);
     }
 }

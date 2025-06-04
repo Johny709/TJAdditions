@@ -20,6 +20,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
@@ -44,8 +45,7 @@ import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.CHEMICAL_BATH_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.ORE_WASHER_RECIPES;
+import static gregtech.api.recipes.RecipeMaps.*;
 
 public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMapMultiblockController {
 
@@ -144,5 +144,10 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeWashingMachine.maximumParallel;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{ORE_WASHER_RECIPES, CHEMICAL_BATH_RECIPES, SIMPLE_ORE_WASHER_RECIPES, AUTOCLAVE_RECIPES};
     }
 }
