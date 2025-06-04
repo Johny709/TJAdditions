@@ -1,6 +1,7 @@
 package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
+import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -38,7 +39,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.johny.tj.TJRecipeMaps.PARALLEL_LARGE_SIFTER_RECIPEMAP;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_SIFTER_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.GAMaterials.EglinSteel;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
@@ -51,7 +52,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeSifter(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, PARALLEL_LARGE_SIFTER_RECIPEMAP);
+        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_SIFTER_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, SIFTER_RECIPES, TJConfig.parallelLargeSifter.eutPercentage,
                 TJConfig.parallelLargeSifter.durationPercentage, TJConfig.parallelLargeSifter.chancePercentage, TJConfig.parallelLargeSifter.stack) {
             @Override

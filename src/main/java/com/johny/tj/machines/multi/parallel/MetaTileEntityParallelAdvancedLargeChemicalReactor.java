@@ -1,6 +1,7 @@
 package com.johny.tj.machines.multi.parallel;
 
 import com.johny.tj.TJConfig;
+import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -37,7 +38,8 @@ import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import static com.johny.tj.TJRecipeMaps.PARALLEL_ADVANCED_LARGE_CHEMICAL_REACTOR_RECIPEMAP;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_PLANT_RECIPES;
+import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_PLANT_RECIPES;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
@@ -53,7 +55,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, PARALLEL_ADVANCED_LARGE_CHEMICAL_REACTOR_RECIPEMAP);
+        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES, PARALLEL_CHEMICAL_PLANT_RECIPES});
         this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this);
     }
 

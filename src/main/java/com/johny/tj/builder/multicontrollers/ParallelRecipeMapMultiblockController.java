@@ -67,7 +67,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController, IMultiRecipe {
 
-    public ParallelRecipeMap[] parallelRecipeMap;
+    public final ParallelRecipeMap[] parallelRecipeMap;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
     protected int parallelLayer;
     protected long maxVoltage = 0;
