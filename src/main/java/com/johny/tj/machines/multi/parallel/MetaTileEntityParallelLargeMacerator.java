@@ -89,15 +89,15 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
             factoryPattern.validateLayer(2 + count * 2, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
         factoryPattern.aisle("H###H", "HB#BH", "HGBGH", "HHHHH");
-        factoryPattern.aisle("HHHHH", "HHHHH", "HmSmH", "HHHHH")
+        return factoryPattern.aisle("HHHHH", "HHHHH", "HmSmH", "HHHHH")
                 .where('S', this.selfPredicate())
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('M', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('G', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
                 .where('B', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
-                .where('#', isAirPredicate());
-        return factoryPattern.build();
+                .where('#', isAirPredicate())
+                .build();
     }
 
     private static IBlockState getCasingState() {

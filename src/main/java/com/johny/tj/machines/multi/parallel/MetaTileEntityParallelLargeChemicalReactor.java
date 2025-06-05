@@ -83,7 +83,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
         }
 
         factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-        factoryPattern.aisle("HHSHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH")
+        return factoryPattern.aisle("HHSHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH")
                 .where('S', this.selfPredicate())
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('C', statePredicate(getCasingState()).or(machineControllerPredicate))
@@ -91,8 +91,8 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
                 .where('B', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
-                .where('#', (tile) -> true);
-        return factoryPattern.build();
+                .where('#', (tile) -> true)
+                .build();
     }
 
     private static IBlockState getCasingState() {

@@ -51,7 +51,7 @@ public class ParallelLargeAssemblerInfo extends MultiblockInfoPage {
                     aisle4 = ArrayUtils.addAll(aisle4, "CCCC", "CCCC", "CCCC");
                 }
             }
-            builder.aisle(aisle1)
+            shapeInfos.add(builder.aisle(aisle1)
                     .aisle(aisle2)
                     .aisle(aisle3)
                     .aisle(aisle4)
@@ -66,8 +66,8 @@ public class ParallelLargeAssemblerInfo extends MultiblockInfoPage {
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
                     .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST);
-            shapeInfos.add(builder.build());
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                    .build());
         }
         return shapeInfos;
     }

@@ -30,7 +30,7 @@ public class ParallelLargeWashingMachineInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int index = 1; index < 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             builder.aisle("HHHHH", "HMEMH", "HHHHH", "~HHH~");
@@ -41,7 +41,7 @@ public class ParallelLargeWashingMachineInfo extends MultiblockInfoPage {
                 builder.aisle("HHHHH", "HP#PH", "H###H", "HGHGH");
                 builder.aisle("HHHHH", "HP#PH", "H###H", "HGHGH");
             }
-            builder.aisle("HIHOH", "HMSMH", "HimoH", "~HHH~")
+            shapeInfos.add(builder.aisle("HIHOH", "HMSMH", "HimoH", "~HHH~")
                     .where('S', getController(), EnumFacing.WEST)
                     .where('H', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))
                     .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
@@ -52,10 +52,10 @@ public class ParallelLargeWashingMachineInfo extends MultiblockInfoPage {
                     .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                     .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
-                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-            shapes.add(builder.build());
+                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .build());
         }
-        return shapes;
+        return shapeInfos;
     }
 
     @Override

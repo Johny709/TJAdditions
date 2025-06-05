@@ -37,7 +37,7 @@ public class ParallelLargeCanningMachineInfo extends MultiblockInfoPage {
             for (int layer = 0; layer < shapeInfo; layer++) {
                 builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
             }
-            builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~")
+            shapeInfos.add(builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~")
                     .where('S', this.getController(), WEST)
                     .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                     .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
@@ -48,8 +48,8 @@ public class ParallelLargeCanningMachineInfo extends MultiblockInfoPage {
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
                     .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST);
-            shapeInfos.add(builder.build());
+                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                    .build());
         }
         return shapeInfos;
     }

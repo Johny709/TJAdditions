@@ -31,7 +31,7 @@ public class ParallelChemicalReactorInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int index = 1; index <= 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
             MetaTileEntityParallelLargeChemicalReactor chemicalReactor = TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
@@ -42,7 +42,7 @@ public class ParallelChemicalReactorInfo extends MultiblockInfoPage {
             }
             builder.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
             builder.aisle("CCCCC", "CCCCI", "ECCCS", "CCCCO", "CCCCC");
-            builder.where('S', chemicalReactor, EnumFacing.WEST)
+            shapeInfos.add(builder.where('S', chemicalReactor, EnumFacing.WEST)
                     .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
                     .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                     .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
@@ -53,10 +53,10 @@ public class ParallelChemicalReactorInfo extends MultiblockInfoPage {
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                     .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
                     .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                    .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST);
-            shapes.add(builder.build());
+                    .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                    .build());
         }
-        return shapes;
+        return shapeInfos;
     }
 
     @Override

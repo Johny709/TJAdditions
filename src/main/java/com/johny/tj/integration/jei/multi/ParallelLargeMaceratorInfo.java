@@ -30,7 +30,7 @@ public class ParallelLargeMaceratorInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int index = 1; index < 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             builder.aisle("HHHHH", "HMEMH", "HHHHH", "HHHHH");
@@ -39,7 +39,7 @@ public class ParallelLargeMaceratorInfo extends MultiblockInfoPage {
                 builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
             }
             builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
-            builder.aisle("HHHHH", "HMSMH", "HImOH", "HHHHH")
+            shapeInfos.add(builder.aisle("HHHHH", "HMSMH", "HImOH", "HHHHH")
                     .where('S', getController(), EnumFacing.WEST)
                     .where('H', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
                     .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
@@ -48,10 +48,10 @@ public class ParallelLargeMaceratorInfo extends MultiblockInfoPage {
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
-                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-            shapes.add(builder.build());
+                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .build());
         }
-        return shapes;
+        return shapeInfos;
     }
 
     @Override

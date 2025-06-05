@@ -35,7 +35,7 @@ public class ParallelLargeArcFurnaceInfo extends MultiblockInfoPage {
             }
             builder.aisle("~CCC~", "CCCCI", "CcccC", "CCCCO", "~CCC~");
             builder.aisle("~GGG~", "GTPTG", "G###S", "GTPTG", "~GGG~");
-            builder.aisle("~CCC~", "CCCCi", "EcccM", "CCCCo", "~CCC~")
+            shapeInfos.add(builder.aisle("~CCC~", "CCCCi", "EcccM", "CCCCo", "~CCC~")
                     .where('S', this.getController(), WEST)
                     .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
                     .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
@@ -47,8 +47,8 @@ public class ParallelLargeArcFurnaceInfo extends MultiblockInfoPage {
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
                     .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST);
-            shapeInfos.add(builder.build());
+                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                    .build());
         }
         return shapeInfos;
     }

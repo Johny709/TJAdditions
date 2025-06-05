@@ -32,7 +32,7 @@ public class ParallelLargeBreweryInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int index = 1; index < 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             builder.aisle("CCCCC", "F~C~F", "CCECC", "CCMCC", "CCCCC", "~CCC~");
@@ -41,7 +41,7 @@ public class ParallelLargeBreweryInfo extends MultiblockInfoPage {
                 builder.aisle("~CCC~", "~~C~~", "~G~G~", "p~P~p", "~G~G~", "~~C~~");
                 builder.aisle("~CCC~", "~~C~~", "~G~G~", "C~P~C", "~G~G~", "~~C~~");
             }
-            builder.aisle("CCCCC", "F~C~F", "CiSoC", "CIMOC", "CCmCC", "~CCC~")
+            shapeInfos.add(builder.aisle("CCCCC", "F~C~F", "CiSoC", "CIMOC", "CCmCC", "~CCC~")
                     .where('S', getController(), EnumFacing.WEST)
                     .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))
                     .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
@@ -55,10 +55,10 @@ public class ParallelLargeBreweryInfo extends MultiblockInfoPage {
                     .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
                     .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                    .where('~', Blocks.AIR.getDefaultState());
-            shapes.add(builder.build());
+                    .where('~', Blocks.AIR.getDefaultState())
+                    .build());
         }
-        return shapes;
+        return shapeInfos;
     }
 
     @Override

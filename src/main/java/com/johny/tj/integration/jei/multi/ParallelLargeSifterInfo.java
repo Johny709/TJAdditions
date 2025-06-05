@@ -30,7 +30,7 @@ public class ParallelLargeSifterInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int index = 1; index < 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
             for (int count = 1; count < index; count++) {
@@ -43,7 +43,7 @@ public class ParallelLargeSifterInfo extends MultiblockInfoPage {
             builder.aisle("HPHPH", "HGGGO", "EGGGS", "HGGGI", "HPHPH");
             builder.aisle("~HHH~", "H###H", "H###m", "H###H", "~HHH~");
             builder.aisle("~H~H~", "HHHHH", "~H~H~", "HHHHH", "~H~H~");
-            builder.aisle("~H~H~", "HHHHH", "~H~H~", "HHHHH", "~H~H~")
+            shapeInfos.add(builder.aisle("~H~H~", "HHHHH", "~H~H~", "HHHHH", "~H~H~")
                     .where('S', getController(), EnumFacing.WEST)
                     .where('H', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.EGLIN_STEEL))
                     .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
@@ -52,10 +52,10 @@ public class ParallelLargeSifterInfo extends MultiblockInfoPage {
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
-                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-            shapes.add(builder.build());
+                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .build());
         }
-        return shapes;
+        return shapeInfos;
     }
 
     @Override

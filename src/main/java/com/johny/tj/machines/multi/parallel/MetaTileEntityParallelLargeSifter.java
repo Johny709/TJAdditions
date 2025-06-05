@@ -96,7 +96,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
         factoryPattern.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
         factoryPattern.aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~");
         factoryPattern.aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~");
-        factoryPattern.validateLayer(3, context -> context.getInt("RedstoneControllerAmount") <= 1)
+        return factoryPattern.validateLayer(3, context -> context.getInt("RedstoneControllerAmount") <= 1)
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
@@ -105,8 +105,8 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('P', LargeSimpleRecipeMapMultiblockController.pistonPredicate())
                 .where('#', isAirPredicate())
-                .where('~', tile -> true);
-        return factoryPattern.build();
+                .where('~', tile -> true)
+                .build();
     }
 
     private static IBlockState getCasingState() {

@@ -29,7 +29,7 @@ public class ParallelLargeElectrolyzerInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int index = 1; index < 16; index++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             builder.aisle("HEGHH", "HHGHH", "HHGHH", "HH#HH");
@@ -38,7 +38,7 @@ public class ParallelLargeElectrolyzerInfo extends MultiblockInfoPage {
                 builder.aisle("HHGHH", "HHGHH", "HHGHH", "HH#HH");
                 builder.aisle("HHGHH", "HP#MH", "HHGHH", "H###H");
             }
-            builder.aisle("HimoH", "HISOH", "HHGHH", "HH#HH")
+            shapeInfos.add(builder.aisle("HimoH", "HISOH", "HHGHH", "HH#HH")
                     .where('S', getController(), EnumFacing.WEST)
                     .where('H', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.POTIN))
                     .where('G', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
@@ -49,10 +49,10 @@ public class ParallelLargeElectrolyzerInfo extends MultiblockInfoPage {
                     .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                     .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
-                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-            shapes.add(builder.build());
+                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .build());
         }
-        return shapes;
+        return shapeInfos;
     }
 
     @Override

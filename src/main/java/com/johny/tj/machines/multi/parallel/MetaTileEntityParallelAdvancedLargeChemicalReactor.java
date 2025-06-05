@@ -106,7 +106,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
             factoryPattern.aisle("C~~~C~HHSHH~C~~~C", "CCCCC~HHHHH~CCCCC", "C~~~C~HHHHH~C~~~C", "CCCCC~HHHHH~CCCCC", "C~~~C~HHHHH~C~~~C");
         else
             factoryPattern.aisle("~~~~~~HHSHH~C~~~C", "~~~~~~HHHHH~CCCCC", "~~~~~~HHHHH~C~~~C", "~~~~~~HHHHH~CCCCC", "~~~~~~HHHHH~C~~~C");
-        factoryPattern.where('S', this.selfPredicate())
+        return factoryPattern.where('S', this.selfPredicate())
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('C', statePredicate(getCasingState()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
@@ -115,8 +115,8 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
                 .where('p', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('M', statePredicate(getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
-                .where('~', tile -> true);
-        return factoryPattern.build();
+                .where('~', tile -> true)
+                .build();
     }
 
     private static IBlockState getCasingState() {

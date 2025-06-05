@@ -123,7 +123,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
         }
         factoryPattern.aisle("~HHH~", "CHcHC", "CHcHC", "CHcHC", "~HHH~");
         factoryPattern.aisle("~GSG~", "GT#TG", "GP#PG", "GT#TG", "~GGG~");
-        factoryPattern.aisle("~HHH~", "CHcHC", "CHcHC", "CHcHC", "~HHH~")
+        return factoryPattern.aisle("~HHH~", "CHcHC", "CHcHC", "CHcHC", "~HHH~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
@@ -132,8 +132,8 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('#', isAirPredicate())
-                .where('~', tile -> true);
-        return factoryPattern.build();
+                .where('~', tile -> true)
+                .build();
     }
 
     private static IBlockState getCasingState() {

@@ -97,7 +97,7 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
             factoryPattern.aisle("~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~", "~CCC~");
             factoryPattern.validateLayer(2 + count * 3, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-        factoryPattern.aisle("~CCC~", "CHHHC", "CHmHC", "CHSHC", "F~C~F", "CCCCC")
+         return factoryPattern.aisle("~CCC~", "CHHHC", "CHmHC", "CHSHC", "F~C~F", "CCCCC")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
@@ -108,9 +108,8 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('p', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
                 .where('#', isAirPredicate())
-                .where('~', tile -> true);
-
-        return factoryPattern.build();
+                .where('~', tile -> true)
+                .build();
     }
 
     private static IBlockState getCasingState() {

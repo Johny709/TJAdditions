@@ -89,7 +89,7 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
             factoryPattern.aisle("C###C", "MMGMM", "Mm#PM", "MMGMM");
             factoryPattern.validateLayer(1 + count * 2, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-        factoryPattern.aisle("CC#CC", "HHGHH", "HHSHH", "HHHHH")
+        return factoryPattern.aisle("CC#CC", "HHGHH", "HHSHH", "HHHHH")
                 .where('S', selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
@@ -97,8 +97,8 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
                 .where('G', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('P', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
-                .where('#', isAirPredicate());
-        return factoryPattern.build();
+                .where('#', isAirPredicate())
+                .build();
     }
 
     private static IBlockState getCasingState() {

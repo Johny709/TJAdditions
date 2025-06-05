@@ -98,7 +98,7 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
             factoryPattern.aisle("CGCGC", "H###H", "HP#PH", "HHHHH");
             factoryPattern.validateLayer(2 + count * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-        factoryPattern.aisle("~CCC~", "HHHHH", "HmSmH", "HHHHH")
+        return factoryPattern.aisle("~CCC~", "HHHHH", "HmSmH", "HHHHH")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
@@ -107,8 +107,8 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('#', isAirPredicate())
-                .where('~', tile -> true);
-        return factoryPattern.build();
+                .where('~', tile -> true)
+                .build();
     }
 
     private static IBlockState getCasingState() {

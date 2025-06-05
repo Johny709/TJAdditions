@@ -44,7 +44,7 @@ public class ParallelLargeCentrifugeInfo extends MultiblockInfoPage {
             builder.aisle("HHHHH", "H###H", "H#P#H", "H###H", "HHHHH");
             builder.aisle("~HGH~", "o###O", "G#P#S", "i###I", "~HGH~");
             builder.aisle("HHHHH", "H###H", "H#P#H", "H###H", "HHHHH");
-            builder.aisle("~HHH~", "HCCCH", "ECMCm", "HCCCH", "~HHH~")
+            shapes.add(builder.aisle("~HHH~", "HCCCH", "ECMCm", "HCCCH", "~HHH~")
                     .where('S', getController(), EnumFacing.WEST)
                     .where('H', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.RED_STEEL))
                     .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
@@ -56,8 +56,8 @@ public class ParallelLargeCentrifugeInfo extends MultiblockInfoPage {
                     .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.EAST)
                     .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.EAST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
-                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-            shapes.add(builder.build());
+                    .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .build());
         }
         return shapes;
     }

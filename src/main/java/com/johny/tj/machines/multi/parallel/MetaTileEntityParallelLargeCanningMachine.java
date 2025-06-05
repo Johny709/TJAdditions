@@ -85,15 +85,15 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
         for (int i = 0; i < this.parallelLayer; i++) {
             factoryPattern.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
         }
-        factoryPattern.aisle("~~P~~", "~CPC~", "PPSPP", "~CPC~", "~~P~~")
+        return factoryPattern.aisle("~~P~~", "~CPC~", "PPSPP", "~CPC~", "~~P~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(getCasingState()).or(glassPredicate()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
                 .where('p', pumpPredicate())
                 .where('#', isAirPredicate())
-                .where('~', tile -> true);
-        return factoryPattern.build();
+                .where('~', tile -> true)
+                .build();
     }
 
     private static IBlockState getCasingState() {
