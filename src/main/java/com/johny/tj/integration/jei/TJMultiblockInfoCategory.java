@@ -87,6 +87,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("parallel_large_brewery", new MultiblockInfoRecipeWrapper(new ParallelLargeBreweryInfo()))
                             .put("parallel_large_arc_furnace", new MultiblockInfoRecipeWrapper(new ParallelLargeArcFurnaceInfo()))
                             .put("parallel_large_assembler", new MultiblockInfoRecipeWrapper(new ParallelLargeAssemblerInfo()))
+                            .put("parallel_large_canning_machine", new MultiblockInfoRecipeWrapper(new ParallelLargeCanningMachineInfo()))
                             .put("large_wireless_energy_emitter", new MultiblockInfoRecipeWrapper(new LargeWirelessEnergyEmitterInfo(INPUT, LARGE_WIRELESS_ENERGY_EMITTER)))
                             .put("large_wireless_energy_receiver", new MultiblockInfoRecipeWrapper(new LargeWirelessEnergyEmitterInfo(OUTPUT, LARGE_WIRELESS_ENERGY_RECEIVER)))
                             .put("large_battery_charger", new MultiblockInfoRecipeWrapper(new LargeBatteryChargerInfo()))

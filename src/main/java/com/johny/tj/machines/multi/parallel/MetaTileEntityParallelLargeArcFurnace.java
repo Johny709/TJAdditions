@@ -28,6 +28,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -99,6 +101,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
                 ARC_FURNACE_RECIPES.getLocalizedName() + ", " + PLASMA_ARC_FURNACE_RECIPES.getLocalizedName()));
