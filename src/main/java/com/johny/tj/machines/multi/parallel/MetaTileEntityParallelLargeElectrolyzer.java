@@ -126,12 +126,6 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.maxVoltage = 0;
-    }
-
-    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeElectrolyzer.maximumParallel;
     }

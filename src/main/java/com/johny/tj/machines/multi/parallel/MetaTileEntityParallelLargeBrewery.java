@@ -143,12 +143,6 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.maxVoltage = 0;
-    }
-
-    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeBrewery.maximumParallel;
     }

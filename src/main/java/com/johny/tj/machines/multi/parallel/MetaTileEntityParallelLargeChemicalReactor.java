@@ -165,12 +165,6 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.maxVoltage = 0;
-    }
-
-    @Override
     public int getEUBonus() {
         return this.energyBonus;
     }

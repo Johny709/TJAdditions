@@ -26,11 +26,9 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     private final int durationPercentage;
     private final int chancePercentage;
     private final int stack;
-    private final RecipeMap<?> recipeMap;
 
-    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, RecipeMap<?> recipeMap, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
         super(tileEntity, TJConfig.machines.recipeCacheCapacity);
-        this.recipeMap = recipeMap;
         this.EUtPercentage = EUtPercentage;
         this.durationPercentage = durationPercentage;
         this.chancePercentage = chancePercentage;

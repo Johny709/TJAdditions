@@ -138,12 +138,6 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.maxVoltage = 0;
-    }
-
-    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeWashingMachine.maximumParallel;
     }

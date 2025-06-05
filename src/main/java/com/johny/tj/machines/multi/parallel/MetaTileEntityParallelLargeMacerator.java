@@ -123,12 +123,6 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.maxVoltage = 0;
-    }
-
-    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeMacerator.maximumParallel;
     }

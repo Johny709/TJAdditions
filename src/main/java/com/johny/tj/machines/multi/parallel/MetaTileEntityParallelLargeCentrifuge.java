@@ -140,12 +140,6 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.maxVoltage = 0;
-    }
-
-    @Override
     public int getEUBonus() {
         return this.energyBonus;
     }

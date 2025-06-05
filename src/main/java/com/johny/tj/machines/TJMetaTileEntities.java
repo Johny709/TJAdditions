@@ -73,6 +73,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityParallelLargeElectrolyzer PARALLEL_LARGE_ELECTROLYZER;
     public static MetaTileEntityParallelLargeSifter PARALLEL_LARGE_SIFTER;
     public static MetaTileEntityParallelLargeBrewery PARALLEL_LARGE_BREWERY;
+    public static MetaTileEntityParallelLargeArcFurnace PARALLEL_LARGE_ARC_FURNACE;
     public static MetaTileEntityAcceleratorAnchorPoint ACCELERATOR_ANCHOR_POINT;
     public static MetaTileEntityLargeWirelessEnergyEmitter LARGE_WIRELESS_ENERGY_EMITTER;
     public static MetaTileEntityLargeWirelessEnergyReceiver LARGE_WIRELESS_ENERGY_RECEIVER;
@@ -154,6 +155,7 @@ public class TJMetaTileEntities {
         PARALLEL_LARGE_ELECTROLYZER = GregTechAPI.registerMetaTileEntity(5088, new MetaTileEntityParallelLargeElectrolyzer(TJId("parallel_large_electrolyzer")));
         PARALLEL_LARGE_SIFTER = GregTechAPI.registerMetaTileEntity(5089, new MetaTileEntityParallelLargeSifter(TJId("parallel_large_sifter")));
         PARALLEL_LARGE_BREWERY = GregTechAPI.registerMetaTileEntity(5090, new MetaTileEntityParallelLargeBrewery(TJId("parallel_large_brewery")));
+        PARALLEL_LARGE_ARC_FURNACE = GregTechAPI.registerMetaTileEntity(5091, new MetaTileEntityParallelLargeArcFurnace(TJId("parallel_large_arc_furnace")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));

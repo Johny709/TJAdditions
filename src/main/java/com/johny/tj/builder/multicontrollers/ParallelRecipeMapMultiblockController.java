@@ -413,6 +413,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         super.invalidateStructure();
         this.resetTileAbilities();
         this.recipeMapWorkable.invalidate();
+        this.maxVoltage = 0;
     }
 
     @Override
