@@ -51,7 +51,6 @@ import static gregtech.api.render.Textures.PLASMA_ARC_FURNACE_OVERLAY;
 
 public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMultiblockController {
 
-    private int energyBonus;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
@@ -155,11 +154,6 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
         return this.getRecipeMapIndex() == 0 ? ARC_FURNACE_OVERLAY : PLASMA_ARC_FURNACE_OVERLAY;
-    }
-
-    @Override
-    public int getEUBonus() {
-        return this.energyBonus;
     }
 
     @Override

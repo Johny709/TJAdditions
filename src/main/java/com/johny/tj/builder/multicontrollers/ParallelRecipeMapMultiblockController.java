@@ -70,6 +70,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public final ParallelRecipeMap[] parallelRecipeMap;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
     protected int parallelLayer;
+    protected int energyBonus = -1;
     protected long maxVoltage = 0;
     protected int pageIndex = 0;
     protected final int pageSize = 6;
@@ -127,7 +128,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public int getEUBonus() {
-        return -1;
+        return this.energyBonus;
     }
 
     @Override
@@ -229,6 +230,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .voltageIn(this.energyContainer)
                     .energyInput(this.energyContainer.getEnergyStored() >= totalEnergyConsumption, totalEnergyConsumption)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .energyBonus(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
                     .recipeMap(this.getMultiblockRecipe());
         }
     }

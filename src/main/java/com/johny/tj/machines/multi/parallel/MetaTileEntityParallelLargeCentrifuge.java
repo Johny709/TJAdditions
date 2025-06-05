@@ -52,7 +52,6 @@ import static gregtech.api.recipes.RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
 
 public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMultiblockController {
 
-    private int energyBonus;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY,
             GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
@@ -137,11 +136,6 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
         int min = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.maxVoltage = (long) (Math.pow(4, min) * 8);
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
-    }
-
-    @Override
-    public int getEUBonus() {
-        return this.energyBonus;
     }
 
     @Override

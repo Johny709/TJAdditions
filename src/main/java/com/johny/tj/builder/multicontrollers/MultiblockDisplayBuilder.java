@@ -5,9 +5,7 @@ import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.recipes.RecipeMap;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.*;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -73,6 +71,12 @@ public class MultiblockDisplayBuilder {
             String voltageName = GAValues.VN[GAUtility.getTierByVoltage(maxVoltage)];
             textList.add(new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, voltageName));
         }
+        return this;
+    }
+
+    public MultiblockDisplayBuilder energyBonus(int energyBonus, boolean enabled) {
+        if (enabled)
+            this.textList.add(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus).setStyle(new Style().setColor(TextFormatting.AQUA)));
         return this;
     }
 
