@@ -11,6 +11,7 @@ import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -48,7 +49,7 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_DEHYDRATOR_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.*;
+import static gregtech.api.recipes.RecipeMaps.BREWING_RECIPES;
 
 public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultiblockController {
 
@@ -57,7 +58,7 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
 
     public MetaTileEntityParallelLargeBrewery(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BREWING_MACHINE_RECIPES, PARALLEL_FERMENTING_RECIPES, PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES, PARALLEL_CRACKING_UNIT_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, null, TJConfig.parallelLargeBrewery.eutPercentage,
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeBrewery.eutPercentage,
                 TJConfig.parallelLargeBrewery.durationPercentage, TJConfig.parallelLargeBrewery.chancePercentage, TJConfig.parallelLargeBrewery.stack) {
             @Override
             protected long getMaxVoltage() {
@@ -154,6 +155,6 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
 
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{BREWING_RECIPES, FERMENTING_RECIPES, CHEMICAL_DEHYDRATOR_RECIPES, CRACKING_RECIPES};
+        return GATileEntities.LARGE_BREWERY.getRecipeMaps();
     }
 }

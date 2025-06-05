@@ -53,7 +53,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
 
     public MetaTileEntityParallelLargeSifter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_SIFTER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, SIFTER_RECIPES, TJConfig.parallelLargeSifter.eutPercentage,
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeSifter.eutPercentage,
                 TJConfig.parallelLargeSifter.durationPercentage, TJConfig.parallelLargeSifter.chancePercentage, TJConfig.parallelLargeSifter.stack) {
             @Override
             protected long getMaxVoltage() {

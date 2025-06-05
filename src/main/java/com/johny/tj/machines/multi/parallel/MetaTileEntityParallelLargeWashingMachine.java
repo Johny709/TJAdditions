@@ -10,6 +10,7 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -45,7 +46,8 @@ import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.*;
+import static gregtech.api.recipes.RecipeMaps.CHEMICAL_BATH_RECIPES;
+import static gregtech.api.recipes.RecipeMaps.ORE_WASHER_RECIPES;
 
 public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMapMultiblockController {
 
@@ -55,7 +57,7 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeWashingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ORE_WASHER_RECIPES, PARALLEL_CHEMICAL_BATH_RECIPES, PARALLEL_SIMPLE_ORE_WASHER_RECIPES, PARALLEL_AUTOCLAVE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, null, TJConfig.parallelLargeWashingMachine.eutPercentage,
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeWashingMachine.eutPercentage,
                 TJConfig.parallelLargeWashingMachine.durationPercentage, TJConfig.parallelLargeWashingMachine.chancePercentage, TJConfig.parallelLargeWashingMachine.stack) {
             @Override
             protected long getMaxVoltage() {
@@ -148,6 +150,6 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{ORE_WASHER_RECIPES, CHEMICAL_BATH_RECIPES, SIMPLE_ORE_WASHER_RECIPES, AUTOCLAVE_RECIPES};
+        return GATileEntities.LARGE_WASHING_PLANT.getRecipeMaps();
     }
 }

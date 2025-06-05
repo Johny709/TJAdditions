@@ -10,6 +10,7 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
+import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -44,7 +45,6 @@ import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLE
 import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_PLANT_RECIPES;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
 public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
@@ -163,13 +163,13 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{CHEMICAL_RECIPES, CHEMICAL_PLANT_RECIPES};
+        return GATileEntities.CHEMICAL_PLANT.getRecipeMaps();
     }
 
     private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {
 
         public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity) {
-            super(tileEntity, LARGE_CHEMICAL_RECIPES, TJConfig.advancedParallelChemicalReactor.eutPercentage, TJConfig.advancedParallelChemicalReactor.durationPercentage,
+            super(tileEntity, TJConfig.advancedParallelChemicalReactor.eutPercentage, TJConfig.advancedParallelChemicalReactor.durationPercentage,
                     TJConfig.advancedParallelChemicalReactor.chancePercentage, TJConfig.advancedParallelChemicalReactor.stack);
         }
 

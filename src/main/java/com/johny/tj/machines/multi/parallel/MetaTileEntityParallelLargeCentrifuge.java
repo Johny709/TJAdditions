@@ -45,10 +45,9 @@ import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
-import static gregicadditions.recipes.GARecipeMaps.GAS_CENTRIFUGE_RECIPES;
+import static gregicadditions.machines.GATileEntities.*;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CENTRIFUGE_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.CENTRIFUGE_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
 
 public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMultiblockController {
@@ -60,7 +59,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CENTRIFUGE_RECIPES, PARALLEL_THERMAL_CENTRIFUGE_RECIPES, PARALLEL_GAS_CENTRIFUGE_RECIPES});
-        this.recipeMapWorkable = new ParallelLargeCentrifugeWorkableHandler(this, null, TJConfig.parallelLargeCentrifuge.eutPercentage,
+        this.recipeMapWorkable = new ParallelLargeCentrifugeWorkableHandler(this, TJConfig.parallelLargeCentrifuge.eutPercentage,
                 TJConfig.parallelLargeCentrifuge.durationPercentage, TJConfig.parallelLargeCentrifuge.chancePercentage, TJConfig.parallelLargeCentrifuge.stack);
     }
 
@@ -158,13 +157,13 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{CENTRIFUGE_RECIPES, LARGE_CENTRIFUGE_RECIPES, THERMAL_CENTRIFUGE_RECIPES, GAS_CENTRIFUGE_RECIPES};
+        return new RecipeMap[]{LARGE_CENTRIFUGE.recipeMap, LARGE_THERMAL_CENTRIFUGE.recipeMap, GAS_CENTRIFUGE.recipeMap};
     }
 
     private static class ParallelLargeCentrifugeWorkableHandler extends ParallelGAMultiblockRecipeLogic {
 
-        public ParallelLargeCentrifugeWorkableHandler(ParallelRecipeMapMultiblockController tileEntity, RecipeMap<?> recipeMap, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
-            super(tileEntity, recipeMap, EUtPercentage, durationPercentage, chancePercentage, stack);
+        public ParallelLargeCentrifugeWorkableHandler(ParallelRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
         }
 
         @Override
