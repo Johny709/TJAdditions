@@ -117,7 +117,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
-        for (int i = 1; i < this.parallelLayer; i++) {
+        for (int layer = 1; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("~HHH~", "CHcHC", "CHcHC", "CHcHC", "~HHH~");
             factoryPattern.aisle("~GGG~", "GT#TG", "GP#PG", "GT#TG", "~GGG~");
         }

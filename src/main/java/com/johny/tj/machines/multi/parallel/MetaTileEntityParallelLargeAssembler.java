@@ -83,7 +83,7 @@ public class MetaTileEntityParallelLargeAssembler extends ParallelRecipeMapMulti
     @Override
     protected BlockPattern createStructurePattern() {
         StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(), aisleA = new StringBuilder(), aislec = new StringBuilder(), aisleR = new StringBuilder();
-        for (int i = 1; i < this.parallelLayer; i++) {
+        for (int layer = 1; layer < this.parallelLayer; layer++) {
             aisleC.append("CCC");
             aisleG.append("GGG");
             aisleP.append("PPP");
