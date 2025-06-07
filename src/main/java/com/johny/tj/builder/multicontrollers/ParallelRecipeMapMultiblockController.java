@@ -69,7 +69,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     public final ParallelRecipeMap[] parallelRecipeMap;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
-    protected int parallelLayer;
+    protected int parallelLayer = 1;
     protected int energyBonus = -1;
     protected long maxVoltage = 0;
     protected int pageIndex = 0;
@@ -573,12 +573,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     public void readFromNBT(NBTTagCompound data) {
         this.recipeMapIndex = data.getInteger("RecipeMapIndex");
-        this.parallelLayer = data.getInteger("Parallel");
         this.isDistinctBus = data.getBoolean("DistinctBus");
-        if (data.hasKey("Parallel"))
+        if (data.hasKey("Parallel")) {
+            this.parallelLayer = data.getInteger("Parallel");
             this.structurePattern = this.createStructurePattern();
-        if (data.hasKey("UseOptimizedRecipeLookUp"))
+        }
+        if (data.hasKey("UseOptimizedRecipeLookUp")) {
             this.recipeMapWorkable.setUseOptimizedRecipeLookUp(data.getBoolean("UseOptimizedRecipeLookUp"));
+        }
         super.readFromNBT(data);
     }
 
