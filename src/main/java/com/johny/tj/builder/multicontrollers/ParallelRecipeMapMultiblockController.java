@@ -14,6 +14,7 @@ import com.johny.tj.gui.TJWidgetGroup;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregicadditions.GAUtility;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.IMultiRecipe;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -456,7 +457,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         //noinspection SuspiciousMethodCalls
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         //noinspection SuspiciousMethodCalls
-        return itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+
+        return maintenanceCount == 1 &&
+                itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
                 fluidInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinFluidInputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
