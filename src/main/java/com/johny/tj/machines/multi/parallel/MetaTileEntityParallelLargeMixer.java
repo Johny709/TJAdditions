@@ -1,22 +1,62 @@
 package com.johny.tj.machines.multi.parallel;
 
+import com.johny.tj.TJConfig;
 import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
+import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.components.MotorCasing;
+import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.api.render.OrientedOverlayRenderer;
+import gregtech.api.render.Textures;
+import gregtech.common.blocks.MetaBlocks;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.text.DecimalFormat;
+import java.util.List;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_LARGE_MIXER_RECIPES;
+import static gregicadditions.GAMaterials.Staballoy;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_MIXER_RECIPES;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.MIXER_RECIPES;
 
 public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultiblockController {
 
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY};
+    private static final DecimalFormat formatter = new DecimalFormat("#0.00");
+
     public MetaTileEntityParallelLargeMixer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_LARGE_MIXER_RECIPES});
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeMixer.eutPercentage, TJConfig.parallelLargeMixer.durationPercentage,
+                TJConfig.parallelLargeMixer.chancePercentage, TJConfig.parallelLargeMixer.stack) {
+            @Override
+            protected long getMaxVoltage() {
+                return this.controller.getMaxVoltage();
+            }
+        };
     }
 
     @Override
@@ -25,13 +65,63 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
+                MIXER_RECIPES.getLocalizedName()));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeMixer.eutPercentage / 100.0)));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeMixer.durationPercentage / 100.0)));
+        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeMixer.stack));
+        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeMixer.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+    }
+
+    @Override
     protected BlockPattern createStructurePattern() {
-        return null;
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
+        factoryPattern.aisle("~~F~~", "~~F~~", "FFFFF", "~~F~~", "~~F~~");
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            String entityS = layer == this.parallelLayer - 1 ? "~HSH~" : "~HHH~";
+            factoryPattern.aisle("~HHH~", "H###H", "H#G#H", "H###H", "~HHH~");
+            factoryPattern.aisle("~HHH~", "H###H", "H#M#H", "H###H", "~HHH~");
+            factoryPattern.aisle(entityS, "H###H", "H#M#H", "H###H", "~HHH~");
+        }
+        return factoryPattern.aisle("~HHH~", "HHHHH", "HHHHH", "HHHHH", "~HHH~")
+                .where('S', this.selfPredicate())
+                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('G', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(Staballoy).getDefaultState()))
+                .where('M', motorPredicate())
+                .where('#', isAirPredicate())
+                .where('~', tile -> true)
+                .build();
+    }
+
+    private IBlockState getCasingState() {
+        return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY);
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.maxVoltage = (long) (Math.pow(4, motor) * 8);
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return null;
+        return ClientHandler.STABALLOY_CASING;
+    }
+
+    @Override
+    protected @NotNull OrientedOverlayRenderer getFrontOverlay() {
+        return Textures.MIXER_OVERLAY;
+    }
+
+    @Override
+    public int getMaxParallel() {
+        return TJConfig.parallelLargeMixer.maximumParallel;
     }
 
     @Override

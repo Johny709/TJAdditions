@@ -656,6 +656,31 @@ public class TJConfig {
         public int maximumParallel = 64;
     }
 
+    @Config.Comment("Parallel Large Mixer")
+    public static ParallelLargeMixer parallelLargeMixer = new ParallelLargeMixer();
+
+    public static class ParallelLargeMixer {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
     @Config.Comment("Large World Accelerator")
     public static LargeWorldAccelerator largeWorldAccelerator = new LargeWorldAccelerator();
 
