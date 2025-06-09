@@ -47,7 +47,7 @@ public class ParallelLargeExtruderInfo extends MultiblockInfoPage {
                     .where('p', GAMetaBlocks.PISTON_CASING.getDefaultState())
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .build());
         }

@@ -82,7 +82,7 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         factoryPattern.aisle("HHHHH", "HHpHH", "~HHH~", "~~H~~");
-        for (int i = 0; i < this.parallelLayer; i++) {
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("HHHHH", "H#P#H", "~HMH~", "~~H~~");
             factoryPattern.aisle("HHHHH", "HCPCH", "~HMH~", "~~H~~");
         }
