@@ -223,7 +223,7 @@ public final class ParallelRecipeMap {
         return null;
     }
 
-    public Recipe findAndGet(Recipe recipe) {
+    public Recipe findRecipe(Recipe recipe) {
         for (Map.Entry<MapItemStackIngredient, Collection<Recipe>> map : recipeItemMap.entrySet()) {
             if (map == null) continue;
             for (Recipe foundRecipe : map.getValue()) {
