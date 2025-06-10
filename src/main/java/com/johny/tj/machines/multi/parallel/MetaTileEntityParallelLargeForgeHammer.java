@@ -81,13 +81,13 @@ public class MetaTileEntityParallelLargeForgeHammer extends ParallelRecipeMapMul
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("HHH", "~H~", "~~~", "~~~", "~~~");
-            factoryPattern.aisle("HHH", "HCH", "C#C", "CPC", "CCC");
+            factoryPattern.aisle("XXX", "~X~", "~~~", "~~~", "~~~");
+            factoryPattern.aisle("XXX", "XCX", "C#C", "CPC", "CCC");
         }
-        return factoryPattern.aisle("HSH", "~H~", "~~~", "~~~", "~~~")
+        return factoryPattern.aisle("XSX", "~X~", "~~~", "~~~", "~~~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', pistonPredicate())
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)

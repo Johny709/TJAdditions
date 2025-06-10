@@ -83,17 +83,17 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     @Override
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, DOWN, BACK);
-        for (int count = 0; count < this.parallelLayer; count++) {
-            factoryPattern.aisle("CC#CC", "HHGHH", "HHGHH", "HHGHH");
-            factoryPattern.aisle("C###C", "MMGMM", "Mm#PM", "MMGMM");
-            factoryPattern.validateLayer(1 + count * 2, context -> context.getInt("RedstoneControllerAmount") <= 1);
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            factoryPattern.aisle("XXGXX", "XXGXX", "XXGXX", "CC#CC");
+            factoryPattern.aisle("MMGMM", "MP#mM", "MMGMM", "C###C");
+            factoryPattern.validateLayer(1 + layer * 2, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-        return factoryPattern.aisle("CC#CC", "HHGHH", "HHSHH", "HHHHH")
+        return factoryPattern.aisle("XXXXX", "XXSXX", "XXGXX", "CC#CC")
                 .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('G', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('P', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
@@ -101,7 +101,7 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.POTIN);
     }
 

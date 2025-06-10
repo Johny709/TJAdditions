@@ -79,13 +79,13 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("HHHHH", "~HHH~", "~~~~~", "~~~~~", "~~~~~");
-            factoryPattern.aisle("HHHHH", "HMGMH", "C###C", "CMGMC", "CCCCC");
+            factoryPattern.aisle("XXXXX", "~XXX~", "~~~~~", "~~~~~", "~~~~~");
+            factoryPattern.aisle("XXXXX", "XMGMX", "C###C", "CMGMC", "CCCCC");
         }
-        return factoryPattern.aisle("HHHHH", "~HSH~", "~~~~~", "~~~~~", "~~~~~")
+        return factoryPattern.aisle("XXXXX", "~XSX~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX)))
                 .where('M', motorPredicate())
                 .where('#', isAirPredicate())

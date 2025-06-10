@@ -1,4 +1,4 @@
-package com.johny.tj.integration.jei.multi;
+package com.johny.tj.integration.jei.multi.parallel;
 
 import com.johny.tj.machines.TJMetaTileEntities;
 import com.johny.tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor;
@@ -22,7 +22,7 @@ import java.util.List;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
-public class ParallelChemicalReactorInfo extends MultiblockInfoPage {
+public class ParallelLargeChemicalReactorInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -32,17 +32,18 @@ public class ParallelChemicalReactorInfo extends MultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        for (int index = 1; index <= 16; index++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
+        for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
             MetaTileEntityParallelLargeChemicalReactor chemicalReactor = TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
-            builder.aisle("CCCCC", "CCCCi", "CCCCM", "CCCCo", "CCCCC");
-            for (int num = 0; num < index; num++) {
+            builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
+            for (int layer = 0; layer < shapeInfo; layer++) {
                 builder.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
                 builder.aisle("F###F", "#CCC#", "#CcC#", "#CCC#", "F###F");
             }
-            builder.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-            builder.aisle("CCCCC", "CCCCI", "ECCCS", "CCCCO", "CCCCC");
-            shapeInfos.add(builder.where('S', chemicalReactor, EnumFacing.WEST)
+            shapeInfos.add(builder
+                    .aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F")
+                    .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC")
+                    .where('S', chemicalReactor, EnumFacing.WEST)
                     .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
                     .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                     .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))

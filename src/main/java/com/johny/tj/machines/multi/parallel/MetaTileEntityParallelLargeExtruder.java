@@ -80,17 +80,17 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
-        factoryPattern.aisle("HHHHH", "HHpHH", "~HHH~", "~~H~~");
+        factoryPattern.aisle("XXXXX", "XXpXX", "~XXX~", "~~X~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("HHHHH", "H#P#H", "~HMH~", "~~H~~");
-            factoryPattern.aisle("HHHHH", "HCPCH", "~HMH~", "~~H~~");
+            factoryPattern.aisle("XXXXX", "X#P#X", "~XMX~", "~~X~~");
+            factoryPattern.aisle("XXXXX", "XCPCX", "~XMX~", "~~X~~");
         }
         return factoryPattern
-                .aisle("HHHHH", "H#P#H", "~HMH~", "~~H~~")
-                .aisle("HHHHH", "HHSHH", "~HHH~", "~~H~~")
+                .aisle("XXXXX", "X#P#X", "~XMX~", "~~X~~")
+                .aisle("XXXXX", "XXSXX", "~XXX~", "~~X~~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('M', motorPredicate())
                 .where('p', pistonPredicate())

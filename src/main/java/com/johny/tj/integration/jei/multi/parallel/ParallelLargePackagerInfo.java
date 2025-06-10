@@ -1,14 +1,11 @@
-package com.johny.tj.integration.jei.multi;
+package com.johny.tj.integration.jei.multi.parallel;
 
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GATransparentCasing;
+import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.common.blocks.BlockBoilerCasing;
-import gregtech.common.blocks.BlockMetalCasing;
-import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -21,11 +18,11 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
-public class ParallelLargeCanningMachineInfo extends MultiblockInfoPage {
+public class ParallelLargePackagerInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.PARALLEL_LARGE_CANNING_MACHINE;
+        return TJMetaTileEntities.PARALLEL_LARGE_PACKAGER;
     }
 
     @Override
@@ -33,22 +30,19 @@ public class ParallelLargeCanningMachineInfo extends MultiblockInfoPage {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
-            builder.aisle("~~P~~", "~MPE~", "PPPPP", "~CPC~", "~~P~~");
+            builder.aisle("CEC", "CCC", "CCC");
             for (int layer = 0; layer < shapeInfo; layer++) {
-                builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
+                builder.aisle("CCC", "CcC", "CRC");
             }
-            shapeInfos.add(builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~")
+            shapeInfos.add(builder.aisle("IMO", "CSC", "CCC")
                     .where('S', this.getController(), WEST)
-                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
-                    .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
-                    .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
-                    .where('p', GAMetaBlocks.PUMP_CASING.getDefaultState())
-                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                    .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HG_1223))
+                    .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
+                    .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getDefaultState())
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                    .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                    .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .build());
         }
         return shapeInfos;
@@ -57,7 +51,7 @@ public class ParallelLargeCanningMachineInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.parallel_large_canning_machine.description"),
+                I18n.format("tj.multiblock.parallel_large_packager.description"),
                 I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 

@@ -84,13 +84,13 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("HHH", "HGH", "HHH", "~C~");
-            factoryPattern.aisle("HHH", "GcG", "HEH", "CBC");
+            factoryPattern.aisle("XXX", "XGX", "XXX", "~C~");
+            factoryPattern.aisle("XXX", "GcG", "XEX", "CBC");
         }
-        return factoryPattern.aisle("HHH", "HSH", "HHH", "~C~")
+        return factoryPattern.aisle("XXX", "XSX", "XXX", "~C~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.IRIDIUM_GLASS)))
                 .where('B', statePredicate(MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX)))
                 .where('c', conveyorPredicate())

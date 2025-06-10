@@ -85,23 +85,22 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
-        factoryPattern.aisle("~HHH~", "HCCCH", "HCmCH", "HCCCH", "~HHH~");
-        for (int count = 1; count < this.parallelLayer; count++) {
-            factoryPattern.aisle("HHHHH", "H###H", "H#P#H", "H###H", "HHHHH");
-            factoryPattern.aisle("~MGM~", "M###M", "G#P#G", "M###M", "~MGM~");
-            factoryPattern.aisle("HHHHH", "H###H", "H#P#H", "H###H", "HHHHH");
-            factoryPattern.aisle("~HHH~", "HCCCH", "HCmCH", "HCCCH", "~HHH~");
-            factoryPattern.validateLayer(2 + count * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+
+            String entityS = layer == this.parallelLayer - 1 ? "~MSM~" : "~MGM~";
+
+            factoryPattern.aisle("~XXX~", "XCCCX", "XCmCX", "XCCCX", "~XXX~");
+            factoryPattern.aisle("XXXXX", "X###X", "X#P#X", "X###X", "XXXXX");
+            factoryPattern.aisle(entityS, "M###M", "G#P#G", "M###M", "~MGM~");
+            factoryPattern.aisle("XXXXX", "X###X", "X#P#X", "X###X", "XXXXX");
+            factoryPattern.validateLayer(2 + layer * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-        factoryPattern.aisle("HHHHH", "H###H", "H#P#H", "H###H", "HHHHH");
-        factoryPattern.aisle("~MSM~", "M###M", "G#P#G", "M###M", "~MGM~");
-        factoryPattern.aisle("HHHHH", "H###H", "H#P#H", "H###H", "HHHHH");
-        factoryPattern.aisle("~HHH~", "HCCCH", "HCmCH", "HCCCH", "~HHH~");
-        return factoryPattern.validateLayer(2, context -> context.getInt("RedstoneControllerAmount") <= 1)
+        return factoryPattern.aisle("~XXX~", "XCCCX", "XCmCX", "XCCCX", "~XXX~")
+                .validateLayer(2, context -> context.getInt("RedstoneControllerAmount") <= 1)
                 .where('S', this.selfPredicate())
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('C', MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate().or(MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2()))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
@@ -111,7 +110,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.RED_STEEL);
     }
 

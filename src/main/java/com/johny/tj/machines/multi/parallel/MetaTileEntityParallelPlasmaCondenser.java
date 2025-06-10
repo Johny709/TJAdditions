@@ -79,19 +79,19 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
-        factoryPattern.aisle("~~~~~", "~HHH~", "~HHH~", "~HHH~", "~~~~~");
+        factoryPattern.aisle("~~~~~", "~XXX~", "~XXX~", "~XXX~", "~~~~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
 
-            String entityS = layer == this.parallelLayer - 1 ? "~HSH~" : "~HHH~";
+            String entityS = layer == this.parallelLayer - 1 ? "~XSX~" : "~XXX~";
 
-            factoryPattern.aisle("~HHH~", "HG#GH", "H#T#H", "HG#GH", "~HHH~");
-            factoryPattern.aisle(entityS, "HPTPH", "HTTTH", "HPTPH", "~HHH~");
+            factoryPattern.aisle("~XXX~", "XG#GX", "X#T#X", "XG#GX", "~XXX~");
+            factoryPattern.aisle(entityS, "XPTPX", "XTTTX", "XPTPX", "~XXX~");
         }
         return factoryPattern
-                .aisle("~HHH~", "HG#GH", "H#T#H", "HG#GH", "~HHH~")
-                .aisle("~~~~~", "~HHH~", "~HHH~", "~HHH~", "~~~~~")
+                .aisle("~XXX~", "XG#GX", "X#T#X", "XG#GX", "~XXX~")
+                .aisle("~~~~~", "~XXX~", "~XXX~", "~XXX~", "~~~~~")
                 .where('S', this.selfPredicate())
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('G', statePredicate(MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX)))
                 .where('P', pumpPredicate())

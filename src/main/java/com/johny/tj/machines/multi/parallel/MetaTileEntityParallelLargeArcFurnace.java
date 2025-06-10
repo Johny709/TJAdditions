@@ -116,17 +116,17 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
-        for (int layer = 1; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("~HHH~", "CHcHC", "CHcHC", "CHcHC", "~HHH~");
-            factoryPattern.aisle("~GGG~", "GT#TG", "GP#PG", "GT#TG", "~GGG~");
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+
+            String entityS = layer == this.parallelLayer - 1 ? "~GSG~" : "~GGG~";
+
+            factoryPattern.aisle("~XXX~", "XXcXX", "XXcXX", "XXcXX", "~XXX~");
+            factoryPattern.aisle(entityS, "GT#TG", "GP#PG", "GT#TG", "~GGG~");
         }
-        factoryPattern.aisle("~HHH~", "CHcHC", "CHcHC", "CHcHC", "~HHH~");
-        factoryPattern.aisle("~GSG~", "GT#TG", "GP#PG", "GT#TG", "~GGG~");
-        return factoryPattern.aisle("~HHH~", "CHcHC", "CHcHC", "CHcHC", "~HHH~")
+        return factoryPattern.aisle("~XXX~", "XXcXX", "XXcXX", "XXcXX", "~XXX~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('P', pumpPredicate())
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
@@ -136,7 +136,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF);
     }
 

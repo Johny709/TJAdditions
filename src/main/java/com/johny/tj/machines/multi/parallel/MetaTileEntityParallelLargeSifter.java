@@ -83,24 +83,25 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     @Override
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
-        for (int count = 1; count < this.parallelLayer; count++) {
-            factoryPattern.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        for (int layer = 1; layer < this.parallelLayer; layer++) {
+            factoryPattern.aisle("~XXX~", "X###X", "X###X", "X###X", "~XXX~");
             factoryPattern.aisle("MMMMM", "PGGGP", "MGGGM", "PGGGP", "MMMMM");
-            factoryPattern.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
+            factoryPattern.aisle("~XXX~", "X###X", "X###X", "X###X", "~XXX~");
             factoryPattern.aisle("~FCF~", "F###F", "C###C", "F###F", "~FCF~");
-            factoryPattern.validateLayer(3 + count * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
+            factoryPattern.validateLayer(3 + layer * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-        factoryPattern.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
-        factoryPattern.aisle("MMSMM", "PGGGP", "MGGGM", "PGGGP", "MMMMM");
-        factoryPattern.aisle("~HHH~", "H###H", "H###H", "H###H", "~HHH~");
-        factoryPattern.aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~");
-        factoryPattern.aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~");
-        return factoryPattern.validateLayer(3, context -> context.getInt("RedstoneControllerAmount") <= 1)
+        return factoryPattern
+                .aisle("~XXX~", "X###X", "X###X", "X###X", "~XXX~")
+                .aisle("XXSXX", "PGGGP", "MGGGM", "PGGGP", "MMMMM")
+                .aisle("~XXX~", "X###X", "X###X", "X###X", "~XXX~")
+                .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~")
+                .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~")
+                .validateLayer(3, context -> context.getInt("RedstoneControllerAmount") <= 1)
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(EglinSteel).getDefaultState()))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('P', LargeSimpleRecipeMapMultiblockController.pistonPredicate())
@@ -109,7 +110,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.EGLIN_STEEL);
     }
 

@@ -82,13 +82,13 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
-        factoryPattern.aisle("HHH", "HHH", "HHH");
+        factoryPattern.aisle("XXX", "XXX", "XXX");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("HHH", "HCH", "HRH");
+            factoryPattern.aisle("XXX", "XCX", "XRX");
         }
-        return factoryPattern.aisle("HHH", "HSH", "HHH")
+        return factoryPattern.aisle("XXX", "XSX", "XXX")
                 .where('S', this.selfPredicate())
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('C', conveyorPredicate())
                 .where('R', robotArmPredicate())
                 .build();

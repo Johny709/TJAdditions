@@ -89,19 +89,19 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     @Override
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, DOWN, BACK);
-        factoryPattern.aisle("~CCC~", "CHHHC", "CHmHC", "CHHHC", "F~C~F", "CCCCC");
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        factoryPattern.aisle("CCCCC", "F#C#F", "CXXXC", "CXmXC", "CXXXC", "~CCC~");
         for (int count = 0; count < this.parallelLayer; count++) {
-            factoryPattern.aisle("~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~", "~CCC~");
-            factoryPattern.aisle("~~C~~", "~G#G~", "p#P#p", "~G#G~", "~~M~~", "~MMM~");
-            factoryPattern.aisle("~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~", "~CCC~");
+            factoryPattern.aisle("~CCC~", "~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~");
+            factoryPattern.aisle("~MMM~", "~~M~~", "~G#G~", "p#P#p", "~G#G~", "~~C~~");
+            factoryPattern.aisle("~CCC~", "~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~");
             factoryPattern.validateLayer(2 + count * 3, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-         return factoryPattern.aisle("~CCC~", "CHHHC", "CHmHC", "CHSHC", "F~C~F", "CCCCC")
+         return factoryPattern.aisle("CCCCC", "F~C~F", "CXSXC", "CXmXC", "CXXXC", "~CCC~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(getCasingState()).or(machineControllerPredicate))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('M', statePredicate(this.getCasingState()).or(machineControllerPredicate))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Grisium).getDefaultState()))
@@ -112,7 +112,7 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM);
     }
 

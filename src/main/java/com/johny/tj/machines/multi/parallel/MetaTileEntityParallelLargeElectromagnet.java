@@ -91,8 +91,8 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
                 .aisle("~C~C~", "H#H#H", "G###G", "H#H#H", "~C~C~")
                 .aisle("~~~~~", "~HHH~", "~HSH~", "~HHH~", "~~~~~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', glassPredicate())
                 .where('F', fieldGenPredicate())
                 .where('#', isAirPredicate())
@@ -100,7 +100,7 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.BABBITT_ALLOY);
     }
 

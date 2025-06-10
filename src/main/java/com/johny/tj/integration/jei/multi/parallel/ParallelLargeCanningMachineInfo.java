@@ -1,11 +1,14 @@
-package com.johny.tj.integration.jei.multi;
+package com.johny.tj.integration.jei.multi.parallel;
 
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GATransparentCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.common.blocks.*;
+import gregtech.common.blocks.BlockBoilerCasing;
+import gregtech.common.blocks.BlockMetalCasing;
+import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -15,35 +18,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
-public class ParallelLargeArcFurnaceInfo extends MultiblockInfoPage {
+public class ParallelLargeCanningMachineInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.PARALLEL_LARGE_ARC_FURNACE;
+        return TJMetaTileEntities.PARALLEL_LARGE_CANNING_MACHINE;
     }
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(LEFT, FRONT, DOWN);
-            for (int layer = 1; layer < shapeInfo; layer++) {
-                builder.aisle("~CCC~", "CCCCC", "CcccC", "CCCCC", "~CCC~");
-                builder.aisle("~GGG~", "GTPTG", "G###G", "GTPTG", "~GGG~");
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            builder.aisle("~~P~~", "~MPE~", "PPPPP", "~CPC~", "~~P~~");
+            for (int layer = 0; layer < shapeInfo; layer++) {
+                builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
             }
-            builder.aisle("~CCC~", "CCCCI", "CcccC", "CCCCO", "~CCC~");
-            builder.aisle("~GGG~", "GTPTG", "G###S", "GTPTG", "~GGG~");
-            shapeInfos.add(builder.aisle("~CCC~", "CCCCi", "EcccM", "CCCCo", "~CCC~")
+            shapeInfos.add(builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~")
                     .where('S', this.getController(), WEST)
-                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
-                    .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                    .where('P', GAMetaBlocks.PUMP_CASING.getDefaultState())
-                    .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
-                    .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
-                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], WEST)
+                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
+                    .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
+                    .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
+                    .where('p', GAMetaBlocks.PUMP_CASING.getDefaultState())
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
                     .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
@@ -56,7 +57,7 @@ public class ParallelLargeArcFurnaceInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.parallel_large_arc_furnace.description"),
+                I18n.format("tj.multiblock.parallel_large_canning_machine.description"),
                 I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 

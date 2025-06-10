@@ -11,7 +11,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.GATileEntities;
-import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -41,7 +40,11 @@ import java.util.List;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_PLANT_RECIPES;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
+import static com.johny.tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
+import static com.johny.tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
 import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_PLANT_RECIPES;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
@@ -82,14 +85,14 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         if (!(this.parallelLayer % 2 == 0)) {
-            factoryPattern.aisle("~~~~~~HHHHH~C~~~C", "~~~~~~HHHHH~CCCCC", "~~~~~~HHHHH~C~~~C", "~~~~~~HHHHH~CCCCC", "~~~~~~HHHHH~C~~~C");
-            factoryPattern.aisle("~~~~~~F~~~F~CCCCC", "~~~~~~~~P~~~CcccC", "~~~~~~~PpPPPPPPPC", "~~~~~~~~P~~~CcccC", "~~~~~~F~~~F~CCCCC");
-            factoryPattern.aisle("~~~~~~F~~~F~C~~~C", "~~~~~~~~PPPPPPPPC", "~~~~~~~PpP~~CmmmM", "~~~~~~~~PPPPPPPPC", "~~~~~~F~~~F~C~~~C");
-            factoryPattern.aisle("~~~~~~F~~~F~CCCCC", "~~~~~~~~P~~~CcccC", "~~~~~~~PpPPPPPPPC", "~~~~~~~~P~~~CcccC", "~~~~~~F~~~F~CCCCC");
+            factoryPattern.aisle("C~~~C~XXXXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~");
+            factoryPattern.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
+            factoryPattern.aisle("C~~~C~F~~~F~~~~~~", "CPPPPPPPP~~~~~~~~", "MmmmC~~PpP~~~~~~~", "CPPPPPPPP~~~~~~~~", "C~~~C~F~~~F~~~~~~");
+            factoryPattern.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
         } else {
-            factoryPattern.aisle("C~~~C~HHHHH~C~~~C", "CCCCC~HHHHH~CCCCC", "C~~~C~HHHHH~C~~~C", "CCCCC~HHHHH~CCCCC", "C~~~C~HHHHH~C~~~C");
+            factoryPattern.aisle("C~~~C~XXXXX~C~~~C", "CCCCC~XXXXX~CCCCC", "C~~~C~XXXXX~C~~~C", "CCCCC~XXXXX~CCCCC", "C~~~C~XXXXX~C~~~C");
             factoryPattern.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
             factoryPattern.aisle("C~~~C~F~~~F~C~~~C", "CPPPPPPPPPPPPPPPC", "MmmmC~~PpP~~CmmmM", "CPPPPPPPPPPPPPPPC", "C~~~C~F~~~F~C~~~C");
             factoryPattern.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
@@ -102,24 +105,25 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
                 factoryPattern.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
             }
         }
-        if (this.parallelLayer > 1)
-            factoryPattern.aisle("C~~~C~HHSHH~C~~~C", "CCCCC~HHHHH~CCCCC", "C~~~C~HHHHH~C~~~C", "CCCCC~HHHHH~CCCCC", "C~~~C~HHHHH~C~~~C");
-        else
-            factoryPattern.aisle("~~~~~~HHSHH~C~~~C", "~~~~~~HHHHH~CCCCC", "~~~~~~HHHHH~C~~~C", "~~~~~~HHHHH~CCCCC", "~~~~~~HHHHH~C~~~C");
-        return factoryPattern.where('S', this.selfPredicate())
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('C', statePredicate(getCasingState()))
+        String[] controller = this.parallelLayer > 1 ?
+                new String[]{"C~~~C~XXSXX~C~~~C", "CCCCC~XXXXX~CCCCC", "C~~~C~XXXXX~C~~~C", "CCCCC~XXXXX~CCCCC", "C~~~C~XXXXX~C~~~C"} :
+                new String[]{"C~~~C~XXSXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~"};
+
+        return factoryPattern.aisle(controller)
+                .where('S', this.selfPredicate())
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(this.getCasingState()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
-                .where('c', MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate().or(MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2()))
-                .where('p', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
-                .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
-                .where('M', statePredicate(getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
+                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('p', pumpPredicate())
+                .where('m', motorPredicate())
+                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
                 .where('~', tile -> true)
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT);
     }
 
@@ -137,9 +141,9 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        MotorCasing.CasingType motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV);
-        PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
-        int min = Math.min(motor.getTier(), pump.getTier());
+        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        int min = Math.min(motor, pump);
         this.maxVoltage = (long) (Math.pow(4, min) * 8);
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
     }

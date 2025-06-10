@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.johny.tj.TJ;
 import com.johny.tj.TJConfig;
 import com.johny.tj.integration.jei.multi.*;
+import com.johny.tj.integration.jei.multi.parallel.*;
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler.BoilerType;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine.TurbineType;
@@ -65,7 +66,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("industrial_fusion_reactor.uv", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_UV)))
                             .put("industrial_fusion_reactor.uhv", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_UHV)))
                             .put("industrial_fusion_reactor.uev", new MultiblockInfoRecipeWrapper(new IndustrialFusionReactorInfo(TJMetaTileEntities.INDUSTRIAL_FUSION_REACTOR_UEV)))
-                            .put("parallel_chemical_reactor", new MultiblockInfoRecipeWrapper(new ParallelChemicalReactorInfo()))
+                            .put("parallel_chemical_reactor", new MultiblockInfoRecipeWrapper(new ParallelLargeChemicalReactorInfo()))
                             .put("large_greenhouse", new MultiblockInfoRecipeWrapper(new LargeGreenhouseInfo()))
                             .put("large_architect_workbench", new MultiblockInfoRecipeWrapper(new LargeArchitectWorkbenchInfo()))
                             .put("elite_large_miner", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.ELITE_LARGE_MINER)))

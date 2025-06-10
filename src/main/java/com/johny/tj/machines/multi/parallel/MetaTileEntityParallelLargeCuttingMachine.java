@@ -84,25 +84,25 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         if (this.parallelLayer % 2 == 0) {
-            factoryPattern.aisle("CCCCCCC", "C#CCC#C", "C#C~C#C");
-            factoryPattern.aisle("CcCCCcC", "CMCCCMC", "C#C~C#C");
+            factoryPattern.aisle("XXXXXXX", "X#XXX#X", "C#C~C#C");
+            factoryPattern.aisle("XcXXXcX", "XMXXXMX", "C#C~C#C");
         } else {
-            factoryPattern.aisle("~~CCCCC", "~~CCC#C", "~~~~C#C");
-            factoryPattern.aisle("~~CCCcC", "~~CCCMC", "~~~~C#C");
+            factoryPattern.aisle("~~XXXXX", "~~XXX#X", "~~~~C#C");
+            factoryPattern.aisle("~~XXXcX", "~~XXXMX", "~~~~C#C");
         }
         for (int layer = 1; layer < this.parallelLayer; layer++) {
             if (layer % 2 == 0) {
-                factoryPattern.aisle("CCCCCCC", "C#CCC#C", "C#C~C#C");
-                factoryPattern.aisle("CcCCCcC", "CMCCCMC", "C#C~C#C");
+                factoryPattern.aisle("XXXXXXX", "X#XXX#X", "C#C~C#C");
+                factoryPattern.aisle("XcXXXcX", "XMXXXMX", "C#C~C#C");
             }
         }
-        if (this.parallelLayer > 1) {
-            factoryPattern.aisle("CCCCCCC", "C#CSC#C", "C#C~C#C");
-        } else {
-            factoryPattern.aisle("~~CCCCC", "~~CSC#C", "~~~~C#C");
-        }
-        return factoryPattern.where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+        String[] controller = this.parallelLayer > 1 ?
+                new String[]{"XXXXXXX", "X#XSX#X", "C#C~C#C"} :
+                new String[]{"~~XXXXX", "~~XSX#X", "~~~~C#C"};
+        return factoryPattern.aisle(controller)
+                .where('S', this.selfPredicate())
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('c', conveyorPredicate())
                 .where('M', motorPredicate())
                 .where('#', isAirPredicate())
@@ -110,7 +110,7 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250);
     }
 

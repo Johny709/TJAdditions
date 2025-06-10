@@ -42,6 +42,7 @@ import java.util.function.Predicate;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
@@ -73,20 +74,20 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
 
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(BlockPattern.RelativeDirection.LEFT, BlockPattern.RelativeDirection.FRONT, BlockPattern.RelativeDirection.DOWN);
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
 
-        factoryPattern.aisle("HHHHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH");
-        for (int count = 0; count < this.parallelLayer; count++) {
+        factoryPattern.aisle("XXXXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX");
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
             factoryPattern.aisle("F###F", "#CCC#", "#CcC#", "#CCC#", "F###F");
-            factoryPattern.validateLayer(2 + count * 2, (context) -> context.getInt("RedstoneControllerAmount") <= 1);
+            factoryPattern.validateLayer(2 + layer * 2, (context) -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-
-        factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-        return factoryPattern.aisle("HHSHH", "HHHHH", "HHHHH", "HHHHH", "HHHHH")
+        return factoryPattern
+                .aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F")
+                .aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
                 .where('S', this.selfPredicate())
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('C', statePredicate(getCasingState()).or(machineControllerPredicate))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('C', statePredicate(this.getCasingState()).or(machineControllerPredicate))
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
@@ -95,7 +96,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT);
     }
 

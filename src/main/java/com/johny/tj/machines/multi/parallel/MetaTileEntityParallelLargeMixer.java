@@ -79,17 +79,17 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         factoryPattern.aisle("~~F~~", "~~F~~", "FFFFF", "~~F~~", "~~F~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            String entityS = layer == this.parallelLayer - 1 ? "~HSH~" : "~HHH~";
-            factoryPattern.aisle("~HHH~", "H###H", "H#G#H", "H###H", "~HHH~");
-            factoryPattern.aisle("~HHH~", "H###H", "H#M#H", "H###H", "~HHH~");
-            factoryPattern.aisle(entityS, "H###H", "H#M#H", "H###H", "~HHH~");
+            String entityS = layer == this.parallelLayer - 1 ? "~XSX~" : "~XXX~";
+            factoryPattern.aisle("~XXX~", "X###X", "X#G#X", "X###X", "~XXX~");
+            factoryPattern.aisle("~XXX~", "X###X", "X#M#X", "X###X", "~XXX~");
+            factoryPattern.aisle(entityS, "X###X", "X#M#X", "X###X", "~XXX~");
         }
-        return factoryPattern.aisle("~HHH~", "HHHHH", "HHHHH", "HHHHH", "~HHH~")
+        return factoryPattern.aisle("~XXX~", "XXXXX", "XXXXX", "XXXXX", "~XXX~")
                 .where('S', this.selfPredicate())
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Staballoy).getDefaultState()))
                 .where('M', motorPredicate())

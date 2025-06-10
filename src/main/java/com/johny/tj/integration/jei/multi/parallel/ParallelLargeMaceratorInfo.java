@@ -1,4 +1,4 @@
-package com.johny.tj.integration.jei.multi;
+package com.johny.tj.integration.jei.multi.parallel;
 
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
@@ -31,17 +31,18 @@ public class ParallelLargeMaceratorInfo extends MultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        for (int index = 1; index < 16; index++) {
+        for (int shapeInfo = 1; shapeInfo < 16; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
-            builder.aisle("HHHHH", "HMEMH", "HHHHH", "HHHHH");
-            for (int count = 0; count < index; count++) {
-                builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
-                builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
+            builder.aisle("CCCCC", "CMEMC", "CCCCC", "CCCCC");
+            for (int layer = 0; layer < shapeInfo; layer++) {
+                builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
+                builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
             }
-            builder.aisle("HHHHH", "HGBGH", "HB#BH", "H###H");
-            shapeInfos.add(builder.aisle("HHHHH", "HMSMH", "HImOH", "HHHHH")
+            shapeInfos.add(builder
+                    .aisle("CCCCC", "CGBGC", "CB#BC", "C###C")
+                    .aisle("CCCCC", "CMSMC", "CImOC", "CCCCC")
                     .where('S', getController(), EnumFacing.WEST)
-                    .where('H', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
+                    .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
                     .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                     .where('B', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                     .where('M', GAMetaBlocks.MOTOR_CASING.getDefaultState())

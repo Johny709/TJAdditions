@@ -82,29 +82,30 @@ public class MetaTileEntityParallelLargeAssembler extends ParallelRecipeMapMulti
 
     @Override
     protected BlockPattern createStructurePattern() {
-        StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(), aisleA = new StringBuilder(), aislec = new StringBuilder(), aisleR = new StringBuilder();
+        StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(),
+                aisleA = new StringBuilder(), aislec = new StringBuilder(), aisleR = new StringBuilder();
         for (int layer = 1; layer < this.parallelLayer; layer++) {
-            aisleC.append("CCC");
+            aisleC.append("XXX");
             aisleG.append("GGG");
             aisleP.append("PPP");
             aisleA.append("###");
             aislec.append("ccc");
             aisleR.append("RRR");
         }
-        aisleC.append("C");
-        aisleG.append("C");
-        aisleP.append("C");
-        aisleA.append("C");
-        aislec.append("C");
-        aisleR.append("C");
+        aisleC.append("X");
+        aisleG.append("X");
+        aisleP.append("X");
+        aisleA.append("X");
+        aislec.append("X");
+        aisleR.append("X");
 
         return FactoryBlockPattern.start(RIGHT, FRONT, DOWN)
-                .aisle("C~CGGG" + aisleG, "CCCGGG" + aisleG, "CCCGGG" + aisleG, "CCCCCC" + aisleC)
-                .aisle("CCCGGG" + aisleG, "CPC###" + aisleA, "CPPPPP" + aisleP, "CCCCCC" + aisleC)
-                .aisle("CSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CCCCCC" + aisleC)
-                .aisle("CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC)
+                .aisle("X~XGGG" + aisleG, "XXXGGG" + aisleG, "XXXGGG" + aisleG, "XXXXXX" + aisleC)
+                .aisle("XXXGGG" + aisleG, "XPX###" + aisleA, "XPPPPP" + aisleP, "XXXXXX" + aisleC)
+                .aisle("XSXRRR" + aisleR, "XAXccc" + aislec, "XAXPPP" + aisleP, "XXXXXX" + aisleC)
+                .aisle("XXXXXX" + aisleC, "XXXXXX" + aisleC, "XXXXXX" + aisleC, "XXXXXX" + aisleC)
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('A', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING)))
@@ -115,7 +116,7 @@ public class MetaTileEntityParallelLargeAssembler extends ParallelRecipeMapMulti
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER);
     }
 

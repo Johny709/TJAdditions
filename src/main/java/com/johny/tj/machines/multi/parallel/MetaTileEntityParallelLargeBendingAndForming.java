@@ -83,13 +83,13 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
-        factoryPattern.aisle("HHHHH", "HHHHH", "HPHPH");
+        factoryPattern.aisle("XXXXX", "XXXXX", "XPXPX");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("HHHHH", "HMpMH", "HPHPH");
+            factoryPattern.aisle("XXXXX", "XMpMX", "XPXPX");
         }
-        return factoryPattern.aisle("HHHHH", "HHSHH", "HPHPH")
+        return factoryPattern.aisle("XXXXX", "XXSXX", "XPXPX")
                 .where('S', this.selfPredicate())
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('M', motorPredicate())
                 .where('p', pistonPredicate())

@@ -88,21 +88,22 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @Override
     protected BlockPattern createStructurePattern() {
         Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, DOWN, BACK);
-        factoryPattern.aisle("~CCC~", "HHHHH", "HmHmH", "HHHHH");
-        for (int count = 0; count < this.parallelLayer; count++) {
-            if (count != 0)
-                factoryPattern.aisle("~HHH~", "H###H", "HP#PH", "HHHHH");
-            factoryPattern.aisle("CGCGC", "H###H", "HP#PH", "HHHHH");
-            factoryPattern.aisle("CGCGC", "M###M", "MP#PM", "MMMMM");
-            factoryPattern.aisle("CGCGC", "H###H", "HP#PH", "HHHHH");
-            factoryPattern.validateLayer(2 + count * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        factoryPattern.aisle("XXXXX", "XmXmX", "XXXXX", "~CCC~");
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            if (layer != 0) {
+                factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "~XXX~");
+            }
+            factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "CGCGC");
+            factoryPattern.aisle("MMMMM", "MP#PM", "M###M", "CGCGC");
+            factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "CGCGC");
+            factoryPattern.validateLayer(2 + layer * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
-        return factoryPattern.aisle("~CCC~", "HHHHH", "HmSmH", "HHHHH")
+        return factoryPattern.aisle("XXXXX", "XmSmX", "XXXXX", "~CCC~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
@@ -111,7 +112,7 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM);
     }
 

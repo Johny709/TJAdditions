@@ -1,4 +1,4 @@
-package com.johny.tj.integration.jei.multi;
+package com.johny.tj.integration.jei.multi.parallel;
 
 import com.johny.tj.machines.TJMetaTileEntities;
 import gregicadditions.item.GAMetaBlocks;
@@ -13,7 +13,6 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,28 +32,30 @@ public class ParallelLargeAssemblerInfo extends MultiblockInfoPage {
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(LEFT, FRONT, DOWN);
-            String[] aisle1 = {"CCCI", "CCC~", "CCCC", "CGGG", "CGGG", "CGGG"};
-            String[] aisle2 = {"CCCi", "CPPM", "CPCC", "CP#G", "CP#G", "CP#G"};
-            String[] aisle3 = {"CCCO", "EAAS", "CCCC", "CPcR", "CPcR", "CPcR"};
-            String[] aisle4 = {"CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC"};
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                if (layer == shapeInfo - 1) {
-                    aisle1 = ArrayUtils.addAll(aisle1, "CCCC");
-                    aisle2 = ArrayUtils.addAll(aisle2, "CCCC");
-                    aisle3 = ArrayUtils.addAll(aisle3, "CCCC");
-                    aisle4 = ArrayUtils.addAll(aisle4, "CCCC");
-                } else {
-                    aisle1 = ArrayUtils.addAll(aisle1, "CGGG", "CGGG", "CGGG");
-                    aisle2 = ArrayUtils.addAll(aisle2, "CP#G", "CP#G", "CP#G");
-                    aisle3 = ArrayUtils.addAll(aisle3, "CPcR", "CPcR", "CPcR");
-                    aisle4 = ArrayUtils.addAll(aisle4, "CCCC", "CCCC", "CCCC");
-                }
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
+
+            StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(),
+                    aisleA = new StringBuilder(), aislec = new StringBuilder(), aisleR = new StringBuilder();
+            for (int layer = 1; layer < shapeInfo; layer++) {
+                aisleC.append("CCC");
+                aisleG.append("GGG");
+                aisleP.append("PPP");
+                aisleA.append("###");
+                aislec.append("ccc");
+                aisleR.append("RRR");
             }
-            shapeInfos.add(builder.aisle(aisle1)
-                    .aisle(aisle2)
-                    .aisle(aisle3)
-                    .aisle(aisle4)
+            aisleC.append("C");
+            aisleG.append("C");
+            aisleP.append("C");
+            aisleA.append("C");
+            aislec.append("C");
+            aisleR.append("C");
+
+            shapeInfos.add(builder
+                    .aisle("I~CGGG" + aisleG, "CCCGGG" + aisleG, "CCCGGG" + aisleG, "CCCCCC" + aisleC)
+                    .aisle("iMCGGG" + aisleG, "CPC###" + aisleA, "CPPPPP" + aisleP, "CCCCCC" + aisleC)
+                    .aisle("OSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CCCCCC" + aisleC)
+                    .aisle("CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC)
                     .where('S', this.getController(), WEST)
                     .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER))
                     .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))

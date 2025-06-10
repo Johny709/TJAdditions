@@ -81,14 +81,14 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, DOWN, BACK);
-        factoryPattern.aisle("~~P~~", "~CPC~", "PPPPP", "~CPC~", "~~P~~");
+        factoryPattern.aisle("~~P~~", "~XPX~", "PPPPP", "~XPX~", "~~P~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
         }
-        return factoryPattern.aisle("~~P~~", "~CPC~", "PPSPP", "~CPC~", "~~P~~")
+        return factoryPattern.aisle("~~P~~", "~XPX~", "PPSPP", "~XPX~", "~~P~~")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('G', statePredicate(getCasingState()).or(glassPredicate()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('G', statePredicate(this.getCasingState()).or(glassPredicate()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
                 .where('p', pumpPredicate())
                 .where('#', isAirPredicate())
@@ -96,7 +96,7 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
                 .build();
     }
 
-    private static IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID);
     }
 
