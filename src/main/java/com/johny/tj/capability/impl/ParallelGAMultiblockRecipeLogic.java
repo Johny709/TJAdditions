@@ -246,7 +246,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                     .outputs(outputI)
                     .fluidOutputs(outputF)
                     .EUt(Math.max(1, EUt * getEUtPercentage() / 100))
-                    .duration((int) Math.max(3, duration * (getDurationPercentage() / 100.0)));
+                    .duration((int) Math.max(1, duration * (getDurationPercentage() / 100.0)));
 
             return newRecipe.build().getResult();
         }

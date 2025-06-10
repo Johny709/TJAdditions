@@ -34,7 +34,7 @@ public class ParallelLargeBendingAndFormingInfo extends MultiblockInfoPage {
             GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
             builder.aisle("CCECC", "CCCCC", "CPCPC");
             for (int layer = 0; layer < shapeInfo; layer++) {
-                builder.aisle("CCCCC", "CPmPC", "CPCPC");
+                builder.aisle("CCCCC", "CmpmC", "CPCPC");
             }
             shapeInfos.add(builder.aisle("CCMCC", "CISOC", "CPCPC")
                     .where('S', this.getController(), WEST)

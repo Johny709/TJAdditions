@@ -85,7 +85,7 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         factoryPattern.aisle("HHHHH", "HHHHH", "HPHPH");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("HHHHH", "HpMpH", "HPHPH");
+            factoryPattern.aisle("HHHHH", "HMpMH", "HPHPH");
         }
         return factoryPattern.aisle("HHHHH", "HHSHH", "HPHPH")
                 .where('S', this.selfPredicate())
