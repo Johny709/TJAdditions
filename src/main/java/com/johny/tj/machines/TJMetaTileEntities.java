@@ -75,6 +75,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityParallelLargeBrewery PARALLEL_LARGE_BREWERY;
     public static MetaTileEntityParallelLargeArcFurnace PARALLEL_LARGE_ARC_FURNACE;
     public static MetaTileEntityParallelLargeAssembler PARALLEL_LARGE_ASSEMBLER;
+    public static MetaTileEntityParallelLargeBendingAndForming PARALLEL_LARGE_BENDING_AND_FORMING;
     public static MetaTileEntityParallelLargeCanningMachine PARALLEL_LARGE_CANNING_MACHINE;
     public static MetaTileEntityParallelLargeCuttingMachine PARALLEL_LARGE_CUTTING_MACHINE;
     public static MetaTileEntityParallelLargeElectromagnet PARALLEL_LARGE_ELECTROMAGNET;
@@ -169,17 +170,18 @@ public class TJMetaTileEntities {
         PARALLEL_LARGE_BREWERY = GregTechAPI.registerMetaTileEntity(5090, new MetaTileEntityParallelLargeBrewery(TJId("parallel_large_brewery")));
         PARALLEL_LARGE_ARC_FURNACE = GregTechAPI.registerMetaTileEntity(5091, new MetaTileEntityParallelLargeArcFurnace(TJId("parallel_large_arc_furnace")));
         PARALLEL_LARGE_ASSEMBLER = GregTechAPI.registerMetaTileEntity(5092, new MetaTileEntityParallelLargeAssembler(TJId("parallel_large_assembler")));
-        PARALLEL_LARGE_CANNING_MACHINE = GregTechAPI.registerMetaTileEntity(5093, new MetaTileEntityParallelLargeCanningMachine(TJId("parallel_large_canning_machine")));
-        PARALLEL_LARGE_CUTTING_MACHINE = GregTechAPI.registerMetaTileEntity(5094, new MetaTileEntityParallelLargeCuttingMachine(TJId("parallel_large_cutting_machine")));
-        PARALLEL_LARGE_ELECTROMAGNET = GregTechAPI.registerMetaTileEntity(5095, new MetaTileEntityParallelLargeElectromagnet(TJId("parallel_large_electromagnet")));
-        PARALLEL_LARGE_EXTRACTOR = GregTechAPI.registerMetaTileEntity(5096, new MetaTileEntityParallelLargeExtractor(TJId("parallel_large_extractor")));
-        PARALLEL_LARGE_EXTRUDER = GregTechAPI.registerMetaTileEntity(5097, new MetaTileEntityParallelLargeExtruder(TJId("parallel_large_extruder")));
-        PARALLEL_LARGE_FORGE_HAMMER = GregTechAPI.registerMetaTileEntity(5098, new MetaTileEntityParallelLargeForgeHammer(TJId("parallel_large_forge_hammer")));
-        PARALLEL_LARGE_LASER_ENGRAVER = GregTechAPI.registerMetaTileEntity(5099, new MetaTileEntityParallelLargeLaserEngraver(TJId("parallel_large_laser_engraver")));
-        PARALLEL_LARGE_MIXER = GregTechAPI.registerMetaTileEntity(5100, new MetaTileEntityParallelLargeMixer(TJId("parallel_large_mixer")));
-        PARALLEL_LARGE_PACKAGER = GregTechAPI.registerMetaTileEntity(5101, new MetaTileEntityParallelLargePackager(TJId("parallel_large_packager")));
-        PARALLEL_LARGE_WIREMILL = GregTechAPI.registerMetaTileEntity(5102, new MetaTileEntityParallelLargeWiremill(TJId("parallel_large_wiremill")));
-        PARALLEL_PLASMA_CONDENSER = GregTechAPI.registerMetaTileEntity(5103, new MetaTileEntityParallelPlasmaCondenser(TJId("parallel_plasma_condenser")));
+        PARALLEL_LARGE_BENDING_AND_FORMING = GregTechAPI.registerMetaTileEntity(5093, new MetaTileEntityParallelLargeBendingAndForming(TJId("parallel_large_bending_and_forming")));
+        PARALLEL_LARGE_CANNING_MACHINE = GregTechAPI.registerMetaTileEntity(5094, new MetaTileEntityParallelLargeCanningMachine(TJId("parallel_large_canning_machine")));
+        PARALLEL_LARGE_CUTTING_MACHINE = GregTechAPI.registerMetaTileEntity(5095, new MetaTileEntityParallelLargeCuttingMachine(TJId("parallel_large_cutting_machine")));
+        PARALLEL_LARGE_ELECTROMAGNET = GregTechAPI.registerMetaTileEntity(5096, new MetaTileEntityParallelLargeElectromagnet(TJId("parallel_large_electromagnet")));
+        PARALLEL_LARGE_EXTRACTOR = GregTechAPI.registerMetaTileEntity(5097, new MetaTileEntityParallelLargeExtractor(TJId("parallel_large_extractor")));
+        PARALLEL_LARGE_EXTRUDER = GregTechAPI.registerMetaTileEntity(5098, new MetaTileEntityParallelLargeExtruder(TJId("parallel_large_extruder")));
+        PARALLEL_LARGE_FORGE_HAMMER = GregTechAPI.registerMetaTileEntity(5099, new MetaTileEntityParallelLargeForgeHammer(TJId("parallel_large_forge_hammer")));
+        PARALLEL_LARGE_LASER_ENGRAVER = GregTechAPI.registerMetaTileEntity(5100, new MetaTileEntityParallelLargeLaserEngraver(TJId("parallel_large_laser_engraver")));
+        PARALLEL_LARGE_MIXER = GregTechAPI.registerMetaTileEntity(5101, new MetaTileEntityParallelLargeMixer(TJId("parallel_large_mixer")));
+        PARALLEL_LARGE_PACKAGER = GregTechAPI.registerMetaTileEntity(5102, new MetaTileEntityParallelLargePackager(TJId("parallel_large_packager")));
+        PARALLEL_LARGE_WIREMILL = GregTechAPI.registerMetaTileEntity(5103, new MetaTileEntityParallelLargeWiremill(TJId("parallel_large_wiremill")));
+        PARALLEL_PLASMA_CONDENSER = GregTechAPI.registerMetaTileEntity(5104, new MetaTileEntityParallelPlasmaCondenser(TJId("parallel_plasma_condenser")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));

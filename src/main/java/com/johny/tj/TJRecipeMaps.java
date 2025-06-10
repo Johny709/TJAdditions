@@ -56,6 +56,9 @@ public class TJRecipeMaps {
     public static ParallelRecipeMap PARALLEL_ARC_FURNACE_RECIPES;
     public static ParallelRecipeMap PARALLEL_PLASMA_ARC_FURNACE_RECIPES;
     public static ParallelRecipeMap PARALLEL_ASSEMBLER_RECIPES;
+    public static ParallelRecipeMap PARALLEL_BENDER_RECIPES;
+    public static ParallelRecipeMap PARALLEL_FORMING_PRESS_RECIPES;
+    public static ParallelRecipeMap PARALLEL_CLUSTER_MILL_RECIPES;
     public static ParallelRecipeMap PARALLEL_CANNER_RECIPES;
     public static ParallelRecipeMap PARALLEL_FLUID_CANNER_RECIPES;
     public static ParallelRecipeMap PARALLEL_FLUID_SOLIDIFICATION_RECIPES;
@@ -95,6 +98,9 @@ public class TJRecipeMaps {
         PARALLEL_ARC_FURNACE_RECIPES = new ParallelRecipeMap(ARC_FURNACE_RECIPES);
         PARALLEL_PLASMA_ARC_FURNACE_RECIPES = new ParallelRecipeMap(PLASMA_ARC_FURNACE_RECIPES);
         PARALLEL_ASSEMBLER_RECIPES = new ParallelRecipeMap(ASSEMBLER_RECIPES);
+        PARALLEL_BENDER_RECIPES = new ParallelRecipeMap(BENDER_RECIPES);
+        PARALLEL_FORMING_PRESS_RECIPES = new ParallelRecipeMap(FORMING_PRESS_RECIPES);
+        PARALLEL_CLUSTER_MILL_RECIPES = new ParallelRecipeMap(CLUSTER_MILL_RECIPES);
         PARALLEL_CANNER_RECIPES = new ParallelRecipeMap(CANNER_RECIPES);
         PARALLEL_FLUID_CANNER_RECIPES = new ParallelRecipeMap(FLUID_CANNER_RECIPES);
         PARALLEL_FLUID_SOLIDIFICATION_RECIPES = new ParallelRecipeMap(FLUID_SOLIDFICATION_RECIPES);
