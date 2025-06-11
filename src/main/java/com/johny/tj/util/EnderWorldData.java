@@ -22,12 +22,6 @@ public class EnderWorldData extends WorldSavedData {
     private static final Map<String, BasicEnergyHandler> energyContainerMap = new HashMap<>();
     private static EnderWorldData INSTANCE;
 
-    public static void init() {
-        fluidTankMap.putIfAbsent("default", new FluidTank(64000));
-        itemChestMap.putIfAbsent("default", new LargeItemStackHandler(1, 640));
-        energyContainerMap.putIfAbsent("default", new BasicEnergyHandler(64000));
-    }
-
     public EnderWorldData(String name) {
         super(name);
     }

@@ -79,8 +79,6 @@ public class CommonProxy {
         }
         EnderWorldData.setInstance((EnderWorldData) worldData);
         PlayerWorldIDData.setInstance((PlayerWorldIDData) playerWorldData);
-
-        EnderWorldData.init();
     }
 
     @SubscribeEvent
