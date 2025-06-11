@@ -16,6 +16,10 @@ import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.filter.SimpleFluidFilter;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
@@ -90,6 +94,20 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     @Override
     protected void onClear(Widget.ClickData clickData) {
         EnderWorldData.getFluidTankMap().put(this.text, new FluidTank(this.capacity));
+    }
+
+    @Override
+    protected void addEntryText(ITextComponent keyEntry, String key, FluidTank value) {
+        FluidStack fluid = value.getFluid();
+        boolean empty = fluid == null;
+        String name = !empty ? fluid.getUnlocalizedName() : I18n.translateToLocal("metaitem.fluid_cell.empty");
+        int capacity = !empty ? value.getCapacity() : 0;
+        int amount = !empty ? fluid.amount : 0;
+        keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
+                .appendText("§b ")
+                .appendText(amount + "L")
+                .appendText(" §r/§b ")
+                .appendText(capacity + "L")));
     }
 
     @Override

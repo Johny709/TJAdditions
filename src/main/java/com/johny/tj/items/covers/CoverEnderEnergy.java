@@ -14,6 +14,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.HoverEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -117,6 +120,11 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
     @Override
     protected void onClear(Widget.ClickData clickData) {
         EnderWorldData.getEnergyContainerMap().put(this.text, new BasicEnergyHandler(this.capacity));
+    }
+
+    @Override
+    protected void addEntryText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
+        keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.energy.stored", value.getStored(), value.getCapacity())));
     }
 
     @Override

@@ -15,6 +15,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -161,6 +164,20 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     @Override
     protected void onClear(Widget.ClickData clickData) {
         EnderWorldData.getItemChestMap().put(this.text, new LargeItemStackHandler(1, this.capacity));
+    }
+
+    @Override
+    protected void addEntryText(ITextComponent keyEntry, String key, LargeItemStackHandler value) {
+        ItemStack item = value.getStackInSlot(0);
+        boolean empty = item.isEmpty();
+        String name = !empty ? item.getTranslationKey() + ".name" : net.minecraft.util.text.translation.I18n.translateToLocal("metaitem.fluid_cell.empty");
+        int capacity = !empty ? value.getCapacity() : 0;
+        int amount = !empty ? item.getCount() : 0;
+        keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
+                .appendText("§b ")
+                .appendText(String.valueOf(amount))
+                .appendText(" §r/§b ")
+                .appendText(String.valueOf(capacity))));
     }
 
     @Override

@@ -6,14 +6,12 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.TJValues;
-import com.johny.tj.builder.handlers.BasicEnergyHandler;
 import com.johny.tj.gui.uifactory.IPlayerUI;
 import com.johny.tj.gui.uifactory.PlayerHolder;
 import com.johny.tj.gui.widgets.OnTextFieldWidget;
 import com.johny.tj.gui.widgets.TJAdvancedTextWidget;
 import com.johny.tj.gui.widgets.TJClickButtonWidget;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
-import com.johny.tj.items.handlers.LargeItemStackHandler;
 import com.johny.tj.textures.TJSimpleOverlayRenderer;
 import com.johny.tj.textures.TJTextures;
 import gregtech.api.capability.IControllable;
@@ -27,7 +25,6 @@ import gregtech.api.gui.widgets.*;
 import gregtech.common.covers.CoverPump;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.*;
@@ -35,10 +32,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTank;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
@@ -276,39 +270,13 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     .appendText(" ")
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + text));
             textList.add(keyEntry);
-
-            if (entry.getValue() instanceof FluidTank) {
-                FluidStack fluid = ((FluidTank) entry.getValue()).getFluid();
-                boolean empty = fluid == null;
-                String name = !empty ? fluid.getUnlocalizedName() : I18n.translateToLocal("metaitem.fluid_cell.empty");
-                int capacity = !empty ? ((FluidTank) entry.getValue()).getCapacity() : 0;
-                int amount = !empty ? fluid.amount : 0;
-                keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
-                        .appendText("§b ")
-                        .appendText(amount + "L")
-                        .appendText(" §r/§b ")
-                        .appendText(capacity + "L")));
-            }
-            if (entry.getValue() instanceof LargeItemStackHandler) {
-                ItemStack item = ((LargeItemStackHandler) entry.getValue()).getStackInSlot(0);
-                boolean empty = item.isEmpty();
-                String name = !empty ? item.getTranslationKey() + ".name" : I18n.translateToLocal("metaitem.fluid_cell.empty");
-                int capacity = !empty ? ((LargeItemStackHandler) entry.getValue()).getCapacity() : 0;
-                int amount = !empty ? item.getCount() : 0;
-                keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
-                        .appendText("§b ")
-                        .appendText(String.valueOf(amount))
-                        .appendText(" §r/§b ")
-                        .appendText(String.valueOf(capacity))));
-            }
-            if (entry.getValue() instanceof BasicEnergyHandler) {
-                BasicEnergyHandler container = (BasicEnergyHandler) entry.getValue();
-                keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.energy.stored", container.getStored(), container.getCapacity())));
-            }
+            this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
             searchResults++;
         }
         this.searchResults = searchResults;
     }
+
+    protected abstract void addEntryText(ITextComponent keyEntry, K key, V value);
 
     private void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.startsWith("select")) {
