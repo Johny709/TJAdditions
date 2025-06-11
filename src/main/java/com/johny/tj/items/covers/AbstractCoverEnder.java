@@ -282,7 +282,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         if (componentData.startsWith("select")) {
             String[] select = componentData.split(":");
             this.setTextID(select[1]);
-            this.handler = getMap().get(select[1]);
 
         } else if (componentData.startsWith("remove")) {
             String[] remove = componentData.split(":");
@@ -346,7 +345,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.transferRate = data.getInteger("TransferRate");
         if (data.hasKey("Text")) {
             this.text = data.getString("Text");
-            this.handler = getMap().get(this.text);
         }
     }
 

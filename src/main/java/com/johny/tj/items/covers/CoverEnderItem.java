@@ -158,12 +158,14 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     protected void onAddEntry(Widget.ClickData clickData) {
-        EnderWorldData.getItemChestMap().putIfAbsent(this.text, new LargeItemStackHandler(1, this.capacity));
+        this.getMap().putIfAbsent(this.text, new LargeItemStackHandler(1, this.capacity));
     }
 
     @Override
     protected void onClear(Widget.ClickData clickData) {
-        EnderWorldData.getItemChestMap().put(this.text, new LargeItemStackHandler(1, this.capacity));
+        if (this.getMap().containsKey(this.text)) {
+            this.getMap().put(this.text, new LargeItemStackHandler(1, this.capacity));
+        }
     }
 
     @Override
@@ -182,7 +184,11 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     public void update() {
-        if (this.isWorkingEnabled && this.handler != null) {
+        if (this.isWorkingEnabled) {
+            if (this.handler == null) {
+                this.handler = this.getMap().get(this.text);
+                return;
+            }
             if (this.pumpMode == IMPORT) {
                 this.moveInventoryItems(this.itemInventory, this.handler);
             } else {

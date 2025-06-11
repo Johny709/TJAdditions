@@ -88,12 +88,14 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     protected void onAddEntry(Widget.ClickData clickData) {
-        EnderWorldData.getFluidTankMap().putIfAbsent(this.text, new FluidTank(this.capacity));
+        this.getMap().putIfAbsent(this.text, new FluidTank(this.capacity));
     }
 
     @Override
     protected void onClear(Widget.ClickData clickData) {
-        EnderWorldData.getFluidTankMap().put(this.text, new FluidTank(this.capacity));
+        if (this.getMap().containsKey(this.text)) {
+            this.getMap().put(this.text, new FluidTank(this.capacity));
+        }
     }
 
     @Override
@@ -149,7 +151,11 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     public void update() {
-        if (this.isWorkingEnabled && this.getFluidTank() != null) {
+        if (this.isWorkingEnabled) {
+            if (this.handler == null) {
+                this.handler = this.getMap().get(this.text);
+                return;
+            }
             if (this.pumpMode == CoverPump.PumpMode.EXPORT) {
                 FluidStack enderStack = this.getFluidTank().drain(this.transferRate, false);
                 if (enderStack != null && this.fluidTank.fill(enderStack, false) > 0) {

@@ -114,12 +114,14 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     protected void onAddEntry(Widget.ClickData clickData) {
-        EnderWorldData.getEnergyContainerMap().putIfAbsent(this.text, new BasicEnergyHandler(this.capacity));
+        this.getMap().putIfAbsent(this.text, new BasicEnergyHandler(this.capacity));
     }
 
     @Override
     protected void onClear(Widget.ClickData clickData) {
-        EnderWorldData.getEnergyContainerMap().put(this.text, new BasicEnergyHandler(this.capacity));
+        if (this.getMap().containsKey(this.text)) {
+            this.getMap().put(this.text, new BasicEnergyHandler(this.capacity));
+        }
     }
 
     @Override
@@ -129,7 +131,11 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     public void update() {
-        if (this.isWorkingEnabled && this.handler != null) {
+        if (this.isWorkingEnabled) {
+            if (this.handler == null) {
+                this.handler = this.getMap().get(this.text);
+                return;
+            }
             if (this.pumpMode == CoverPump.PumpMode.IMPORT) {
                 this.importEnergy(this.handler);
             } else {
