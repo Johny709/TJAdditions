@@ -76,19 +76,18 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
             public void drawInForeground(int mouseX, int mouseY) {
                 if(isMouseOverElement(mouseX, mouseY)) {
                     List<String> hoverList = Collections.singletonList(I18n.format("machine.universal.energy.stored", this.energyStored, this.energyCapacity));
-                    drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
+                    this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
                 }
             }
 
             @Override
             public void detectAndSendChanges() {
                 super.detectAndSendChanges();
-                BasicEnergyHandler energyHandler = getMap().get(text);
-                if (energyHandler != null) {
-                    long energyStored = energyHandler.getStored();
-                    long energyCapacity = energyHandler.getCapacity();
-                    writeUpdateInfo(1, buffer -> buffer.writeLong(energyStored));
-                    writeUpdateInfo(2, buffer -> buffer.writeLong(energyCapacity));
+                if (handler != null) {
+                    long energyStored = handler.getStored();
+                    long energyCapacity = handler.getCapacity();
+                    this.writeUpdateInfo(1, buffer -> buffer.writeLong(energyStored));
+                    this.writeUpdateInfo(2, buffer -> buffer.writeLong(energyCapacity));
                 }
             }
 
@@ -107,10 +106,7 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
     }
 
     private double getEnergyStored() {
-        BasicEnergyHandler energyHandler = getMap().get(text);
-        if (energyHandler == null)
-            return 0;
-        return (double) energyHandler.getStored() / energyHandler.getCapacity();
+        return this.handler != null ? (double) this.handler.getStored() / this.handler.getCapacity() : 0;
     }
 
     @Override
@@ -125,14 +121,11 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     public void update() {
-        if (this.isWorkingEnabled) {
-            BasicEnergyHandler enderEnergyContainer = getMap().get(text);
-            if (enderEnergyContainer == null)
-                return;
+        if (this.isWorkingEnabled && this.handler != null) {
             if (this.pumpMode == CoverPump.PumpMode.IMPORT) {
-                importEnergy(enderEnergyContainer);
+                this.importEnergy(this.handler);
             } else {
-                exportEnergy(enderEnergyContainer);
+                this.exportEnergy(this.handler);
             }
         }
     }

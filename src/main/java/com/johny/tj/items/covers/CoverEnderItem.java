@@ -112,10 +112,9 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
             @Override
             public void detectAndSendChanges() {
                 super.detectAndSendChanges();
-                LargeItemStackHandler itemStackHandler = getMap().get(text);
-                if (itemStackHandler != null) {
-                    int itemStored = itemStackHandler.getStackInSlot(0).getCount();
-                    int itemCapacity = itemStackHandler.getCapacity();
+                if (handler != null) {
+                    int itemStored = handler.getStackInSlot(0).getCount();
+                    int itemCapacity = handler.getCapacity();
                     writeUpdateInfo(1, buffer -> buffer.writeInt(itemStored));
                     writeUpdateInfo(2, buffer -> buffer.writeInt(itemCapacity));
                 }
@@ -137,7 +136,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     private void setFilterBlacklist(boolean isFilterBlacklist) {
         this.isFilterBlacklist = isFilterBlacklist;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private boolean isFilterBlacklist() {
@@ -151,10 +150,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     private double getItemsStored() {
-        LargeItemStackHandler itemHandler = getMap().get(this.text);
-        if (itemHandler == null)
-            return 0;
-        return (double) itemHandler.getStackInSlot(0).getCount() / itemHandler.getCapacity();
+        return this.handler != null ? (double) this.handler.getStackInSlot(0).getCount() / this.handler.getCapacity() : 0;
     }
 
     @Override
@@ -169,14 +165,11 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     public void update() {
-        if (this.isWorkingEnabled) {
-            LargeItemStackHandler itemStackHandler = getMap().get(this.text);
-            if (itemStackHandler == null)
-                return;
+        if (this.isWorkingEnabled && this.handler != null) {
             if (this.pumpMode == IMPORT) {
-                moveInventoryItems(this.itemInventory, itemStackHandler);
+                this.moveInventoryItems(this.itemInventory, this.handler);
             } else {
-                moveInventoryItems(itemStackHandler, this.itemInventory);
+                this.moveInventoryItems(this.handler, this.itemInventory);
             }
         }
     }
@@ -200,14 +193,14 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        itemFilter.writeToNBT(data);
-        data.setBoolean("FilterBlacklist", isFilterBlacklist);
+        this.itemFilter.writeToNBT(data);
+        data.setBoolean("FilterBlacklist", this.isFilterBlacklist);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        itemFilter.readFromNBT(data);
-        isFilterBlacklist = data.getBoolean("FilterBlacklist");
+        this.itemFilter.readFromNBT(data);
+        this.isFilterBlacklist = data.getBoolean("FilterBlacklist");
     }
 }

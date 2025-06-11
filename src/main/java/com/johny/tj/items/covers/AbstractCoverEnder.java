@@ -52,7 +52,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, IPlayerUI, ITickable, IControllable {
 
-    protected String text = "default";
+    protected String text = "";
     protected String searchPrompt = "";
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
@@ -63,6 +63,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected boolean hasSpaces;
     private int searchResults;
     private String renamePrompt = "";
+    protected V handler;
 
     public AbstractCoverEnder(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -313,6 +314,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         if (componentData.startsWith("select")) {
             String[] select = componentData.split(":");
             this.setTextID(select[1]);
+            this.handler = getMap().get(select[1]);
 
         } else if (componentData.startsWith("remove")) {
             String[] remove = componentData.split(":");
@@ -356,23 +358,28 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setString("Text", this.text);
         data.setInteger("PumpMode", this.pumpMode.ordinal());
         data.setBoolean("IsWorking", this.isWorkingEnabled);
         data.setBoolean("CaseSensitive", this.isCaseSensitive);
         data.setBoolean("HasSpaces", this.hasSpaces);
         data.setInteger("TransferRate", this.transferRate);
+        if (this.handler != null) {
+            data.setString("Text", this.text);
+        }
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.text = data.hasKey("Text") ? data.getString("Text") : "default";
         this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("PumpMode")];
         this.isWorkingEnabled = data.getBoolean("IsWorking");
         this.isCaseSensitive = data.getBoolean("CaseSensitive");
         this.hasSpaces = data.getBoolean("HasSpaces");
         this.transferRate = data.getInteger("TransferRate");
+        if (data.hasKey("Text")) {
+            this.text = data.getString("Text");
+            this.handler = getMap().get(this.text);
+        }
     }
 
     @Override

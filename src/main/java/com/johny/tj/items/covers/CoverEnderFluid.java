@@ -112,7 +112,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     private void setFilterBlacklist(boolean isFilterBlacklist) {
         this.isFilterBlacklist = isFilterBlacklist;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     private boolean isFilterBlacklist() {
@@ -126,24 +126,23 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     private IFluidTank getFluidTank() {
-        IFluidTank tank = EnderWorldData.getFluidTankMap().get(this.text);
-        return tank != null ? tank : EnderWorldData.getFluidTankMap().get("default");
+        return this.handler;
     }
 
     @Override
     public void update() {
-        if (this.isWorkingEnabled) {
+        if (this.isWorkingEnabled && this.getFluidTank() != null) {
             if (this.pumpMode == CoverPump.PumpMode.EXPORT) {
-                FluidStack enderStack = getFluidTank().drain(this.transferRate, false);
+                FluidStack enderStack = this.getFluidTank().drain(this.transferRate, false);
                 if (enderStack != null && this.fluidTank.fill(enderStack, false) > 0) {
                     if (!this.isFilterBlacklist == this.fluidFilter.testFluid(enderStack))
-                        getFluidTank().drain(this.fluidTank.fill(enderStack, true), true);
+                        this.getFluidTank().drain(this.fluidTank.fill(enderStack, true), true);
                 }
             } else {
                 FluidStack fluidStack = this.fluidTank.drain(this.transferRate, false);
-                if (fluidStack != null && getFluidTank().fill(fluidStack, false) > 0) {
+                if (fluidStack != null && this.getFluidTank().fill(fluidStack, false) > 0) {
                     if (!this.isFilterBlacklist == this.fluidFilter.testFluid(fluidStack))
-                        this.fluidTank.drain(getFluidTank().fill(fluidStack, true), true);
+                        this.fluidTank.drain(this.getFluidTank().fill(fluidStack, true), true);
                 }
             }
         }
