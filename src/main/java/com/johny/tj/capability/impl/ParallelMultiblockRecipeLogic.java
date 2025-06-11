@@ -35,41 +35,41 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     @Override
     public void setLayer(int i, boolean remove) {
         super.setLayer(i, remove);
-        this.lastRecipeIndex = Arrays.copyOf(lastRecipeIndex, getSize());
+        this.lastRecipeIndex = Arrays.copyOf(this.lastRecipeIndex, getSize());
     }
 
     public IEnergyContainer getEnergyContainer() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getEnergyContainer();
     }
 
     @Override
     protected IItemHandlerModifiable getInputInventory() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getInputInventory();
     }
 
     @Override
     protected IItemHandlerModifiable getOutputInventory() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getOutputInventory();
     }
 
     @Override
     protected IMultipleTankHandler getInputTank() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getInputFluidInventory();
     }
 
     @Override
     protected IMultipleTankHandler getOutputTank() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getOutputFluidInventory();
     }
 
     @Override
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe) {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         if (controller.checkRecipe(recipe, false) &&
                 super.setupAndConsumeRecipeInputs(recipe)) {
             controller.checkRecipe(recipe, true);
@@ -79,48 +79,48 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     @Override
     protected long getEnergyStored() {
-        return getEnergyContainer().getEnergyStored();
+        return this.getEnergyContainer().getEnergyStored();
     }
 
     @Override
     protected long getEnergyCapacity() {
-        return getEnergyContainer().getEnergyCapacity();
+        return this.getEnergyContainer().getEnergyCapacity();
     }
 
     @Override
     protected boolean drawEnergy(int recipeEUt) {
-        long resultEnergy = getEnergyStored() - recipeEUt;
-        if (resultEnergy >= 0L && resultEnergy <= getEnergyCapacity()) {
-            getEnergyContainer().changeEnergy(-recipeEUt);
+        long resultEnergy = this.getEnergyStored() - recipeEUt;
+        if (resultEnergy >= 0L && resultEnergy <= this.getEnergyCapacity()) {
+            this.getEnergyContainer().changeEnergy(-recipeEUt);
             return true;
         } else return false;
     }
 
     @Override
     protected long getMaxVoltage() {
-        return Math.max(getEnergyContainer().getInputVoltage(), getEnergyContainer().getOutputVoltage());
+        return Math.max(this.getEnergyContainer().getInputVoltage(), this.getEnergyContainer().getOutputVoltage());
     }
 
     /**
      * Used to reset cached values after multiblock structure deforms
      */
     public void invalidate() {
-        Arrays.fill(lastRecipeIndex, 0);
+        Arrays.fill(this.lastRecipeIndex, 0);
     }
 
     protected List<IItemHandlerModifiable> getInputBuses() {
-        return controller.getAbilities(MultiblockAbility.IMPORT_ITEMS);
+        return this.controller.getAbilities(MultiblockAbility.IMPORT_ITEMS);
     }
 
     @Override
     protected int[] calculateOverclock(int EUt, long voltage, int duration) {
         int numMaintenanceProblems = (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) ?
-                ((ParallelRecipeMapMultiblockController) metaTileEntity).getNumProblems() : 0;
+                ((ParallelRecipeMapMultiblockController) this.metaTileEntity).getNumProblems() : 0;
 
         double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
         int durationModified = (int) (duration * maintenanceDurationMultiplier);
 
-        if (!allowOverclocking) {
+        if (!this.allowOverclocking) {
             return new int[]{EUt, durationModified};
         }
         boolean negativeEU = EUt < 0;
@@ -136,7 +136,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             resultEUt *= 4;
             resultDuration /= 2.8;
         }
-        previousRecipeDuration = (int) resultDuration;
+        this.previousRecipeDuration = (int) resultDuration;
         return new int[]{negativeEU ? -resultEUt : resultEUt, (int) Math.ceil(resultDuration)};
     }
 
@@ -149,29 +149,29 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     protected void completeRecipe(int i) {
         super.completeRecipe(i);
         if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
-            ParallelRecipeMapMultiblockController gaController = (ParallelRecipeMapMultiblockController)metaTileEntity;
+            ParallelRecipeMapMultiblockController gaController = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
             //if (gaController.hasMufflerHatch()) {
             //    gaController.outputRecoveryItems();
             //}
             if (gaController.hasMaintenanceHatch()) {
-                gaController.calculateMaintenance(previousRecipeDuration);
-                previousRecipeDuration = 0;
+                gaController.calculateMaintenance(this.previousRecipeDuration);
+                this.previousRecipeDuration = 0;
             }
         }
     }
 
     @Override
     protected boolean trySearchNewRecipe(int i) {
-        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
-            ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController)metaTileEntity;
+        if (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
+            ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
             if (controller.getNumProblems() > 5)
                 return false;
 
             if (controller.isDistinctBus())
-                return trySearchNewRecipeDistinct(i);
+                return this.trySearchNewRecipeDistinct(i);
 
         }
-        return trySearchNewRecipeCombined(i);
+        return this.trySearchNewRecipeCombined(i);
 
     }
 
@@ -181,40 +181,40 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     protected boolean trySearchNewRecipeDistinct(int i) {
-        long maxVoltage = getMaxVoltage();
-        Recipe currentRecipe = null;
-        List<IItemHandlerModifiable> importInventory = getInputBuses();
-        IMultipleTankHandler importFluids = getInputTank();
+        long maxVoltage = this.getMaxVoltage();
+        Recipe currentRecipe;
+        List<IItemHandlerModifiable> importInventory = this.getInputBuses();
+        IMultipleTankHandler importFluids = this.getInputTank();
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
         Recipe foundRecipe;
-        if (!distinct)
-            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids);
+        if (!this.distinct)
+            foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
         else
-            foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids, i, occupiedRecipes);
+            foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
-            if (setupAndConsumeRecipeInputs(currentRecipe, lastRecipeIndex[i])) {
-                setupRecipe(currentRecipe, i);
+            if (this.setupAndConsumeRecipeInputs(currentRecipe, this.lastRecipeIndex[i])) {
+                this.setupRecipe(currentRecipe, i);
                 return true;
             }
-            foundRecipeIndex.add(lastRecipeIndex[i]);
+            foundRecipeIndex.add(this.lastRecipeIndex[i]);
         }
 
         for (int j = 0; j < importInventory.size(); j++) {
-            if (j == lastRecipeIndex[i]) {
+            if (j == this.lastRecipeIndex[i]) {
                 continue;
             }
-            if (!distinct)
-                foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids);
+            if (!this.distinct)
+                foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
             else
-                foundRecipe = this.previousRecipe.get(importInventory.get(lastRecipeIndex[i]), importFluids, i, occupiedRecipes);
+                foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
-                if (setupAndConsumeRecipeInputs(currentRecipe, j)) {
-                    setupRecipe(currentRecipe, i);
+                if (this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
+                    this.setupRecipe(currentRecipe, i);
                     return true;
                 }
                 foundRecipeIndex.add(j);
@@ -230,21 +230,20 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
             IItemHandlerModifiable bus = importInventory.get(j);
             boolean dirty = checkRecipeInputsDirty(bus, importFluids, j);
-            if (!dirty && !forceRecipeRecheck[i]) {
+            if (!dirty && !this.forceRecipeRecheck[i]) {
                 continue;
             }
             this.forceRecipeRecheck[i] = false;
-            currentRecipe = findRecipe(maxVoltage, bus, importFluids, this.useOptimizedRecipeLookUp);
+            currentRecipe = this.findRecipe(maxVoltage, bus, importFluids, this.useOptimizedRecipeLookUp);
             if (currentRecipe == null) {
                 continue;
             }
-            this.occupiedRecipes[i] = currentRecipe;
             this.previousRecipe.put(currentRecipe);
-            if (!setupAndConsumeRecipeInputs(currentRecipe, j)) {
+            if (!this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }
-            lastRecipeIndex[i] = j;
-            setupRecipe(currentRecipe, i);
+            this.lastRecipeIndex[i] = j;
+            this.setupRecipe(currentRecipe, i);
             return true;
         }
         return false;
@@ -254,19 +253,19 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs, int index) {
         boolean shouldRecheckRecipe = false;
 
-        if (lastItemInputsMatrix == null || lastItemInputsMatrix.length != getInputBuses().size()) {
-            lastItemInputsMatrix = new ItemStack[getInputBuses().size()][];
+        if (this.lastItemInputsMatrix == null || this.lastItemInputsMatrix.length != getInputBuses().size()) {
+            this.lastItemInputsMatrix = new ItemStack[getInputBuses().size()][];
         }
-        if (lastItemInputsMatrix[index] == null || lastItemInputsMatrix[index].length != inputs.getSlots()) {
+        if (this.lastItemInputsMatrix[index] == null || this.lastItemInputsMatrix[index].length != inputs.getSlots()) {
             this.lastItemInputsMatrix[index] = new ItemStack[inputs.getSlots()];
-            Arrays.fill(lastItemInputsMatrix[index], ItemStack.EMPTY);
+            Arrays.fill(this.lastItemInputsMatrix[index], ItemStack.EMPTY);
         }
-        if (lastFluidInputs == null || lastFluidInputs.length != fluidInputs.getTanks()) {
+        if (this.lastFluidInputs == null || this.lastFluidInputs.length != fluidInputs.getTanks()) {
             this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
-        for (int j = 0; j < lastItemInputsMatrix[index].length; j++) {
+        for (int j = 0; j < this.lastItemInputsMatrix[index].length; j++) {
             ItemStack currentStack = inputs.getStackInSlot(j);
-            ItemStack lastStack = lastItemInputsMatrix[index][j];
+            ItemStack lastStack = this.lastItemInputsMatrix[index][j];
             if (!areItemStacksEqual(currentStack, lastStack)) {
                 this.lastItemInputsMatrix[index][j] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 shouldRecheckRecipe = true;
@@ -275,9 +274,9 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
                 shouldRecheckRecipe = true;
             }
         }
-        for (int j = 0; j < lastFluidInputs.length; j++) {
+        for (int j = 0; j < this.lastFluidInputs.length; j++) {
             FluidStack currentStack = fluidInputs.getTankAt(j).getFluid();
-            FluidStack lastStack = lastFluidInputs[j];
+            FluidStack lastStack = this.lastFluidInputs[j];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
                 this.lastFluidInputs[j] = currentStack == null ? null : currentStack.copy();
@@ -292,17 +291,17 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe, int index) {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         if (controller.checkRecipe(recipe, false)) {
 
-            int[] resultOverclock = calculateOverclock(recipe.getEUt(), recipe.getDuration());
+            int[] resultOverclock = this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
             int totalEUt = resultOverclock[0] * resultOverclock[1];
-            IItemHandlerModifiable importInventory = getInputBuses().get(index);
-            IItemHandlerModifiable exportInventory = getOutputInventory();
-            IMultipleTankHandler importFluids = getInputTank();
-            IMultipleTankHandler exportFluids = getOutputTank();
-            boolean setup = (totalEUt >= 0 ? getEnergyStored() >= (totalEUt > getEnergyCapacity() / 2 ? resultOverclock[0] : totalEUt) :
-                    (getEnergyStored() - resultOverclock[0] <= getEnergyCapacity())) &&
+            IItemHandlerModifiable importInventory = this.getInputBuses().get(index);
+            IItemHandlerModifiable exportInventory = this.getOutputInventory();
+            IMultipleTankHandler importFluids = this.getInputTank();
+            IMultipleTankHandler exportFluids = this.getOutputTank();
+            boolean setup = (totalEUt >= 0 ? this.getEnergyStored() >= (totalEUt > this.getEnergyCapacity() / 2 ? resultOverclock[0] : totalEUt) :
+                    (this.getEnergyStored() - resultOverclock[0] <= this.getEnergyCapacity())) &&
                     MetaTileEntity.addItemsToItemHandler(exportInventory, true, recipe.getAllItemOutputs(exportInventory.getSlots())) &&
                     MetaTileEntity.addFluidsToFluidHandler(exportFluids, true, recipe.getFluidOutputs()) &&
                     recipe.matches(true, importInventory, importFluids);
@@ -318,6 +317,6 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        this.lastRecipeIndex = new int[getSize()];
+        this.lastRecipeIndex = new int[this.getSize()];
     }
 }

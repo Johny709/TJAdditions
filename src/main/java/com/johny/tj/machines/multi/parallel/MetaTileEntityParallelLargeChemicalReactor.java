@@ -189,13 +189,14 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
             resultOverclock[0] -= (int) (resultOverclock[0] * energyBonus * 0.01f);
             setMaxProgress(resultOverclock[1], i);
 
-            this.timeToStop[i] = 20;
+            this.occupiedRecipes[i] = recipe;
+            this.evictRecipeTimer[i] = 20;
             this.recipeEUt[i] = resultOverclock[0];
             this.fluidOutputs.put(i, GTUtility.copyFluidList(recipe.getFluidOutputs()));
             int tier = getMachineTierForRecipe(recipe);
             this.itemOutputs.put(i, GTUtility.copyStackList(recipe.getResultItemOutputs(getOutputInventory().getSlots(), random, tier)));
-            if (this.wasActiveAndNeedsUpdate) {
-                this.wasActiveAndNeedsUpdate = false;
+            if (this.wasActiveAndNeedsUpdate[i]) {
+                this.wasActiveAndNeedsUpdate[i] = false;
             } else {
                 this.setActive(true, i);
             }
