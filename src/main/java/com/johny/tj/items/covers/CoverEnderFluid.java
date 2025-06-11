@@ -152,8 +152,8 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     @Override
     public void update() {
         if (this.isWorkingEnabled) {
+            this.handler = this.getMap().get(this.text);
             if (this.handler == null) {
-                this.handler = this.getMap().get(this.text);
                 return;
             }
             if (this.pumpMode == CoverPump.PumpMode.EXPORT) {

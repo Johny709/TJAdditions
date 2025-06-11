@@ -185,8 +185,8 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     @Override
     public void update() {
         if (this.isWorkingEnabled) {
+            this.handler = this.getMap().get(this.text);
             if (this.handler == null) {
-                this.handler = this.getMap().get(this.text);
                 return;
             }
             if (this.pumpMode == IMPORT) {
