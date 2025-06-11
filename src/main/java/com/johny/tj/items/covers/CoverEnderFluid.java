@@ -29,6 +29,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.johny.tj.TJValues.DUMMY_TANK;
 import static com.johny.tj.gui.TJGuiTextures.FLUID_FILTER;
 import static com.johny.tj.textures.TJTextures.PORTAL_OVERLAY;
 import static gregtech.api.gui.GuiTextures.*;
@@ -146,7 +147,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     private IFluidTank getFluidTank() {
-        return this.handler;
+        return this.handler != null ? this.handler : DUMMY_TANK;
     }
 
     @Override

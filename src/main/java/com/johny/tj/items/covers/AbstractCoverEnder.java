@@ -330,9 +330,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         data.setBoolean("CaseSensitive", this.isCaseSensitive);
         data.setBoolean("HasSpaces", this.hasSpaces);
         data.setInteger("TransferRate", this.transferRate);
-        if (this.handler != null) {
-            data.setString("Text", this.text);
-        }
+        data.setString("Text", this.text);
     }
 
     @Override
@@ -343,9 +341,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.isCaseSensitive = data.getBoolean("CaseSensitive");
         this.hasSpaces = data.getBoolean("HasSpaces");
         this.transferRate = data.getInteger("TransferRate");
-        if (data.hasKey("Text")) {
-            this.text = data.getString("Text");
-        }
+        this.text = data.hasKey("Text") ? data.getString("Text") : "";
+
     }
 
     @Override

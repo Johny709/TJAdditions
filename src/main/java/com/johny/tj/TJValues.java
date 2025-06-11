@@ -2,6 +2,8 @@ package com.johny.tj;
 
 import gregtech.api.unification.material.type.Material;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.IFluidTank;
 
 import static gregicadditions.GAMaterials.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
@@ -14,4 +16,6 @@ public class TJValues {
     public static final Material[] CIRCUIT_TIERS = {Primitive, Basic, Good, Advanced, Extreme, Elite, Master, Ultimate, Superconductor, Infinite, UEV, UIV, UMV, UXV, MAX};
 
     public static final BlockPos DUMMY_POS = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+
+    public static final IFluidTank DUMMY_TANK = new FluidTank(0);
 }
