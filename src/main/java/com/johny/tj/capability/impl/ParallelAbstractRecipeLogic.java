@@ -686,6 +686,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         mainCompound.setLong(OVERCLOCK_VOLTAGE, overclockVoltage);
         mainCompound.setBoolean("IsActive", this.isActive);
         mainCompound.setBoolean("Distinct", this.distinct);
+        mainCompound.setInteger("Size", this.size);
         mainCompound.setTag("OccupiedRecipes", occupiedRecipeList);
         mainCompound.setTag("WorkableInstances", workableInstanceList);
         return mainCompound;
@@ -711,7 +712,11 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             // Calculate overclock voltage based on old allow flag
             this.overclockVoltage = this.allowOverclocking ? getMaxVoltage() : 0;
         }
-        this.size = workableInstanceList.tagCount();
+        if (!compound.hasKey("Size")) {
+            return;
+        }
+
+        this.size = compound.getInteger("Size");
         this.forceRecipeRecheck = new boolean[this.size];
         this.progressTime = new int[this.size];
         this.maxProgressTime = new int[this.size];
