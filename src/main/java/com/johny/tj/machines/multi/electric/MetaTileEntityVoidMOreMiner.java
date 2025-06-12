@@ -6,13 +6,12 @@ import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IHeatInfo;
 import com.johny.tj.capability.IItemFluidHandlerInfo;
 import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.gui.TJWidgetGroup;
-import gregicadditions.GAUtility;
-import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -61,7 +60,6 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -71,7 +69,6 @@ import java.util.stream.Collectors;
 import static com.johny.tj.textures.TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
-import static net.minecraft.util.text.TextFormatting.*;
 
 public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase implements IHeatInfo, IWorkable, IItemFluidHandlerInfo {
 
@@ -100,7 +97,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityVoidMOreMiner(metaTileEntityId);
+        return new MetaTileEntityVoidMOreMiner(this.metaTileEntityId);
     }
 
     @Override
@@ -130,197 +127,161 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (this.isStructureFormed() && !this.hasProblems()) {
-            if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
-                long maxVoltage = energyContainer.getInputVoltage();
-                String voltageName = GAValues.VN[GAUtility.getTierByVoltage(maxVoltage)];
-                textList.add(new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, voltageName));
-            }
-            int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
-            boolean hasEnoughEnergy = hasEnoughEnergy(energyDrain);
-
-            ITextComponent temperatureText = new TextComponentTranslation("gregtech.multiblock.large_boiler.temperature", temperature, maxTemperature);
-            ITextComponent energyText = hasEnoughEnergy ? new TextComponentTranslation("gregtech.multiblock.universal.energy_used", energyDrain)
-                    : new TextComponentTranslation("gregtech.multiblock.not_enough_energy");
-            ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentTranslation("gregtech.multiblock.work_paused")
-                    : !isActive ? new TextComponentTranslation("gregtech.multiblock.idling")
-                    : new TextComponentTranslation("gregtech.multiblock.running");
-
-            energyText.getStyle().setColor(hasEnoughEnergy ? WHITE : RED);
-            isWorkingText.getStyle().setColor(!isWorkingEnabled ? YELLOW : !isActive ? WHITE : GREEN);
-
-            textList.addAll(Arrays.asList(temperatureText, energyText, isWorkingText));
-            if (isActive)
-                textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
-            if (overheat)
+        if (this.isStructureFormed()) {
+            MultiblockDisplayBuilder.start(textList)
+                    .voltageIn(this.energyContainer)
+                    .temperature(this.temperature, this.maxTemperature)
+                    .energyInput(this.hasEnoughEnergy(this.energyDrain), this.energyDrain)
+                    .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
+            if (this.overheat)
                 textList.add(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
         }
     }
 
     private void addFluidDisplayText(List<ITextComponent> textList) {
-        String pyrotheumName = Pyrotheum.getFluid((int) currentDrillingFluid).getLocalizedName();
-        String cryotheumName = Cryotheum.getFluid((int) currentDrillingFluid).getLocalizedName();
-        String drillingMudName = DrillingMud.getFluid((int) currentDrillingFluid).getLocalizedName();
-        String usedDrillingMudName =  UsedDrillingMud.getFluid((int) currentDrillingFluid).getLocalizedName();
-
-        boolean hasEnoughPyrotheum = hasEnoughPyrotheum((int) currentDrillingFluid);
-        boolean hasEnoughCryotheum = hasEnoughCryotheum((int) currentDrillingFluid);
-        boolean hasEnoughDrillingMud = hasEnoughDrillingMud((int) currentDrillingFluid);
-        boolean canFillDrillingMudOutput = canOutputUsedDrillingMud((int) currentDrillingFluid);
-
-        ITextComponent pyrotheumInputText = hasEnoughPyrotheum ? new TextComponentTranslation("machine.universal.fluid.input.sec", pyrotheumName, (int) currentDrillingFluid)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", pyrotheumName, (int) currentDrillingFluid);
-        ITextComponent cryotheumInputText = hasEnoughCryotheum ? new TextComponentTranslation("machine.universal.fluid.input.sec", cryotheumName, (int) currentDrillingFluid)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", cryotheumName, (int) currentDrillingFluid);
-        ITextComponent drillingMudInputText = hasEnoughDrillingMud ? new TextComponentTranslation("machine.universal.fluid.input.sec", drillingMudName, (int) currentDrillingFluid)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", drillingMudName, (int) currentDrillingFluid);
-        ITextComponent drillingMudOutputText = canFillDrillingMudOutput ? new TextComponentTranslation("machine.universal.fluid.output.sec", usedDrillingMudName, (int) currentDrillingFluid)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", usedDrillingMudName, (int) currentDrillingFluid);
-
-        pyrotheumInputText.getStyle().setColor(hasEnoughPyrotheum ? WHITE : RED);
-        cryotheumInputText.getStyle().setColor(hasEnoughCryotheum ? WHITE : RED);
-        drillingMudInputText.getStyle().setColor(hasEnoughDrillingMud ? WHITE : RED);
-        drillingMudOutputText.getStyle().setColor(canFillDrillingMudOutput ? WHITE : RED);
-
-        textList.addAll(Arrays.asList(pyrotheumInputText, cryotheumInputText, drillingMudInputText, drillingMudOutputText));
+        MultiblockDisplayBuilder.start(textList)
+                .fluidInput(this.hasEnoughPyrotheum((int) this.currentDrillingFluid), Pyrotheum.getFluid((int) this.currentDrillingFluid))
+                .fluidInput(this.hasEnoughCryotheum((int) this.currentDrillingFluid), Cryotheum.getFluid((int) this.currentDrillingFluid))
+                .fluidInput(this.hasEnoughDrillingMud((int) this.currentDrillingFluid), DrillingMud.getFluid((int) this.currentDrillingFluid))
+                .fluidInput(this.canOutputUsedDrillingMud((int) this.currentDrillingFluid), UsedDrillingMud.getFluid((int) this.currentDrillingFluid));
     }
 
     @Override
     protected void updateFormedValid() {
-        if (tier >= GTValues.UV) {
+        if (this.tier >= GTValues.UV) {
 
-            if (overheat || !isWorkingEnabled || getNumProblems() >= 6) {
-                if (temperature > 0) {
-                    temperature--;
+            if (this.overheat || !this.isWorkingEnabled || this.getNumProblems() >= 6) {
+                if (this.temperature > 0) {
+                    this.temperature--;
                 }
-                if (temperature == 0) {
-                    overheat = false;
+                if (this.temperature == 0) {
+                    this.overheat = false;
                 }
-                if (currentDrillingFluid > CONSUME_START) {
-                    currentDrillingFluid--;
+                if (this.currentDrillingFluid > CONSUME_START) {
+                    this.currentDrillingFluid--;
                 }
-                if (currentDrillingFluid < CONSUME_START) {
-                    currentDrillingFluid = CONSUME_START;
+                if (this.currentDrillingFluid < CONSUME_START) {
+                    this.currentDrillingFluid = CONSUME_START;
                 }
-                if (isActive)
-                    setActive(false);
+                if (this.isActive)
+                    this.setActive(false);
                 return;
             }
 
-            calculateMaintenance(1);
+            this.calculateMaintenance(1);
             if (progress > 0 && !isActive)
-                setActive(true);
+                this.setActive(true);
 
-            if (progress >= maxProgress) {
-                if (addItemsToItemHandler(outputInventory, true, oreOutputs))
-                    addItemsToItemHandler(outputInventory, false, oreOutputs);
-                progress = 0;
-                fluidInputs.clear();
-                fluidOutputs.clear();
-                oreOutputs.clear();
-                if (isActive)
-                    setActive(false);
+            if (this.progress >= this.maxProgress) {
+                if (addItemsToItemHandler(this.outputInventory, true, this.oreOutputs))
+                    addItemsToItemHandler(this.outputInventory, false, this.oreOutputs);
+                this.progress = 0;
+                this.fluidInputs.clear();
+                this.fluidOutputs.clear();
+                this.oreOutputs.clear();
+                if (this.isActive)
+                    this.setActive(false);
             }
 
-            if (hasEnoughEnergy(energyDrain)) {
-                if (progress <= 0) {
+            if (this.hasEnoughEnergy(this.energyDrain)) {
+                if (this.progress <= 0) {
                     boolean canMineOres = false;
-                    if (hasEnoughPyrotheum((int) currentDrillingFluid) && hasEnoughCryotheum((int) currentDrillingFluid)) {
-                        fluidInputs.add(importFluidHandler.drain(Pyrotheum.getFluid((int) currentDrillingFluid), true));
-                        fluidInputs.add(importFluidHandler.drain(Cryotheum.getFluid((int) currentDrillingFluid), true));
+                    if (hasEnoughPyrotheum((int) this.currentDrillingFluid) && this.hasEnoughCryotheum((int) this.currentDrillingFluid)) {
+                        this.fluidInputs.add(this.importFluidHandler.drain(Pyrotheum.getFluid((int) this.currentDrillingFluid), true));
+                        this.fluidInputs.add(this.importFluidHandler.drain(Cryotheum.getFluid((int) this.currentDrillingFluid), true));
                         canMineOres = true;
-                    } else if (hasEnoughPyrotheum((int) currentDrillingFluid)) {
-                        fluidInputs.add(importFluidHandler.drain(Pyrotheum.getFluid((int) currentDrillingFluid), true));
-                        temperature += (long) (currentDrillingFluid / 100.0);
-                        currentDrillingFluid *= 1.02;
+                    } else if (hasEnoughPyrotheum((int) this.currentDrillingFluid)) {
+                        this.fluidInputs.add(this.importFluidHandler.drain(Pyrotheum.getFluid((int) this.currentDrillingFluid), true));
+                        this.temperature += (long) (this.currentDrillingFluid / 100.0);
+                        this.currentDrillingFluid *= 1.02;
                         canMineOres = true;
-                    } else if (hasEnoughCryotheum((int) currentDrillingFluid)) {
-                        fluidInputs.add(importFluidHandler.drain(Cryotheum.getFluid((int) currentDrillingFluid), true));
-                        currentDrillingFluid /= 1.02;
-                        temperature -= (long) (currentDrillingFluid / 100.0);
+                    } else if (hasEnoughCryotheum((int) this.currentDrillingFluid)) {
+                        this.fluidInputs.add(this.importFluidHandler.drain(Cryotheum.getFluid((int) this.currentDrillingFluid), true));
+                        this.currentDrillingFluid /= 1.02;
+                        this.temperature -= (long) (this.currentDrillingFluid / 100.0);
                     } else {
                         return; // prevent energy consumption if either fluids are not consumed
                     }
 
-                    if (temperature < 0) {
-                        temperature = 0;
+                    if (this.temperature < 0) {
+                        this.temperature = 0;
                     }
-                    if (currentDrillingFluid < CONSUME_START) {
-                        currentDrillingFluid = CONSUME_START;
+                    if (this.currentDrillingFluid < CONSUME_START) {
+                        this.currentDrillingFluid = CONSUME_START;
                     }
-                    if (temperature > maxTemperature) {
-                        overheat = true;
-                        currentDrillingFluid = CONSUME_START;
+                    if (this.temperature > this.maxTemperature) {
+                        this.overheat = true;
+                        this.currentDrillingFluid = CONSUME_START;
                         return;
                     }
 
-                    currentDrillingFluid += this.getNumProblems();
+                    this.currentDrillingFluid += this.getNumProblems();
 
-                    if (hasEnoughDrillingMud((int) currentDrillingFluid) && canOutputUsedDrillingMud((int) currentDrillingFluid)) {
-                        fluidInputs.add(importFluidHandler.drain(DrillingMud.getFluid((int) currentDrillingFluid), true));
-                        int outputAmount = exportFluidHandler.fill(UsedDrillingMud.getFluid((int) currentDrillingFluid), true);
-                        fluidOutputs.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
-                        long nbOres = temperature / 1000;
+                    if (hasEnoughDrillingMud((int) this.currentDrillingFluid) && this.canOutputUsedDrillingMud((int) this.currentDrillingFluid)) {
+                        this.fluidInputs.add(this.importFluidHandler.drain(DrillingMud.getFluid((int) this.currentDrillingFluid), true));
+                        int outputAmount = this.exportFluidHandler.fill(UsedDrillingMud.getFluid((int) this.currentDrillingFluid), true);
+                        this.fluidOutputs.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
+                        long nbOres = this.temperature / 1000;
 
                         if (nbOres != 0 && canMineOres) {
                             List<ItemStack> ores = getOres();
                             Collections.shuffle(ores);
-                            oreOutputs.addAll(ores.stream()
+                            this.oreOutputs.addAll(ores.stream()
                                     .limit(10)
                                     .peek(itemStack -> itemStack.setCount(getWorld().rand.nextInt((int) (nbOres * nbOres)) + 1))
                                     .collect(Collectors.toCollection(ArrayList::new)));
 
-                            oreOutputs.forEach(ore -> ore.getItem().setMaxStackSize(Integer.MAX_VALUE));
+                            this.oreOutputs.forEach(ore -> ore.getItem().setMaxStackSize(Integer.MAX_VALUE));
                         }
                     }
-                    progress = 1;
-                    if (!isActive)
-                        setActive(true);
+                    this.progress = 1;
+                    if (!this.isActive)
+                        this.setActive(true);
                 } else {
-                    progress++;
+                    this.progress++;
                 }
-                energyContainer.removeEnergy(energyDrain);
+                this.energyContainer.removeEnergy(this.energyDrain);
             } else {
-                if (progress > 1)
-                    progress--;
+                if (this.progress > 1)
+                    this.progress--;
             }
         }
     }
 
     private boolean hasEnoughEnergy(long amount) {
-        return energyContainer.getEnergyStored() >= amount;
+        return this.energyContainer.getEnergyStored() >= amount;
     }
 
     private boolean hasEnoughDrillingMud(int amount) {
-        FluidStack fluidStack = importFluidHandler.drain(DrillingMud.getFluid(amount), false);
+        FluidStack fluidStack = this.importFluidHandler.drain(DrillingMud.getFluid(amount), false);
         return fluidStack != null && fluidStack.amount == amount;
     }
 
     private boolean hasEnoughPyrotheum(int amount) {
-        FluidStack fluidStack = importFluidHandler.drain(Pyrotheum.getFluid(amount), false);
+        FluidStack fluidStack = this.importFluidHandler.drain(Pyrotheum.getFluid(amount), false);
         return fluidStack != null && fluidStack.amount == amount;
     }
 
     private boolean hasEnoughCryotheum(int amount) {
-        FluidStack fluidStack = importFluidHandler.drain(Cryotheum.getFluid(amount), false);
+        FluidStack fluidStack = this.importFluidHandler.drain(Cryotheum.getFluid(amount), false);
         return fluidStack != null && fluidStack.amount == amount;
     }
 
     private boolean canOutputUsedDrillingMud(int amount) {
-        int fluidStack = exportFluidHandler.fill(UsedDrillingMud.getFluid(amount), false);
+        int fluidStack = this.exportFluidHandler.fill(UsedDrillingMud.getFluid(amount), false);
         return fluidStack == amount;
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        this.exportFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.outputInventory = new ItemHandlerList(getAbilities(MultiblockAbility.EXPORT_ITEMS));
-        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.importFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        this.outputInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
+        this.energyContainer = new EnergyContainerList(this.getAbilities(MultiblockAbility.INPUT_ENERGY));
         this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.energyDrain = (long) (Math.pow(4, tier) * 8);
-        int startTier = tier - GTValues.ZPM;
+        int startTier = this.tier - GTValues.ZPM;
         int multiplier = (startTier + 2) * 100;
         int multiplier2 = Math.min((startTier + 2) * 10, 40);
         int multiplier3 = startTier > 2 ? (int) Math.pow(2.8, startTier - 2) : 1;
@@ -348,7 +309,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
                 .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "##D###D##", "#########")
                 .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
                 .aisle("CCCCCCCCC", "CCCCSCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
-                .where('S', selfPredicate())
+                .where('S', this.selfPredicate())
                 .where('C', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('D', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.PERIODICIUM)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(QCDMatter).getDefaultState()))
@@ -365,14 +326,14 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive);
+        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.isActive);
     }
 
     protected void setActive(boolean active) {
         this.isActive = active;
-        markDirty();
-        if (!getWorld().isRemote) {
-            writeCustomData(1, buf -> buf.writeBoolean(active));
+        if (!this.getWorld().isRemote) {
+            this.writeCustomData(1, buf -> buf.writeBoolean(active));
+            this.markDirty();
         }
     }
 
@@ -386,7 +347,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeBoolean(isActive);
+        buf.writeBoolean(this.isActive);
     }
 
     @Override
@@ -398,22 +359,22 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("Progress", progress);
-        data.setLong("Temperature", temperature);
-        data.setDouble("CurrentDrillingFluid", currentDrillingFluid);
-        data.setBoolean("Overheat", overheat);
-        data.setBoolean("Active", isActive);
+        data.setInteger("Progress", this.progress);
+        data.setLong("Temperature", this.temperature);
+        data.setDouble("CurrentDrillingFluid", this.currentDrillingFluid);
+        data.setBoolean("Overheat", this.overheat);
+        data.setBoolean("Active", this.isActive);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        progress = data.getInteger("Progress");
-        temperature = data.getLong("Temperature");
-        currentDrillingFluid = data.getDouble("CurrentDrillingFluid");
-        overheat = data.getBoolean("Overheat");
-        isActive = data.getBoolean("Active");
+        this.progress = data.getInteger("Progress");
+        this.temperature = data.getLong("Temperature");
+        this.currentDrillingFluid = data.getDouble("CurrentDrillingFluid");
+        this.overheat = data.getBoolean("Overheat");
+        this.isActive = data.getBoolean("Active");
     }
 
     @Override
@@ -429,12 +390,12 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
 
     @Override
     public long heat() {
-        return temperature;
+        return this.temperature;
     }
 
     @Override
     public long maxHeat() {
-        return maxTemperature;
+        return this.maxTemperature;
     }
 
     private static List<ItemStack> getOres() {
@@ -443,36 +404,31 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
 
     @Override
     public boolean isActive() {
-        return isActive;
+        return this.isActive;
     }
 
     @Override
     public int getProgress() {
-        return progress;
+        return this.progress;
     }
 
     @Override
     public int getMaxProgress() {
-        return maxProgress;
+        return this.maxProgress;
     }
 
     @Override
     public List<FluidStack> getFluidInputs() {
-        return fluidInputs;
+        return this.fluidInputs;
     }
 
     @Override
     public List<FluidStack> getFluidOutputs() {
-        return fluidOutputs;
-    }
-
-    @Override
-    public List<ItemStack> getItemInputs() {
-        return null;
+        return this.fluidOutputs;
     }
 
     @Override
     public List<ItemStack> getItemOutputs() {
-        return oreOutputs;
+        return this.oreOutputs;
     }
 }

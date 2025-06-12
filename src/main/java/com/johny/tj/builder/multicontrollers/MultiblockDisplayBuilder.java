@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
-import static net.minecraft.util.text.TextFormatting.*;
 
 ;
 
@@ -44,10 +43,9 @@ public class MultiblockDisplayBuilder {
     }
 
     public MultiblockDisplayBuilder energyInput(boolean hasEnoughEnergy, long amount, int maxProgress) {
-        ITextComponent textComponent = !hasEnoughEnergy ? new TextComponentTranslation("gregtech.multiblock.not_enough_energy")
+        ITextComponent textComponent = !hasEnoughEnergy ? new TextComponentString(I18n.translateToLocal("tj.multiblock.not_enough_energy"))
                 : maxProgress > 1 ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum.2", amount, maxProgress))
                 : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum", amount)) ;
-        textComponent.getStyle().setColor(hasEnoughEnergy ? WHITE : RED);
         this.textList.add(textComponent);
         return this;
     }
@@ -68,8 +66,14 @@ public class MultiblockDisplayBuilder {
     public MultiblockDisplayBuilder voltageIn(IEnergyContainer energyContainer) {
         if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
             long maxVoltage = energyContainer.getInputVoltage();
-            String voltageName = GAValues.VN[GAUtility.getTierByVoltage(maxVoltage)];
-            textList.add(new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, voltageName));
+            int tier = GAUtility.getTierByVoltage(maxVoltage);
+            String color = TJValues.VCC[tier];
+            this.textList.add(new TextComponentTranslation("tj.multiblock.max_energy_per_tick")
+                    .appendText(" ")
+                    .appendSibling(new TextComponentString(color + maxVoltage + "§r"))
+                    .appendText(" (")
+                    .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
+                    .appendText(")"));
         }
         return this;
     }
@@ -80,31 +84,45 @@ public class MultiblockDisplayBuilder {
         return this;
     }
 
-    public MultiblockDisplayBuilder fluidInput(boolean hasEnoughAmount, FluidStack fluidStack, int amount) {
+    public MultiblockDisplayBuilder fluidInput(boolean hasEnoughAmount, FluidStack fluidStack) {
         String fluidName = fluidStack.getLocalizedName();
+        int amount = fluidStack.amount;
         boolean hasEnoughFluid = hasEnoughAmount || amount == 0;
-        ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentTranslation("machine.universal.fluid.input.sec", fluidName, amount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid", fluidName, amount);
-        fluidInputText.getStyle().setColor(hasEnoughFluid ? WHITE : RED);
-        textList.add(fluidInputText);
+        ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.sec", fluidName, amount))
+                : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", fluidName, amount));
+        this.textList.add(fluidInputText);
+        return this;
+    }
+
+    public MultiblockDisplayBuilder fluidOutput(boolean hasEnoughSpace, FluidStack fluidStack) {
+        String fluidName = fluidStack.getLocalizedName();
+        int amount = fluidStack.amount;
+        boolean hasEnoughFluid = hasEnoughSpace || amount == 0;
+        ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.output.sec", fluidName, amount))
+                : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid.space", fluidName, amount));
+        this.textList.add(fluidInputText);
         return this;
     }
 
     public MultiblockDisplayBuilder isWorking(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
         int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
-        ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentTranslation("gregtech.multiblock.work_paused")
-                : !isActive ? new TextComponentTranslation("gregtech.multiblock.idling")
-                : new TextComponentTranslation("gregtech.multiblock.running");
-        isWorkingText.getStyle().setColor(!isWorkingEnabled ? YELLOW : !isActive ? WHITE : GREEN);
-        textList.add(isWorkingText);
+        ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
+                : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))
+                : new TextComponentString(I18n.translateToLocal("machine.universal.running"));
+        this.textList.add(isWorkingText);
         if (isActive)
-            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+            this.textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", currentProgress)));
         return this;
     }
 
     public MultiblockDisplayBuilder recipeMap(RecipeMap<?> recipeMap) {
         this.textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
                 .appendSibling(withButton(new TextComponentString("[" + I18n.translateToLocal("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
+        return this;
+    }
+
+    public MultiblockDisplayBuilder temperature(long current, long max) {
+        this.textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)));
         return this;
     }
 }

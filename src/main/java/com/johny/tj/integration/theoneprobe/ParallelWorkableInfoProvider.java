@@ -8,6 +8,7 @@ import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.capabilities.Capability;
 
 public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultipleWorkable> {
@@ -51,7 +52,7 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                         .filledColor(0xFF000099)
                         .alternateFilledColor(0xFF000077));
                 IProbeInfo EUtInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                EUtInfo.text(TextStyleClass.INFO + "{*tj.multiblock.parallel.eu*}§e " + EUt);
+                EUtInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("tj.multiblock.eu", EUt));
             }
         }
     }

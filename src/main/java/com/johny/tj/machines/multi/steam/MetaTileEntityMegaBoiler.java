@@ -4,6 +4,7 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IGeneratorInfo;
 import com.johny.tj.capability.IHeatInfo;
@@ -46,7 +47,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
@@ -66,8 +69,6 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 import static gregtech.api.unification.material.Materials.Steam;
 import static gregtech.api.unification.material.Materials.Water;
-import static net.minecraft.util.text.TextFormatting.RED;
-import static net.minecraft.util.text.TextFormatting.WHITE;
 
 public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IWorkable, IFuelable, IHeatInfo, IGeneratorInfo, IItemFluidHandlerInfo {
 
@@ -99,12 +100,12 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.MAX_PROCESSES = maxProcess;
-        reinitializeStructurePattern();
+        this.reinitializeStructurePattern();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityMegaBoiler(metaTileEntityId, boilerType, MAX_PROCESSES);
+        return new MetaTileEntityMegaBoiler(this.metaTileEntityId, this.boilerType, MAX_PROCESSES);
     }
 
     @Override
@@ -129,11 +130,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        fluidTanks.addAll(getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
+        fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
 
-        this.fluidImportInventory = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        this.itemImportInventory = new ItemHandlerList(getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.fluidImportInventory = new FluidTankList(true, this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        this.itemImportInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
         this.steamOutputTank = new FluidTankList(true, fluidTanks);
     }
 
@@ -148,61 +149,54 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         this.hasNoWater = false;
         this.isActive = false;
         this.throttlePercentage = 100;
-        replaceFireboxAsActive(false);
+        this.replaceFireboxAsActive(false);
     }
 
     @Override
     public void onRemoval() {
         super.onRemoval();
-        if (!getWorld().isRemote && isStructureFormed()) {
-            replaceFireboxAsActive(false);
+        if (!this.getWorld().isRemote && this.isStructureFormed()) {
+            this.replaceFireboxAsActive(false);
         }
     }
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (isStructureFormed()) {
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.temperature", currentTemperature, boilerType.maxTemperature));
-            boolean hasEnoughWater = hasEnoughWater(waterConsumption) || waterConsumption == 0;
-            ITextComponent waterText = hasEnoughWater ? new TextComponentTranslation("machine.universal.consuming.ticks", waterConsumption, net.minecraft.util.text.translation.I18n.translateToLocal(Water.getUnlocalizedName()))
-                    : new TextComponentTranslation("tj.multiblock.not_enough_fluid", Water.getLocalizedName(), waterConsumption);
-            waterText.getStyle().setColor(hasEnoughWater ? WHITE : RED);
-            textList.add(waterText);
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", steamProduction, boilerType.baseSteamOutput));
+        if (this.isStructureFormed()) {
+            MultiblockDisplayBuilder.start(textList)
+                    .temperature(this.currentTemperature, this.boilerType.maxTemperature)
+                    .fluidInput(this.hasEnoughWater(this.waterConsumption), Water.getFluid(this.waterConsumption))
+                    .custom(text -> {
+                        text.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, this.boilerType.baseSteamOutput));
 
-            ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency", (int) (getHeatEfficiencyMultiplier() * 100));
-            withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
-            textList.add(heatEffText);
+                        ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency", (int) (this.getHeatEfficiencyMultiplier() * 100));
+                        withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
+                        text.add(heatEffText);
 
-            ITextComponent throttleText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle", throttlePercentage, (int)(getThrottleEfficiency() * 100));
-            withHoverTextTranslate(throttleText, "gregtech.multiblock.large_boiler.throttle.tooltip");
-            textList.add(throttleText);
+                        ITextComponent throttleText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle", this.throttlePercentage, (int) (this.getThrottleEfficiency() * 100));
+                        withHoverTextTranslate(throttleText, "gregtech.multiblock.large_boiler.throttle.tooltip");
+                        text.add(throttleText);
 
-            ITextComponent buttonText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle_modify");
-            buttonText.appendText(" ");
-            buttonText.appendSibling(withButton(new TextComponentString("[-]"), "sub"));
-            buttonText.appendText(" ");
-            buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
-            textList.add(buttonText);
-            ITextComponent itemDisplayText, progressDisplayText = null;
-            if (!isActive) {
-                itemDisplayText = new TextComponentTranslation(currentItemProcessed + ".name").appendSibling(new TextComponentString(" (" + currentItemsEngaged + "/" + MAX_PROCESSES + ")"));
-                withHoverTextTranslate(itemDisplayText, "tj.multiblock.large_boiler.items_process_hover");
-            }
-            else {
-                int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
-                itemDisplayText = new TextComponentTranslation("gregtech.multiblock.running").setStyle(new Style().setColor(TextFormatting.GREEN));
-                progressDisplayText = new TextComponentTranslation("gregtech.multiblock.progress", currentProgress);
-            }
-            textList.add(itemDisplayText);
-            if (progressDisplayText != null)
-                textList.add(progressDisplayText);
-            ITextComponent itemClear = new TextComponentTranslation("tj.multiblock.large_boiler.clear_item");
-            itemClear.appendText(" ");
-            itemClear.appendSibling(withButton(new TextComponentString("[O]"), "clear"));
-            textList.add(itemClear);
+                        ITextComponent buttonText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle_modify");
+                        buttonText.appendText(" ");
+                        buttonText.appendSibling(withButton(new TextComponentString("[-]"), "sub"));
+                        buttonText.appendText(" ");
+                        buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
+                        text.add(buttonText);
 
+                        if (!this.isActive) {
+                            ITextComponent itemDisplayText = new TextComponentTranslation(currentItemProcessed + ".name").appendSibling(new TextComponentString(" (" + currentItemsEngaged + "/" + MAX_PROCESSES + ")"));
+                            withHoverTextTranslate(itemDisplayText, "tj.multiblock.large_boiler.items_process_hover");
+                            text.add(itemDisplayText);
+                        }
+
+                        ITextComponent itemClear = new TextComponentTranslation("tj.multiblock.large_boiler.clear_item");
+                        itemClear.appendText(" ");
+                        itemClear.appendSibling(withButton(new TextComponentString("[O]"), "clear"));
+                        textList.add(itemClear);
+                    })
+                    .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
         }
     }
 
@@ -213,99 +207,97 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         int modifier = 0;
         if (componentData.equals("add")) {
             modifier = 1;
-        }
-        else if (componentData.equals("sub")) {
+        } else if (componentData.equals("sub")) {
             modifier = -1;
-        }
-        else {
-            currentItemsEngaged = 0;
-            currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
+        } else {
+            this.currentItemsEngaged = 0;
+            this.currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
         }
 
         int result = (clickData.isShiftClick ? 1 : 5) * modifier;
-        this.throttlePercentage = MathHelper.clamp(throttlePercentage + result, 20, 100);
+        this.throttlePercentage = MathHelper.clamp(this.throttlePercentage + result, 20, 100);
     }
 
     private double getHeatEfficiencyMultiplier() {
-        double temperature = currentTemperature / (boilerType.maxTemperature * 1.0);
-        return 1.0 + Math.round(boilerType.temperatureEffBuff * temperature) / 100.0;
+        double temperature = this.currentTemperature / (this.boilerType.maxTemperature * 1.0);
+        return 1.0 + Math.round(this.boilerType.temperatureEffBuff * temperature) / 100.0;
     }
 
     @Override
     protected void updateFormedValid() {
-        if (getOffsetTimer() < 40)
+        if (this.getOffsetTimer() < 40)
             return;
-        if (getOffsetTimer() % 20 == 0) {
-            double outputMultiplier = currentTemperature / (boilerType.maxTemperature * 1.0) * getThrottleMultiplier() * getThrottleEfficiency();
-            steamProduction = (int) (boilerType.baseSteamOutput * MAX_PROCESSES * outputMultiplier);
+        if (this.getOffsetTimer() % 20 == 0) {
+            double outputMultiplier = this.currentTemperature / (this.boilerType.maxTemperature * 1.0) * this.getThrottleMultiplier() * this.getThrottleEfficiency();
+            this.steamProduction = (int) (this.boilerType.baseSteamOutput * MAX_PROCESSES * outputMultiplier);
 
-            if (!isWorkingEnabled || !isActive || getNumProblems() >= 6) {
-                if (isActive)
-                    setActive(false);
-                if (currentTemperature > 0)
-                    currentTemperature--;
+            if (!this.isWorkingEnabled || !this.isActive || this.getNumProblems() >= 6) {
+                if (this.isActive)
+                    this.setActive(false);
+                if (this.currentTemperature > 0)
+                    this.currentTemperature--;
             } else {
-                if (currentTemperature < boilerType.maxTemperature)
-                    currentTemperature++;
+                if (this.currentTemperature < this.boilerType.maxTemperature)
+                    this.currentTemperature++;
             }
         }
 
-        calculateMaintenance(1);
-        if (progress > 0 && !isActive)
-            setActive(true);
+        this.calculateMaintenance(1);
+        if (this.progress > 0 && !this.isActive)
+            this.setActive(true);
 
-        if (progress >= maxProgress) {
-            progress = 0;
-            currentItem.clear();
-            currentFluid.clear();
-            setActive(false);
+        if (this.progress >= this.maxProgress) {
+            this.progress = 0;
+            this.currentItem.clear();
+            this.currentFluid.clear();
+            this.setActive(false);
         }
 
-        if (progress <= 0) {
-            double heatEfficiency = getHeatEfficiencyMultiplier();
-            int fuelMaxBurnTime = (int) Math.round(setupRecipeAndConsumeInputs() * heatEfficiency);
+        if (this.progress <= 0) {
+            double heatEfficiency = this.getHeatEfficiencyMultiplier();
+            int fuelMaxBurnTime = (int) Math.round(this.setupRecipeAndConsumeInputs() * heatEfficiency);
             if (fuelMaxBurnTime > 0) {
-                maxProgress = fuelMaxBurnTime;
-                progress = 1;
-                setActive(true);
+                this.maxProgress = fuelMaxBurnTime;
+                this.progress = 1;
+                this.setActive(true);
             }
         } else {
-            progress++;
+            this.progress++;
         }
-        if (!canGenerateSteam()) {
-            hasNoWater = false;
+        if (!this.canGenerateSteam()) {
+            this.hasNoWater = false;
             return;
         }
-        if (progress > 0) {
-            waterConsumption = Math.round((float) steamProduction / 160);
-            boolean hasEnoughWater = hasEnoughWater(waterConsumption);
-            if (hasEnoughWater && hasNoWater) {
-                getWorld().setBlockToAir(this.getPos());
-                getWorld().createExplosion(null,
-                        getPos().getX() + 0.5, getPos().getY() + 0.5, getPos().getZ() + 0.5,
+        if (this.progress > 0) {
+            this.waterConsumption = Math.round((float) this.steamProduction / 160);
+            boolean hasEnoughWater = this.hasEnoughWater(this.waterConsumption);
+            if (hasEnoughWater && this.hasNoWater) {
+                this.getWorld().setBlockToAir(this.getPos());
+                this.getWorld().createExplosion(null,
+                        this.getPos().getX() + 0.5, this.getPos().getY() + 0.5, this.getPos().getZ() + 0.5,
                         2.0f, true);
             } else {
                 if (hasEnoughWater) {
-                    steamOutputTank.fill(Steam.getFluid(steamProduction), true);
-                    fluidImportInventory.drain(Water.getFluid(waterConsumption), true);
+                    this.steamOutputTank.fill(Steam.getFluid(this.steamProduction), true);
+                    this.fluidImportInventory.drain(Water.getFluid(this.waterConsumption), true);
                 } else {
-                    hasNoWater = true;
+                    this.hasNoWater = true;
                 }
             }
         }
     }
 
     private boolean hasEnoughWater(int amount) {
-        FluidStack waterStack = fluidImportInventory.drain(Water.getFluid(amount), false);
+        FluidStack waterStack = this.fluidImportInventory.drain(Water.getFluid(amount), false);
         return waterStack != null && waterStack.amount == amount;
     }
 
     private boolean canGenerateSteam() {
-        return currentTemperature >= BOILING_TEMPERATURE;
+        return this.currentTemperature >= BOILING_TEMPERATURE;
     }
 
     private int setupRecipeAndConsumeInputs() {
-        for (IFluidTank fluidTank : fluidImportInventory.getFluidTanks()) {
+        for (IFluidTank fluidTank : this.fluidImportInventory.getFluidTanks()) {
             FluidStack fuelStack = fluidTank.drain(Integer.MAX_VALUE, false);
             if (fuelStack == null || ModHandler.isWater(fuelStack))
                 continue; //ignore empty tanks and water
@@ -313,49 +305,49 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
             if (dieselRecipe != null) {
                 int fuelAmountToConsume = (int) Math.ceil(dieselRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * MAX_PROCESSES * boilerType.fuelConsumptionMultiplier * getThrottleMultiplier());
                 if (fuelStack.amount >= fuelAmountToConsume) {
-                    currentFluid.add(fluidTank.drain(fuelAmountToConsume, true));
+                    this.currentFluid.add(fluidTank.drain(fuelAmountToConsume, true));
                     long recipeVoltage = FuelRecipeLogic.getTieredVoltage(dieselRecipe.getMinVoltage());
                     int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
-                    return (int) Math.ceil(dieselRecipe.getDuration() * CONSUMPTION_MULTIPLIER / 2.0 * voltageMultiplier * getThrottleMultiplier());
+                    return (int) Math.ceil(dieselRecipe.getDuration() * CONSUMPTION_MULTIPLIER / 2.0 * voltageMultiplier * this.getThrottleMultiplier());
                 } else continue;
             }
             FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
             if (denseFuelRecipe != null) {
                 int fuelAmountToConsume = (int) Math.ceil(denseFuelRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * MAX_PROCESSES * boilerType.fuelConsumptionMultiplier * getThrottleMultiplier());
                 if (fuelStack.amount >= fuelAmountToConsume) {
-                    currentFluid.add(fluidTank.drain(fuelAmountToConsume, true));
+                    this.currentFluid.add(fluidTank.drain(fuelAmountToConsume, true));
                     long recipeVoltage = FuelRecipeLogic.getTieredVoltage(denseFuelRecipe.getMinVoltage());
                     int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
-                    return (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * getThrottleMultiplier());
+                    return (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * this.getThrottleMultiplier());
                 }
             }
         }
-        for (int slotIndex = 0; slotIndex < itemImportInventory.getSlots(); slotIndex++) {
-            ItemStack itemStack = itemImportInventory.getStackInSlot(slotIndex);
+        for (int slotIndex = 0; slotIndex < this.itemImportInventory.getSlots(); slotIndex++) {
+            ItemStack itemStack = this.itemImportInventory.getStackInSlot(slotIndex);
             ItemStack displayStack = itemStack.copy();
-            int fuelBurnValue = (int) Math.ceil(TileEntityFurnace.getItemBurnTime(itemStack) / (50.0 * boilerType.fuelConsumptionMultiplier * getThrottleMultiplier()));
+            int fuelBurnValue = (int) Math.ceil(TileEntityFurnace.getItemBurnTime(itemStack) / (50.0 * this.boilerType.fuelConsumptionMultiplier * this.getThrottleMultiplier()));
             if (fuelBurnValue > 0 ) {
-                if (currentItemProcessed.equals("tj.multiblock.large_boiler.insert_burnable")) {
-                    currentItemProcessed = itemStack.getTranslationKey();
+                if (this.currentItemProcessed.equals("tj.multiblock.large_boiler.insert_burnable")) {
+                    this.currentItemProcessed = itemStack.getTranslationKey();
                 }
-                if (itemStack.getTranslationKey().equals(currentItemProcessed)) {
-                    currentItemsEngaged += itemStack.getCount();
-                    if (currentItemsEngaged >= MAX_PROCESSES) {
-                        int takeAmountFromStack = Math.abs((currentItemsEngaged - MAX_PROCESSES) - itemStack.getCount());
+                if (itemStack.getTranslationKey().equals(this.currentItemProcessed)) {
+                    this.currentItemsEngaged += itemStack.getCount();
+                    if (this.currentItemsEngaged >= MAX_PROCESSES) {
+                        int takeAmountFromStack = Math.abs((this.currentItemsEngaged - MAX_PROCESSES) - itemStack.getCount());
                         itemStack.shrink(takeAmountFromStack);
-                        itemImportInventory.setStackInSlot(slotIndex, itemStack);
+                        this.itemImportInventory.setStackInSlot(slotIndex, itemStack);
                     } else {
                         ItemStack containerItem = itemStack.getItem().getContainerItem(itemStack);
-                        itemImportInventory.setStackInSlot(slotIndex, containerItem);
+                        this.itemImportInventory.setStackInSlot(slotIndex, containerItem);
                     }
                 }
-                if (currentItemsEngaged < MAX_PROCESSES)
+                if (this.currentItemsEngaged < MAX_PROCESSES)
                     continue;
-                displayStack.setCount(currentItemsEngaged);
-                currentItem.add(displayStack);
+                displayStack.setCount(this.currentItemsEngaged);
+                this.currentItem.add(displayStack);
 
-                currentItemsEngaged = 0;
-                currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
+                this.currentItemsEngaged = 0;
+                this.currentItemProcessed = "tj.multiblock.large_boiler.insert_burnable";
                 return fuelBurnValue;
             }
         }
@@ -363,22 +355,22 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     }
 
     private double getThrottleMultiplier() {
-        return throttlePercentage / 100.0;
+        return this.throttlePercentage / 100.0;
     }
 
     private double getThrottleEfficiency() {
-        return MathHelper.clamp(1.0 + 0.3*Math.log(getThrottleMultiplier()), 0.4, 1.0);
+        return MathHelper.clamp(1.0 + 0.3*Math.log(this.getThrottleMultiplier()), 0.4, 1.0);
     }
 
     private void replaceFireboxAsActive(boolean isActive) {
-        BlockPos centerPos = getPos().offset(getFrontFacing().getOpposite()).down();
+        BlockPos centerPos = this.getPos().offset(this.getFrontFacing().getOpposite()).down();
         for (int x = -13; x <= 13; x++) {
             for (int z = -13; z <= 13; z++) {
                 BlockPos blockPos = centerPos.add(x, -1, z);
-                IBlockState blockState = getWorld().getBlockState(blockPos);
+                IBlockState blockState = this.getWorld().getBlockState(blockPos);
                 if (blockState.getBlock() instanceof BlockFireboxCasing) {
                     blockState = blockState.withProperty(BlockFireboxCasing.ACTIVE, isActive);
-                    getWorld().setBlockState(blockPos, blockState);
+                    this.getWorld().setBlockState(blockPos, blockState);
                 }
             }
         }
@@ -386,7 +378,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
 
     @Override
     public int getLightValueForPart(IMultiblockPart sourcePart) {
-        return sourcePart == null ? 0 : (isActive ? 15 : 0);
+        return sourcePart == null ? 0 : (this.isActive ? 15 : 0);
     }
 
     public int getMAX_PROCESSES() {
@@ -395,7 +387,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return boilerType == null ? null : FactoryBlockPattern.start()
+        return this.boilerType == null ? null : FactoryBlockPattern.start()
                 .aisle("XXXXXXXXXXXXXXX", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC")
                 .aisle("XXXXXXXXXXXXXXX", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CCCCCCCCCCCCCCC")
                 .aisle("XXXXXXXXXXXXXXX", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CCCCCCCCCCCCCCC")
@@ -413,7 +405,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
                 .aisle("XXXXXXXXXXXXXXX", "CCCCCCCCCCCCCCC", "CCCCCCCSCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC")
                 .setAmountAtLeast('X', 200)
                 .setAmountAtLeast('C', 200)
-                .where('S', selfPredicate())
+                .where('S', this.selfPredicate())
                 .where('P', statePredicate(boilerType.pipeState))
                 .where('X', state -> statePredicate(GTUtility.getAllPropertyValues(boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
                         .or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.MAINTENANCE_HATCH)).test(state))
@@ -424,30 +416,30 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        this.getFrontOverlay().render(renderState, translation, pipeline, getFrontFacing(), isActive);
+        this.getFrontOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.isActive);
     }
 
     @Nonnull
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
-        return boilerType.frontOverlay;
+        return this.boilerType.frontOverlay;
     }
 
     private boolean isFireboxPart(IMultiblockPart sourcePart) {
-        return isStructureFormed() && (((MetaTileEntity) sourcePart).getPos().getY() < getPos().getY());
+        return this.isStructureFormed() && (((MetaTileEntity) sourcePart).getPos().getY() < getPos().getY());
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         if (sourcePart != null && isFireboxPart(sourcePart)) {
-            return isActive ? boilerType.firefoxActiveRenderer : boilerType.fireboxIdleRenderer;
+            return this.isActive ? this.boilerType.firefoxActiveRenderer : this.boilerType.fireboxIdleRenderer;
         }
-        return boilerType.solidCasingRenderer;
+        return this.boilerType.solidCasingRenderer;
     }
 
     @Override
     public boolean shouldRenderOverlay(IMultiblockPart sourcePart) {
-        return sourcePart == null || !isFireboxPart(sourcePart);
+        return sourcePart == null || !this.isFireboxPart(sourcePart);
     }
 
     @Override
@@ -456,7 +448,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         if(!itemStack.isEmpty() && itemStack.hasCapability(GregtechCapabilities.CAPABILITY_MALLET, null)) {
             ISoftHammerItem softHammerItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_MALLET, null);
 
-            if (getWorld().isRemote) {
+            if (this.getWorld().isRemote) {
                 return true;
             }
             if(!softHammerItem.damageItem(DamageValues.DAMAGE_FOR_SOFT_HAMMER, false)) {
@@ -468,17 +460,17 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
 
     private void setActive(boolean active) {
         this.isActive = active;
-        if (!getWorld().isRemote) {
-            writeCustomData(100, buf -> buf.writeBoolean(isActive));
-            replaceFireboxAsActive(isActive);
-            markDirty();
+        if (!this.getWorld().isRemote) {
+            this.writeCustomData(100, buf -> buf.writeBoolean(isActive));
+            this.replaceFireboxAsActive(isActive);
+            this.markDirty();
         }
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeBoolean(isActive);
+        buf.writeBoolean(this.isActive);
     }
 
     @Override
@@ -498,18 +490,18 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("CurrentTemperature", currentTemperature);
-        data.setInteger("MaxProgress", maxProgress);
-        data.setInteger("Progress", progress);
-        data.setBoolean("HasNoWater", hasNoWater);
-        data.setBoolean("Active", isActive);
-        data.setInteger("ThrottlePercentage", throttlePercentage);
-        data.setString("CurrentItemProcessed", currentItemProcessed);
-        data.setInteger("CurrentItemsEngaged", currentItemsEngaged);
+        data.setInteger("CurrentTemperature", this.currentTemperature);
+        data.setInteger("MaxProgress", this.maxProgress);
+        data.setInteger("Progress", this.progress);
+        data.setBoolean("HasNoWater", this.hasNoWater);
+        data.setBoolean("Active", this.isActive);
+        data.setInteger("ThrottlePercentage", this.throttlePercentage);
+        data.setString("CurrentItemProcessed", this.currentItemProcessed);
+        data.setInteger("CurrentItemsEngaged", this.currentItemsEngaged);
         if (!currentItem.isEmpty())
-            data.setTag("CurrentItem", currentItem.get(0).writeToNBT(new NBTTagCompound()));
+            data.setTag("CurrentItem", this.currentItem.get(0).writeToNBT(new NBTTagCompound()));
         if (!currentFluid.isEmpty())
-            data.setTag("CurrentFluid", currentFluid.get(0).writeToNBT(new NBTTagCompound()));
+            data.setTag("CurrentFluid", this.currentFluid.get(0).writeToNBT(new NBTTagCompound()));
         return data;
     }
 
@@ -527,9 +519,9 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         if (data.hasKey("ThrottlePercentage"))
             this.throttlePercentage = data.getInteger("ThrottlePercentage");
         if (data.hasKey("CurrentItem"))
-            currentItem.add(new ItemStack(data.getCompoundTag("CurrentItem")));
+            this.currentItem.add(new ItemStack(data.getCompoundTag("CurrentItem")));
         if (data.hasKey("CurrentFluid"))
-            currentFluid.add(FluidStack.loadFluidStackFromNBT(data.getCompoundTag("CurrentFluid")));
+            this.currentFluid.add(FluidStack.loadFluidStackFromNBT(data.getCompoundTag("CurrentFluid")));
     }
 
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {

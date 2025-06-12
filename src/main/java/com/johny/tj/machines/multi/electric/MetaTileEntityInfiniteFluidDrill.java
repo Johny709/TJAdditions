@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.johny.tj.blocks.BlockSolidCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import com.johny.tj.capability.IItemFluidHandlerInfo;
 import com.johny.tj.capability.TJCapabilities;
@@ -49,16 +50,20 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static gregicadditions.GAMaterials.*;
-import static net.minecraft.util.text.TextFormatting.*;
+import static net.minecraft.util.text.TextFormatting.RED;
 
 public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase implements IWorkable, IItemFluidHandlerInfo {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private Fluid veinFluid;
+    private FluidStack veinFluidStack;
     private boolean isActive;
     private long maxVoltage;
     private int tier;
@@ -78,18 +83,19 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityInfiniteFluidDrill(metaTileEntityId);
+        return new MetaTileEntityInfiniteFluidDrill(this.metaTileEntityId);
     }
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
 
-        return fluidInputsCount >= 1 &&
+        return maintenanceCount == 1 &&
+                fluidInputsCount >= 1 &&
                 fluidOutputsCount >= 1 &&
-                abilities.containsKey(MultiblockAbility.INPUT_ENERGY) &&
-                abilities.containsKey(GregicAdditionsCapabilities.MAINTENANCE_HATCH);
+                abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
 
     @Override
@@ -109,110 +115,88 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (!isStructureFormed())
+        if (!this.isStructureFormed())
             return;
 
-        if (veinFluid == null) {
+        if (this.veinFluid == null) {
             textList.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(RED)));
             return;
         }
 
-        String drillingMudName = DrillingMud.getFluid(drillingMudAmount).getLocalizedName();
-        String usedDrillingMudName= UsedDrillingMud.getFluid(drillingMudAmount).getLocalizedName();
-        String veinName = veinFluid.getName();
-        int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
-        boolean hasEnoughEnergy = hasEnoughEnergy(maxVoltage);
-        boolean hasEnoughDrillingMud = hasEnoughFluid(drillingMudAmount);
-        boolean canFillDrillingMudOutput = canOutputUsedDrillingMud(drillingMudAmount);
-        boolean canFillFluidOutput = canOutputVeinFluid(outputVeinFluidAmount);
-
-        ITextComponent energyText = hasEnoughEnergy ? new TextComponentTranslation("gregtech.multiblock.max_energy_per_tick", maxVoltage, GAValues.VN[tier])
-                : new TextComponentTranslation("gregtech.multiblock.not_enough_energy");
-        ITextComponent drillingMudInputText = hasEnoughDrillingMud ? new TextComponentTranslation("machine.universal.fluid.input.sec", drillingMudName, drillingMudAmount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid", drillingMudName, drillingMudAmount);
-        ITextComponent drillingMudOutputText = canFillDrillingMudOutput ? new TextComponentTranslation("machine.universal.fluid.output.sec", usedDrillingMudName, drillingMudAmount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", usedDrillingMudName, drillingMudAmount);
-        ITextComponent fluidOutputText = canFillFluidOutput ? new TextComponentTranslation("gtadditions.multiblock.drilling_rig.rig_production", outputVeinFluidAmount)
-                : new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", veinName, outputVeinFluidAmount);
-        ITextComponent currentFluidVeinText = new TextComponentTranslation("gtadditions.multiblock.drilling_rig.fluid", veinName);
-        ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentTranslation("gregtech.multiblock.work_paused")
-                : !isActive ? new TextComponentTranslation("gregtech.multiblock.idling")
-                : new TextComponentTranslation("gregtech.multiblock.running");
-
-        energyText.getStyle().setColor(hasEnoughEnergy ? WHITE : RED);
-        drillingMudInputText.getStyle().setColor(hasEnoughDrillingMud ? WHITE : RED);
-        drillingMudOutputText.getStyle().setColor(canFillDrillingMudOutput ? WHITE : RED);
-        fluidOutputText.getStyle().setColor(canFillFluidOutput ? WHITE : RED);
-        isWorkingText.getStyle().setColor(!isWorkingEnabled ? YELLOW : !isActive ? WHITE : GREEN);
-
-        textList.addAll(Arrays.asList(energyText, drillingMudInputText, drillingMudOutputText, fluidOutputText, currentFluidVeinText, isWorkingText));
-        if (isActive)
-            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+        MultiblockDisplayBuilder.start(textList)
+                .energyInput(this.hasEnoughEnergy(this.maxVoltage), this.maxVoltage)
+                .fluidInput(this.hasEnoughFluid(this.drillingMudAmount), DrillingMud.getFluid(this.drillingMudAmount))
+                .fluidOutput(this.canOutputUsedDrillingMud(this.drillingMudAmount), UsedDrillingMud.getFluid(this.drillingMudAmount))
+                .fluidOutput(this.canOutputVeinFluid(this.outputVeinFluidAmount), this.veinFluidStack)
+                .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.fluid", veinFluid.getName())))
+                .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        veinFluid = PumpjackHandler.getFluid(getWorld(), getWorld().getChunk(getPos()).x, getWorld().getChunk(getPos()).z);
-        energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
-        inputFluid = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        outputFluid = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.inputFluid = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        this.outputFluid = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
 
         int motorTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         int pumpTier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        tier = Math.min(motorTier, pumpTier);
+        this.tier = Math.min(motorTier, pumpTier);
 
-        maxVoltage = (long) (Math.pow(4, tier) * 8);
-        outputVeinFluidAmount = Math.min(Integer.MAX_VALUE, (int) Math.pow(4, (tier - GAValues.EV)) * 4000);
-        drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
+        this.maxVoltage = (long) (Math.pow(4, tier) * 8);
+        this.outputVeinFluidAmount = (int) Math.min(Integer.MAX_VALUE, Math.pow(4, (tier - GAValues.EV)) * 4000);
+        this.drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
+
+        this.veinFluid = PumpjackHandler.getFluid(getWorld(), getWorld().getChunk(getPos()).x, getWorld().getChunk(getPos()).z);
+        this.veinFluidStack = new FluidStack(this.veinFluid, this.outputVeinFluidAmount);
     }
 
 
     @Override
     protected void updateFormedValid() {
-        if (!isWorkingEnabled || tier < GAValues.UHV || getNumProblems() >= 6) {
-            if (isActive)
-                setActive(false);
+        if (!this.isWorkingEnabled || this.tier < GAValues.UHV || this.getNumProblems() >= 6) {
+            if (this.isActive)
+                this.setActive(false);
             return;
         }
 
-        calculateMaintenance(1);
-        if (progress > 0 && !isActive)
-            setActive(true);
+        this.calculateMaintenance(1);
+        if (this.progress > 0 && !this.isActive)
+            this.setActive(true);
 
-        if (progress >= maxProgress) {
-            if (canOutputVeinFluid(outputVeinFluidAmount)) {
-                outputFluid.fill(new FluidStack(veinFluid, outputVeinFluidAmount), true);
-                fluidInputs.clear();
-                fluidOutputs.clear();
-                progress = 0;
-                if (isActive)
-                    setActive(false);
+        if (this.progress >= this.maxProgress) {
+            if (this.canOutputVeinFluid(this.outputVeinFluidAmount)) {
+                this.outputFluid.fill(this.veinFluidStack, true);
+                this.fluidInputs.clear();
+                this.fluidOutputs.clear();
+                this.progress = 0;
+                if (this.isActive)
+                    this.setActive(false);
             } else {
                 progress--;
             }
         }
 
-        if (hasEnoughEnergy(maxVoltage)) {
-            if (progress <= 0) {
-                if (hasEnoughFluid(drillingMudAmount) && canOutputUsedDrillingMud(drillingMudAmount)) {
-                    fluidInputs.add(inputFluid.drain(DrillingMud.getFluid(drillingMudAmount), true));
-                    int outputAmount = outputFluid.fill(UsedDrillingMud.getFluid(drillingMudAmount), true);
-                    fluidOutputs.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
-                    fluidOutputs.add(new FluidStack(veinFluid, outputVeinFluidAmount));
-                    progress = 1;
-                    if (!isActive)
-                        setActive(true);
+        if (this.hasEnoughEnergy(this.maxVoltage)) {
+            if (this.progress <= 0) {
+                if (this.hasEnoughFluid(this.drillingMudAmount) && this.canOutputUsedDrillingMud(this.drillingMudAmount)) {
+                    this.fluidInputs.add(this.inputFluid.drain(DrillingMud.getFluid(this.drillingMudAmount), true));
+                    int outputAmount = this.outputFluid.fill(UsedDrillingMud.getFluid(this.drillingMudAmount), true);
+                    this.fluidOutputs.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
+                    this.fluidOutputs.add(this.veinFluidStack);
+                    this.progress = 1;
+                    if (!this.isActive)
+                        this.setActive(true);
                 } else {
                     return; // prevent energy consumption if fluid is not consumed
                 }
             } else {
-                progress++;
+                this.progress++;
             }
-            energyContainer.removeEnergy(maxVoltage);
+            this.energyContainer.removeEnergy(this.maxVoltage);
         } else {
-            if (progress > 1)
-                progress--;
+            if (this.progress > 1)
+                this.progress--;
         }
     }
 
@@ -224,7 +208,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
                 .aisle("~~~~~", "~~~~~", "CMPMC", "X#T#X", "C#T#C", "C#T#C", "C#T#C", "~CCC~", "~FCF~", "~FFF~", "~FFF~", "~~F~~", "~~F~~", "~~F~~")
                 .aisle("F~~~F", "F~~~F", "CCMCC", "X###X", "~C#C~", "~C#C~" ,"~C#C~", "~FCF~", "~FFF~", "~FFF~", "~~F~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CF~FC", "CF~FC", "CCCCC", "~XSX~", "~~C~~", "~~C~~", "~~C~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
-                .where('S', selfPredicate())
+                .where('S', this.selfPredicate())
                 .where('C', statePredicate(getCasingState()))
                 .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Seaborgium).getDefaultState()))
@@ -246,28 +230,28 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
     }
 
     private boolean hasEnoughEnergy(long amount) {
-        return energyContainer.getEnergyStored() >= amount;
+        return this.energyContainer.getEnergyStored() >= amount;
     }
 
     private boolean hasEnoughFluid(int amount) {
-        FluidStack fluidStack = inputFluid.drain(DrillingMud.getFluid(amount), false);
+        FluidStack fluidStack = this.inputFluid.drain(DrillingMud.getFluid(amount), false);
         return fluidStack != null && fluidStack.amount == amount;
     }
 
     private boolean canOutputVeinFluid(int amount) {
-        int fluidStack = outputFluid.fill(new FluidStack(veinFluid, amount), false);
+        int fluidStack = this.outputFluid.fill(this.veinFluidStack, false);
         return fluidStack == amount;
     }
 
     private boolean canOutputUsedDrillingMud(int amount) {
-        int fluidStack = outputFluid.fill(UsedDrillingMud.getFluid(amount), false);
+        int fluidStack = this.outputFluid.fill(UsedDrillingMud.getFluid(amount), false);
         return fluidStack == amount;
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeBoolean(isActive);
+        buf.writeBoolean(this.isActive);
     }
 
     @Override
@@ -278,9 +262,9 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
 
     protected void setActive(boolean active) {
         this.isActive = active;
-        markDirty();
-        if (!getWorld().isRemote) {
-            writeCustomData(1, buf -> buf.writeBoolean(active));
+        if (!this.getWorld().isRemote) {
+            this.writeCustomData(1, buf -> buf.writeBoolean(active));
+            this.markDirty();
         }
     }
 
@@ -289,7 +273,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
         super.receiveCustomData(dataId, buf);
         if (dataId == 1) {
             this.isActive = buf.readBoolean();
-            getHolder().scheduleChunkForRenderUpdate();
+            this.getHolder().scheduleChunkForRenderUpdate();
         }
     }
 
@@ -311,35 +295,35 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("Progress", progress);
-        data.setBoolean("Active", isActive);
+        data.setInteger("Progress", this.progress);
+        data.setBoolean("Active", this.isActive);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        progress = data.getInteger("Progress");
-        isActive = data.getBoolean("Active");
+        this.progress = data.getInteger("Progress");
+        this.isActive = data.getBoolean("Active");
     }
 
     @Override
     public List<FluidStack> getFluidInputs() {
-        return fluidInputs;
+        return this.fluidInputs;
     }
 
     @Override
     public List<FluidStack> getFluidOutputs() {
-        return fluidOutputs;
+        return this.fluidOutputs;
     }
 
     @Override
     public int getProgress() {
-        return progress;
+        return this.progress;
     }
 
     @Override
     public int getMaxProgress() {
-        return maxProgress;
+        return this.maxProgress;
     }
 }

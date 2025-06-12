@@ -306,25 +306,25 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer));
+        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)));
         if (!this.isStructureFormed()) {
             textList.add(new TextComponentTranslation("gregtech.multiblock.invalid_structure").setStyle(new Style().setColor(TextFormatting.RED)));
         }
         if (this.isStructureFormed()) {
             if (!this.recipeMapWorkable.isWorkingEnabled()) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.work_paused"));
+                textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.work_paused")));
             } else if (this.recipeMapWorkable.isActive()) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.running"));
+                textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.running")));
                 int currentProgress;
                 if (energyContainer.getEnergyCapacity() > 0) {
                     currentProgress = (int) (this.recipeMapWorkable.getProgressPercent() * 100.0D);
-                    textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
+                    textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.progress", currentProgress)));
                 } else {
                     currentProgress = -this.recipeMapWorkable.getRecipeEUt();
-                    textList.add(new TextComponentTranslation("gregtech.multiblock.generation_eu", currentProgress));
+                    textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.eu", currentProgress)));
                 }
             } else {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.idling"));
+                textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.idling")));
             }
             if (recipe != null) {
                 long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * parallelLayer;
