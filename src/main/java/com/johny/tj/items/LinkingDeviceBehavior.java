@@ -104,6 +104,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                             this.z = targetGTTE.getPos().getZ();
                             this.name = targetGTTE.getMetaFullName();
                         }
+                        this.name = net.minecraft.util.text.translation.I18n.translateToLocal(this.name);
                         if (linkI > 0) {
                             for (int i = 0; i < 2; i++) {
                                 for (int j = 0; j < linkPos.getPosSize(); j++) {
@@ -201,6 +202,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                     this.nbtResponder = linkEntity::setLinkData;
                     this.rangeSupplier = linkEntity::getRange;
                     this.player = player;
+                    this.name = player.getName();
                     this.world = world;
                     this.worldID = world.provider.getDimensionType().getId();
                     this.x = player.getPosition().getX();

@@ -720,7 +720,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
         name = this.checkDuplicateNames(name, 1);
         this.entityLinkName[index] = name;
-        this.entityLinkWorld[index] = world.provider.getDimensionType().getId();
+        this.entityLinkWorld[index] = world.provider.getDimension();
         this.entityEnergyAmps[index] = 1;
         this.entityLinkBlockPos[index] = pos;
     }
@@ -731,8 +731,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         if (count > 1) {
             String[] split = name.split(" ");
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < split.length - 1; i++)
+            for (int i = 0; i < split.length - 1; i++) {
                 builder.append(split[i]);
+                if (i < split.length - 2)
+                    builder.append(" ");
+            }
             name = builder.toString();
         }
         name = name + " (" + count + ")";

@@ -426,6 +426,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
             int i = Integer.parseInt(remove[1]);
             int index = this.linkData.getInteger("I");
             this.linkData.setInteger("I", index + 1);
+            this.entityLinkName[i] = null;
             this.linkedPlayers[i] = null;
             this.linkedPlayersID[i] = null;
             this.entityLinkWorld[i] = Integer.MIN_VALUE;
@@ -828,7 +829,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
         name = this.checkDuplicateNames(name, 1);
         this.entityLinkName[index] = name;
-        this.entityLinkWorld[index] = world.provider.getDimensionType().getId();
+        this.entityLinkWorld[index] = world.provider.getDimension();
         this.linkedPlayers[index] = player;
         this.linkedPlayersID[index] = this.linkedPlayers[index].getUniqueID();
     }
@@ -839,8 +840,11 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         if (count > 1) {
             String[] split = name.split(" ");
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < split.length - 1; i++)
+            for (int i = 0; i < split.length - 1; i++) {
                 builder.append(split[i]);
+                if (i < split.length - 2)
+                    builder.append(" ");
+            }
             name = builder.toString();
         }
         name = name + " (" + count + ")";
