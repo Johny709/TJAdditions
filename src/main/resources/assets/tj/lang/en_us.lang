@@ -302,7 +302,7 @@ tj.multiblock.parallel_plasma_condenser.description=True Parallel version of Pla
 tj.multiblock.large_wireless_energy_emitter.description=Link to transfer energy to §6machines§7 and §6energy hatches§7. Gains two additional links per tier. Consumes §310L/t Nitrogen Plasma§7 per link across dimensions.
 tj.multiblock.large_battery_charger.description=§bCharges§7 or §bDischarges§7 energy of lots of items. Consumes §e1A§7 per slot, only consumes §eenergy§7 when needed. §6Players§7 can be linked to this machine to §bcharge§7 their items wireless. Consumes §310L/t Nitrogen Plasma§7 when §6player§7 is in different dimension. Gains an additional link per tier.
 tj.multiblock.void_more_miner.description=Tier and Heats is determined by Component Motor Blocks.
-tj.multiblock.teleporter.description=Use linking device to create new positions or waypoints. Consumes 1M EU base for teleportation and 1000 EU for every block away from Teleporter or from another dimension's X:0, Y:0, Z:0, coordinates. Energy hatch tier can be below or equal to components' tier.
+tj.multiblock.teleporter.description=Use linking device to create new positions or waypoints. Consumes 1M EU base for teleportation and 1000 EU for every block away from Teleporter or from another dimension's X:0, Y:0, Z:0, coordinates. The World must be loaded for interdimensional teleport. Energy hatch tier can be below or equal to components' tier.
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7

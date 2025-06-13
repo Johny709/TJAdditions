@@ -64,7 +64,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -166,25 +165,23 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 return;
             }
             World world = worldPos.getLeft();
-            BlockPos targetPos = worldPos.getValue();
-            BlockPos pos = this.getPos().up();
-            int worldID = world.provider.getDimension();
-            int x = pos.getX();
-            int y = pos.getY();
-            int z = pos.getZ();
-            if (this.getWorld().provider.getDimension() != worldID && DimensionManager.getWorld(worldID) != null) {
-                DimensionManager.initDimension(worldID);
-                DimensionManager.keepDimensionLoaded(worldID, true);
-            }
-            ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
-            for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
-                for (Entity entity : entities) {
-                    BlockPos entityPos = entity.getPosition();
-                    int entityX = entityPos.getX();
-                    int entityY = entityPos.getY();
-                    int entityZ = entityPos.getZ();
-                    if (entityX == x && entityY == y && entityZ == z)
-                        this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
+            if (world != null) {
+                BlockPos targetPos = worldPos.getValue();
+                BlockPos pos = this.getPos().up();
+                int worldID = world.provider.getDimension();
+                int x = pos.getX();
+                int y = pos.getY();
+                int z = pos.getZ();
+                ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
+                for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
+                    for (Entity entity : entities) {
+                        BlockPos entityPos = entity.getPosition();
+                        int entityX = entityPos.getX();
+                        int entityY = entityPos.getY();
+                        int entityZ = entityPos.getZ();
+                        if (entityX == x && entityY == y && entityZ == z)
+                            this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
+                    }
                 }
             }
         } else {
@@ -195,9 +192,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private void transportEntity() {
         Triple<Entity, World, BlockPos> entityPos = this.markEntitiesToTransport.poll();
         Entity entity = entityPos.getLeft();
-        if (entity == null)
-            return;
         WorldServer world = (WorldServer) entityPos.getMiddle();
+        if (entity == null || world == null)
+            return;
         BlockPos pos = entityPos.getRight();
         int worldID = world.provider.getDimension();
         long energyX = Math.abs(pos.getX() - this.getPos().getX()) * 1000L;
@@ -434,9 +431,10 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
                 continue;
 
-            DimensionType world = posEntry.getValue().getLeft().provider.getDimensionType();
-            String worldName = world.getName();
-            int worldID = posEntry.getValue().getLeft().provider.getDimension();
+
+            World world = posEntry.getValue().getLeft();
+            String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
+            int worldID = world != null ? world.provider.getDimension() : Integer.MIN_VALUE;
 
             BlockPos pos = posEntry.getValue().getValue();
 
@@ -491,9 +489,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 continue;
 
             BlockPos pos = queueEntry.getRight();
-            DimensionType world = queueEntry.getMiddle().provider.getDimensionType();
-            String worldName = world.getName();
-            int worldID = world.getId();
+            World world = queueEntry.getMiddle();
+            String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
+            int worldID = world != null ? queueEntry.getMiddle().provider.getDimension() : Integer.MIN_VALUE;
 
             String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
 
@@ -523,11 +521,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             int posY = Integer.parseInt(yz[0]);
             int posZ = Integer.parseInt(yz[1]);
 
-            if (this.getWorld().provider.getDimension() != worldID && DimensionManager.getWorld(worldID) != null) {
-                DimensionManager.initDimension(worldID);
-                DimensionManager.keepDimensionLoaded(worldID, true);
-            }
             WorldServer dimension = DimensionManager.getWorld(worldID);
+            if (dimension == null)
+                return;
             BlockPos blockPos = new BlockPos(posX, posY, posZ);
             player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.queue", player.getName())));
             this.markEntitiesToTransport.add(new ImmutableTriple<>(player, dimension, blockPos));
