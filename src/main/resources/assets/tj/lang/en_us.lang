@@ -231,9 +231,9 @@ tj.mulitblock.greenhouse.treemode=[Tree Mode]
 tj.multiblock.drilling_rig.voltage=Requires §d%s§7 voltage or higher. Overclocks up to §d%s§7.
 tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%dL§7 Drilling Mud and outputs §c%dL§7 Used Drilling Mud per second.
 
-tj.multiblock.teleporter.selected.world=Selected World: §6%s§r (§b%d§r)
+tj.multiblock.teleporter.selected.world=Selected World: §6%s§r (§6%d§r)
 tj.multiblock.teleporter.selected.pos=Selected Pos: X: §b%d§r Y: §b%d§r Z: §b%d§r
-tj.multiblock.teleporter.queue=Queued §r%s§r for teleportation
+tj.multiblock.teleporter.queue=Queued §6%s§r for teleportation
 tj.multiblock.teleporter.success=Teleport Successful
 tj.multiblock.teleporter.fail=Teleport Failed
 

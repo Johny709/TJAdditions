@@ -555,6 +555,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         OnTextFieldWidget onTextFieldWidget = new OnTextFieldWidget(15, 15, 151, 18, false, this::getRename, this::setRename);
         onTextFieldWidget.setTooltipText("machine.universal.set.name");
         onTextFieldWidget.setBackgroundText("machine.universal.set.name");
+        onTextFieldWidget.setTextLength(256);
         onTextFieldWidget.setValidator(str -> Pattern.compile(".*").matcher(str).matches());
         builder.widget(onTextFieldWidget);
         builder.widget(new TJClickButtonWidget(10, 38, 156, 18, "OK", onTextFieldWidget::onResponder)
