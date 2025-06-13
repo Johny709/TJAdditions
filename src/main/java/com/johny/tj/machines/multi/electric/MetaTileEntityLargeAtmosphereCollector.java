@@ -6,6 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import com.johny.tj.blocks.BlockPipeCasings;
 import com.johny.tj.blocks.TJMetaBlocks;
 import com.johny.tj.builder.handlers.LargeAtmosphereCollectorWorkableHandler;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJRotorHolderMultiblockController;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
@@ -33,10 +34,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
@@ -50,7 +48,6 @@ import java.util.Map;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static net.minecraft.util.text.TextFormatting.*;
 
 public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockController {
 
@@ -64,19 +61,19 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     public MetaTileEntityLargeAtmosphereCollector(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
         this.turbineType = turbineType;
-        reinitializeStructurePattern();
+        this.reinitializeStructurePattern();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeAtmosphereCollector(metaTileEntityId, turbineType);
+        return new MetaTileEntityLargeAtmosphereCollector(this.metaTileEntityId, this.turbineType);
     }
 
     @Override
     protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        airCollectorHandler = new LargeAtmosphereCollectorWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
-        fastModeConsumer = airCollectorHandler::setFastMode;
-        return airCollectorHandler;
+        this.airCollectorHandler = new LargeAtmosphereCollectorWorkableHandler(this, this.recipeMap, () -> this.energyContainer, () -> this.importFluidHandler);
+        this.fastModeConsumer = this.airCollectorHandler::setFastMode;
+        return this.airCollectorHandler;
     }
 
     @Override
@@ -93,7 +90,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
         boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
         boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
 
-        if (turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
+        if (this.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
             return false;
 
         return maintenanceCount == 1 && hasOutputFluid && (hasInputFluid || hasSteamInput);
@@ -102,74 +99,57 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (isStructureFormed()) {
-            MetaTileEntityRotorHolder rotorHolder = getRotorHolder();
-            FluidStack fuelStack = ((LargeAtmosphereCollectorWorkableHandler) workableHandler).getFuelStack();
-            int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+        if (this.isStructureFormed()) {
+            MetaTileEntityRotorHolder rotorHolder = this.getRotorHolder();
+            MultiblockDisplayBuilder.start(textList)
+                    .custom(text -> {
+                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.airCollectorHandler.getConsumption(),
+                                net.minecraft.util.text.translation.I18n.translateToLocal(this.airCollectorHandler.getFuelName()),
+                                this.airCollectorHandler.getMaxProgress() / 20)));
+                        FluidStack fuelStack = this.airCollectorHandler.getFuelStack();
+                        int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-            ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-            textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.fuel_amount", fuelAmount, fuelName));
+                        ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+                        text.add(new TextComponentTranslation("tj.multiblock.fuel_amount", fuelAmount, fuelName));
 
-            if (rotorHolder.getRotorEfficiency() > 0.0) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.rotor_speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed()));
-                textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.rotor_efficiency", (int) (rotorHolder.getRotorEfficiency() * 100)));
-                int rotorDurability = (int) (rotorHolder.getRotorDurability() * 100);
-                if (rotorDurability > 10) {
-                    textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.rotor_durability", rotorDurability));
-                } else {
-                    textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.low_rotor_durability",
-                            10, rotorDurability).setStyle(new Style().setColor(TextFormatting.RED)));
-                }
-            }
+                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.large_atmosphere_collector.air", this.airCollectorHandler.getProduction())));
 
-            ITextComponent toggleFastMode = new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode");
-            toggleFastMode.appendText(" ");
+                        text.add(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
+                                .appendSibling(this.airCollectorHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
+                                        : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
+                        if (rotorHolder.getRotorEfficiency() > 0.0) {
+                            text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed())));
+                            text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.efficiency", (int) (rotorHolder.getRotorEfficiency() * 100))));
+                            int rotorDurability = (int) (rotorHolder.getRotorDurability() * 100);
 
-            if (airCollectorHandler.isFastMode())
-                toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true"));
-            else
-                toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false"));
-
-            if (!isRotorFaceFree()) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
-                        .setStyle(new Style().setColor(TextFormatting.RED)));
-            }
-            textList.add(toggleFastMode);
-
-            if (airCollectorHandler.isActive()) {
-                textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", airCollectorHandler.getConsumption(),
-                        net.minecraft.util.text.translation.I18n.translateToLocal(airCollectorHandler.getFuelName()),
-                        airCollectorHandler.getMaxProgress() / 20));
-
-                textList.add(new TextComponentTranslation("tj.multiblock.large_atmosphere_collector.air", airCollectorHandler.getProduction()));
-                int currentProgress = (int) Math.floor(airCollectorHandler.getProgress() / (airCollectorHandler.getMaxProgress() * 1.0) * 100);
-                textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
-            }
-
-            ITextComponent isWorkingText = !airCollectorHandler.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
-                    : !airCollectorHandler.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")
-                    : new TextComponentTranslation("gregtech.multiblock.running");
-
-            isWorkingText.getStyle().setColor(!airCollectorHandler.isWorkingEnabled() ? YELLOW : !airCollectorHandler.isActive() ? WHITE : GREEN);
-            textList.add(isWorkingText);
+                            text.add(rotorDurability > 10 ? new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.durability", rotorDurability))
+                                    : new TextComponentTranslation("gregtech.multiblock.turbine.low_rotor_durability",
+                                    10, rotorDurability).setStyle(new Style().setColor(TextFormatting.RED)));
+                        }
+                        if (!isRotorFaceFree()) {
+                            text.add(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
+                                    .setStyle(new Style().setColor(TextFormatting.RED)));
+                        }
+                    })
+                    .isWorking(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress());
         }
     }
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        fastModeConsumer.apply(componentData.equals("false"));
+        this.fastModeConsumer.apply(componentData.equals("false"));
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        fluidTanks.addAll(getAbilities(GregicAdditionsCapabilities.STEAM));
+        fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
 
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
-        this.exportFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.importItemHandler = new ItemHandlerList(getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
     }
 
     @Override
@@ -182,12 +162,12 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        if (isStructureFormed()) {
+        if (this.isStructureFormed()) {
             if (getOffsetTimer() % 20 == 0) {
-                for (MetaTileEntityRotorHolder rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
+                for (MetaTileEntityRotorHolder rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
                     if (rotorHolder.hasRotorInInventory())
                         continue;
-                    ItemStack rotorReplacementStack = checkAndConsumeItem();
+                    ItemStack rotorReplacementStack = this.checkAndConsumeItem();
                     if (rotorReplacementStack != null) {
                         rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
                     }
@@ -197,9 +177,9 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     }
 
     private ItemStack checkAndConsumeItem() {
-        int getItemSlots = importItemHandler.getSlots();
+        int getItemSlots = this.importItemHandler.getSlots();
         for (int slotIndex = 0; slotIndex < getItemSlots; slotIndex++) {
-            ItemStack item = importItemHandler.getStackInSlot(slotIndex);
+            ItemStack item = this.importItemHandler.getStackInSlot(slotIndex);
             boolean hugeRotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
             boolean largeRotorStack = GAMetaItems.LARGE_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
             boolean mediumRotorStack = GAMetaItems.MEDIUM_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
@@ -211,7 +191,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
             ItemStack getItemFromSlot = item.getItem().getContainerItem(item);
             item.setCount(0); // sets stacksize to 0. effectively voiding the item
-            importItemHandler.setStackInSlot(slotIndex, item);
+            this.importItemHandler.setStackInSlot(slotIndex, item);
             return getItemFromSlot;
         }
         return null;
@@ -219,14 +199,14 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return turbineType == null ? null : FactoryBlockPattern.start(LEFT, BACK, DOWN)
+        return this.turbineType == null ? null : FactoryBlockPattern.start(LEFT, BACK, DOWN)
                 .aisle("CPPPCCC", "CPPPXXC", "CPPPCCC")
                 .aisle("CPPPXXC", "R#####F", "CPPPSXC")
                 .aisle("CPPPCCC", "CPPPXXC", "CPPPCCC")
-                .where('S', selfPredicate())
-                .where('C', statePredicate(turbineType.casingState))
-                .where('P', statePredicate(getPipeState()))
-                .where('X', statePredicate(turbineType.casingState).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('S', this.selfPredicate())
+                .where('C', statePredicate(this.turbineType.casingState))
+                .where('P', statePredicate(this.getPipeState()))
+                .where('X', statePredicate(this.turbineType.casingState).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS))
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                 .where('#', isAirPredicate())
@@ -239,7 +219,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     }
 
     public IBlockState getPipeState() {
-        switch (turbineType) {
+        switch (this.turbineType) {
             case STEAM: return MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE);
             case GAS: return TJMetaBlocks.PIPE_CASING.getState(BlockPipeCasings.PipeCasingType.STAINLESS_PIPE_CASING);
             default: return MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE);
@@ -255,7 +235,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
             } else {
                 Textures.AIR_VENT_OVERLAY.renderSided(facing, renderState, translation, pipeline);
             }
-            Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), workableHandler.isActive());
+            Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.workableHandler.isActive());
         }
     }
 

@@ -1,6 +1,7 @@
 package com.johny.tj.machines.multi.electric;
 
 import com.johny.tj.builder.handlers.XLTurbineWorkableHandler;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJRotorHolderMultiblockController;
 import com.johny.tj.gui.TJWidgetGroup;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -29,7 +30,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -48,7 +52,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
-import static net.minecraft.util.text.TextFormatting.*;
 
 
 public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
@@ -66,19 +69,19 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     public MetaTileEntityXLTurbine(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
         this.turbineType = turbineType;
-        reinitializeStructurePattern();
+        this.reinitializeStructurePattern();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityXLTurbine(metaTileEntityId, turbineType);
+        return new MetaTileEntityXLTurbine(this.metaTileEntityId, this.turbineType);
     }
 
     @Override
     protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, recipeMap, () -> energyContainer, () -> importFluidHandler);
-        this.fastModeConsumer = xlTurbineWorkableHandler::setFastMode;
-        return xlTurbineWorkableHandler;
+        this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, this.recipeMap, () -> this.energyContainer, () -> this.importFluidHandler);
+        this.fastModeConsumer = this.xlTurbineWorkableHandler::setFastMode;
+        return this.xlTurbineWorkableHandler;
     }
 
     @Override
@@ -86,53 +89,35 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
         tooltip.add(I18n.format("tj.multiblock.turbine.fast_mode.description"));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", turbineType.recipeMap.getLocalizedName()));
+        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
         tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
         tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus() + "%"));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100 + "%"));
+        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()));
+        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100));
     }
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (isStructureFormed()) {
-            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", xlTurbineWorkableHandler.getConsumption(),
-                    net.minecraft.util.text.translation.I18n.translateToLocal(xlTurbineWorkableHandler.getFuelName()),
-                    xlTurbineWorkableHandler.getMaxProgress() / 20));
+        if (this.isStructureFormed()) {
+            MultiblockDisplayBuilder.start(textList)
+                    .custom(text -> {
+                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.xlTurbineWorkableHandler.getConsumption(),
+                                net.minecraft.util.text.translation.I18n.translateToLocal(this.xlTurbineWorkableHandler.getFuelName()),
+                                this.xlTurbineWorkableHandler.getMaxProgress() / 20)));
+                        FluidStack fuelStack = this.xlTurbineWorkableHandler.getFuelStack();
+                        int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-            ITextComponent totalEnergy = new TextComponentTranslation("tj.multiblock.extreme_turbine.energy");
-            totalEnergy.appendText(" ");
-            totalEnergy.appendSibling(new TextComponentString(xlTurbineWorkableHandler.getProduction() + " EU/t"));
-            textList.add(totalEnergy);
+                        ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+                        text.add(new TextComponentTranslation("tj.multiblock.fuel_amount", fuelAmount, fuelName));
 
-            ITextComponent toggleFastMode = new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode");
-            toggleFastMode.appendText(" ");
+                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.xlTurbineWorkableHandler.getProduction())));
 
-            if (xlTurbineWorkableHandler.isFastMode())
-                toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true"));
-            else
-                toggleFastMode.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false"));
-
-            FluidStack fuelStack = xlTurbineWorkableHandler.getFuelStack();
-            int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
-
-            ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-            textList.add(new TextComponentTranslation("gregtech.multiblock.turbine.fuel_amount", fuelAmount, fuelName));
-
-            textList.add(toggleFastMode);
-
-            if (xlTurbineWorkableHandler.isActive()) {
-                int currentProgress = (int) Math.floor(xlTurbineWorkableHandler.getProgress() / (xlTurbineWorkableHandler.getMaxProgress() * 1.0) * 100);
-                textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
-            }
-
-            ITextComponent isWorkingText = !xlTurbineWorkableHandler.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
-                    : !xlTurbineWorkableHandler.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")
-                    : new TextComponentTranslation("gregtech.multiblock.running");
-
-            isWorkingText.getStyle().setColor(!xlTurbineWorkableHandler.isWorkingEnabled() ? YELLOW : !xlTurbineWorkableHandler.isActive() ? WHITE : GREEN);
-            textList.add(isWorkingText);
+                        text.add(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
+                                .appendSibling(this.xlTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
+                                        : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
+                    })
+                    .isWorking(this.xlTurbineWorkableHandler.isWorkingEnabled(), this.xlTurbineWorkableHandler.isActive(), this.xlTurbineWorkableHandler.getProgress(), this.xlTurbineWorkableHandler.getMaxProgress());
         }
     }
 
@@ -145,69 +130,48 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
         textList.add(page);
 
         int rotorHolderSize = getRotorHolders().size();
-        for (int i = pageIndex, rotorIndex = i + 1; i < pageIndex + pageSize; i++, rotorIndex++) {
+        for (int i = this.pageIndex, rotorIndex = i + 1; i < this.pageIndex + this.pageSize; i++, rotorIndex++) {
             if (i < rotorHolderSize) {
-                MetaTileEntityRotorHolder rotorHolder = getAbilities(ABILITY_ROTOR_HOLDER).get(i);
+                MetaTileEntityRotorHolder rotorHolder = this.getAbilities(ABILITY_ROTOR_HOLDER).get(i);
 
-                double durabilityToInt = rotorHolder.getRotorDurability() * 100;
-                double efficencyToInt = rotorHolder.getRotorEfficiency() * 100;
+                double durability = rotorHolder.getRotorDurability() * 100;
+                double efficiency = rotorHolder.getRotorEfficiency() * 100;
 
-                ITextComponent turbineText;
-                TextFormatting colorFormatting;
+                String colorText = !rotorHolder.hasRotorInInventory() ? "§f"
+                        : durability > 25 ? "§a"
+                        : durability > 10 ? "§e" : "§c";
 
-                if (rotorHolder.hasRotorInInventory()) {
-                    if (durabilityToInt <= 10) {
-                        colorFormatting = TextFormatting.RED;
-                    }
-                    else if (durabilityToInt <= 25) {
-                        colorFormatting = TextFormatting.YELLOW;
-                    }
-                    else {
-                        colorFormatting = TextFormatting.GREEN;
-                    }
-                } else {
-                    colorFormatting = TextFormatting.WHITE;
-                }
-
-                String rotorName = getShortenRotorName(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName());
-                turbineText = new TextComponentString("-");
-                turbineText.appendText(" ");
-                turbineText.appendSibling(new TextComponentString("[" + rotorIndex + "] " + (rotorName.equals("Air") ? I18n.format("tj.multiblock.extreme_turbine.insertrotor") : rotorName))
-                                .setStyle(new Style().setColor(colorFormatting)))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.extreme_turbine.name").appendSibling(new TextComponentString(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ? " " + I18n.format("gregtech.multiblock.extreme_turbine.norotor") + "\n" :
-                                        " " + rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName() + "\n"))
-                                .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.speed").appendSibling(new TextComponentString(" " + rotorHolder.getCurrentRotorSpeed() + " / " + rotorHolder.getMaxRotorSpeed() + "\n")))
-                                .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.efficiency").appendSibling(new TextComponentString(" " + (int) efficencyToInt + "%\n")))
-                                .appendSibling(new TextComponentTranslation("tj.multiblock.extreme_turbine.durability").appendSibling(new TextComponentString(" " + (int) durabilityToInt + "%").setStyle(new Style().setColor(colorFormatting))))
-                        )));
-                textList.add(turbineText);
+                String rotorName = rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName();
+                String shortRotorName = rotorName.length() > 27 ? rotorName.substring(0, 27) + "..." : rotorName;
+                textList.add(new TextComponentString("-")
+                        .appendText(" ")
+                        .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName)))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.name", rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ?
+                                net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.extreme_turbine.norotor") :
+                                rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName()))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed())))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.efficiency", (int) efficiency)))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.durability", (int) durability)))))));
             }
         }
     }
 
     private void handleRotorDisplayClick(String componentData, Widget.ClickData clickData) {
         if (componentData.equals("leftPage")) {
-            if (pageIndex > 0)
-                pageIndex -= pageSize;
+            if (this.pageIndex > 0)
+                this.pageIndex -= this.pageSize;
         } else {
-            if (pageIndex < getRotorHolders().size() - pageSize)
-                pageIndex += pageSize;
+            if (this.pageIndex < this.getRotorHolders().size() - this.pageSize)
+                this.pageIndex += this.pageSize;
         }
     }
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        fastModeConsumer.apply(componentData.equals("false"));
-    }
-
-    private String getShortenRotorName(String name) {
-        return name
-                .replace("Small", "")
-                .replace("Medium", "")
-                .replace("Large", "")
-                .replace("Huge", "")
-                .replace("Turbine", "")
-                .replace("Rotor", "");
+        this.fastModeConsumer.apply(componentData.equals("false"));
     }
 
     @Override
@@ -216,7 +180,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
         boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
         boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
 
-        if (turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
+        if (this.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
             return false;
 
         return super.checkStructureComponents(parts, abilities) && hasOutputEnergy && (hasInputFluid || hasSteamInput);
@@ -226,12 +190,12 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        fluidTanks.addAll(getAbilities(GregicAdditionsCapabilities.STEAM));
+        fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
 
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
-        this.exportFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.importItemHandler = new ItemHandlerList(getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
     }
 
     @Override
@@ -244,12 +208,12 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        if (isStructureFormed()) {
-            if (getOffsetTimer() % 20 == 0) {
+        if (this.isStructureFormed()) {
+            if (this.getOffsetTimer() % 20 == 0) {
                 for (MetaTileEntityRotorHolder rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
                     if (rotorHolder.hasRotorInInventory())
                         continue;
-                    ItemStack rotorReplacementStack = checkAndConsumeItem();
+                    ItemStack rotorReplacementStack = this.checkAndConsumeItem();
                     if (rotorReplacementStack != null) {
                         rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
                     }
@@ -259,9 +223,9 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     }
 
     private ItemStack checkAndConsumeItem() {
-        int getItemSlots = importItemHandler.getSlots();
+        int getItemSlots = this.importItemHandler.getSlots();
         for (int slotIndex = 0; slotIndex < getItemSlots; slotIndex++) {
-            ItemStack item = importItemHandler.getStackInSlot(slotIndex);
+            ItemStack item = this.importItemHandler.getStackInSlot(slotIndex);
             boolean hugeRotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
             boolean largeRotorStack = GAMetaItems.LARGE_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
             boolean mediumRotorStack = GAMetaItems.MEDIUM_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
@@ -273,7 +237,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
 
             ItemStack getItemFromSlot = item.getItem().getContainerItem(item);
             item.setCount(0); // sets stacksize to 0. effectively voiding the item
-            importItemHandler.setStackInSlot(slotIndex, item);
+            this.importItemHandler.setStackInSlot(slotIndex, item);
             return getItemFromSlot;
         }
         return null;
@@ -296,7 +260,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return turbineType == null ? null :
+        return this.turbineType == null ? null :
                 FactoryBlockPattern.start()
                         .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
                         .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
@@ -307,10 +271,10 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
                         .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
                         .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
                         .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHSHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
-                        .where('S', selfPredicate())
+                        .where('S', this.selfPredicate())
                         .where('#', isAirPredicate())
-                        .where('C', statePredicate(getCasingState()))
-                        .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                        .where('C', statePredicate(this.getCasingState()))
+                        .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                         .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                         .build();
     }
@@ -321,30 +285,30 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
     }
 
     public IBlockState getCasingState() {
-        return turbineType.casingState;
+        return this.turbineType.casingState;
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return turbineType.casingRenderer;
+        return this.turbineType.casingRenderer;
     }
 
     @Deprecated
     public boolean isTurbineFaceFree() {
-        return isRotorFaceFree();
+        return this.isRotorFaceFree();
     }
 
     @Nonnull
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
-        return turbineType.frontOverlay;
+        return this.turbineType.frontOverlay;
     }
 
     @Override
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
         super.addNewTabs(tabs);
         TJWidgetGroup rotorWidgetGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab(rotorWidgetGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), this.rotorTab(rotorWidgetGroup::addWidgets)));
     }
 
     private AbstractWidgetGroup rotorTab(Function<Widget, WidgetGroup> widgetGroup) {
@@ -354,12 +318,12 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
 
     @Override
     public boolean isWorkingEnabled() {
-        return xlTurbineWorkableHandler.isWorkingEnabled();
+        return this.xlTurbineWorkableHandler.isWorkingEnabled();
     }
 
     @Override
     public void setWorkingEnabled(boolean isWorking) {
-        xlTurbineWorkableHandler.setWorkingEnabled(isWorking);
+        this.xlTurbineWorkableHandler.setWorkingEnabled(isWorking);
         this.markDirty();
     }
 }

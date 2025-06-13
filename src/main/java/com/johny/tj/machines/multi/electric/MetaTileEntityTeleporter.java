@@ -402,7 +402,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                     .custom(text -> {
                         if (selectedPos == null)
                             return;
-                        text.add(new TextComponentTranslation("tj.multiblock.teleporter.selected.world", world.provider.getDimensionType().getName(), world.provider.getDimension()));
+                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.world", world.provider.getDimensionType().getName(), world.provider.getDimension())));
                         text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
                         text.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
                     })
@@ -500,7 +500,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + key + "§r");
 
             ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
-                    .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, worldID))
+                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
                     .appendText("\n")
                     .appendSibling(new TextComponentString(position));
 
@@ -529,7 +529,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             }
             WorldServer dimension = DimensionManager.getWorld(worldID);
             BlockPos blockPos = new BlockPos(posX, posY, posZ);
-            player.sendMessage(new TextComponentTranslation("tj.multiblock.teleporter.queue", player.getName()));
+            player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.queue", player.getName())));
             this.markEntitiesToTransport.add(new ImmutableTriple<>(player, dimension, blockPos));
 
         } else if (componentData.startsWith("select")) {

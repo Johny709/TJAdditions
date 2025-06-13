@@ -6,6 +6,7 @@ import com.johny.tj.blocks.BlockAbilityCasings;
 import com.johny.tj.blocks.BlockFusionCasings;
 import com.johny.tj.blocks.BlockFusionGlass;
 import com.johny.tj.blocks.TJMetaBlocks;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import com.johny.tj.capability.IHeatInfo;
 import com.johny.tj.capability.TJCapabilities;
@@ -75,12 +76,12 @@ import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static com.johny.tj.gui.TJGuiTextures.*;
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController implements IHeatInfo {
 
     private int parallelLayer;
     private long energyToStart;
-    private long energyToStartProperty;
     private final int tier;
     private EnergyContainerList inputEnergyContainers;
     private long heat;
@@ -115,22 +116,22 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 return "EnergyContainerInternal";
             }
         };
-        reinitializeStructurePattern();
+        this.reinitializeStructurePattern();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityIndustrialFusionReactor(metaTileEntityId, tier);
+        return new MetaTileEntityIndustrialFusionReactor(this.metaTileEntityId, this.tier);
     }
 
     public void resetStructure() {
         this.invalidateStructure();
         this.recipeMapWorkable.previousRecipe.clear();
-        this.structurePattern = createStructurePattern();
+        this.structurePattern = this.createStructurePattern();
     }
 
     public int getTier() {
-        return tier;
+        return this.tier;
     }
 
     @Override
@@ -141,7 +142,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(BlockPattern.RelativeDirection.LEFT, BlockPattern.RelativeDirection.FRONT, BlockPattern.RelativeDirection.DOWN);
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
                 for (int count = 1; count < this.parallelLayer; count++) {
                     factoryPattern.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
                     factoryPattern.aisle("######OGO######", "####GGcccGG####", "###EccOGOccE###", "##EcEG###GEcE##", "#GcE#######EcG#", "#GcG#######GcG#", "OcO#########OcO", "GcG#########GcG", "OcO#########OcO", "#GcG#######GcG#", "#GcE#######EcG#", "##EcEG###GEcE##", "###EccOGOccE###", "####GGcccGG####", "######OGO######");
@@ -149,15 +150,15 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         factoryPattern.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
         factoryPattern.aisle("######OSO######", "####GGcccGG####", "###EccOGOccE###", "##EcEG###GEcE##", "#GcE#######EcG#", "#GcG#######GcG#", "OcO#########OcO", "GcG#########GcG", "OcO#########OcO", "#GcG#######GcG#", "#GcE#######EcG#", "##EcEG###GEcE##", "###EccOGOccE###", "####GGcccGG####", "######OGO######");
         factoryPattern.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############")
-                .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('G', statePredicate(getCasingState()).or(statePredicate(getGlassState())))
-                .where('c', statePredicate(getCoilState()))
-                .where('O', statePredicate(getCasingState()).or(statePredicate(getGlassState())).or(abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS)))
-                .where('E', statePredicate(getCasingState()).or(statePredicate(getGlassState())).or(tilePredicate(energyHatchPredicate(tier))).or(energyPortPredicate(tier)))
-            .where('I', statePredicate(getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
+                .where('S', this.selfPredicate())
+                .where('C', statePredicate(this.getCasingState()))
+                .where('G', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())))
+                .where('c', statePredicate(this.getCoilState()))
+                .where('O', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())).or(abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS)))
+                .where('E', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())).or(tilePredicate(energyHatchPredicate(tier))).or(energyPortPredicate(tier)))
+            .where('I', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
             .where('#', (tile) -> true);
-        return tier != 0 ? factoryPattern.build() : null;
+        return this.tier != 0 ? factoryPattern.build() : null;
     }
 
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> energyHatchPredicate(int tier) {
@@ -169,7 +170,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                     return abilityPart.getAbility() == INPUT_ENERGY && multiblockPart.getTier() >= tier;
                 }
             }
-
             return false;
         };
     }
@@ -253,31 +253,31 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public boolean checkRecipe(Recipe recipe, boolean consumeIfSuccess) {
-        long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * parallelLayer;
-        return heat >= energyToStart;
+        long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
+        return this.heat >= energyToStart;
     }
 
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        long inputEnergyStored = inputEnergyContainers.getEnergyStored();
+        long inputEnergyStored = this.inputEnergyContainers.getEnergyStored();
         if (inputEnergyStored > 0) {
-            long energyAdded = energyContainer.addEnergy(inputEnergyStored);
+            long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
             if (energyAdded > 0)
-                inputEnergyContainers.removeEnergy(energyAdded);
+                this.inputEnergyContainers.removeEnergy(energyAdded);
         }
 
-        if (heat > maxHeat)
-            heat = maxHeat;
+        if (this.heat > this.maxHeat)
+            this.heat = this.maxHeat;
 
-        if (!recipeMapWorkable.isActive() || !recipeMapWorkable.isWorkingEnabled()) {
-            heat -= Math.min(heat, 10000L * parallelLayer);
+        if (!this.recipeMapWorkable.isActive() || !this.recipeMapWorkable.isWorkingEnabled()) {
+            this.heat -= Math.min(this.heat, 10000L * this.parallelLayer);
         }
 
-        if (recipe != null && recipeMapWorkable.isWorkingEnabled()) {
-            long remainingHeat = maxHeat - heat;
-            long energyToRemove = Math.min(remainingHeat, inputEnergyContainers.getInputAmperage() * inputEnergyContainers.getInputVoltage());
-            heat += Math.abs(energyContainer.removeEnergy(energyToRemove));
+        if (this.recipe != null && this.recipeMapWorkable.isWorkingEnabled()) {
+            long remainingHeat = this.maxHeat - this.heat;
+            long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainers.getInputAmperage() * this.inputEnergyContainers.getInputVoltage());
+            this.heat += Math.abs(this.energyContainer.removeEnergy(energyToRemove));
         }
     }
 
@@ -293,51 +293,38 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     private void setBatchMode(BatchMode batchMode) {
         this.batchMode = batchMode;
-        markDirty();
+        this.markDirty();
     }
 
     private BatchMode getBatchMode() {
-        return batchMode;
+        return this.batchMode;
     }
 
     private String[] getTooltipFormat() {
-        return ArrayUtils.toArray(String.valueOf(batchMode.getAmount()));
+        return ArrayUtils.toArray(String.valueOf(this.batchMode.getAmount()));
     }
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
         textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)));
-        if (!this.isStructureFormed()) {
-            textList.add(new TextComponentTranslation("gregtech.multiblock.invalid_structure").setStyle(new Style().setColor(TextFormatting.RED)));
-        }
         if (this.isStructureFormed()) {
-            if (!this.recipeMapWorkable.isWorkingEnabled()) {
-                textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.work_paused")));
-            } else if (this.recipeMapWorkable.isActive()) {
-                textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.running")));
-                int currentProgress;
-                if (energyContainer.getEnergyCapacity() > 0) {
-                    currentProgress = (int) (this.recipeMapWorkable.getProgressPercent() * 100.0D);
-                    textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.progress", currentProgress)));
-                } else {
-                    currentProgress = -this.recipeMapWorkable.getRecipeEUt();
-                    textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.eu", currentProgress)));
-                }
-            } else {
-                textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.idling")));
-            }
-            if (recipe != null) {
-                long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * parallelLayer;
-                textList.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", energyToStart)
-                        .setStyle(new Style().setColor(heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
-            }
-            if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
-            }
+            MultiblockDisplayBuilder.start(textList)
+                    .voltageIn(this.energyContainer)
+                    .energyStored(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+                    .custom(text -> {
+                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
+                        if (this.recipe != null) {
+                            long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * parallelLayer;
+                            text.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", energyToStart)
+                                    .setStyle(new Style().setColor(heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
+                        }
+                        if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
+                            text.add(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
+                        }
+                    })
+                    .isWorking(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress());
         }
-
-        textList.add(new TextComponentString("EU: " + this.energyContainer.getEnergyStored() + " / " + this.energyContainer.getEnergyCapacity()));
-        textList.add(new TextComponentTranslation("gtadditions.multiblock.fusion_reactor.heat", heat));
     }
 
     @Override
@@ -351,22 +338,22 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         ITextComponent textComponent;
         if (!playerIn.isSneaking()) {
-            if (parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
+            if (this.parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
                 this.parallelLayer++;
                 textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
             } else
                 textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
         } else {
-            if (parallelLayer > 1) {
+            if (this.parallelLayer > 1) {
                 this.parallelLayer--;
                 textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
             } else
                 textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
         }
-        if (getWorld().isRemote)
+        if (this.getWorld().isRemote)
             playerIn.sendMessage(textComponent);
         else {
-            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(parallelLayer));
+            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
         }
         this.resetStructure();
         return true;
@@ -381,7 +368,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.description"));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", recipeMap.getLocalizedName()));
+        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.recipeMap.getLocalizedName()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)));
         tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices));
@@ -394,14 +381,14 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
             this.structurePattern = createStructurePattern();
-            scheduleRenderUpdate();
+            this.scheduleRenderUpdate();
         }
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeInt(parallelLayer);
+        buf.writeInt(this.parallelLayer);
     }
 
     @Override
@@ -414,8 +401,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         NBTTagCompound tagCompound = super.writeToNBT(data);
-        tagCompound.setLong("Heat", heat);
-        tagCompound.setLong("MaxHeat", maxHeat);
+        tagCompound.setLong("Heat", this.heat);
+        tagCompound.setLong("MaxHeat", this.maxHeat);
         tagCompound.setInteger("Parallel", this.parallelLayer);
         tagCompound.setInteger("BatchMode", this.batchMode.ordinal());
         return tagCompound;
@@ -434,17 +421,17 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public long heat() {
-        return heat;
+        return this.heat;
     }
 
     @Override
     public long maxHeat() {
-        return maxHeat;
+        return this.maxHeat;
     }
 
     private void setRecipe(Recipe recipe, long heat) {
-        long energyCapacity = energyContainer.getEnergyCapacity();
-        long heatCapacity = heat * parallelLayer;
+        long energyCapacity = this.energyContainer.getEnergyCapacity();
+        long heatCapacity = heat * this.parallelLayer;
         this.recipe = recipe;
         this.maxHeat = Math.min(energyCapacity, heatCapacity);
     }

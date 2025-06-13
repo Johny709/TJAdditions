@@ -1,6 +1,7 @@
 package com.johny.tj.machines.multi.steam;
 
 import com.johny.tj.builder.handlers.TJFuelRecipeLogic;
+import com.johny.tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import com.johny.tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import com.johny.tj.builder.multicontrollers.TJFueledMultiblockController;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -30,8 +31,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 
 import javax.annotation.Nullable;
@@ -41,7 +44,8 @@ import java.util.Map;
 
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
-import static net.minecraft.util.text.TextFormatting.*;
+import static net.minecraft.util.text.TextFormatting.AQUA;
+import static net.minecraft.util.text.TextFormatting.RED;
 
 public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockController {
 
@@ -71,29 +75,26 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
             MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
             return;
         }
-
-        textList.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", efficiency * 100).setStyle(new Style().setColor(AQUA)));
-
         TJFuelRecipeLogic recipeLogic = (TJFuelRecipeLogic) workableHandler;
-        if (recipeLogic.isActive()) {
-            textList.add(new TextComponentTranslation("machine.universal.consuming.seconds", recipeLogic.getConsumption(),
-                    net.minecraft.util.text.translation.I18n.translateToLocal(recipeLogic.getFuelName()),
-                    recipeLogic.getMaxProgress() / 20));
+        MultiblockDisplayBuilder.start(textList)
+                .custom(text -> {
+                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", recipeLogic.getConsumption(),
+                            net.minecraft.util.text.translation.I18n.translateToLocal(recipeLogic.getFuelName()),
+                            recipeLogic.getMaxProgress() / 20)));
+                    FluidStack fuelStack = recipeLogic.getFuelStack();
+                    int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-            textList.add(new TextComponentTranslation("gregtech.multiblock.generation_eu", recipeLogic.getMaxVoltage()));
-            int currentProgress = (int) Math.floor(recipeLogic.getProgress() / (recipeLogic.getMaxProgress() * 1.0) * 100);
-            textList.add(new TextComponentTranslation("gregtech.multiblock.progress", currentProgress));
-        }
+                    ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+                    text.add(new TextComponentTranslation("tj.multiblock.fuel_amount", fuelAmount, fuelName));
 
-        ITextComponent isWorkingText = !recipeLogic.isWorkingEnabled() ? new TextComponentTranslation("gregtech.multiblock.work_paused")
-                : !recipeLogic.isActive() ? new TextComponentTranslation("gregtech.multiblock.idling")
-                : new TextComponentTranslation("gregtech.multiblock.running");
+                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", recipeLogic.getProduction())));
 
-        isWorkingText.getStyle().setColor(!recipeLogic.isWorkingEnabled() ? YELLOW : !recipeLogic.isActive() ? WHITE : GREEN);
-        textList.add(isWorkingText);
+                    text.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", efficiency * 100).setStyle(new Style().setColor(AQUA)));
 
-        if (energyContainer.getEnergyCanBeInserted() < recipeLogic.getProduction())
-            textList.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
+                    if (energyContainer.getEnergyCanBeInserted() < recipeLogic.getProduction())
+                        text.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
+                })
+                .isWorking(recipeLogic.isWorkingEnabled(), recipeLogic.isActive(), recipeLogic.getProgress(), recipeLogic.getMaxProgress());
     }
 
     @Override

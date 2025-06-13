@@ -35,6 +35,13 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
     }
 
+    public FluidStack getFuelStack() {
+        if (this.previousRecipe == null)
+            return null;
+        FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+        return this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+    }
+
     @Override
     public void update() {
         if (getMetaTileEntity().getWorld().isRemote || !isWorkingEnabled())
