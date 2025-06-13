@@ -37,6 +37,7 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
         for (int i = pageIndex; i < pageIndex + pageSize && i < size; i++) {
             WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
             DimensionType worldType = world.provider.getDimensionType();
+            int worldID = world.provider.getDimension();
             BlockPos pos = capability.getPos(i);
             if (pos != null) {
                 TileEntity entity = world.getTileEntity(pos);
@@ -53,7 +54,7 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
                     int x = gregEntity != null ? gregEntity.getPos().getX() : entity.getPos().getX();
                     int y = gregEntity != null ? gregEntity.getPos().getY() : entity.getPos().getY();
                     int z = gregEntity != null ? gregEntity.getPos().getZ() : entity.getPos().getZ();
-                    posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldType.getId()));
+                    posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldID));
                     posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.pos", x, y, z));
                 }
             }

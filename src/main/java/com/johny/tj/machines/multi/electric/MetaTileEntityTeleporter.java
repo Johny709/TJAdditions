@@ -436,7 +436,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
             DimensionType world = posEntry.getValue().getLeft().provider.getDimensionType();
             String worldName = world.getName();
-            int worldID = world.getId();
+            int worldID = posEntry.getValue().getLeft().provider.getDimension();
 
             BlockPos pos = posEntry.getValue().getValue();
 

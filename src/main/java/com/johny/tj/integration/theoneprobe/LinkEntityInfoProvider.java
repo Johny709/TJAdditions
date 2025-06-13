@@ -34,6 +34,7 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
         for (int i = pageIndex; i < pageIndex + pageSize && i < size; i++) {
             WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
             DimensionType worldType = world.provider.getDimensionType();
+            int worldID = world.provider.getDimension();
             Entity entity = capability.getEntity(i);
             if (entity != null) {
 
@@ -44,7 +45,7 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
                 entityInfo.text(TextStyleClass.INFO + (entity.hasCustomName() ? entity.getCustomNameTag() : entity.getName()));
 
                 IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldType.getId()));
+                posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldID));
                 posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.pos", (int) entity.posX, (int) entity.posY, (int) entity.posZ));
             }
         }

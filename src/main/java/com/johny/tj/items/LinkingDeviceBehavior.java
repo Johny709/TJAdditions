@@ -85,7 +85,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                         this.rangeSupplier = linkPos::getRange;
                         this.player = player;
                         this.world = world;
-                        this.worldID = world.provider.getDimensionType().getId();
+                        this.worldID = world.provider.getDimension();
                         this.x = pos.getX();
                         this.y = pos.getY();
                         this.z = pos.getZ();
@@ -204,7 +204,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                     this.player = player;
                     this.name = player.getName();
                     this.world = world;
-                    this.worldID = world.provider.getDimensionType().getId();
+                    this.worldID = world.provider.getDimension();
                     this.x = player.getPosition().getX();
                     this.y = player.getPosition().getY();
                     this.z = player.getPosition().getZ();
