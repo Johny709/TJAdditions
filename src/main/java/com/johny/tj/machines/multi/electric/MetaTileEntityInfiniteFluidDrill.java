@@ -148,13 +148,14 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
         this.drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
 
         this.veinFluid = PumpjackHandler.getFluid(getWorld(), getWorld().getChunk(getPos()).x, getWorld().getChunk(getPos()).z);
-        this.veinFluidStack = new FluidStack(this.veinFluid, this.outputVeinFluidAmount);
+        if (this.veinFluid != null)
+            this.veinFluidStack = new FluidStack(this.veinFluid, this.outputVeinFluidAmount);
     }
 
 
     @Override
     protected void updateFormedValid() {
-        if (!this.isWorkingEnabled || this.tier < GAValues.UHV || this.getNumProblems() >= 6) {
+        if (!this.isWorkingEnabled || this.tier < GAValues.UHV || this.getNumProblems() >= 6 || this.veinFluidStack == null) {
             if (this.isActive)
                 this.setActive(false);
             return;

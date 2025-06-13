@@ -63,59 +63,59 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     @Override
     public void update() {
-        if (getMetaTileEntity().getWorld().isRemote || !isWorkingEnabled())
+        if (this.getMetaTileEntity().getWorld().isRemote || !this.isWorkingEnabled())
             return;
 
-        if (extremeTurbine.getOffsetTimer() % 20 == 0)
-            totalEnergyProduced = (int) getRecipeOutputVoltage();
+        if (this.extremeTurbine.getOffsetTimer() % 20 == 0)
+            this.totalEnergyProduced = (int) this.getRecipeOutputVoltage();
 
-        if (totalEnergyProduced > 0)
-            energyContainer.get().addEnergy(totalEnergyProduced);
+        if (this.totalEnergyProduced > 0)
+            this.energyContainer.get().addEnergy(this.totalEnergyProduced);
 
-        extremeTurbine.calculateMaintenance(rotorDamageMultiplier);
-        if (progress > 0 && !isActive())
+        this.extremeTurbine.calculateMaintenance(this.rotorDamageMultiplier);
+        if (this.progress > 0 && !this.isActive())
             this.setActive(true);
 
-        if (progress >= maxProgress) {
-            progress = 0;
+        if (this.progress >= this.maxProgress) {
+            this.progress = 0;
             this.setActive(false);
         }
 
-        if (progress <= 0) {
-            toggleFastMode(isFastMode);
-            if (extremeTurbine.getNumProblems() >= 6 || !isReadyForRecipes() || !this.tryAcquireNewRecipe())
+        if (this.progress <= 0) {
+            this.toggleFastMode(this.isFastMode);
+            if (this.extremeTurbine.getNumProblems() >= 6 || !this.isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
-            progress = 1;
+            this.progress = 1;
             this.setActive(true);
         } else {
-            progress++;
+            this.progress++;
         }
     }
 
     public void setFastMode(boolean isFastMode) {
         this.isFastMode = isFastMode;
-        getMetaTileEntity().markDirty();
+        this.getMetaTileEntity().markDirty();
     }
 
     public boolean isFastMode() {
-        return isFastMode;
+        return this.isFastMode;
     }
 
     private void toggleFastMode(boolean toggle) {
         if (toggle) {
-            fastModeMultiplier = 3;
-            rotorDamageMultiplier = 16;
+            this.fastModeMultiplier = 3;
+            this.rotorDamageMultiplier = 16;
         } else {
-            fastModeMultiplier = 1;
-            rotorDamageMultiplier = 1;
+            this.fastModeMultiplier = 1;
+            this.rotorDamageMultiplier = 1;
         }
     }
 
     public FluidStack getFuelStack() {
-        if (previousRecipe == null)
+        if (this.previousRecipe == null)
             return null;
-        FluidStack fuelStack = previousRecipe.getRecipeFluid();
-        return fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+        FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+        return this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
     }
 
     private boolean tryAcquireNewRecipe() {
@@ -126,8 +126,8 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
                 int fuelAmountUsed = this.tryAcquireNewRecipe(tankContents);
                 if (fuelAmountUsed > 0) {
                     FluidStack fluidStack = fluidTank.drain(fuelAmountUsed, true);
-                    consumption = fluidStack.amount;
-                    fuelName = fluidStack.getUnlocalizedName();
+                    this.consumption = fluidStack.amount;
+                    this.fuelName = fluidStack.getUnlocalizedName();
                     return true; //recipe is found and ready to use
                 }
             }
@@ -137,22 +137,22 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     private int tryAcquireNewRecipe(FluidStack fluidStack) {
         HotCoolantRecipe currentRecipe;
-        if (previousRecipe != null && previousRecipe.matches(getMaxVoltage(), fluidStack)) {
+        if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fluidStack)) {
             //if previous recipe still matches inputs, try to use it
-            currentRecipe = previousRecipe;
+            currentRecipe = this.previousRecipe;
         } else {
             //else, try searching new recipe for given inputs
-            currentRecipe = recipeMap.findRecipe(getMaxVoltage(), fluidStack);
+            currentRecipe = recipeMap.findRecipe(this.getMaxVoltage(), fluidStack);
             //if we found recipe that can be buffered, buffer it
             if (currentRecipe != null) {
                 this.previousRecipe = currentRecipe;
             }
         }
-        if (currentRecipe != null && checkRecipe(currentRecipe)) {
-            int fuelAmountToUse = calculateFuelAmount(currentRecipe);
+        if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
+            int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fluidStack.amount >= fuelAmountToUse) {
-                maxProgress = calculateRecipeDuration(currentRecipe);
-                startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
+                this.maxProgress = this.calculateRecipeDuration(currentRecipe);
+                this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
                 return fuelAmountToUse;
             }
         }
@@ -161,15 +161,15 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     @Override
     public boolean checkRecipe(HotCoolantRecipe recipe) {
-        List<MetaTileEntityRotorHolder> rotorHolders = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
-        if (++rotorCycleLength >= CYCLE_LENGTH) {
+        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
+        if (++this.rotorCycleLength >= CYCLE_LENGTH) {
             for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
-                int damageToBeApplied = (int) Math.round((BASE_ROTOR_DAMAGE * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier;
+                int damageToBeApplied = (int) Math.round((BASE_ROTOR_DAMAGE * rotorHolder.getRelativeRotorSpeed()) + 1) * this.rotorDamageMultiplier;
                 if (!rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                     return false;
                 }
             }
-            rotorCycleLength = 0;
+            this.rotorCycleLength = 0;
         }
         return true;
     }
@@ -177,21 +177,21 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     @Override
     public long getMaxVoltage() {
         double totalEnergyOutput = 0;
-        List<MetaTileEntityRotorHolder> rotorHolders = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
+        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
         for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
             if (rotorHolder.hasRotorInInventory()) {
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
-                totalEnergyOutput += (BASE_EU_OUTPUT + getBonusForTurbineType(extremeTurbine) * rotorEfficiency);
+                totalEnergyOutput += (BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency);
             }
         }
-        return MathHelper.ceil((totalEnergyOutput / rotorHolders.size() * fastModeMultiplier) / TURBINE_BONUS);
+        return MathHelper.ceil((totalEnergyOutput / rotorHolders.size() * this.fastModeMultiplier) / TURBINE_BONUS);
     }
 
     protected boolean isReadyForRecipes() {
         int areReadyForRecipes = 0;
-        int rotorHolderSize = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size();
+        int rotorHolderSize = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size();
         for (int index = 0; index < rotorHolderSize; index++) {
-            MetaTileEntityRotorHolder rotorHolder = extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).get(index);
+            MetaTileEntityRotorHolder rotorHolder = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).get(index);
             if (rotorHolder.isHasRotor())
                 areReadyForRecipes++;
         }
@@ -200,16 +200,16 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     @Override
     protected long startRecipe(HotCoolantRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
-        addOutputFluids(currentRecipe, fuelAmountUsed);
+        this.addOutputFluids(currentRecipe, fuelAmountUsed);
         return 0L; //energy is added each tick while the rotor speed is >0 RPM
     }
 
     private void addOutputFluids(HotCoolantRecipe currentRecipe, int fuelAmountUsed) {
-        if (extremeTurbine.turbineType == MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT) {
+        if (this.extremeTurbine.turbineType == MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT) {
             if (fuelAmountUsed > 0) {
                 FluidMaterial material = MetaFluids.getMaterialFromFluid(currentRecipe.getRecipeFluid().getFluid());
                 if (material != null) {
-                    extremeTurbine.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
+                    this.extremeTurbine.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
                 }
             }
         }
@@ -225,76 +225,78 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     @Override
     public long getRecipeOutputVoltage() {
         double totalEnergyOutput = 0;
-        for (MetaTileEntityRotorHolder rotorHolder : extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
+        for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
             if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
                 double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
-                totalEnergyOutput += (BASE_EU_OUTPUT + getBonusForTurbineType(extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
-                totalEnergyOutput /= 1.00 + 0.05 * extremeTurbine.getNumProblems();
+                totalEnergyOutput += (BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
+                totalEnergyOutput /= 1.00 + 0.05 * this.extremeTurbine.getNumProblems();
             }
         }
-        return MathHelper.ceil(totalEnergyOutput * fastModeMultiplier * TURBINE_BONUS);
+        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier * TURBINE_BONUS);
     }
 
     @Override
     protected int calculateFuelAmount(HotCoolantRecipe currentRecipe) {
-        return (int) (super.calculateFuelAmount(currentRecipe) / (isFastMode ? 1 : 1.5F));
+        return (int) (super.calculateFuelAmount(currentRecipe) / (this.isFastMode ? 1 : 1.5F));
     }
 
     @Override
     public void writeInitialData(PacketBuffer buf) {
-        buf.writeBoolean(active);
+        buf.writeBoolean(this.active);
     }
 
     @Override
     public void receiveInitialData(PacketBuffer buf) {
-        active = buf.readBoolean();
+        this.active = buf.readBoolean();
     }
 
     @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == 10)
-            active = buf.readBoolean();
+            this.active = buf.readBoolean();
     }
 
     private void setActive(boolean active) {
         this.active = active;
-        if (!getMetaTileEntity().getWorld().isRemote) {
-            writeCustomData(10, buf -> buf.writeBoolean(active));
-            getMetaTileEntity().markDirty();
+        if (!this.getMetaTileEntity().getWorld().isRemote) {
+            this.writeCustomData(10, buf -> buf.writeBoolean(active));
+            this.getMetaTileEntity().markDirty();
         }
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tagCompound = super.serializeNBT();
-        tagCompound.setInteger("CycleLength", rotorCycleLength);
-        tagCompound.setInteger("FastModeMultiplier", fastModeMultiplier);
-        tagCompound.setInteger("DamageMultiplier", rotorDamageMultiplier);
-        tagCompound.setBoolean("IsFastMode", isFastMode);
-        tagCompound.setInteger("Consumption", consumption);
-        tagCompound.setString("FuelName", fuelName);
-        tagCompound.setInteger("TotalEnergy", totalEnergyProduced);
-        tagCompound.setInteger("Progress", progress);
-        tagCompound.setInteger("MaxProgress", maxProgress);
-        tagCompound.setBoolean("Active", active);
+        tagCompound.setInteger("CycleLength", this.rotorCycleLength);
+        tagCompound.setInteger("FastModeMultiplier", this.fastModeMultiplier);
+        tagCompound.setInteger("DamageMultiplier", this.rotorDamageMultiplier);
+        tagCompound.setBoolean("IsFastMode", this.isFastMode);
+        tagCompound.setInteger("Consumption", this.consumption);
+        tagCompound.setInteger("TotalEnergy", this.totalEnergyProduced);
+        tagCompound.setInteger("Progress", this.progress);
+        tagCompound.setInteger("MaxProgress", this.maxProgress);
+        tagCompound.setBoolean("Active", this.active);
+        if (this.fuelName != null)
+            tagCompound.setString("FuelName", this.fuelName);
         return tagCompound;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        rotorCycleLength = compound.getInteger("CycleLength");
-        fastModeMultiplier = compound.getInteger("FastModeMultiplier");
-        rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
-        isFastMode = compound.getBoolean("IsFastMode");
-        consumption = compound.getInteger("Consumption");
-        fuelName = compound.getString("FuelName");
-        totalEnergyProduced = compound.getInteger("TotalEnergy");
-        maxProgress = compound.getInteger("MaxProgress");
-        progress = compound.getInteger("Progress");
-        active = compound.getBoolean("Active");
+        this.rotorCycleLength = compound.getInteger("CycleLength");
+        this.fastModeMultiplier = compound.getInteger("FastModeMultiplier");
+        this.rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
+        this.isFastMode = compound.getBoolean("IsFastMode");
+        this.consumption = compound.getInteger("Consumption");
+        this.totalEnergyProduced = compound.getInteger("TotalEnergy");
+        this.maxProgress = compound.getInteger("MaxProgress");
+        this.progress = compound.getInteger("Progress");
+        this.active = compound.getBoolean("Active");
+        if (compound.hasKey("FuelName"))
+            this.fuelName = compound.getString("FuelName");
     }
 
     @Override
@@ -312,40 +314,40 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     }
 
     public String getFuelName() {
-        return fuelName;
+        return this.fuelName;
     }
 
     @Override
     public int getProgress() {
-        return progress;
+        return this.progress;
     }
 
     @Override
     public int getMaxProgress() {
-        return maxProgress;
+        return this.maxProgress;
     }
 
     @Override
     public long getConsumption() {
-        return consumption;
+        return this.consumption;
     }
 
     @Override
     public long getProduction() {
-        return totalEnergyProduced;
+        return this.totalEnergyProduced;
     }
 
     @Override
     public String[] consumptionInfo() {
-        int seconds = maxProgress / 20;
+        int seconds = this.maxProgress / 20;
         String amount = String.valueOf(seconds);
         String s = seconds < 2 ? "second" : "seconds";
-        return ArrayUtils.toArray("machine.universal.consumption", "§b ", "suffix", "machine.universal.liters.short",  "§r ", fuelName, " ", "every", "§6 ", amount, "§r ", s);
+        return ArrayUtils.toArray("machine.universal.consumption", "§b ", "suffix", "machine.universal.liters.short",  "§r ", this.fuelName, " ", "every", "§6 ", amount, "§r ", s);
     }
 
     @Override
     public String[] productionInfo() {
-        int tier = GAUtility.getTierByVoltage(totalEnergyProduced);
+        int tier = GAUtility.getTierByVoltage(this.totalEnergyProduced);
         String voltage = GAValues.VN[tier];
         String color = TJValues.VCC[tier];
         return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",

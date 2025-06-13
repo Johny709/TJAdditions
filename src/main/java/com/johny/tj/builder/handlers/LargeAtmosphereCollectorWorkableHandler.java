@@ -55,56 +55,56 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
         if (getMetaTileEntity().getWorld().isRemote || !isWorkingEnabled())
             return;
 
-        totalAirProduced = (int) getRecipeOutputVoltage();
+        this.totalAirProduced = (int) getRecipeOutputVoltage();
 
-        if (totalAirProduced > 0) {
-            airCollector.exportFluidHandler.fill(Air.getFluid(totalAirProduced), true);
+        if (this.totalAirProduced > 0) {
+            this.airCollector.exportFluidHandler.fill(Air.getFluid(this.totalAirProduced), true);
         }
 
-        airCollector.calculateMaintenance(rotorDamageMultiplier);
-        if (progress > 0 && !isActive())
-            setActive(true);
+        this.airCollector.calculateMaintenance(this.rotorDamageMultiplier);
+        if (this.progress > 0 && !this.isActive())
+            this.setActive(true);
 
-        if (progress >= maxProgress) {
-            progress = 0;
-            setActive(false);
+        if (this.progress >= this.maxProgress) {
+            this.progress = 0;
+            this.setActive(false);
         }
 
-        if (progress <= 0) {
-            toggleFastMode(isFastMode);
-            if (airCollector.getNumProblems() >= 6 || !isReadyForRecipes() || !this.tryAcquireNewRecipe())
+        if (this.progress <= 0) {
+            toggleFastMode(this.isFastMode);
+            if (this.airCollector.getNumProblems() >= 6 || !this.isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
-            progress = 1;
-            setActive(true);
+            this.progress = 1;
+            this.setActive(true);
         } else {
-            progress++;
+            this.progress++;
         }
     }
 
     public void setFastMode(boolean isFastMode) {
         this.isFastMode = isFastMode;
-        getMetaTileEntity().markDirty();
+        this.getMetaTileEntity().markDirty();
     }
 
     public boolean isFastMode() {
-        return isFastMode;
+        return this.isFastMode;
     }
 
     private void toggleFastMode(boolean toggle) {
         if (toggle) {
-            fastModeMultiplier = 3;
-            rotorDamageMultiplier = 16;
+            this.fastModeMultiplier = 3;
+            this.rotorDamageMultiplier = 16;
         } else {
-            fastModeMultiplier = 1;
-            rotorDamageMultiplier = 1;
+            this.fastModeMultiplier = 1;
+            this.rotorDamageMultiplier = 1;
         }
     }
 
     public FluidStack getFuelStack() {
-        if (previousRecipe == null)
+        if (this.previousRecipe == null)
             return null;
-        FluidStack fuelStack = previousRecipe.getRecipeFluid();
-        return fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+        FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+        return this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
     }
 
     private boolean tryAcquireNewRecipe() {
@@ -115,8 +115,8 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
                 int fuelAmountUsed = this.tryAcquireNewRecipe(tankContents);
                 if (fuelAmountUsed > 0) {
                     FluidStack fluidStack = fluidTank.drain(fuelAmountUsed, true);
-                    consumption = fluidStack.amount;
-                    fuelName = fluidStack.getUnlocalizedName();
+                    this.consumption = fluidStack.amount;
+                    this.fuelName = fluidStack.getUnlocalizedName();
                     return true; //recipe is found and ready to use
                 }
             }
@@ -126,22 +126,22 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
 
     private int tryAcquireNewRecipe(FluidStack fluidStack) {
         FuelRecipe currentRecipe;
-        if (previousRecipe != null && previousRecipe.matches(getMaxVoltage(), fluidStack)) {
+        if (this.previousRecipe != null && this.previousRecipe.matches(getMaxVoltage(), fluidStack)) {
             //if previous recipe still matches inputs, try to use it
-            currentRecipe = previousRecipe;
+            currentRecipe = this.previousRecipe;
         } else {
             //else, try searching new recipe for given inputs
-            currentRecipe = recipeMap.findRecipe(getMaxVoltage(), fluidStack);
+            currentRecipe = this.recipeMap.findRecipe(getMaxVoltage(), fluidStack);
             //if we found recipe that can be buffered, buffer it
             if (currentRecipe != null) {
                 this.previousRecipe = currentRecipe;
             }
         }
-        if (currentRecipe != null && checkRecipe(currentRecipe)) {
-            int fuelAmountToUse = calculateFuelAmount(currentRecipe);
+        if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
+            int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fluidStack.amount >= fuelAmountToUse) {
-                maxProgress = calculateRecipeDuration(currentRecipe);
-                startRecipe(currentRecipe, fuelAmountToUse, maxProgress);
+                this.maxProgress = calculateRecipeDuration(currentRecipe);
+                this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
                 return fuelAmountToUse;
             }
         }
@@ -150,10 +150,10 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
 
     @Override
     public boolean checkRecipe(FuelRecipe recipe) {
-        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = this.airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         int baseRotorDamage = BASE_ROTOR_DAMAGE;
-        if (++rotorCycleLength >= CYCLE_LENGTH) {
-            if (airCollector.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM) baseRotorDamage = 150;
+        if (++this.rotorCycleLength >= CYCLE_LENGTH) {
+            if (this.airCollector.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM) baseRotorDamage = 150;
             int damageToBeApplied = (int) Math.round(baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1;
             if (rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                 this.rotorCycleLength = 0;
@@ -165,41 +165,41 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
 
     @Override
     public long getMaxVoltage() {
-        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = this.airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         if (rotorHolder.hasRotorInInventory()) {
             double rotorEfficiency = rotorHolder.getRotorEfficiency();
-            double totalEnergyOutput = (BASE_EU_OUTPUT + getBonusForTurbineType(airCollector) * rotorEfficiency);
-            return MathHelper.ceil(totalEnergyOutput * fastModeMultiplier);
+            double totalEnergyOutput = (BASE_EU_OUTPUT + getBonusForTurbineType(this.airCollector) * rotorEfficiency);
+            return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier);
         }
-        return BASE_EU_OUTPUT + getBonusForTurbineType(airCollector);
+        return BASE_EU_OUTPUT + this.getBonusForTurbineType(this.airCollector);
     }
 
     @Override
     protected boolean isReadyForRecipes() {
-        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = this.airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         return rotorHolder.isHasRotor();
     }
 
     @Override
     protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
-        addOutputFluids(currentRecipe, fuelAmountUsed);
+        this.addOutputFluids(currentRecipe, fuelAmountUsed);
         return 0L; //energy is added each tick while the rotor speed is >0 RPM
     }
 
     private void addOutputFluids(FuelRecipe currentRecipe, int fuelAmountUsed) {
-        if (airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
+        if (this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
             int waterFluidAmount = fuelAmountUsed / 15;
             if (waterFluidAmount > 0) {
                 FluidStack waterStack = Materials.Water.getFluid(waterFluidAmount);
-                if (airCollector.exportFluidHandler != null) {
-                    airCollector.exportFluidHandler.fill(waterStack, true);
+                if (this.airCollector.exportFluidHandler != null) {
+                    this.airCollector.exportFluidHandler.fill(waterStack, true);
                 }
             }
-        } else if (airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
+        } else if (this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
             FluidMaterial material = MetaFluids.getMaterialFromFluid(currentRecipe.getRecipeFluid().getFluid());
             if (material != null) {
-                if (airCollector.exportFluidHandler != null) {
-                    airCollector.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
+                if (this.airCollector.exportFluidHandler != null) {
+                    this.airCollector.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
                 }
             }
         }
@@ -217,56 +217,58 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
     @Override
     public long getRecipeOutputVoltage() {
         double totalEnergyOutput;
-        MetaTileEntityRotorHolder rotorHolder = airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
+        MetaTileEntityRotorHolder rotorHolder = this.airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(0);
         double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
         if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
             double rotorEfficiency = rotorHolder.getRotorEfficiency();
-            totalEnergyOutput = ((BASE_EU_OUTPUT + getBonusForTurbineType(airCollector)) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
-            totalEnergyOutput /= 1.00 + 0.05 * airCollector.getNumProblems();
-            return MathHelper.ceil(totalEnergyOutput * fastModeMultiplier);
+            totalEnergyOutput = ((BASE_EU_OUTPUT + this.getBonusForTurbineType(this.airCollector)) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
+            totalEnergyOutput /= 1.00 + 0.05 * this.airCollector.getNumProblems();
+            return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier);
         }
         return 0L;
     }
 
     @Override
     protected int calculateFuelAmount(FuelRecipe currentRecipe) {
-        int durationMultiplier = airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 2 : 1;
+        int durationMultiplier = this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 2 : 1;
         return super.calculateFuelAmount(currentRecipe) * durationMultiplier;
     }
 
     @Override
     protected int calculateRecipeDuration(FuelRecipe currentRecipe) {
-        int durationMultiplier = airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 2 : 1;
+        int durationMultiplier = this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 2 : 1;
         return super.calculateRecipeDuration(currentRecipe) * durationMultiplier;
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tagCompound = super.serializeNBT();
-        tagCompound.setInteger("CycleLength", rotorCycleLength);
-        tagCompound.setInteger("FastModeMultiplier", fastModeMultiplier);
-        tagCompound.setInteger("DamageMultiplier", rotorDamageMultiplier);
-        tagCompound.setBoolean("IsFastMode", isFastMode);
-        tagCompound.setInteger("Consumption", consumption);
-        tagCompound.setString("FuelName", fuelName);
-        tagCompound.setInteger("TotalAir", totalAirProduced);
-        tagCompound.setInteger("Progress", progress);
-        tagCompound.setInteger("MaxProgress", maxProgress);
+        tagCompound.setInteger("CycleLength", this.rotorCycleLength);
+        tagCompound.setInteger("FastModeMultiplier", this.fastModeMultiplier);
+        tagCompound.setInteger("DamageMultiplier", this.rotorDamageMultiplier);
+        tagCompound.setBoolean("IsFastMode", this.isFastMode);
+        tagCompound.setInteger("Consumption", this.consumption);
+        tagCompound.setInteger("TotalAir", this.totalAirProduced);
+        tagCompound.setInteger("Progress", this.progress);
+        tagCompound.setInteger("MaxProgress", this.maxProgress);
+        if (this.fuelName != null)
+            tagCompound.setString("FuelName", this.fuelName);
         return tagCompound;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        rotorCycleLength = compound.getInteger("CycleLength");
-        fastModeMultiplier = compound.getInteger("FastModeMultiplier");
-        rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
-        isFastMode = compound.getBoolean("IsFastMode");
-        consumption = compound.getInteger("Consumption");
-        fuelName = compound.getString("FuelName");
-        totalAirProduced = compound.getInteger("TotalAir");
-        progress = compound.getInteger("Progress");
-        maxProgress = compound.getInteger("MaxProgress");
+        this.rotorCycleLength = compound.getInteger("CycleLength");
+        this.fastModeMultiplier = compound.getInteger("FastModeMultiplier");
+        this.rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
+        this.isFastMode = compound.getBoolean("IsFastMode");
+        this.consumption = compound.getInteger("Consumption");
+        this.totalAirProduced = compound.getInteger("TotalAir");
+        this.progress = compound.getInteger("Progress");
+        this.maxProgress = compound.getInteger("MaxProgress");
+        if (compound.hasKey("FuelName"))
+            this.fuelName = compound.getString("FuelName");
     }
 
     @Override
@@ -284,35 +286,35 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
     }
 
     public String getFuelName() {
-        return fuelName;
+        return this.fuelName;
     }
 
     @Override
     public int getProgress() {
-        return progress;
+        return this.progress;
     }
 
     @Override
     public int getMaxProgress() {
-        return maxProgress;
+        return this.maxProgress;
     }
 
     @Override
     public long getConsumption() {
-        return consumption;
+        return this.consumption;
     }
 
     @Override
     public long getProduction() {
-        return totalAirProduced;
+        return this.totalAirProduced;
     }
 
     @Override
     public String[] consumptionInfo() {
-        int seconds = maxProgress / 20;
+        int seconds = this.maxProgress / 20;
         String amount = String.valueOf(seconds);
         String s = seconds < 2 ? "second" : "seconds";
-        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r ", fuelName, " ", "every", "§6 ", amount, "§r ", s);
+        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r ", this.fuelName, " ", "every", "§6 ", amount, "§r ", s);
     }
 
     @Override
