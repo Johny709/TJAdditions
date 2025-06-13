@@ -191,8 +191,8 @@ public class TJMetaTileEntities {
         SOLAR_BOILER[1] = GregTechAPI.registerMetaTileEntity(5304, new MetaTileEntitySolarBoiler(TJId("solar_boiler_steel"), STEEL));
         SOLAR_BOILER[2] = GregTechAPI.registerMetaTileEntity(5305, new MetaTileEntitySolarBoiler(TJId("solar_boiler_lv"), LV));
         FLUID_BOILER[0] = GregTechAPI.registerMetaTileEntity(5306, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_bronze"), BRONZE));
-        FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5317, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
-        FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5319, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
+        FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5307, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
+        FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5308, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
