@@ -35,6 +35,7 @@ import java.util.List;
 
 import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
+import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -44,7 +45,7 @@ import static gregtech.api.render.Textures.*;
 
 public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeCanningMachine(ResourceLocation metaTileEntityId) {

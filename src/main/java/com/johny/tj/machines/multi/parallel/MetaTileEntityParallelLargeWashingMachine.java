@@ -4,7 +4,6 @@ import com.johny.tj.TJConfig;
 import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
@@ -14,11 +13,9 @@ import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
@@ -40,19 +37,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.recipes.GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.CHEMICAL_BATH_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.ORE_WASHER_RECIPES;
 
 public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY,
-            GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeWashingMachine(ResourceLocation metaTileEntityId) {
@@ -87,7 +84,6 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
     @Override
     protected BlockPattern createStructurePattern() {
-        Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         factoryPattern.aisle("XXXXX", "XmXmX", "XXXXX", "~CCC~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
@@ -95,15 +91,13 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
                 factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "~XXX~");
             }
             factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "CGCGC");
-            factoryPattern.aisle("MMMMM", "MP#PM", "M###M", "CGCGC");
             factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "CGCGC");
-            factoryPattern.validateLayer(2 + layer * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
+            factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "CGCGC");
         }
         return factoryPattern.aisle("XXXXX", "XmSmX", "XXXXX", "~CCC~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())

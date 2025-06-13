@@ -13,11 +13,9 @@ import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockContr
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
@@ -41,10 +39,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.*;
-import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.machines.GATileEntities.*;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CENTRIFUGE_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
@@ -84,23 +80,20 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     @Override
     protected BlockPattern createStructurePattern() {
-        Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
 
-            String entityS = layer == this.parallelLayer - 1 ? "~MSM~" : "~MGM~";
+            String entityS = layer == this.parallelLayer - 1 ? "~XSX~" : "~XGX~";
 
             factoryPattern.aisle("~XXX~", "XCCCX", "XCmCX", "XCCCX", "~XXX~");
             factoryPattern.aisle("XXXXX", "X###X", "X#P#X", "X###X", "XXXXX");
-            factoryPattern.aisle(entityS, "M###M", "G#P#G", "M###M", "~MGM~");
+            factoryPattern.aisle(entityS, "X###X", "G#P#G", "X###X", "~XGX~");
             factoryPattern.aisle("XXXXX", "X###X", "X#P#X", "X###X", "XXXXX");
-            factoryPattern.validateLayer(2 + layer * 4, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
         return factoryPattern.aisle("~XXX~", "XCCCX", "XCmCX", "XCCCX", "~XXX~")
                 .validateLayer(2, context -> context.getInt("RedstoneControllerAmount") <= 1)
                 .where('S', this.selfPredicate())
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('C', MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate().or(MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2()))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))

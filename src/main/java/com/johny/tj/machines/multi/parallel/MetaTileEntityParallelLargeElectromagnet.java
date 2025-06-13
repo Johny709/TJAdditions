@@ -35,6 +35,7 @@ import java.util.List;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_ELECTROMAGNETIC_SEPARATOR_RECIPES;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_POLARIZER_RECIPES;
 import static com.johny.tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
+import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.fieldGenPredicate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -46,7 +47,7 @@ import static gregtech.api.render.Textures.POLARIZER_OVERLAY;
 
 public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeElectromagnet(ResourceLocation metaTileEntityId) {
@@ -82,17 +83,17 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
-        factoryPattern.aisle("~~~~~", "~HHH~", "~HHH~", "~HHH~", "~~~~~");
+        factoryPattern.aisle("~~~~~", "~XXX~", "~XXX~", "~XXX~", "~~~~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("~C~C~", "H#H#H", "G###G", "H#H#H", "~C~C~");
-            factoryPattern.aisle("~C~C~", "H#H#H", "GF#FG", "H#H#H", "~C~C~");
+            factoryPattern.aisle("~C~C~", "X#X#X", "G###G", "X#X#X", "~C~C~");
+            factoryPattern.aisle("~C~C~", "X#X#X", "GF#FG", "X#X#X", "~C~C~");
         }
         return factoryPattern
-                .aisle("~C~C~", "H#H#H", "G###G", "H#H#H", "~C~C~")
-                .aisle("~~~~~", "~HHH~", "~HSH~", "~HHH~", "~~~~~")
+                .aisle("~C~C~", "X#X#X", "G###G", "X#X#X", "~C~C~")
+                .aisle("~~~~~", "~XXX~", "~XSX~", "~XXX~", "~~~~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
-                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', glassPredicate())
                 .where('F', fieldGenPredicate())
                 .where('#', isAirPredicate())

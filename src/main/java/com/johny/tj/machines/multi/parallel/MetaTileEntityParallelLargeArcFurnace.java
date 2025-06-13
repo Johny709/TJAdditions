@@ -40,6 +40,7 @@ import static com.johny.tj.TJRecipeMaps.PARALLEL_ARC_FURNACE_RECIPES;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_PLASMA_ARC_FURNACE_RECIPES;
 import static com.johny.tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
 import static com.johny.tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
+import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -53,7 +54,7 @@ import static gregtech.api.render.Textures.PLASMA_ARC_FURNACE_OVERLAY;
 
 public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeArcFurnace(ResourceLocation metaTileEntityId) {

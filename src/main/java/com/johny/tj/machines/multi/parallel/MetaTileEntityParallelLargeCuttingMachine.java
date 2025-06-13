@@ -35,6 +35,7 @@ import java.util.List;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_CUTTER_RECIPES;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_LATHE_RECIPES;
+import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.conveyorPredicate;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
@@ -47,7 +48,7 @@ import static gregtech.api.render.Textures.LATHE_OVERLAY;
 
 public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeCuttingMachine(ResourceLocation metaTileEntityId) {

@@ -396,9 +396,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public void invalidateStructure() {
-        for (MetaTileEntityMachineController controller : getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER)) {
+        for (MetaTileEntityMachineController controller : this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER))
             controller.setID(0).setController(null);
-        }
         super.invalidateStructure();
         this.resetTileAbilities();
         this.recipeMapWorkable.invalidate();
@@ -427,7 +426,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         this.inputFluidInventory = new FluidTankList(true);
         this.outputInventory = new ItemStackHandler(0);
         this.outputFluidInventory = new FluidTankList(true);
-        this.energyContainer = new EnergyContainerList(Lists.newArrayList());
+        this.energyContainer = new EnergyContainerList(Lists.newArrayList());;
     }
 
     protected boolean allowSameFluidFillForOutputs() {
@@ -444,8 +443,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         //noinspection SuspiciousMethodCalls
         int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        int redstoneCount = abilities.getOrDefault(TJMultiblockAbility.REDSTONE_CONTROLLER, Collections.emptyList()).size();
 
         return maintenanceCount == 1 &&
+                redstoneCount <= this.recipeMapWorkable.getSize() &&
                 itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
                 fluidInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinFluidInputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);

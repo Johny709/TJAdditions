@@ -4,7 +4,6 @@ import com.johny.tj.TJConfig;
 import com.johny.tj.builder.ParallelRecipeMap;
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import com.johny.tj.capability.impl.ParallelGAMultiblockRecipeLogic;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
@@ -13,11 +12,9 @@ import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
@@ -37,16 +34,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_MACERATOR_RECIPES;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.MACERATOR_RECIPES;
 
 public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeMacerator(ResourceLocation metaTileEntityId) {
@@ -80,20 +78,17 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
 
     @Override
     protected BlockPattern createStructurePattern() {
-        Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         factoryPattern.aisle("XXXXX", "XmXmX", "XXXXX", "XXXXX");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXXXX", "XGBGX", "XB#BX", "X###X");
-            factoryPattern.aisle("MMMMM", "MGBGM", "MB#BM", "M###M");
-            factoryPattern.validateLayer(2 + layer * 2, context -> context.getInt("RedstoneControllerAmount") <= 1);
+            factoryPattern.aisle("XXXXX", "XGBGX", "XB#BX", "X###X");
         }
         return factoryPattern
                 .aisle("XXXXX", "XGBGX", "XB#BX", "X###X")
                 .aisle("XXXXX", "XmSmX", "XXXXX", "XXXXX")
                 .where('S', this.selfPredicate())
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(machineControllerPredicate))
                 .where('G', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
                 .where('B', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())

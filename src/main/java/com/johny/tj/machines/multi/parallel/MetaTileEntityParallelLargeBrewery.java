@@ -15,11 +15,9 @@ import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
@@ -40,7 +38,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.johny.tj.TJRecipeMaps.*;
 import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
@@ -88,20 +85,18 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
 
     @Override
     protected BlockPattern createStructurePattern() {
-        Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         factoryPattern.aisle("CCCCC", "F#C#F", "CXXXC", "CXmXC", "CXXXC", "~CCC~");
         for (int count = 0; count < this.parallelLayer; count++) {
             factoryPattern.aisle("~CCC~", "~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~");
             factoryPattern.aisle("~MMM~", "~~M~~", "~G#G~", "p#P#p", "~G#G~", "~~C~~");
             factoryPattern.aisle("~CCC~", "~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~");
-            factoryPattern.validateLayer(2 + count * 3, context -> context.getInt("RedstoneControllerAmount") <= 1);
         }
          return factoryPattern.aisle("CCCCC", "F~C~F", "CXSXC", "CXmXC", "CXXXC", "~CCC~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(this.getCasingState()).or(machineControllerPredicate))
+                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Grisium).getDefaultState()))

@@ -34,6 +34,7 @@ import java.util.List;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_COMPRESSOR_RECIPES;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_FORGE_HAMMER_RECIPES;
+import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pistonPredicate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -45,7 +46,7 @@ import static gregtech.api.render.Textures.FORGE_HAMMER_OVERLAY;
 
 public class MetaTileEntityParallelLargeForgeHammer extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeForgeHammer(ResourceLocation metaTileEntityId) {

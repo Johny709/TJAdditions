@@ -13,7 +13,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -53,7 +52,6 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES});
         this.recipeMapWorkable = new ParallelMultiblockChemicalReactorWorkableHandler(this);
-        this.isWorkingEnabled = false;
     }
 
     @Override
@@ -72,22 +70,19 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     @Override
     protected BlockPattern createStructurePattern() {
-        Predicate<BlockWorldState> machineControllerPredicate = this.countMatch("RedstoneControllerAmount", tilePredicate((state, tile) -> ((IMultiblockAbilityPart<?>) tile).getAbility() == REDSTONE_CONTROLLER));
-
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
 
         factoryPattern.aisle("XXXXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-            factoryPattern.aisle("F###F", "#CCC#", "#CcC#", "#CCC#", "F###F");
-            factoryPattern.validateLayer(2 + layer * 2, (context) -> context.getInt("RedstoneControllerAmount") <= 1);
+            factoryPattern.aisle("F###F", "#MMM#", "#McM#", "#MMM#", "F###F");
         }
         return factoryPattern
                 .aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F")
                 .aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
                 .where('S', this.selfPredicate())
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('C', statePredicate(this.getCasingState()).or(machineControllerPredicate))
+                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))

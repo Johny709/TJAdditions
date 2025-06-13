@@ -35,6 +35,7 @@ import java.util.List;
 
 import static com.johny.tj.TJRecipeMaps.PARALLEL_PACKER_RECIPES;
 import static com.johny.tj.TJRecipeMaps.PARALLEL_UNPACKER_RECIPES;
+import static com.johny.tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.conveyorPredicate;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.robotArmPredicate;
@@ -47,7 +48,7 @@ import static gregtech.api.render.Textures.UNPACKER_OVERLAY;
 
 public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargePackager(ResourceLocation metaTileEntityId) {
