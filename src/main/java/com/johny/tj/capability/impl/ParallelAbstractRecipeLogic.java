@@ -120,8 +120,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.evictRecipeTimer = Arrays.copyOf(this.evictRecipeTimer, this.size);
         this.occupiedRecipes = Arrays.copyOf(this.occupiedRecipes, this.size);
         if (remove) {
-            this.fluidOutputs.remove(i -1);
-            this.itemOutputs.remove(i -1);
+            this.fluidOutputs.remove(i);
+            this.itemOutputs.remove(i);
         } else {
             this.sleepTime[this.size -1] = 1;
             this.workingEnabled[this.size -1] = true;
@@ -731,6 +731,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.failCount = new int[this.size];
         this.evictRecipeTimer = new int[this.size];
         this.occupiedRecipes = new Recipe[this.size];
+        Arrays.fill(this.sleepTime, 1);
+        Arrays.fill(this.workingEnabled, true);
 
         for (NBTBase tag : workableInstanceList) {
             NBTTagCompound workableInstanceCompound = (NBTTagCompound) tag;
