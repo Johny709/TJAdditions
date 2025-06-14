@@ -129,6 +129,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         } else {
             this.sleepTime[this.size -1] = 1;
             this.workingEnabled[this.size -1] = true;
+            this.parallel[i] = 1;
         }
     }
 

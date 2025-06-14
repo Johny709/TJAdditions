@@ -35,7 +35,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     @Override
     public void setLayer(int i, boolean remove) {
         super.setLayer(i, remove);
-        this.lastRecipeIndex = Arrays.copyOf(this.lastRecipeIndex, getSize());
+        this.lastRecipeIndex = Arrays.copyOf(this.lastRecipeIndex, this.getSize());
     }
 
     public IEnergyContainer getEnergyContainer() {

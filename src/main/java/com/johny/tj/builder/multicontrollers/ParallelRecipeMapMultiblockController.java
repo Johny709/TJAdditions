@@ -312,9 +312,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                             advancedTooltip.appendText("\n")
                                     .appendSibling(displayItemInputs(recipe, parallel))
                                     .appendText("\n")
-                                    .appendSibling(displayItemOutputs(recipe, parallel))
-                                    .appendText("\n")
                                     .appendSibling(displayFluids(recipe.getFluidInputs(), "tj.multiblock.parallel.advanced.fluidInput", parallel))
+                                    .appendText("\n")
+                                    .appendSibling(displayItemOutputs(recipe, parallel))
                                     .appendText("\n")
                                     .appendSibling(displayFluids(recipe.getFluidOutputs(), "tj.multiblock.parallel.advanced.fluidOutput", parallel));
                         }
