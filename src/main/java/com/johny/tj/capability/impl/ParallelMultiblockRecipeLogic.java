@@ -189,14 +189,16 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
         Recipe foundRecipe;
-        if (!this.distinct)
+        if (!this.distinct) {
             foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
-        else
+        } else {
             foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
+        }
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
             if (this.setupAndConsumeRecipeInputs(currentRecipe, this.lastRecipeIndex[i])) {
+                this.occupiedRecipes[i] = currentRecipe;
                 this.setupRecipe(currentRecipe, i);
                 return true;
             }
@@ -207,13 +209,15 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (j == this.lastRecipeIndex[i]) {
                 continue;
             }
-            if (!this.distinct)
+            if (!this.distinct) {
                 foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
-            else
+            } else {
                 foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
+            }
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 if (this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
+                    this.occupiedRecipes[i] = currentRecipe;
                     this.setupRecipe(currentRecipe, i);
                     return true;
                 }
@@ -229,7 +233,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             }
 
             IItemHandlerModifiable bus = importInventory.get(j);
-            boolean dirty = checkRecipeInputsDirty(bus, importFluids, j);
+            boolean dirty = this.checkRecipeInputsDirty(bus, importFluids, j);
             if (!dirty && !this.forceRecipeRecheck[i]) {
                 continue;
             }
@@ -242,6 +246,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (!this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }
+            this.occupiedRecipes[i] = foundRecipe;
             this.lastRecipeIndex[i] = j;
             this.setupRecipe(currentRecipe, i);
             return true;

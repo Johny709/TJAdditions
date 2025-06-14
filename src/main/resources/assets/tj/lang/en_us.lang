@@ -171,7 +171,7 @@ tj.multiblock.extreme_turbine.hover.speed=Roter Speed:
 tj.multiblock.extreme_turbine=-
 
 tj.multiblock.industrial_fusion_reactor.heat=Heat: §e%d§7 °C
-tj.multiblock.industrial_fusion_reactor.message=Parallel: §b%d§7
+tj.multiblock.industrial_fusion_reactor.message=Parallel: §d%d§7
 tj.multiblock.industrial_fusion_reactor.slices=Number of slices
 tj.multiblock.industrial_fusion_reactor.overclock.1=Duration / 2
 tj.multiblock.industrial_fusion_reactor.overclock.2=Energy * 2
@@ -180,6 +180,7 @@ tj.multiblock.industrial_fusion_reactor.required_heat=Required Heat to run recip
 
 tj.multiblock.progress=Progress: §b%d§r%%
 tj.multiblock.eu=EU/t: §e%d
+tj.multiblock.parallel=Parallel: §d%d
 tj.multiblock.temperature=Temperature: §c%d§r / §c%d§7 °C
 tj.multiblock.not_enough_energy=§cWARNING: Machine needs more energy.
 tj.multiblock.max_energy_per_tick=Max EU/t:

@@ -11,6 +11,11 @@ public interface IMultipleWorkable extends IMultiControllable {
     int getRecipeEUt(int i);
 
     /*
+     * @return Parallels performed of this instance
+     */
+    int getParallel(int i);
+
+    /*
      * @return current progress of this instance
      */
     int getProgress(int i);

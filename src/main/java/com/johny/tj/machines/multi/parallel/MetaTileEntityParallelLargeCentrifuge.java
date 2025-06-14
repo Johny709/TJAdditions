@@ -167,7 +167,6 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
             resultOverclock[0] -= (int) (resultOverclock[0] * energyBonus * 0.01f);
             setMaxProgress(resultOverclock[1], i);
 
-            this.occupiedRecipes[i] = recipe;
             this.evictRecipeTimer[i] = 20;
             this.recipeEUt[i] = resultOverclock[0];
             this.fluidOutputs.put(i, GTUtility.copyFluidList(recipe.getFluidOutputs()));

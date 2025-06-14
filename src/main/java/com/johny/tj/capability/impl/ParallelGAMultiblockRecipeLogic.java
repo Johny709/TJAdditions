@@ -71,10 +71,11 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 return false;
             foundRecipe = this.occupiedRecipes[i];
         } else {
-            if (!this.distinct)
+            if (!this.distinct) {
                 foundRecipe = this.previousRecipe.get(importInventory, importFluids);
-            else
+            } else {
                 foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, this.occupiedRecipes);
+            }
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -93,8 +94,9 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         if (currentRecipe == null) {
             return false;
         }
+        this.occupiedRecipes[i] = currentRecipe;
         if (isBatching()) {
-            currentRecipe = this.createRecipe(maxVoltage, importInventory, importFluids, currentRecipe);
+            currentRecipe = this.createRecipe(maxVoltage, importInventory, importFluids, currentRecipe, i);
         }
         if (!this.setupAndConsumeRecipeInputs(currentRecipe)) {
             return false;
@@ -113,14 +115,16 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
         Recipe foundRecipe;
-        if (!this.distinct)
+        if (!this.distinct) {
             foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
-        else
+        } else {
             foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
+        }
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
-            currentRecipe = this.createRecipe(maxVoltage, importInventory.get(this.lastRecipeIndex[i]), importFluids, currentRecipe);
+            this.occupiedRecipes[i] = foundRecipe;
+            currentRecipe = this.createRecipe(maxVoltage, importInventory.get(this.lastRecipeIndex[i]), importFluids, currentRecipe, i);
             if (this.setupAndConsumeRecipeInputs(currentRecipe, this.lastRecipeIndex[i])) {
                 this.setupRecipe(currentRecipe, i);
                 return true;
@@ -132,13 +136,15 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             if (j == this.lastRecipeIndex[i]) {
                 continue;
             }
-            if (!this.distinct)
+            if (!this.distinct) {
                 foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids);
-            else
+            } else {
                 foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, this.occupiedRecipes);
+            }
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
-                currentRecipe = this.createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe);
+                this.occupiedRecipes[i] = foundRecipe;
+                currentRecipe = this.createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe, i);
                 if (this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
                     this.setupRecipe(currentRecipe, i);
                     return true;
@@ -166,20 +172,20 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             this.occupiedRecipes[i] = currentRecipe;
             this.previousRecipe.put(currentRecipe);
             if (this.isBatching()) {
-                currentRecipe = createRecipe(maxVoltage, bus, importFluids, currentRecipe);
+                currentRecipe = this.createRecipe(maxVoltage, bus, importFluids, currentRecipe, i);
             }
             if (!this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }
-            lastRecipeIndex[i] = j;
+            this.lastRecipeIndex[i] = j;
             this.setupRecipe(currentRecipe, i);
             return true;
         }
         return false;
     }
 
-    protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
-        int maxItemsLimit = getStack();
+    protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe, int j) {
+        int maxItemsLimit = this.getStack();
         int EUt;
         int duration;
         int currentTier = this.getOverclockingTier(maxVoltage);
@@ -247,15 +253,17 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                     .EUt(Math.max(1, EUt * getEUtPercentage() / 100))
                     .duration((int) Math.max(1, duration * (getDurationPercentage() / 100.0)));
 
+            this.parallel[j] = attemptItemsLimit;
             return newRecipe.build().getResult();
         }
+        this.parallel[j] = 1;
         return matchingRecipe;
     }
 
     protected void copyChancedItemOutputs(RecipeBuilder<?> newRecipe, Recipe oldRecipe, int multiplier) {
         for (Recipe.ChanceEntry s : oldRecipe.getChancedOutputs()) {
-            int chance = Math.min(10000, s.getChance() * getChancePercentage() / 100);
-            int boost = s.getBoostPerTier() * getChancePercentage() / 100;
+            int chance = Math.min(10000, s.getChance() * this.getChancePercentage() / 100);
+            int boost = s.getBoostPerTier() * this.getChancePercentage() / 100;
             ItemStack stack = s.getItemStack().copy();
             int count = stack.getCount();
             stack.setCount(count * multiplier);

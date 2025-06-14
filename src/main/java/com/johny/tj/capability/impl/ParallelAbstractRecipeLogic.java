@@ -49,6 +49,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected int[] progressTime;
     protected int[] maxProgressTime;
     protected int[] recipeEUt;
+    protected int[] parallel;
     protected Recipe[] occupiedRecipes;
     protected Map<Integer, List<FluidStack>> fluidOutputs;
     protected Map<Integer, NonNullList<ItemStack>> itemOutputs;
@@ -79,6 +80,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.progressTime = new int[this.size];
         this.maxProgressTime = new int[this.size];
         this.recipeEUt = new int[this.size];
+        this.parallel = new int[this.size];
         this.fluidOutputs = new HashMap<>();
         this.itemOutputs = new HashMap<>();
         this.isInstanceActive = new boolean[this.size];
@@ -94,6 +96,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
         Arrays.fill(this.sleepTime, 1);
         Arrays.fill(this.workingEnabled, true);
+        Arrays.fill(this.parallel, 1);
         if (ConfigHolder.gregicalityOverclocking) {
             V = GTValues.V2;
             VN = GTValues.VN2;
@@ -109,6 +112,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.progressTime = Arrays.copyOf(this.progressTime, this.size);
         this.maxProgressTime = Arrays.copyOf(this.maxProgressTime, this.size);
         this.recipeEUt = Arrays.copyOf(this.recipeEUt, this.size);
+        this.parallel = Arrays.copyOf(this.parallel, this.size);
         this.isInstanceActive = Arrays.copyOf(this.isInstanceActive, this.size);
         this.workingEnabled = Arrays.copyOf(this.workingEnabled, this.size);
         this.wasActiveAndNeedsUpdate = Arrays.copyOf(this.wasActiveAndNeedsUpdate, this.size);
@@ -272,6 +276,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             }
         }
         if (currentRecipe != null && this.setupAndConsumeRecipeInputs(currentRecipe)) {
+            this.occupiedRecipes[i] = currentRecipe;
             this.setupRecipe(currentRecipe, i);
             return true;
         }
@@ -470,6 +475,11 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return this.recipeEUt[i];
     }
 
+    @Override
+    public int getParallel(int i) {
+        return this.parallel[i];
+    }
+
     public void setMaxProgress(int maxProgress, int i) {
         this.maxProgressTime[i] = maxProgress;
     }
@@ -650,6 +660,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 workableInstanceCompound.setTag("FluidOutputs", fluidOutputsList);
                 workableInstanceCompound.setInteger("Energy", recipe.getEUt());
                 workableInstanceCompound.setInteger("Duration", recipe.getDuration());
+                workableInstanceCompound.setInteger("Parallel", this.parallel[i]);
                 workableInstanceCompound.setInteger("Index", i);
                 occupiedRecipeList.appendTag(workableInstanceCompound);
             }
@@ -721,6 +732,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.progressTime = new int[this.size];
         this.maxProgressTime = new int[this.size];
         this.recipeEUt = new int[this.size];
+        this.parallel = new int[this.size];
         this.isInstanceActive = new boolean[this.size];
         this.workingEnabled = new boolean[this.size];
         this.wasActiveAndNeedsUpdate = new boolean[this.size];
@@ -733,6 +745,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.occupiedRecipes = new Recipe[this.size];
         Arrays.fill(this.sleepTime, 1);
         Arrays.fill(this.workingEnabled, true);
+        Arrays.fill(this.parallel, 1);
 
         for (NBTBase tag : workableInstanceList) {
             NBTTagCompound workableInstanceCompound = (NBTTagCompound) tag;
@@ -763,6 +776,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         for (NBTBase tag : occupiedRecipeList) {
             NBTTagCompound occupiedRecipeCompound = (NBTTagCompound) tag;
             int index = occupiedRecipeCompound.getInteger("Index");
+            int parallel = occupiedRecipeCompound.getInteger("Parallel");
             int duration = occupiedRecipeCompound.getInteger("Duration");
             int energy = occupiedRecipeCompound.getInteger("Energy");
             NBTTagList itemInputsList = occupiedRecipeCompound.getTagList("ItemInputs", Constants.NBT.TAG_COMPOUND);
@@ -815,6 +829,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
             Recipe recipe = new Recipe(inputIngredients, itemOutputs, chanceOutputs, fluidInputs, fluidOutputs, duration, energy, false);
             this.occupiedRecipes[index] = this.controller.parallelRecipeMap[this.controller.getRecipeMapIndex()].findRecipe(recipe);
+            this.parallel[index] = parallel;
         }
     }
 }
