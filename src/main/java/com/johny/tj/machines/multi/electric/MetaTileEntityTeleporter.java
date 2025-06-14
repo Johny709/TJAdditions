@@ -116,8 +116,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private boolean hasSpaces;
     private int searchResults;
     private int queueCount;
-    private final Map<String, Pair<World, BlockPos>> posMap = new HashMap<>();
-    private final Queue<Triple<Entity, World, BlockPos>> markEntitiesToTransport = new ArrayDeque<>();
+    private final Map<String, Pair<Integer, BlockPos>> posMap = new HashMap<>();
+    private final Queue<Triple<Entity, Integer, BlockPos>> markEntitiesToTransport = new ArrayDeque<>();
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private static final Random random = new Random();
 
@@ -160,27 +160,26 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             this.progress = 1;
             if (!this.isActive)
                 this.setActive(true);
-            Pair<World, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
-            if (worldPos == null || !this.markEntitiesToTransport.isEmpty()) {
-                return;
-            }
-            World world = worldPos.getLeft();
-            if (world != null) {
-                BlockPos targetPos = worldPos.getValue();
-                BlockPos pos = this.getPos().up();
-                int worldID = world.provider.getDimension();
-                int x = pos.getX();
-                int y = pos.getY();
-                int z = pos.getZ();
-                ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
-                for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
-                    for (Entity entity : entities) {
-                        BlockPos entityPos = entity.getPosition();
-                        int entityX = entityPos.getX();
-                        int entityY = entityPos.getY();
-                        int entityZ = entityPos.getZ();
-                        if (entityX == x && entityY == y && entityZ == z)
-                            this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, world, targetPos));
+            Pair<Integer, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
+            if (worldPos != null && this.markEntitiesToTransport.isEmpty()) {
+                World world = DimensionManager.getWorld(worldPos.getLeft());
+                if (world != null) {
+                    BlockPos targetPos = worldPos.getValue();
+                    BlockPos pos = this.getPos().up();
+                    int worldID = world.provider.getDimension();
+                    int x = pos.getX();
+                    int y = pos.getY();
+                    int z = pos.getZ();
+                    ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
+                    for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
+                        for (Entity entity : entities) {
+                            BlockPos entityPos = entity.getPosition();
+                            int entityX = entityPos.getX();
+                            int entityY = entityPos.getY();
+                            int entityZ = entityPos.getZ();
+                            if (entityX == x && entityY == y && entityZ == z)
+                                this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, worldID, targetPos));
+                        }
                     }
                 }
             }
@@ -190,9 +189,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private void transportEntity() {
-        Triple<Entity, World, BlockPos> entityPos = this.markEntitiesToTransport.poll();
+        Triple<Entity, Integer, BlockPos> entityPos = this.markEntitiesToTransport.poll();
         Entity entity = entityPos.getLeft();
-        WorldServer world = (WorldServer) entityPos.getMiddle();
+        WorldServer world = DimensionManager.getWorld(entityPos.getMiddle());
         if (entity == null || world == null)
             return;
         BlockPos pos = entityPos.getRight();
@@ -373,35 +372,38 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (this.isStructureFormed()) {
-            Pair<World, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
-            int distance;
-            long distanceEU;
+            Pair<Integer, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
             World world;
+            int worldID;
             BlockPos pos;
+            long distance;
+            long distanceEU;
             if (selectedPos != null) {
-                world = selectedPos.getLeft();
+                worldID = selectedPos.getLeft();
                 pos = selectedPos.getRight();
-                boolean interdimensional = world.provider.getDimension() != this.getWorld().provider.getDimension();
+                world = DimensionManager.getWorld(worldID);
+                boolean interdimensional = worldID != this.getWorld().provider.getDimension();
                 int x = Math.abs(interdimensional ? pos.getX() : pos.getX() - this.getPos().getX());
                 int y = Math.abs(interdimensional ? pos.getY() : pos.getY() - this.getPos().getY());
                 int z = Math.abs(interdimensional ? pos.getZ() : pos.getZ() - this.getPos().getZ());
                 distance = x + y + z;
                 distanceEU = 1000000 + distance * 1000L;
             } else {
+                world = null;
+                worldID = Integer.MIN_VALUE;
+                pos = null;
                 distance = 0;
                 distanceEU = 0;
-                pos = null;
-                world = null;
             }
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
                     .custom(text -> {
-                        if (selectedPos == null)
-                            return;
-                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.world", world.provider.getDimensionType().getName(), world.provider.getDimension())));
-                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
-                        text.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
+                        if (selectedPos != null) {
+                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.world", world != null ? world.provider.getDimensionType().getName() : "Null", worldID)));
+                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
+                            text.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
+                        }
                     })
                     .energyInput(hasEnoughEnergy(distanceEU), distanceEU, this.maxProgress)
                     .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
@@ -414,7 +416,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private void addPosDisplayText2(List<ITextComponent> textList) {
         int count = 0, searchResults = 0;
-        for (Map.Entry<String, Pair<World, BlockPos>> posEntry : this.posMap.entrySet()) {
+        for (Map.Entry<String, Pair<Integer, BlockPos>> posEntry : this.posMap.entrySet()) {
             String key = posEntry.getKey();
             String result = key, result2 = key;
 
@@ -431,8 +433,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
                 continue;
 
-
-            World world = posEntry.getValue().getLeft();
+            World world = DimensionManager.getWorld(posEntry.getValue().getLeft());
             String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
             int worldID = world != null ? world.provider.getDimension() : Integer.MIN_VALUE;
 
@@ -471,7 +472,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private void addQueueDisplayText2(List<ITextComponent> textList) {
         int count = 0, queueCount = 0;
-        for (Triple<Entity, World, BlockPos> queueEntry : this.markEntitiesToTransport) {
+        for (Triple<Entity, Integer, BlockPos> queueEntry : this.markEntitiesToTransport) {
             String key = queueEntry.getLeft().getName();
             String result = key, result2 = key;
 
@@ -489,9 +490,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 continue;
 
             BlockPos pos = queueEntry.getRight();
-            World world = queueEntry.getMiddle();
+            World world = DimensionManager.getWorld(queueEntry.getMiddle());
             String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
-            int worldID = world != null ? queueEntry.getMiddle().provider.getDimension() : Integer.MIN_VALUE;
+            int worldID = world != null ? world.provider.getDimension() : Integer.MIN_VALUE;
 
             String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
 
@@ -521,12 +522,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             int posY = Integer.parseInt(yz[0]);
             int posZ = Integer.parseInt(yz[1]);
 
-            WorldServer dimension = DimensionManager.getWorld(worldID);
-            if (dimension == null)
-                return;
             BlockPos blockPos = new BlockPos(posX, posY, posZ);
             player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.queue", player.getName())));
-            this.markEntitiesToTransport.add(new ImmutableTriple<>(player, dimension, blockPos));
+            this.markEntitiesToTransport.add(new ImmutableTriple<>(player, worldID, blockPos));
 
         } else if (componentData.startsWith("select")) {
             String[] selectedPos = componentData.split(":");
@@ -565,7 +563,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private void setRename(String name) {
         name = this.checkDuplicateNames(name, 1);
-        Pair<World, BlockPos> pos = this.posMap.get(this.renamePrompt);
+        Pair<Integer, BlockPos> pos = this.posMap.get(this.renamePrompt);
         this.posMap.remove(this.renamePrompt);
         this.posMap.put(name, pos);
     }
@@ -683,9 +681,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         NBTTagList posList = new NBTTagList();
-        for (Map.Entry<String, Pair<World, BlockPos>> posEntry : this.posMap.entrySet()) {
+        for (Map.Entry<String, Pair<Integer, BlockPos>> posEntry : this.posMap.entrySet()) {
             String name = posEntry.getKey();
-            int worldID = posEntry.getValue().getLeft().provider.getDimension();
+            int worldID = posEntry.getValue().getLeft();
             int x = posEntry.getValue().getRight().getX();
             int y = posEntry.getValue().getRight().getY();
             int z = posEntry.getValue().getRight().getZ();
@@ -728,9 +726,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         for (NBTBase compound : posList) {
             NBTTagCompound tag = (NBTTagCompound) compound;
             String name = tag.getString("Name");
-            World world = DimensionManager.getWorld(tag.getInteger("WorldID"));
+            int worldID = tag.getInteger("WorldID");
             BlockPos pos = new BlockPos(tag.getInteger("X"), tag.getInteger("Y"), tag.getInteger("Z"));
-            this.posMap.put(name, new ImmutablePair<>(world, pos));
+            this.posMap.put(name, new ImmutablePair<>(worldID, pos));
         }
     }
 
@@ -777,7 +775,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public int dimensionID() {
-        return this.getWorld().provider.getDimensionType().getId();
+        return this.getWorld().provider.getDimension();
     }
 
     @Override
@@ -793,7 +791,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
         name = this.checkDuplicateNames(name, 1);
-        this.posMap.put(name, new ImmutablePair<>(world, pos));
+        int worldID = world.provider.getDimension();
+        this.posMap.put(name, new ImmutablePair<>(worldID, pos));
         this.linkData.setInteger("I", 1);
     }
 
