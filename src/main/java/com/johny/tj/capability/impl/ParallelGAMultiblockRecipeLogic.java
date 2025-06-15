@@ -94,6 +94,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         if (currentRecipe == null) {
             return false;
         }
+        this.occupiedRecipes[i] = currentRecipe;
         if (this.isBatching()) {
             currentRecipe = this.createRecipe(maxVoltage, importInventory, importFluids, currentRecipe, i);
         }
@@ -122,6 +123,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
+            this.occupiedRecipes[i] = currentRecipe;
             currentRecipe = this.createRecipe(maxVoltage, importInventory.get(this.lastRecipeIndex[i]), importFluids, currentRecipe, i);
             if (this.setupAndConsumeRecipeInputs(currentRecipe, this.lastRecipeIndex[i])) {
                 this.setupRecipe(currentRecipe, i);
@@ -141,6 +143,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             }
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
+                this.occupiedRecipes[i] = currentRecipe;
                 currentRecipe = this.createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe, i);
                 if (this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
                     this.setupRecipe(currentRecipe, i);
@@ -167,6 +170,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 continue;
             }
             this.previousRecipe.put(currentRecipe);
+            this.occupiedRecipes[i] = currentRecipe;
             if (this.isBatching()) {
                 currentRecipe = this.createRecipe(maxVoltage, bus, importFluids, currentRecipe, i);
             }
@@ -181,7 +185,6 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     }
 
     protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe, int j) {
-        this.occupiedRecipes[j] = matchingRecipe;
         int maxItemsLimit = this.getStack();
         int EUt;
         int duration;
