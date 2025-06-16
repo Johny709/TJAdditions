@@ -130,7 +130,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         } else {
             this.sleepTime[this.size -1] = 1;
             this.workingEnabled[this.size -1] = true;
-            this.parallel[i] = 1;
+            this.parallel[this.size -1] = 1;
         }
     }
 
@@ -179,6 +179,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     public void setLockingMode(boolean setLockingMode, int i) {
         this.lockRecipe[i] = setLockingMode;
+        this.metaTileEntity.markDirty();
     }
 
     public boolean getLockingMode(int i) {
