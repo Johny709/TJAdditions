@@ -2,7 +2,6 @@ package com.johny.tj.capability.impl;
 
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.GAUtility;
-import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -18,6 +17,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * Parallel Recipe Logic for Parallel Multiblocks. Implements distinct bus feature and uses containers from multiblock parts in the form of buses and hatches
+ */
 public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     // Field used for maintenance
@@ -113,31 +115,14 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     @Override
-    protected int[] calculateOverclock(int EUt, long voltage, int duration) {
+    protected void calculateOverclock(int EUt, int duration) {
+        super.calculateOverclock(EUt, duration);
         int numMaintenanceProblems = (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) ?
                 ((ParallelRecipeMapMultiblockController) this.metaTileEntity).getNumProblems() : 0;
 
         double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
-        int durationModified = (int) (duration * maintenanceDurationMultiplier);
-
-        if (!this.allowOverclocking) {
-            return new int[]{EUt, durationModified};
-        }
-        boolean negativeEU = EUt < 0;
-        int tier = getOverclockingTier(voltage);
-        if (GAValues.V[tier] <= EUt || tier == 0)
-            return new int[]{EUt, durationModified};
-        if (negativeEU)
-            EUt = -EUt;
-        int resultEUt = EUt;
-        double resultDuration = durationModified;
-        //do not overclock further if duration is already too small
-        while (resultDuration >= 1 && resultEUt <= GAValues.V[tier - 1]) {
-            resultEUt *= 4;
-            resultDuration /= 2.8;
-        }
-        this.previousRecipeDuration = (int) resultDuration;
-        return new int[]{negativeEU ? -resultEUt : resultEUt, (int) Math.ceil(resultDuration)};
+        int durationModified = (int) (this.overclockManager.getDuration() * maintenanceDurationMultiplier);
+        this.overclockManager.setDuration(durationModified);
     }
 
     @Override
@@ -147,17 +132,16 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     @Override
     protected void completeRecipe(int i) {
-        super.completeRecipe(i);
-        if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
+        if (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
             ParallelRecipeMapMultiblockController gaController = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
             //if (gaController.hasMufflerHatch()) {
             //    gaController.outputRecoveryItems();
             //}
             if (gaController.hasMaintenanceHatch()) {
-                gaController.calculateMaintenance(this.previousRecipeDuration);
-                this.previousRecipeDuration = 0;
+                gaController.calculateMaintenance(this.maxProgressTime[i]);
             }
         }
+        super.completeRecipe(i);
     }
 
     @Override
@@ -299,14 +283,15 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
         ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
         if (controller.checkRecipe(recipe, false)) {
 
-            int[] resultOverclock = this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
-            int totalEUt = resultOverclock[0] * resultOverclock[1];
+            this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
+            int resultEU = this.overclockManager.getEUt();
+            long totalEUt = (long) resultEU * this.overclockManager.getDuration();
             IItemHandlerModifiable importInventory = this.getInputBuses().get(index);
             IItemHandlerModifiable exportInventory = this.getOutputInventory();
             IMultipleTankHandler importFluids = this.getInputTank();
             IMultipleTankHandler exportFluids = this.getOutputTank();
-            boolean setup = (totalEUt >= 0 ? this.getEnergyStored() >= (totalEUt > this.getEnergyCapacity() / 2 ? resultOverclock[0] : totalEUt) :
-                    (this.getEnergyStored() - resultOverclock[0] <= this.getEnergyCapacity())) &&
+            boolean setup = (totalEUt >= 0 ? this.getEnergyStored() >= (totalEUt > this.getEnergyCapacity() / 2 ? resultEU : totalEUt) :
+                    (this.getEnergyStored() - resultEU <= this.getEnergyCapacity())) &&
                     MetaTileEntity.addItemsToItemHandler(exportInventory, true, recipe.getAllItemOutputs(exportInventory.getSlots())) &&
                     MetaTileEntity.addFluidsToFluidHandler(exportFluids, true, recipe.getFluidOutputs()) &&
                     recipe.matches(true, importInventory, importFluids);

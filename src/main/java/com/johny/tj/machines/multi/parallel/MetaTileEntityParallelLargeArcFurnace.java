@@ -18,7 +18,6 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
-import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
@@ -69,29 +68,10 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
             @Override
             protected void setupRecipe(Recipe recipe, int i) {
                 int energyBonus = this.controller.getEUBonus();
-                long maxVoltage = getMaxVoltage();
-
-                int[] resultOverclock = calculateOverclock(recipe.getEUt(), maxVoltage, recipe.getDuration());
-                this.progressTime[i] = 1;
-
-//            // perfect overclocking
-//            if (resultOverclock[1] < recipe.getDuration())
-//                resultOverclock[1] *= 0.5;
-
-                // apply energy bonus
-                resultOverclock[0] -= (int) (resultOverclock[0] * energyBonus * 0.01f);
-                setMaxProgress(resultOverclock[1], i);
-
-                this.evictRecipeTimer[i] = 20;
-                this.recipeEUt[i] = resultOverclock[0];
-                this.fluidOutputs.put(i, GTUtility.copyFluidList(recipe.getFluidOutputs()));
-                int tier = getMachineTierForRecipe(recipe);
-                this.itemOutputs.put(i, GTUtility.copyStackList(recipe.getResultItemOutputs(getOutputInventory().getSlots(), this.random, tier)));
-                if (this.wasActiveAndNeedsUpdate[i]) {
-                    this.wasActiveAndNeedsUpdate[i] = false;
-                } else {
-                    this.setActive(true, i);
-                }
+                int resultOverclock = this.overclockManager.getEUt();
+                resultOverclock -= (int) (resultOverclock * energyBonus * 0.01f);
+                this.overclockManager.setEUt(resultOverclock);
+                super.setupRecipe(recipe, i);
             }
         };
     }

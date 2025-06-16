@@ -33,7 +33,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     private static final String ALLOW_OVERCLOCKING = "AllowOverclocking";
     private static final String OVERCLOCK_VOLTAGE = "OverclockVoltage";
 
-    protected ParallelRecipeMapMultiblockController controller;
+    protected final ParallelRecipeMapMultiblockController controller;
+    protected final OverclockManager overclockManager = new OverclockManager();
     private int size;
 
     protected boolean[] forceRecipeRecheck;
@@ -44,7 +45,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected boolean useOptimizedRecipeLookUp = true;
     protected boolean allowOverclocking = true;
     private long overclockVoltage = 0;
-    private LongSupplier overclockPolicy = this::getMaxVoltage;
+    protected LongSupplier overclockPolicy = this::getMaxVoltage;
 
     protected int[] progressTime;
     protected int[] maxProgressTime;
@@ -328,7 +329,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         for (int j = 0; j < this.lastItemInputs.length; j++) {
             ItemStack currentStack = inputs.getStackInSlot(j);
             ItemStack lastStack = this.lastItemInputs[j];
-            if (!this.areItemStacksEqual(currentStack, lastStack)) {
+            if (!areItemStacksEqual(currentStack, lastStack)) {
                 this.lastItemInputs[j] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 shouldRecheckRecipe = true;
             } else if (currentStack.getCount() != lastStack.getCount()) {
@@ -359,42 +360,49 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe) {
-        int[] resultOverclock = this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
-        int totalEUt = resultOverclock[0] * resultOverclock[1];
-        IItemHandlerModifiable importInventory = getInputInventory();
-        IItemHandlerModifiable exportInventory = getOutputInventory();
-        IMultipleTankHandler importFluids = getInputTank();
-        IMultipleTankHandler exportFluids = getOutputTank();
-        return (totalEUt >= 0 ? getEnergyStored() >= (totalEUt > getEnergyCapacity() / 2 ? resultOverclock[0] : totalEUt) :
-                (getEnergyStored() - resultOverclock[0] <= getEnergyCapacity())) &&
+        this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
+        int resultEU = this.overclockManager.getEUt();
+        long totalEUt = (long) resultEU * this.overclockManager.getDuration();
+        IItemHandlerModifiable importInventory = this.getInputInventory();
+        IItemHandlerModifiable exportInventory = this.getOutputInventory();
+        IMultipleTankHandler importFluids = this.getInputTank();
+        IMultipleTankHandler exportFluids = this.getOutputTank();
+        return (totalEUt >= 0 ? this.getEnergyStored() >= (totalEUt > this.getEnergyCapacity() / 2 ? resultEU : totalEUt) :
+                (this.getEnergyStored() - resultEU <= this.getEnergyCapacity())) &&
                 MetaTileEntity.addItemsToItemHandler(exportInventory, true, recipe.getAllItemOutputs(exportInventory.getSlots())) &&
                 MetaTileEntity.addFluidsToFluidHandler(exportFluids, true, recipe.getFluidOutputs()) &&
                 recipe.matches(true, importInventory, importFluids);
     }
 
-    protected int[] calculateOverclock(int EUt, int duration) {
-        return this.calculateOverclock(EUt, this.overclockPolicy.getAsLong(), duration);
+    public double getDurationOverclock() {
+        return 2.8;
     }
 
-    protected int[] calculateOverclock(int EUt, long voltage, int duration) {
-
+    protected void calculateOverclock(int EUt, int duration) {
         if (!this.allowOverclocking) {
-            return new int[]{EUt, duration};
+            this.overclockManager.setEUt(EUt);
+            this.overclockManager.setDuration(duration);
+            return;
         }
         boolean negativeEU = EUt < 0;
-        int tier = this.getOverclockingTier(voltage);
-        if (V[tier] <= EUt || tier == 0)
-            return new int[]{EUt, duration};
+        int tier = this.getOverclockingTier(this.overclockPolicy.getAsLong());
+        if (V[tier] <= EUt || tier == 0) {
+            this.overclockManager.setEUt(EUt);
+            this.overclockManager.setDuration(duration);
+            return;
+        }
         if (negativeEU)
             EUt = -EUt;
         int resultEUt = EUt;
         double resultDuration = duration;
+        double durationModifier = this.getDurationOverclock();
         //do not overclock further if duration is already too small
         while (resultDuration >= 1 && resultEUt <= V[tier - 1]) {
             resultEUt *= 4;
-            resultDuration /= 2.8;
+            resultDuration /= durationModifier;
         }
-        return new int[]{negativeEU ? -resultEUt : resultEUt, (int) Math.ceil(resultDuration)};
+        this.overclockManager.setEUt(resultEUt);
+        this.overclockManager.setDuration((int) Math.round(resultDuration));
     }
 
     protected int getOverclockingTier(long voltage) {
@@ -420,15 +428,13 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected void setupRecipe(Recipe recipe, int i) {
-        int[] resultOverclock = this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
-        this.occupiedRecipes[i] = recipe;
         this.progressTime[i] = 1;
         this.evictRecipeTimer[i] = 20;
-        this.setMaxProgress(resultOverclock[1], i);
-        this.recipeEUt[i] = resultOverclock[0];
+        this.setMaxProgress(this.overclockManager.getDuration(), i);
+        this.recipeEUt[i] = this.overclockManager.getEUt();
         this.fluidOutputs.put(i, GTUtility.copyFluidList(recipe.getFluidOutputs()));
         int tier = this.getMachineTierForRecipe(recipe);
-        this.itemOutputs.put(i, GTUtility.copyStackList(recipe.getResultItemOutputs(getOutputInventory().getSlots(), random, tier)));
+        this.itemOutputs.put(i, GTUtility.copyStackList(recipe.getResultItemOutputs(this.getOutputInventory().getSlots(), this.random, tier)));
         if (this.wasActiveAndNeedsUpdate[i]) {
             this.wasActiveAndNeedsUpdate[i] = false;
         } else {
@@ -441,8 +447,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected void completeRecipe(int i) {
-        MetaTileEntity.addItemsToItemHandler(getOutputInventory(), false, itemOutputs.get(i));
-        MetaTileEntity.addFluidsToFluidHandler(getOutputTank(), false, fluidOutputs.get(i));
+        MetaTileEntity.addItemsToItemHandler(this.getOutputInventory(), false, this.itemOutputs.get(i));
+        MetaTileEntity.addFluidsToFluidHandler(this.getOutputTank(), false, this.fluidOutputs.get(i));
         this.progressTime[i] = 0;
         this.setMaxProgress(0, i);
         this.recipeEUt[i] = 0;

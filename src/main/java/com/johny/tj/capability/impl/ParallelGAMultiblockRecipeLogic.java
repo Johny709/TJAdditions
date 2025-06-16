@@ -19,7 +19,9 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+/**
+ * Parallel Recipe Logic for parallel multiblocks that implement more advanced features like recipe multiplication/parallels and attributes.
+ */
 public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLogic {
 
     private final int EUtPercentage;
@@ -186,13 +188,13 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
     protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe, int j) {
         int maxItemsLimit = this.getStack();
-        int EUt;
-        int duration;
+        int EUt = matchingRecipe.getEUt();
+        int duration = matchingRecipe.getDuration();
         int currentTier = this.getOverclockingTier(maxVoltage);
         int tierNeeded;
         int minMultiplier = Integer.MAX_VALUE;
 
-        tierNeeded = Math.max(1, GAUtility.getTierByVoltage(matchingRecipe.getEUt()));
+        tierNeeded = Math.max(1, GAUtility.getTierByVoltage(EUt));
         maxItemsLimit *= currentTier - tierNeeded;
         maxItemsLimit = Math.max(1, maxItemsLimit);
         if (maxItemsLimit == 1) {
@@ -216,9 +218,6 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             GALog.logger.error("Cannot calculate ratio of items for large multiblocks");
             return null;
         }
-
-        EUt = matchingRecipe.getEUt();
-        duration = matchingRecipe.getDuration();
 
         int tierDiff = currentTier - tierNeeded;
         for (int i = 0; i < tierDiff; i++) {
@@ -250,7 +249,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                     .outputs(outputI)
                     .fluidOutputs(outputF)
                     .EUt(Math.max(1, EUt * this.getEUtPercentage() / 100))
-                    .duration((int) Math.max(1, duration * (this.getDurationPercentage() / 100.0)));
+                    .duration(Math.max(1, duration * this.getDurationPercentage() / 100));
 
             this.parallel[j] = attemptItemsLimit;
             return newRecipe.build().getResult();
