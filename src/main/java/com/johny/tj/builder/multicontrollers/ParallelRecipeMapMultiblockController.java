@@ -390,10 +390,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.initializeAbilities();
+        int size = this.recipeMapWorkable.getSize();
         for (int i = 0; i < getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
             MetaTileEntityMachineController controller = getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
-            if (controller.isAutomatic() || controller.getId() >= this.recipeMapWorkable.getSize())
-                controller.setID(i).setController(this);
+            if (controller.isAutomatic() || controller.getId() >= size)
+                controller.setID(Math.min(i, size - 1)).setController(this);
         }
     }
 
@@ -446,10 +447,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         //noinspection SuspiciousMethodCalls
         int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
-        int redstoneCount = abilities.getOrDefault(TJMultiblockAbility.REDSTONE_CONTROLLER, Collections.emptyList()).size();
 
         return maintenanceCount == 1 &&
-                redstoneCount <= this.recipeMapWorkable.getSize() &&
                 itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
                 fluidInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinFluidInputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
