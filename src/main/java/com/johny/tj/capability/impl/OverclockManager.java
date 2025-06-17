@@ -6,6 +6,11 @@ public class OverclockManager {
     private int duration;
     private int parallel;
 
+    public void setEUtAndDuration(int EUt, int duration) {
+        this.EUt = EUt;
+        this.duration = duration;
+    }
+
     public void setEUt(int EUt) {
         this.EUt = EUt;
     }

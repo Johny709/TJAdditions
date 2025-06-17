@@ -13,7 +13,6 @@ import gregtech.api.util.GTUtility;
 import gregtech.common.ConfigHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
@@ -35,9 +34,9 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     protected final ParallelRecipeMapMultiblockController controller;
     protected final OverclockManager overclockManager = new OverclockManager();
-    private int size;
+    private int size = 1;
 
-    protected boolean[] forceRecipeRecheck;
+    protected boolean[] forceRecipeRecheck = new boolean[1];
     protected ItemStack[] lastItemInputs;
     protected FluidStack[] lastFluidInputs;
     public ParallelRecipeLRUCache previousRecipe;
@@ -47,63 +46,44 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     private long overclockVoltage = 0;
     protected LongSupplier overclockPolicy = this::getMaxVoltage;
 
-    protected int[] progressTime;
-    protected int[] maxProgressTime;
-    protected int[] recipeEUt;
-    protected int[] parallel;
-    protected Recipe[] occupiedRecipes;
-    protected Map<Integer, List<FluidStack>> fluidOutputs;
-    protected Map<Integer, NonNullList<ItemStack>> itemOutputs;
+    protected int[] progressTime = new int[1];
+    protected int[] maxProgressTime = new int[1];
+    protected int[] recipeEUt = new int[1];
+    protected int[] parallel = new int[1];
+    protected Recipe[] occupiedRecipes = new Recipe[1];
+    protected Map<Integer, List<FluidStack>> fluidOutputs = new HashMap<>();
+    protected Map<Integer, NonNullList<ItemStack>> itemOutputs = new HashMap<>();
     protected final Random random = new Random();
 
     protected boolean isActive;
     protected boolean distinct;
-    protected boolean[] isInstanceActive;
-    protected boolean[] workingEnabled;
-    protected boolean[] hasNotEnoughEnergy;
-    protected boolean[] wasActiveAndNeedsUpdate;
-    protected boolean[] lockRecipe;
+    protected boolean[] isInstanceActive = new boolean[1];
+    protected boolean[] workingEnabled = new boolean[1];
+    protected boolean[] hasNotEnoughEnergy = new boolean[1];
+    protected boolean[] wasActiveAndNeedsUpdate = new boolean[1];
+    protected boolean[] lockRecipe = new boolean[1];
     private final long[] V;
     private final String[] VN;
 
-    private int[] sleepTimer;
-    private int[] sleepTime;
-    private int[] failCount;
-    protected int[] evictRecipeTimer;
+    private int[] sleepTimer = new int[1];
+    private int[] sleepTime = new int[1];
+    private int[] failCount = new int[1];
 
     public ParallelAbstractRecipeLogic(MetaTileEntity metaTileEntity, int recipeCacheSize) {
         super(metaTileEntity);
         this.controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
-        this.size = 1;
         this.recipeCacheSize = recipeCacheSize;
-        this.forceRecipeRecheck = new boolean[this.size];
         this.previousRecipe = new ParallelRecipeLRUCache(this.recipeCacheSize);
-        this.progressTime = new int[this.size];
-        this.maxProgressTime = new int[this.size];
-        this.recipeEUt = new int[this.size];
-        this.parallel = new int[this.size];
-        this.fluidOutputs = new HashMap<>();
-        this.itemOutputs = new HashMap<>();
-        this.isInstanceActive = new boolean[this.size];
-        this.workingEnabled = new boolean[this.size];
-        this.wasActiveAndNeedsUpdate = new boolean[this.size];
-        this.hasNotEnoughEnergy = new boolean[this.size];
-        this.lockRecipe = new boolean[this.size];
-        this.sleepTimer = new int[this.size];
-        this.sleepTime = new int[this.size];
-        this.failCount = new int[this.size];
-        this.evictRecipeTimer = new int[this.size];
-        this.occupiedRecipes = new Recipe[this.size];
+        this.sleepTime[0] = 1;
+        this.workingEnabled[0] = true;
+        this.parallel[0] = 1;
 
-        Arrays.fill(this.sleepTime, 1);
-        Arrays.fill(this.workingEnabled, true);
-        Arrays.fill(this.parallel, 1);
         if (ConfigHolder.gregicalityOverclocking) {
-            V = GTValues.V2;
-            VN = GTValues.VN2;
+            this.V = GTValues.V2;
+            this.VN = GTValues.VN2;
         } else {
-            V = GTValues.V;
-            VN = GTValues.VN;
+           this. V = GTValues.V;
+            this.VN = GTValues.VN;
         }
     }
 
@@ -122,7 +102,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.sleepTimer = Arrays.copyOf(this.sleepTimer, this.size);
         this.sleepTime = Arrays.copyOf(this.sleepTime, this.size);
         this.failCount = Arrays.copyOf(this.failCount, this.size);
-        this.evictRecipeTimer = Arrays.copyOf(this.evictRecipeTimer, this.size);
         this.occupiedRecipes = Arrays.copyOf(this.occupiedRecipes, this.size);
         if (remove) {
             this.fluidOutputs.remove(i);
@@ -239,15 +218,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 }
             }
         }
-        if (this.evictRecipeTimer[i] > 0 && !this.lockRecipe[i] && this.progressTime[i] <= 0) {
-            if (--this.evictRecipeTimer[i] % 20 == 0) {
-                this.occupiedRecipes[i] = null;
-            }
-        }
     }
 
     protected boolean trySearchNewRecipe(int i) {
-        long maxVoltage = getMaxVoltage();
+        long maxVoltage = this.getMaxVoltage();
         Recipe currentRecipe = null;
         IItemHandlerModifiable importInventory = this.getInputInventory();
         IMultipleTankHandler importFluids = this.getInputTank();
@@ -381,15 +355,13 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     protected void calculateOverclock(int EUt, int duration) {
         if (!this.allowOverclocking) {
-            this.overclockManager.setEUt(EUt);
-            this.overclockManager.setDuration(duration);
+            this.overclockManager.setEUtAndDuration(EUt, duration);
             return;
         }
         boolean negativeEU = EUt < 0;
         int tier = this.getOverclockingTier(this.overclockPolicy.getAsLong());
-        if (V[tier] <= EUt || tier == 0) {
-            this.overclockManager.setEUt(EUt);
-            this.overclockManager.setDuration(duration);
+        if (this.V[tier] <= EUt || tier == 0) {
+            this.overclockManager.setEUtAndDuration(EUt, duration);
             return;
         }
         if (negativeEU)
@@ -398,12 +370,11 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         double resultDuration = duration;
         double durationModifier = this.getDurationOverclock();
         //do not overclock further if duration is already too small
-        while (resultDuration >= 1 && resultEUt <= V[tier - 1]) {
+        while (resultDuration >= 1 && resultEUt <= this.V[tier - 1]) {
             resultEUt *= 4;
             resultDuration /= durationModifier;
         }
-        this.overclockManager.setEUt(resultEUt);
-        this.overclockManager.setDuration((int) Math.round(resultDuration));
+        this.overclockManager.setEUtAndDuration(resultEUt, (int) Math.round(resultDuration));
     }
 
     protected int getOverclockingTier(long voltage) {
@@ -415,11 +386,11 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected long getVoltageByTier(final int tier) {
-        return V[tier];
+        return this.V[tier];
     }
 
     public String[] getAvailableOverclockingTiers() {
-        final int maxTier = this.getOverclockingTier(getMaxVoltage());
+        final int maxTier = this.getOverclockingTier(this.getMaxVoltage());
         final String[] result = new String[maxTier + 2];
         result[0] = "gregtech.gui.overclock.off";
         for (int i = 0; i < maxTier + 1; ++i) {
@@ -430,7 +401,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     protected void setupRecipe(Recipe recipe, int i) {
         this.progressTime[i] = 1;
-        this.evictRecipeTimer[i] = 20;
         this.setMaxProgress(this.overclockManager.getDuration(), i);
         this.recipeEUt[i] = this.overclockManager.getEUt();
         this.fluidOutputs.put(i, GTUtility.copyFluidList(recipe.getFluidOutputs()));
@@ -444,7 +414,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected int getMachineTierForRecipe(Recipe recipe) {
-        return GTUtility.getGATierByVoltage(getMaxVoltage());
+        return GTUtility.getGATierByVoltage(this.getMaxVoltage());
     }
 
     protected void completeRecipe(int i) {
@@ -550,7 +520,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
      * Use setOverclockVoltage() or setOverclockTier() for a more dynamic use case.
      */
     public void enableOverclockVoltage() {
-        setOverclockVoltage(getMaxVoltage());
+        setOverclockVoltage(this.getMaxVoltage());
     }
 
     // The overclocking tier
@@ -675,16 +645,14 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         }
 
         NBTTagList workableInstanceList = new NBTTagList();
-        for (int i = 0; i < this.workingEnabled.length; i++) {
+        for (int i = 0; i < this.size; i++) {
             NBTTagCompound workableInstanceCompound = new NBTTagCompound();
-            workableInstanceCompound.setInteger("Index", i);
             workableInstanceCompound.setBoolean("Enabled", this.workingEnabled[i]);
             workableInstanceCompound.setBoolean("Lock", this.lockRecipe[i]);
             workableInstanceCompound.setBoolean("Active", this.isInstanceActive[i]);
             workableInstanceCompound.setInteger("MaxProgress", this.maxProgressTime[i]);
             workableInstanceCompound.setInteger("Progress", this.progressTime[i]);
             workableInstanceCompound.setInteger("EUt", this.recipeEUt[i]);
-            workableInstanceCompound.setInteger("Timer", this.evictRecipeTimer[i]);
 
             if (this.progressTime[i] > 0) {
                 NBTTagList itemOutputsList = new NBTTagList();
@@ -698,11 +666,11 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
                 workableInstanceCompound.setTag("ItemOutputs", itemOutputsList);
                 workableInstanceCompound.setTag("FluidOutputs", fluidOutputsList);
-                workableInstanceList.appendTag(workableInstanceCompound);
             }
+            workableInstanceList.appendTag(workableInstanceCompound); // lol this was supposed to be outside this if block
         }
-        mainCompound.setBoolean(ALLOW_OVERCLOCKING, allowOverclocking);
-        mainCompound.setLong(OVERCLOCK_VOLTAGE, overclockVoltage);
+        mainCompound.setBoolean(ALLOW_OVERCLOCKING, this.allowOverclocking);
+        mainCompound.setLong(OVERCLOCK_VOLTAGE, this.overclockVoltage);
         mainCompound.setBoolean("IsActive", this.isActive);
         mainCompound.setBoolean("Distinct", this.distinct);
         mainCompound.setInteger("Size", this.size);
@@ -713,8 +681,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
-        NBTTagList occupiedRecipeList = compound.getTagList("OccupiedRecipes", Constants.NBT.TAG_COMPOUND);
         NBTTagList workableInstanceList = compound.getTagList("WorkableInstances", Constants.NBT.TAG_COMPOUND);
+        NBTTagList occupiedRecipeList = compound.getTagList("OccupiedRecipes", Constants.NBT.TAG_COMPOUND);
 
         if (compound.hasKey("Distinct")) {
             this.distinct = compound.getBoolean("Distinct");
@@ -729,7 +697,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             this.overclockVoltage = compound.getLong(OVERCLOCK_VOLTAGE);
         } else {
             // Calculate overclock voltage based on old allow flag
-            this.overclockVoltage = this.allowOverclocking ? getMaxVoltage() : 0;
+            this.overclockVoltage = this.allowOverclocking ? this.getMaxVoltage() : 0;
         }
         if (!compound.hasKey("Size")) {
             return;
@@ -749,40 +717,34 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.sleepTimer = new int[this.size];
         this.sleepTime = new int[this.size];
         this.failCount = new int[this.size];
-        this.evictRecipeTimer = new int[this.size];
         this.occupiedRecipes = new Recipe[this.size];
         Arrays.fill(this.sleepTime, 1);
-        Arrays.fill(this.workingEnabled, true);
         Arrays.fill(this.parallel, 1);
 
-        for (NBTBase tag : workableInstanceList) {
-            NBTTagCompound workableInstanceCompound = (NBTTagCompound) tag;
-            int index = workableInstanceCompound.getInteger("Index");
-            this.workingEnabled[index] = workableInstanceCompound.getBoolean("Enabled");
-            this.lockRecipe[index] = workableInstanceCompound.getBoolean("Lock");
-            this.isInstanceActive[index] = workableInstanceCompound.getBoolean("Active");
-            this.maxProgressTime[index] = workableInstanceCompound.getInteger("MaxProgress");
-            this.progressTime[index] = workableInstanceCompound.getInteger("Progress");
-            this.recipeEUt[index] = workableInstanceCompound.getInteger("EUt");
-            this.evictRecipeTimer[index] = workableInstanceCompound.getInteger("Timer");
-            if (this.progressTime[index] > 0) {
+        for (int i = 0; i < workableInstanceList.tagCount(); i++) {
+            NBTTagCompound workableInstanceCompound = workableInstanceList.getCompoundTagAt(i);
+            this.workingEnabled[i] = workableInstanceCompound.getBoolean("Enabled");
+            this.lockRecipe[i] = workableInstanceCompound.getBoolean("Lock");
+            this.isInstanceActive[i] = workableInstanceCompound.getBoolean("Active");
+            this.maxProgressTime[i] = workableInstanceCompound.getInteger("MaxProgress");
+            this.progressTime[i] = workableInstanceCompound.getInteger("Progress");
+            this.recipeEUt[i] = workableInstanceCompound.getInteger("EUt");
+            if (this.progressTime[i] > 0) {
                 NBTTagList itemOutputsList = workableInstanceCompound.getTagList("ItemOutputs", Constants.NBT.TAG_COMPOUND);
-                this.itemOutputs.put(index, NonNullList.create());
-                for (NBTBase itemTag : itemOutputsList) {
-                    NBTTagCompound itemOutputCompound = (NBTTagCompound) itemTag;
-                    this.itemOutputs.get(index).add(new ItemStack(itemOutputCompound));
+                this.itemOutputs.put(i, NonNullList.create());
+                for (int j = 0; j < itemOutputsList.tagCount(); j++) {
+                    this.itemOutputs.get(j).add(new ItemStack(itemOutputsList.getCompoundTagAt(j)));
                 }
                 NBTTagList fluidOutputsList = workableInstanceCompound.getTagList("FluidOutputs", Constants.NBT.TAG_COMPOUND);
-                this.fluidOutputs.put(index, new ArrayList<>());
-                for (NBTBase fluidTag : fluidOutputsList) {
-                    NBTTagCompound fluidOutputCompound = (NBTTagCompound) fluidTag;
-                    this.fluidOutputs.get(index).add(FluidStack.loadFluidStackFromNBT(fluidOutputCompound));
+                this.fluidOutputs.put(i, new ArrayList<>());
+                for (int j = 0; j < fluidOutputsList.tagCount(); j++) {
+                    this.fluidOutputs.get(j).add(FluidStack.loadFluidStackFromNBT(fluidOutputsList.getCompoundTagAt(j)));
                 }
             }
         }
 
-        for (NBTBase tag : occupiedRecipeList) {
-            NBTTagCompound occupiedRecipeCompound = (NBTTagCompound) tag;
+        for (int i = 0; i < occupiedRecipeList.tagCount(); i++) {
+            NBTTagCompound occupiedRecipeCompound = occupiedRecipeList.getCompoundTagAt(i);
             int index = occupiedRecipeCompound.getInteger("Index");
             int parallel = occupiedRecipeCompound.getInteger("Parallel");
             int duration = occupiedRecipeCompound.getInteger("Duration");
@@ -794,23 +756,21 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             NBTTagList fluidOutputsList = occupiedRecipeCompound.getTagList("FluidOutputs", Constants.NBT.TAG_COMPOUND);
 
             List<CountableIngredient> inputIngredients = NonNullList.create();
-            for (NBTBase ingredientTag : itemInputsList) {
-                NBTTagCompound itemInputsCompound = (NBTTagCompound) ingredientTag;
+            for (int j = 0; j < itemInputsList.tagCount(); j++) {
+                NBTTagCompound itemInputsCompound = itemInputsList.getCompoundTagAt(j);
                 NBTTagList itemInputsOreDictList = itemInputsCompound.getTagList("ItemInputsOreDict", Constants.NBT.TAG_COMPOUND);
                 int count = itemInputsCompound.getInteger("Count");
 
-                int i = 0;
                 ItemStack[] oreStacks = new ItemStack[itemInputsOreDictList.tagCount()];
-                for (NBTBase itemTag : itemInputsOreDictList) {
-                    NBTTagCompound itemStackCompound = (NBTTagCompound) itemTag;
-                    oreStacks[i++] = new ItemStack(itemStackCompound);
+                for (int k = 0; k < itemInputsOreDictList.tagCount(); k++) {
+                    oreStacks[k] = new ItemStack(itemInputsOreDictList.getCompoundTagAt(k));
                 }
                 inputIngredients.add(new CountableIngredient(Ingredient.fromStacks(oreStacks), count));
             }
 
             List<Recipe.ChanceEntry> chanceOutputs = new ArrayList<>();
-            for (NBTBase chanceOutputTag : itemChancedOutputsList) {
-                NBTTagCompound chanceEntryCompound = (NBTTagCompound) chanceOutputTag;
+            for (int j = 0; j < itemChancedOutputsList.tagCount(); j++) {
+                NBTTagCompound chanceEntryCompound = itemChancedOutputsList.getCompoundTagAt(j);
                 ItemStack itemStack = new ItemStack(chanceEntryCompound.getCompoundTag("ItemStack"));
                 int chance = chanceEntryCompound.getInteger("Chance");
                 int boost = chanceEntryCompound.getInteger("BoostPerTier");
@@ -818,21 +778,18 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             }
 
             List<ItemStack> itemOutputs = NonNullList.create();
-            for (NBTBase outputTag : itemOutputsList) {
-                NBTTagCompound outputCompound = (NBTTagCompound) outputTag;
-                itemOutputs.add(new ItemStack(outputCompound));
+            for (int j = 0; j < itemOutputsList.tagCount(); j++) {
+                itemOutputs.add(new ItemStack(itemOutputsList.getCompoundTagAt(j)));
             }
 
             List<FluidStack> fluidInputs = new ArrayList<>();
-            for (NBTBase inputTag : fluidInputsList) {
-                NBTTagCompound inputCompound = (NBTTagCompound) inputTag;
-                fluidInputs.add(FluidStack.loadFluidStackFromNBT(inputCompound));
+            for (int j = 0; j < fluidInputsList.tagCount(); j++) {
+                fluidInputs.add(FluidStack.loadFluidStackFromNBT(fluidInputsList.getCompoundTagAt(j)));
             }
 
             List<FluidStack> fluidOutputs = new ArrayList<>();
-            for (NBTBase outputTag : fluidOutputsList) {
-                NBTTagCompound outputCompound = (NBTTagCompound) outputTag;
-                fluidOutputs.add(FluidStack.loadFluidStackFromNBT(outputCompound));
+            for (int j = 0; j < fluidOutputsList.tagCount(); j++) {
+                fluidOutputs.add(FluidStack.loadFluidStackFromNBT(fluidOutputsList.getCompoundTagAt(j)));
             }
 
             Recipe recipe = new Recipe(inputIngredients, itemOutputs, chanceOutputs, fluidInputs, fluidOutputs, duration, energy, false);
