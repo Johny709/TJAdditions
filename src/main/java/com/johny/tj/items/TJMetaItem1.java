@@ -1,5 +1,6 @@
 package com.johny.tj.items;
 
+import com.johny.tj.items.behaviours.*;
 import gregicadditions.GAValues;
 import gregtech.api.items.materialitem.MaterialMetaItem;
 import gregtech.api.unification.ore.OrePrefix;
@@ -21,6 +22,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
         FLUID_REGULATOR_UHV = addItem(1059, "fluid.regulator.uhv");
         FLUID_REGULATOR_UMV = addItem(1062, "fluid.regulator.umv");
         FLUID_REGULATOR_MAX = addItem(1064, "fluid.regulator.max");
+        REMOTE_MULTIBLOCK_CONTROLLER = addItem(1065, "remote_multiblock_controller").addComponents(new RemoteMultiblockControllerBehaviour()).setMaxStackSize(1);
 
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) { // occupies range 1006 - 1021
             UNIVERSAL_CIRCUITS[i] = addItem(1006 + i, GAValues.VN[i].toLowerCase() + "_universal_circuit").setUnificationData(OrePrefix.circuit, CIRCUIT_TIERS[i]);

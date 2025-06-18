@@ -1,4 +1,4 @@
-package com.johny.tj.items;
+package com.johny.tj.items.behaviours;
 
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;

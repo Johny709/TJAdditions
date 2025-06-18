@@ -1,4 +1,4 @@
-package com.johny.tj.items;
+package com.johny.tj.items.behaviours;
 
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregtech.api.block.machines.BlockMachine;

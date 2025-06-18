@@ -20,6 +20,7 @@ public class TJMetaItems {
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UHV;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UMV;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_MAX;
+    public static MetaItem<?>.MetaValueItem REMOTE_MULTIBLOCK_CONTROLLER;
 
     public static final MetaItem<?>.MetaValueItem[] UNIVERSAL_CIRCUITS = new MetaItem.MetaValueItem[15];
     public static final MetaItem<?>.MetaValueItem[] ENDER_FLUID_COVERS = new MetaItem.MetaValueItem[12];

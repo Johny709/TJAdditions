@@ -1,4 +1,4 @@
-package com.johny.tj.items;
+package com.johny.tj.items.behaviours;
 
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
 import net.minecraft.client.resources.I18n;

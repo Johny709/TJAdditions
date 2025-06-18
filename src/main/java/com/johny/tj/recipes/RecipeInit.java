@@ -2,7 +2,6 @@ package com.johny.tj.recipes;
 
 import com.johny.tj.TJConfig;
 import com.johny.tj.blocks.*;
-import com.johny.tj.items.TJMetaItems;
 import com.johny.tj.recipes.ct.*;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
@@ -31,13 +30,14 @@ import net.minecraft.item.ItemStack;
 import java.util.Arrays;
 
 import static com.johny.tj.TJValues.CIRCUIT_TIERS;
-import static com.johny.tj.items.TJMetaItems.UNIVERSAL_CIRCUITS;
+import static com.johny.tj.items.TJMetaItems.*;
 import static com.johny.tj.machines.TJMetaTileEntities.*;
 import static com.johny.tj.recipes.AssemblerRecipes.materialTier;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
 import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
+import static gregtech.api.unification.material.MarkerMaterials.Tier.Superconductor;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.QUANTUM_TANK;
 import static gregtech.common.metatileentities.MetaTileEntities.Super_tank;
@@ -213,7 +213,7 @@ public class RecipeInit {
                     'S', superTank.getStackForm());
         }
 
-        ModHandler.addShapedRecipe("linking_device", TJMetaItems.LINKING_DEVICE.getStackForm(), "SIS", "RLR", "CIC",
+        ModHandler.addShapedRecipe("linking_device", LINKING_DEVICE.getStackForm(), "SIS", "RLR", "CIC",
                 'S', CraftingComponent.SENSOR.getIngredient(5),
                 'I', new UnificationEntry(OrePrefix.cableGtSingle, IVSuperconductor),
                 'R', new UnificationEntry(OrePrefix.ring, HSSE),
@@ -228,11 +228,11 @@ public class RecipeInit {
                 'G', new UnificationEntry(OrePrefix.gear, Bronze),
                 'O', new UnificationEntry(OrePrefix.gear, Steel));
 
-        ModHandler.addShapedRecipe("void_plunger", TJMetaItems.VOID_PLUNGER.getStackForm(), " OO", " SO", "S  ",
+        ModHandler.addShapedRecipe("void_plunger", VOID_PLUNGER.getStackForm(), " OO", " SO", "S  ",
                 'O', new ItemStack(Item.getByNameOrId("enderio:block_reinforced_obsidian")),
                 'S', new UnificationEntry(OrePrefix.stick, Steel));
 
-        ModHandler.addShapedRecipe("nbt_reader", TJMetaItems.NBT_READER.getStackForm(), "PPP", "PCP", "PPP",
+        ModHandler.addShapedRecipe("nbt_reader", NBT_READER.getStackForm(), "PPP", "PCP", "PPP",
                 'P', new ItemStack(Items.PAPER),
                 'C', new UnificationEntry(OrePrefix.circuit, Basic));
 
@@ -245,6 +245,12 @@ public class RecipeInit {
                 'M', new UnificationEntry(OrePrefix.gearSmall, MetastableOganesson),
                 'V', new UnificationEntry(OrePrefix.gear, Vibranium),
                 'H', GATileEntities.GA_HULLS[3].getStackForm());
+
+        ModHandler.addShapedRecipe("remote_multiblock_controller", REMOTE_MULTIBLOCK_CONTROLLER.getStackForm(), "SCS", "EDE", "SES",
+                'S', MetaItems.SENSOR_ZPM.getStackForm(),
+                'E', MetaItems.EMITTER_ZPM.getStackForm(),
+                'C', new UnificationEntry(OrePrefix.circuit, Superconductor),
+                'D', GATileEntities.CENTRAL_MONITOR.getStackForm());
 
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
             ModHandler.addShapelessRecipe(GAValues.VN[i].toLowerCase() + "_universal_circuit", UNIVERSAL_CIRCUITS[i].getStackForm(), new UnificationEntry(OrePrefix.circuit, CIRCUIT_TIERS[i]));

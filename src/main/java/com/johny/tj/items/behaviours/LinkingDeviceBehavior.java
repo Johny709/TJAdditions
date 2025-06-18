@@ -1,9 +1,10 @@
-package com.johny.tj.items;
+package com.johny.tj.items.behaviours;
 
 import com.johny.tj.capability.LinkEntity;
 import com.johny.tj.capability.LinkPos;
 import com.johny.tj.event.MTELinkEvent;
 import com.johny.tj.gui.widgets.TJTextFieldWidget;
+import com.johny.tj.items.LinkingMode;
 import com.johny.tj.util.QuintConsumer;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.gui.ModularUI;
@@ -150,13 +151,11 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                         player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                         hasLink = true;
                     }
-                    ITextComponent textComponent = new TextComponentTranslation(hasLink ? "metaitem.linking.device.message.link.continue" : "metaitem.linking.device.message.link").appendText(" ");
-                    player.sendMessage(textComponent.appendSibling(new TextComponentTranslation(targetGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
-                            .appendSibling(new TextComponentString("\nX: " + targetGTTE.getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
-                            .appendSibling(new TextComponentString("\nY: " + targetGTTE.getPos().getY()).setStyle(new Style().setColor(TextFormatting.YELLOW)))
-                            .appendSibling(new TextComponentString("\nZ: " + targetGTTE.getPos().getZ() + "\n").setStyle(new Style().setColor(TextFormatting.YELLOW)))
-                            .appendSibling(new TextComponentTranslation("metaitem.linking.device.message.remaining").appendSibling(new TextComponentString(" " + nbt.getInteger("I")))
-                                    .setStyle(new Style().setColor(TextFormatting.YELLOW))));
+                    String worldName = world.provider.getDimensionType().getName();
+                    int worldID = world.provider.getDimension();
+                    ITextComponent textComponent = new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted(hasLink ? "metaitem.linking.device.message.link.continue" : "metaitem.linking.device.message.link",
+                            targetGTTE.getMetaFullName(), worldName, worldID, targetGTTE.getPos().getX(), targetGTTE.getPos().getY(), targetGTTE.getPos().getZ()));
+                    player.sendMessage(textComponent.appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("metaitem.linking.device.message.remaining", nbt.getInteger("I")))));
                 } else {
                     player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.capable"));
                     return EnumActionResult.SUCCESS;
@@ -258,13 +257,13 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         String dimensionName = DimensionType.getById(dimensionID).getName();
         String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
         lines.add(I18n.format("metaitem.linking.device.description"));
-        lines.add(I18n.format("metaitem.linking.device.name") + I18n.format(name));
+        lines.add(I18n.format("metaitem.linking.device.name", I18n.format(name)));
+        lines.add(I18n.format("machine.universal.linked.dimension", dimensionName, dimensionID));
         lines.add(I18n.format("metaitem.linking.device.x", x));
         lines.add(I18n.format("metaitem.linking.device.y", y));
         lines.add(I18n.format("metaitem.linking.device.z", z));
         lines.add(I18n.format("metaitem.linking.device.message.remaining", linkI));
         lines.add(I18n.format("metaitem.linking.device.range", range));
-        lines.add(I18n.format("metaitem.linking.device.dimension", dimensionName, dimensionID));
         lines.add(I18n.format("metaitem.linking.device.message.mode.description"));
         lines.add(I18n.format("metaitem.linking.device.message.mode", net.minecraft.util.text.translation.I18n.translateToLocal(linkingMode.getMode())));
     }
