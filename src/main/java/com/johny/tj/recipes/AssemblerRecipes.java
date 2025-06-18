@@ -285,7 +285,7 @@ public class AssemblerRecipes {
 
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(new ItemStack(Blocks.LEVER))
-                .input(OrePrefix.plate, Iron)
+                .input(OrePrefix.plate, Steel)
                 .inputs(HULL[1].getStackForm())
                 .fluidInputs(SolderingAlloy.getFluid(144))
                 .outputs(MACHINE_CONTROLLER.getStackForm())

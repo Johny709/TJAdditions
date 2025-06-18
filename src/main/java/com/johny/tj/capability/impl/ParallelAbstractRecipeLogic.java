@@ -733,12 +733,12 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
                 NBTTagList itemOutputsList = workableInstanceCompound.getTagList("ItemOutputs", Constants.NBT.TAG_COMPOUND);
                 this.itemOutputs.put(i, NonNullList.create());
                 for (int j = 0; j < itemOutputsList.tagCount(); j++) {
-                    this.itemOutputs.get(j).add(new ItemStack(itemOutputsList.getCompoundTagAt(j)));
+                    this.itemOutputs.get(i).add(new ItemStack(itemOutputsList.getCompoundTagAt(j)));
                 }
                 NBTTagList fluidOutputsList = workableInstanceCompound.getTagList("FluidOutputs", Constants.NBT.TAG_COMPOUND);
                 this.fluidOutputs.put(i, new ArrayList<>());
                 for (int j = 0; j < fluidOutputsList.tagCount(); j++) {
-                    this.fluidOutputs.get(j).add(FluidStack.loadFluidStackFromNBT(fluidOutputsList.getCompoundTagAt(j)));
+                    this.fluidOutputs.get(i).add(FluidStack.loadFluidStackFromNBT(fluidOutputsList.getCompoundTagAt(j)));
                 }
             }
         }
