@@ -54,7 +54,7 @@ public class ParallelLargeAssemblerInfo extends MultiblockInfoPage {
             shapeInfos.add(builder
                     .aisle("I~CGGG" + aisleG, "CCCGGG" + aisleG, "CCCGGG" + aisleG, "CCCCCC" + aisleC)
                     .aisle("iMCGGG" + aisleG, "CPC###" + aisleA, "CPPPPP" + aisleP, "CCCCCC" + aisleC)
-                    .aisle("OSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CCCCCC" + aisleC)
+                    .aisle("OSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CECCCC" + aisleC)
                     .aisle("CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC)
                     .where('S', this.getController(), WEST)
                     .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER))
