@@ -1,9 +1,9 @@
 package com.johny.tj.integration.jei;
 
 import com.johny.tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import com.johny.tj.integration.jei.recipe.GTRecipeTransferGuiHandler;
 import gregicadditions.Gregicality;
 import gregtech.api.GregTechAPI;
-import gregtech.api.gui.impl.ModularUIGuiHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
@@ -21,12 +21,7 @@ public class TJJEIPlugin implements IModPlugin {
     @Override
     public void register(IModRegistry registry) {
         IJeiHelpers jeiHelpers = registry.getJeiHelpers();
-
         TJMultiblockInfoCategory.registerRecipes(registry);
-
-        ModularUIGuiHandler modularUIGuiHandler = new ModularUIGuiHandler(jeiHelpers.recipeTransferHandlerHelper());
-        registry.addAdvancedGuiHandlers(modularUIGuiHandler);
-        registry.addGhostIngredientHandler(modularUIGuiHandler.getGuiContainerClass(), modularUIGuiHandler);
 
         registry.addRecipeCatalyst(INFINITE_FLUID_DRILL.getStackForm(), Gregicality.MODID + ":drilling_rig");
 
@@ -34,8 +29,10 @@ public class TJJEIPlugin implements IModPlugin {
             MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(metaTileEntityId);
             if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
                 for (RecipeMap<?> recipeMap : ((ParallelRecipeMapMultiblockController) metaTileEntity).getRecipeMaps()) {
-                    String recipeName = recipeMap.unlocalizedName;
-                    registry.addRecipeCatalyst(metaTileEntity.getStackForm(), Gregicality.MODID + ":" + recipeName);
+                    String recipeName = Gregicality.MODID + ":" + recipeMap.unlocalizedName;
+                    registry.addRecipeCatalyst(metaTileEntity.getStackForm(), recipeName);
+                    GTRecipeTransferGuiHandler gtRecipeTransferGuiHandler = new GTRecipeTransferGuiHandler(jeiHelpers.recipeTransferHandlerHelper());
+                    registry.getRecipeTransferRegistry().addRecipeTransferHandler(gtRecipeTransferGuiHandler, recipeName);
                 }
             }
         }
@@ -47,5 +44,4 @@ public class TJJEIPlugin implements IModPlugin {
                     infoPage.getDescription());
         });
     }
-
 }

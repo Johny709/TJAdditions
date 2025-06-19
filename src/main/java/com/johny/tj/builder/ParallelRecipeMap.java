@@ -155,6 +155,16 @@ public final class ParallelRecipeMap {
     }
 
     @Nullable
+    public Recipe findByInputsAndOutputs(long voltage, List<ItemStack> inputs, List<ItemStack> outputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutputs) {
+        for (Recipe recipe : recipeList) {
+            if (RecipeUtility.recipeMatches(recipe, inputs, outputs, fluidInputs, fluidOutputs)) {
+                return voltage >= recipe.getEUt() ? recipe : null;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
     private Recipe findWithHashMap(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, Recipe[] occupiedRecipes, boolean distinct) {
         HashSet<MapItemStackIngredient> uniqueItems = new HashSet<>();
         HashSet<MapFluidIngredient> uniqueFluids = new HashSet<>();

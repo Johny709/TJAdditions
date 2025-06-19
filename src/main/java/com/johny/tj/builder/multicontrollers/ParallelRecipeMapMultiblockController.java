@@ -11,6 +11,7 @@ import com.johny.tj.capability.TJCapabilities;
 import com.johny.tj.capability.impl.ParallelMultiblockRecipeLogic;
 import com.johny.tj.gui.TJGuiTextures;
 import com.johny.tj.gui.TJWidgetGroup;
+import com.johny.tj.gui.widgets.JEIRecipeTransferWidget;
 import com.johny.tj.multiblockpart.TJMultiblockAbility;
 import com.johny.tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregicadditions.GAUtility;
@@ -214,6 +215,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
+        widgetGroup.apply(new JEIRecipeTransferWidget(0, 0, 100, 100)
+                .setRecipeConsumer(this::setRecipe));
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addWorkableDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleWorkableDisplayClick));
     }
@@ -221,6 +224,16 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private AbstractWidgetGroup debugTab(Function<Widget, WidgetGroup> widgetGroup) {
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDebugDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
+    }
+
+    private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput) {
+        for (int i = 0; i < this.recipeMapWorkable.getSize(); i++) {
+            if (this.recipeMapWorkable.getRecipe(i) == null) {
+                Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
+                this.recipeMapWorkable.setRecipe(newRecipe, i);
+                return;
+            }
+        }
     }
 
     @Override

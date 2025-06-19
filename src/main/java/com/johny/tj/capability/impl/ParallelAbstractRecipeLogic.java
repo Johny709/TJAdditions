@@ -142,6 +142,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return this.size;
     }
 
+    public void setRecipe(Recipe recipe, int i) {
+        this.occupiedRecipes[i] = recipe;
+    }
+
     public Recipe getRecipe(int i) {
         return this.occupiedRecipes[i];
     }
@@ -286,6 +290,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             result = Math.min(fluidTank.getCapacity(), result);
         }
         return result;
+    }
+
+    public Recipe findRecipe(long maxVoltage, IItemHandlerModifiable itemInputs, IMultipleTankHandler fluidInputs) {
+        return this.findRecipe(maxVoltage, itemInputs, fluidInputs, this.useOptimizedRecipeLookUp);
     }
 
     protected Recipe findRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, boolean useOptimizedRecipeLookUp) {
