@@ -61,11 +61,11 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
             this.airCollector.exportFluidHandler.fill(Air.getFluid(this.totalAirProduced), true);
         }
 
-        this.airCollector.calculateMaintenance(this.rotorDamageMultiplier);
         if (this.progress > 0 && !this.isActive())
             this.setActive(true);
 
         if (this.progress >= this.maxProgress) {
+            this.airCollector.calculateMaintenance(this.rotorDamageMultiplier * this.maxProgress);
             this.progress = 0;
             this.setActive(false);
         }

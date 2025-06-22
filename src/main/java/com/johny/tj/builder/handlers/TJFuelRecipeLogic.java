@@ -55,13 +55,12 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
 
         energyContainer.get().addEnergy(energyProduced);
 
-        if (metaTileEntity instanceof TJFueledMultiblockController)
-           ((TJFueledMultiblockController) metaTileEntity).calculateMaintenance(1);
-
         if (progress > 0 && !isActive())
             setActive(true);
 
         if (progress >= maxProgress) {
+            if (metaTileEntity instanceof TJFueledMultiblockController)
+                ((TJFueledMultiblockController) metaTileEntity).calculateMaintenance(this.maxProgress);
             progress = 0;
             setActive(false);
         }

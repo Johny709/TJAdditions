@@ -144,11 +144,11 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             return;
         }
 
-        this.calculateMaintenance(1);
         if (this.progress > 0 && !this.isActive)
             this.setActive(true);
 
         if (this.progress >= this.maxProgress) {
+            this.calculateMaintenance(this.maxProgress);
             this.progress = 0;
             if (this.isActive)
                 this.setActive(false);

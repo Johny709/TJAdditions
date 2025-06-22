@@ -412,7 +412,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             return;
         }
 
-        this.calculateMaintenance(1);
         if (this.progress > 0 && !this.isActive)
             this.setActive(true);
 
@@ -444,6 +443,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                     this.transferEU(energyToAdd, EUContainer);
                 }
             }
+            this.calculateMaintenance(this.maxProgress);
             this.progress = 0;
             if (this.isActive)
                 this.setActive(false);

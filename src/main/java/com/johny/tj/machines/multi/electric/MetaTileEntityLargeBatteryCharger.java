@@ -466,7 +466,6 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
             return;
         }
 
-        this.calculateMaintenance(1);
         if (this.progress > 0 && !this.isActive)
             this.setActive(true);
 
@@ -525,6 +524,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
                 this.transferEU(this.energyPerTick, EUContainer, this.transferMode, stack, this.transferToOutput);
             }
+            this.calculateMaintenance(this.maxProgress);
             this.progress = 0;
             if (this.isActive)
                 this.setActive(false);

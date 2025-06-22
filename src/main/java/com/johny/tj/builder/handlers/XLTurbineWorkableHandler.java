@@ -70,11 +70,11 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         if (this.totalEnergyProduced > 0)
             this.energyContainer.get().addEnergy(this.totalEnergyProduced);
 
-        this.extremeTurbine.calculateMaintenance(this.rotorDamageMultiplier);
         if (this.progress > 0 && !this.isActive())
             this.setActive(true);
 
         if (this.progress >= this.maxProgress) {
+            this.extremeTurbine.calculateMaintenance(this.rotorDamageMultiplier * this.maxProgress);
             this.progress = 0;
             this.setActive(false);
         }

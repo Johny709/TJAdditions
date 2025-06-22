@@ -384,7 +384,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 return;
             }
 
-            this.calculateMaintenance(1);
             if (this.progress > 0 && !this.isActive)
                 this.setActive(true);
 
@@ -455,6 +454,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                     }
                     this.energyContainer.removeEnergy(this.energyPerTick);
                 }
+                this.calculateMaintenance(this.maxProgress);
                 this.progress = 0;
                 if (this.isActive)
                     this.setActive(false);

@@ -242,11 +242,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
             }
         }
 
-        this.calculateMaintenance(1);
         if (this.progress > 0 && !this.isActive)
             this.setActive(true);
 
         if (this.progress >= this.maxProgress) {
+            this.calculateMaintenance(this.maxProgress);
             this.progress = 0;
             this.currentItem.clear();
             this.currentFluid.clear();

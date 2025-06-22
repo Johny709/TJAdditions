@@ -161,7 +161,6 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
             return;
         }
 
-        this.calculateMaintenance(1);
         if (this.progress > 0 && !this.isActive)
             this.setActive(true);
 
@@ -170,6 +169,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
                 this.outputFluid.fill(this.veinFluidStack, true);
                 this.fluidInputs.clear();
                 this.fluidOutputs.clear();
+                this.calculateMaintenance(this.maxProgress);
                 this.progress = 0;
                 if (this.isActive)
                     this.setActive(false);

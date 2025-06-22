@@ -168,13 +168,13 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
                 return;
             }
 
-            this.calculateMaintenance(1);
             if (progress > 0 && !isActive)
                 this.setActive(true);
 
             if (this.progress >= this.maxProgress) {
                 if (addItemsToItemHandler(this.outputInventory, true, this.oreOutputs))
                     addItemsToItemHandler(this.outputInventory, false, this.oreOutputs);
+                this.calculateMaintenance(this.maxProgress);
                 this.progress = 0;
                 this.fluidInputs.clear();
                 this.fluidOutputs.clear();
