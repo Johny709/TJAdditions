@@ -229,7 +229,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput) {
         for (int i = 0; i < this.recipeMapWorkable.getSize(); i++) {
             if (this.recipeMapWorkable.getRecipe(i) == null) {
-                Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
+                Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(itemInputs, itemOutputs, fluidInputs, fluidOutput);
                 this.recipeMapWorkable.setRecipe(newRecipe, i);
                 return;
             }

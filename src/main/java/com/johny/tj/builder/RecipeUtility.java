@@ -6,7 +6,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RecipeUtility {
     public static boolean recipeMatches(Recipe recipe, List<ItemStack> inputs, List<ItemStack> outputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutputs) {
@@ -18,7 +20,12 @@ public class RecipeUtility {
         if (!inputFluids.getKey()) {
             return false;
         }
-        Pair<Boolean, Integer[]> outputItems = matchesOutputItems(outputs, recipe.getOutputs());
+        List<ItemStack> recipeItemOutputs = new ArrayList<>(recipe.getOutputs());
+        recipeItemOutputs.addAll(recipe.getChancedOutputs()
+                .stream()
+                .map(Recipe.ChanceEntry::getItemStack)
+                .collect(Collectors.toCollection(ArrayList::new)));
+        Pair<Boolean, Integer[]> outputItems = matchesOutputItems(outputs, recipeItemOutputs);
         if (!outputItems.getKey()) {
             return false;
         }
