@@ -65,6 +65,7 @@ import java.util.function.Function;
 import java.util.stream.LongStream;
 
 import static com.johny.tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
+import static com.johny.tj.gui.TJGuiTextures.RESET_BUTTON;
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
@@ -192,6 +193,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         this.markDirty();
     }
 
+    private void resetRecipeCache(boolean reset) {
+        this.recipeMapWorkable.previousRecipe.clear();
+    }
+
     @Override
     protected void reinitializeStructurePattern() {
         this.parallelLayer = 1;
@@ -209,18 +214,23 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
         super.addNewTabs(tabs, extended);
         TJWidgetGroup workableWidgetGroup = new TJWidgetGroup(), debugWidgetGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), workableTab(workableWidgetGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab(debugWidgetGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), this.workableTab(workableWidgetGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), this.debugTab(debugWidgetGroup::addWidgets)));
     }
 
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
         widgetGroup.apply(new JEIRecipeTransferWidget(0, 0, 100, 100)
                 .setRecipeConsumer(this::setRecipe));
+        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
+                .setTooltipText("tj.multiblock.parallel.recipe.clear"));
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addWorkableDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleWorkableDisplayClick));
+                .setMaxWidthLimit(180)
+                .setClickHandler(this::handleWorkableDisplayClick));
     }
 
     private AbstractWidgetGroup debugTab(Function<Widget, WidgetGroup> widgetGroup) {
+        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
+                .setTooltipText("tj.multiblock.parallel.recipe.clear"));
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDebugDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }

@@ -213,6 +213,8 @@ tj.multiblock.parallel.debug.cache.hit=Cache Hit: §b%.1f§r
 tj.multiblock.parallel.debug.cache.hit.info=Amount of times a recipe has been found retrieved from the cache.
 tj.multiblock.parallel.debug.cache.miss=Cache Miss: §b%.1f§r
 tj.multiblock.parallel.debug.cache.miss.info=Amount of times a recipe wasn't found from cache.
+tj.multiblock.parallel.recipe.clear.enabled=Clear Recipe Cache
+tj.multiblock.parallel.recipe.clear.disabled=Clear Recipe Cache
 
 tj.multiblock.elite_large_miner.restart=Can Restart:
 tj.multiblock.elite_large_miner.restart.true=Yes
