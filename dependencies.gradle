@@ -45,6 +45,7 @@ dependencies {
     implementation 'curse.maven:codechickenlib-242818:2779848'
     implementation 'curse.maven:CTM-267602:2915363'
     implementation 'curse.maven:forestry-59751:6104316'
+    implementation 'curse.maven:ae2-extended-life-570458:5411078'
     implementation name: 'gregicality_tj_fork-0.26.1'
     implementation name: 'gregtech_tj_fork-1.18.1'
 }
