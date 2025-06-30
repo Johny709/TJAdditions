@@ -9,10 +9,10 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import tj.gui.widgets.IGTRecipeTransferHandler;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,14 +26,15 @@ public class GTRecipeTransferGuiHandler implements IRecipeTransferHandler<Modula
         this.transferHelper = transferHelper;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Class<ModularUIContainer> getContainerClass() {
         return ModularUIContainer.class;
     }
 
+    @Nullable
     @Override
-    public @Nullable IRecipeTransferError transferRecipe(ModularUIContainer container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
+    public IRecipeTransferError transferRecipe(ModularUIContainer container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
         Optional<IGTRecipeTransferHandler> transferHandler = container.getModularUI()
                 .getFlatVisibleWidgetCollection().stream()
                 .filter(widget -> widget instanceof IGTRecipeTransferHandler)

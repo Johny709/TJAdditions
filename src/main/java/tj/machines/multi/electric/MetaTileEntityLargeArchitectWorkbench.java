@@ -31,11 +31,11 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import tj.TJConfig;
 import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;

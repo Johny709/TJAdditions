@@ -3,7 +3,6 @@ package tj.items.handlers;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -21,12 +20,12 @@ public class LargeItemStackHandler extends ItemStackHandler {
     }
 
     @Override
-    protected int getStackLimit(int slot, @NotNull ItemStack stack) {
+    protected int getStackLimit(int slot, @Nonnull ItemStack stack) {
         return capacity;
     }
 
-    @Override
     @Nonnull
+    @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (amount == 0)
             return ItemStack.EMPTY;

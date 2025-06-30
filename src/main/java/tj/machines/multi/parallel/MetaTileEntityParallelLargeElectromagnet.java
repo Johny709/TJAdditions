@@ -26,9 +26,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -117,8 +117,9 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
         return ClientHandler.BABBITT_ALLOY_CASING;
     }
 
+    @Nonnull
     @Override
-    protected @NotNull OrientedOverlayRenderer getFrontOverlay() {
+    protected OrientedOverlayRenderer getFrontOverlay() {
         return this.getRecipeMapIndex() == 0 ? POLARIZER_OVERLAY : ELECTROMAGNETIC_SEPARATOR_OVERLAY;
     }
 

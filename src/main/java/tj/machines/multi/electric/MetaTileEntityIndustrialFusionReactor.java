@@ -503,7 +503,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             return newRecipe.build().getResult();
         }
 
-        private static void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
+        private void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
             for (FluidStack fluidS : recipe.getFluidInputs()) {
                 FluidStack newFluid = new FluidStack(fluidS.getFluid(), fluidS.amount * multiplier);
                 newFluidInputs.add(newFluid);
@@ -516,7 +516,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             }
         }
 
-        private static float fusionOverclockMultiplier(long energyToStart, long recipeEnergy) {
+        private float fusionOverclockMultiplier(long energyToStart, long recipeEnergy) {
             recipeEnergy = Math.max(160_000_000, recipeEnergy);
             long recipeEnergyOld = recipeEnergy;
             float OCMultiplier = 1;
