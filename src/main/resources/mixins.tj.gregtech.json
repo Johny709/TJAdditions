@@ -1,5 +1,5 @@
 {
-  "package": "com.johny.tj.mixin.gregtech",
+  "package": "tj.mixin.gregtech",
   "refmap": "mixins.tj.refmap.json",
   "target": "@env(DEFAULT)",
   "minVersion": "0.8",
