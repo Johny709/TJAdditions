@@ -235,14 +235,17 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 .setMaxWidthLimit(180));
     }
 
-    private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput) {
+    private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput, EntityPlayer player) {
         for (int i = 0; i < this.recipeMapWorkable.getSize(); i++) {
             if (this.recipeMapWorkable.getRecipe(i) == null) {
                 Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(itemInputs, itemOutputs, fluidInputs, fluidOutput);
                 this.recipeMapWorkable.setRecipe(newRecipe, i);
+                player.sendMessage(newRecipe != null ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.success", i + 1))
+                        : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.fail_2", i + 1)));
                 return;
             }
         }
+        player.sendMessage(new TextComponentString(I18n.translateToLocal("tj.multiblock.recipe.transfer.fail")));
     }
 
     @Override
@@ -320,7 +323,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
         if (this.isStructureFormed()) {
-            for (int i = this.pageIndex, recipeHandlerPos = i + 1; i < this.pageIndex + this.pageSize; i++, recipeHandlerPos++) {
+            for (int i = this.pageIndex, recipeHandlerInstance = i + 1; i < this.pageIndex + this.pageSize; i++, recipeHandlerInstance++) {
                 if (i < this.parallelLayer) {
 
                     int parallel = this.recipeMapWorkable.getParallel(i);
@@ -344,10 +347,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     String isRunning = !this.recipeMapWorkable.isWorkingEnabled(i) ? I18n.translateToLocal("machine.universal.work_paused")
                             : !this.recipeMapWorkable.isInstanceActive(i) ? I18n.translateToLocal("machine.universal.idling")
                             : I18n.translateToLocal("machine.universal.running");
-                    recipeInstance.appendSibling(new TextComponentString("[§a" + recipeHandlerPos + "§r] ").appendSibling(new TextComponentString(isRunning).appendText(" "))
+                    recipeInstance.appendSibling(new TextComponentString("[§a" + recipeHandlerInstance + "§r] ").appendSibling(new TextComponentString(isRunning).appendText(" "))
                                     .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.status")
                                             .appendText(" ")
                                             .appendSibling(new TextComponentString(isRunning))
+                                            .appendText("\n")
+                                            .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.handler", recipeHandlerInstance)))
                                             .appendText("\n")
                                             .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.eu", this.recipeMapWorkable.getRecipeEUt(i))))
                                             .appendText("\n")

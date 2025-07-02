@@ -12,6 +12,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import tj.util.QuadConsumer;
+import tj.util.QuintConsumer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,13 +22,13 @@ import java.util.Map;
 
 public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransferHandler {
 
-    private QuadConsumer<List<ItemStack>, List<ItemStack>, List<FluidStack>, List<FluidStack>> recipeConsumer;
+    private QuintConsumer<List<ItemStack>, List<ItemStack>, List<FluidStack>, List<FluidStack>, EntityPlayer> recipeConsumer;
 
     public JEIRecipeTransferWidget(int x, int y, int width, int height) {
         super(new Position(x, y), new Size(width, height));
     }
 
-    public JEIRecipeTransferWidget setRecipeConsumer(QuadConsumer<List<ItemStack>, List<ItemStack>, List<FluidStack>, List<FluidStack>> recipeConsumer) {
+    public JEIRecipeTransferWidget setRecipeConsumer(QuintConsumer<List<ItemStack>, List<ItemStack>, List<FluidStack>, List<FluidStack>, EntityPlayer> recipeConsumer) {
         this.recipeConsumer = recipeConsumer;
         return this;
     }
@@ -58,7 +59,7 @@ public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransfer
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
-            this.recipeConsumer.accept(itemInputs, itemOutputs, fluidInputs, fluidOutputs);
+            this.recipeConsumer.accept(itemInputs, itemOutputs, fluidInputs, fluidOutputs, gui.entityPlayer);
         }
     }
 
