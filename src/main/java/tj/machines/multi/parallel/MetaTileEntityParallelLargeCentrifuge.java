@@ -4,7 +4,6 @@ import tj.TJConfig;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
@@ -39,16 +38,18 @@ import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import static tj.TJRecipeMaps.*;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.GATileEntities.*;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+import static tj.TJRecipeMaps.*;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CENTRIFUGE_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
+import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY,
-            GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
