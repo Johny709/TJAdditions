@@ -293,6 +293,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             itemOutputs.appendText(" §7{");
             itemOutputs.appendText("§6" + String.format("%,d", item.getCount() * parallel) + "§7}");
         }
+        for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
+            itemOutputs.appendText("\n-");
+            itemOutputs.appendSibling(new TextComponentString("§6" + entry.getItemStack().getDisplayName()));
+            itemOutputs.appendText(" §7{");
+            itemOutputs.appendText("§6" + String.format("%,d", entry.getItemStack().getCount() * parallel) + "§7}");
+            itemOutputs.appendText(" §7{");
+            itemOutputs.appendText("§6" + I18n.translateToLocalFormatted("gregtech.recipe.chance", entry.getChance() / 100, entry.getBoostPerTier() / 100) + "§7}");
+        }
         return itemOutputs;
     }
 
