@@ -48,9 +48,12 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
 
     protected ModularUI.Builder createUI(EntityPlayer player, int extended) {
         ModularUI.Builder builder = ModularUI.extendedBuilder();
+        WidgetGroup widgetGroup = new WidgetGroup();
         builder.image(-10, 0, 195, 217 + extended, extended == 0 ? NEW_MULTIBLOCK_DISPLAY : NEW_MULTIBLOCK_DISPLAY_EXTENDED);
         builder.bindPlayerInventory(player.inventory, GuiTextures.SLOT ,-3, 134 + extended);
-        builder.widget(new LabelWidget(0, 7, getMetaFullName(), 0xFFFFFF));
+        widgetGroup.addWidget(new LabelWidget(0, 7, getMetaFullName(), 0xFFFFFF));
+        this.additionalWidgets(widgetGroup::addWidget);
+        builder.widget(widgetGroup);
 
         TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM), new Position(-10, 1 + extended));
         List<Triple<String, ItemStack, AbstractWidgetGroup>> tabList = new ArrayList<>();
@@ -59,6 +62,11 @@ public abstract class TJMultiblockDisplayBase extends GAMultiblockWithDisplayBas
         builder.widget(tabGroup);
         return builder;
     }
+
+    /**
+     * These widgets affect all tabs
+     */
+    protected void additionalWidgets(Consumer<Widget> widgetGroup) {}
 
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
         TJWidgetGroup widgetDisplayGroup = new TJWidgetGroup(), widgetMaintenanceGroup = new TJWidgetGroup();

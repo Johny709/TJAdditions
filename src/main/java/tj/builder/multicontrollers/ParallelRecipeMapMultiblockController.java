@@ -204,6 +204,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
+    protected void additionalWidgets(Consumer<Widget> widgetGroup) {
+        widgetGroup.accept(new JEIRecipeTransferWidget(0, 0, 100, 100)
+                .setRecipeConsumer(this::setRecipe));
+    }
+
+    @Override
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
         super.mainDisplayTab(widgetGroup, extended);
         return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this::isDistinctBus, this::setDistinctBus)
@@ -219,8 +225,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new JEIRecipeTransferWidget(0, 0, 100, 100)
-                .setRecipeConsumer(this::setRecipe));
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
                 .setTooltipText("tj.multiblock.parallel.recipe.clear"));
         return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addWorkableDisplayText, 0xFFFFFF)
@@ -240,12 +244,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             if (this.recipeMapWorkable.getRecipe(i) == null) {
                 Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(itemInputs, itemOutputs, fluidInputs, fluidOutput);
                 this.recipeMapWorkable.setRecipe(newRecipe, i);
-                player.sendMessage(newRecipe != null ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.success", i + 1))
+                player.sendMessage(newRecipe != null ? this.displayRecipe(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.success", i + 1)), newRecipe, 1)
                         : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.fail_2", i + 1)));
                 return;
             }
         }
-        player.sendMessage(new TextComponentString(I18n.translateToLocal("tj.multiblock.recipe.transfer.fail")));
+        player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.fail")));
     }
 
     @Override
@@ -274,7 +278,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         }
     }
 
-    private static ITextComponent displayItemInputs(Recipe recipe, int parallel) {
+    private ITextComponent displayItemInputs(Recipe recipe, int parallel) {
         ITextComponent itemInputs = new TextComponentString(I18n.translateToLocal("tj.multiblock.parallel.advanced.itemInputs"));
         for (CountableIngredient item : recipe.getInputs()) {
             itemInputs.appendText("\n-");
@@ -285,7 +289,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return itemInputs;
     }
 
-    private static ITextComponent displayItemOutputs(Recipe recipe, int parallel) {
+    private ITextComponent displayItemOutputs(Recipe recipe, int parallel) {
         ITextComponent itemOutputs = new TextComponentString(I18n.translateToLocal("tj.multiblock.parallel.advanced.itemOutputs"));
         for (ItemStack item : recipe.getOutputs()) {
             itemOutputs.appendText("\n-");
@@ -304,7 +308,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return itemOutputs;
     }
 
-    private static ITextComponent displayFluids(List<FluidStack> fluidStacks, String fluidTextLocale, int parallel) {
+    private ITextComponent displayFluids(List<FluidStack> fluidStacks, String fluidTextLocale, int parallel) {
         ITextComponent fluidInputs = new TextComponentString(I18n.translateToLocal(fluidTextLocale));
         for (FluidStack fluid : fluidStacks) {
             fluidInputs.appendText("\n-");
@@ -313,6 +317,17 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             fluidInputs.appendText("§b" + String.format("%,d", fluid.amount * parallel) + "L§7}");
         }
         return fluidInputs;
+    }
+
+    private ITextComponent displayRecipe(ITextComponent textComponent, Recipe recipe, int parallel) {
+        return textComponent.appendText("\n")
+                .appendSibling(this.displayItemInputs(recipe, parallel))
+                .appendText("\n")
+                .appendSibling(this.displayFluids(recipe.getFluidInputs(), "tj.multiblock.parallel.advanced.fluidInput", parallel))
+                .appendText("\n")
+                .appendSibling(this.displayItemOutputs(recipe, parallel))
+                .appendText("\n")
+                .appendSibling(this.displayFluids(recipe.getFluidOutputs(), "tj.multiblock.parallel.advanced.fluidOutput", parallel));
     }
 
     private void addWorkableDisplayText(List<ITextComponent> textList) {
@@ -342,14 +357,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     if (this.advancedText) {
                         Recipe recipe = this.recipeMapWorkable.getRecipe(i);
                         if (recipe != null) {
-                            advancedTooltip.appendText("\n")
-                                    .appendSibling(displayItemInputs(recipe, parallel))
-                                    .appendText("\n")
-                                    .appendSibling(displayFluids(recipe.getFluidInputs(), "tj.multiblock.parallel.advanced.fluidInput", parallel))
-                                    .appendText("\n")
-                                    .appendSibling(displayItemOutputs(recipe, parallel))
-                                    .appendText("\n")
-                                    .appendSibling(displayFluids(recipe.getFluidOutputs(), "tj.multiblock.parallel.advanced.fluidOutput", parallel));
+                            this.displayRecipe(advancedTooltip, recipe, parallel);
                         }
                     }
                     String isRunning = !this.recipeMapWorkable.isWorkingEnabled(i) ? I18n.translateToLocal("machine.universal.work_paused")
