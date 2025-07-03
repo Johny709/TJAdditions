@@ -1,7 +1,6 @@
 package tj.integration.jei.multi;
 
 import com.google.common.collect.Lists;
-import crazypants.enderio.base.material.alloy.BlockAlloy;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
@@ -44,7 +43,7 @@ public class LargePoweredSpawnerInfo extends MultiblockInfoPage {
                 .where('F', new BlockInfo(Block.getBlockFromName("gregtech:frame_protactinium")))
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('M', new BlockInfo(Block.getBlockFromName("enderio:block_decoration1")))
-                .where('E', BlockAlloy.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
+                .where('E', Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MV], EnumFacing.WEST)
                 .where('L', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MV], EnumFacing.WEST)

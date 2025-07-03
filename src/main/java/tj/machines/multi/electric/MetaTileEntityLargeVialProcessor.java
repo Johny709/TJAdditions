@@ -5,7 +5,6 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
 import tj.textures.TJTextures;
-import crazypants.enderio.base.material.alloy.BlockAlloy;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;
 import gregicadditions.item.GAMetaBlocks;
@@ -54,7 +53,7 @@ public class MetaTileEntityLargeVialProcessor extends TJGARecipeMapMultiblockCon
                 .where('F', blockPredicate(Block.getBlockFromName("gregtech:frame_protactinium")))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('B', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
-                .where('E', state -> state.getBlockState() == BlockAlloy.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
+                .where('E', state -> state.getBlockState() == Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('~', state -> true)
                 .build();

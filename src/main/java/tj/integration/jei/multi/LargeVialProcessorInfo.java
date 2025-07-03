@@ -1,7 +1,6 @@
 package tj.integration.jei.multi;
 
 import com.google.common.collect.Lists;
-import crazypants.enderio.base.material.alloy.BlockAlloy;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.machines.GATileEntities;
@@ -46,7 +45,7 @@ public class LargeVialProcessorInfo extends MultiblockInfoPage {
                 .where('B', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('F', new BlockInfo(Block.getBlockFromName("gregtech:frame_protactinium")))
-                .where('E', BlockAlloy.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
+                .where('E', Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                 .where('I', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.WEST)
                 .where('L', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MV], EnumFacing.WEST)

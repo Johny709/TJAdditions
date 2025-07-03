@@ -1,6 +1,5 @@
 package tj.machines.multi.electric;
 
-import crazypants.enderio.base.material.alloy.BlockAlloy;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -52,7 +51,7 @@ public class MetaTileEntityLargePoweredSpawner extends TJGARecipeMapMultiblockCo
                 .where('F', blockPredicate(Block.getBlockFromName("gregtech:frame_protactinium")))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('M', blockPredicate(Block.getBlockFromName("enderio:block_decoration1")))
-                .where('E', state -> state.getBlockState() == BlockAlloy.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
+                .where('E', state -> state.getBlockState() == Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('~', state -> true)
                 .build();
