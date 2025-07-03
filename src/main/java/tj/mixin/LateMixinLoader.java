@@ -1,5 +1,6 @@
 package tj.mixin;
 
+import com.google.common.collect.ImmutableList;
 import tj.TJ;
 import gregtech.api.GTValues;
 import zone.rong.mixinbooter.ILateMixinLoader;
@@ -11,12 +12,8 @@ import java.util.stream.Collectors;
 
 public class LateMixinLoader implements ILateMixinLoader {
 
-    public static final List<String> MODIDs = Arrays.asList(GTValues.MODID);
-
     @Override
     public List<String> getMixinConfigs() {
-        return MODIDs.stream()
-                .map(mod -> "mixins." + TJ.MODID + "." + mod + ".json")
-                .collect(Collectors.toCollection(ArrayList::new));
+        return ImmutableList.of("mixins.tj.json");
     }
 }

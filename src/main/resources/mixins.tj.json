@@ -1,10 +1,14 @@
 {
-  "package": "tj.mixin",
-  "refmap": "mixins.tj.refmap.json",
-  "target": "@env(DEFAULT)",
-  "minVersion": "0.8",
-  "compatibilityLevel": "JAVA_8",
-  "mixins": [],
-  "client": [],
-  "server": []
+	"package": "tj.mixin",
+	"required": true,
+	"refmap": "mixins.tj.refmap.json",
+	"target": "@env(DEFAULT)",
+	"minVersion": "0.8",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+		"ElectricContainerInfoProviderMixin",
+		"WorkableInfoProviderMixin"
+	],
+	"server": [],
+	"client": []
 }
