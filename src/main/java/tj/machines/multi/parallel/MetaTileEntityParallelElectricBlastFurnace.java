@@ -1,6 +1,7 @@
 package tj.machines.multi.parallel;
 
 import gregicadditions.GAUtility;
+import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -49,7 +50,12 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
 
     public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature);
+        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature) {
+            @Override
+            protected long getMaxVoltage() {
+                return this.controller.getMaxVoltage();
+            }
+        };
     }
 
     @Override
@@ -108,7 +114,10 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
         super.formStructure(context);
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
 
-        this.maxVoltage = this.getEnergyContainer().getInputVoltage();
+        this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
+                .mapToLong(IEnergyContainer::getInputVoltage)
+                .max()
+                .orElse(0);
         int energyTier = GAUtility.getTierByVoltage(this.maxVoltage);
         this.bonusTemperature = Math.max(0, 100 * (energyTier - 2));
         this.blastFurnaceTemperature += this.bonusTemperature;

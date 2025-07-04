@@ -1,8 +1,5 @@
 package tj.integration.jei.multi.parallel;
 
-import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
@@ -23,11 +20,11 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
-public class ParallelElectricBlastFurnaceInfo extends MultiblockInfoPage {
+public class ParallelVacuumFreezerInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.PARALLEL_ELECTRIC_BLAST_FURNACE;
+        return TJMetaTileEntities.PARALLEL_VACUUM_FREEZER;
     }
 
     @Override
@@ -36,15 +33,15 @@ public class ParallelElectricBlastFurnaceInfo extends MultiblockInfoPage {
         for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
             for (int layer = 0; layer < shapeInfo; layer++) {
-                String muffler = layer == 0 ? "CCCCC" : "CCPCC";
-                builder.aisle("CCCCC", "CCCCC", muffler, "CCCCC", "CCCCC");
-                builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
-                builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
+                String entityP = layer == 0 ? "CCCCC" : "CCPCC";
+                String entityS = layer == shapeInfo - 1 ? "~ISO~" : "~CCC~";
+                String energyH = layer == shapeInfo - 1 ? "~CEM~" : "~CCC~";
+                builder.aisle("~CCC~", "CCCCC", entityP, "CCCCC", "~CCC~");
+                builder.aisle(entityS, "C#P#C", "CPPPC", "C#P#C", energyH);
             }
-            shapeInfos.add(builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC")
+            shapeInfos.add(builder.aisle("~iCo~", "CCCCC", "CCCCC", "CCCCC", "~CCC~")
                     .where('S', this.getController(), WEST)
-                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
-                    .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
+                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.ALUMINIUM_FROSTPROOF))
                     .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
@@ -60,7 +57,7 @@ public class ParallelElectricBlastFurnaceInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.parallel_electric_blast_furnace.description"),
+                I18n.format("tj.multiblock.parallel_vacuum_freezer.description"),
                 I18n.format("tj.multiblock.parallel.description.parallel")};
     }
 
