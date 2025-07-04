@@ -55,7 +55,6 @@ public class TJConfig {
         @Config.Comment("Adjust the maximum number of parallel recipes the chemical reactor can do")
         @Config.RequiresMcRestart
         public int maximumParallel = 64;
-
     }
 
     @Config.Comment("Decay Chamber")
@@ -777,6 +776,17 @@ public class TJConfig {
         public int stack = 16;
 
         @Config.Name("Slice Limit")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
+    @Config.Comment("Parallel Electric Blast Furnace")
+    public static ParallelElectricBlastFurnace parallelElectricBlastFurnace = new ParallelElectricBlastFurnace();
+
+    public static class ParallelElectricBlastFurnace {
+
+        @Config.Name("Parallel Limit")
+        @Config.Comment("Adjust the maximum number of parallel recipes the electric blast furnace can do")
         @Config.RequiresMcRestart
         public int maximumParallel = 64;
     }

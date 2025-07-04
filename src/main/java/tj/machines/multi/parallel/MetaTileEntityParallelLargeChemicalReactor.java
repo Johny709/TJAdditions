@@ -61,6 +61,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
         tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"));
         tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));

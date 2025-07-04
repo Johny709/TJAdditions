@@ -77,6 +77,7 @@ public class TJRecipeMaps {
     public static ParallelRecipeMap PARALLEL_UNPACKER_RECIPES;
     public static ParallelRecipeMap PARALLEL_WIREMILL_RECIPES;
     public static ParallelRecipeMap PARALLEL_PLASMA_CONDENSER_RECIPES;
+    public static ParallelRecipeMap PARALLEL_BLAST_RECIPES;
 
     public static void parallelRecipesInit() {
         PARALLEL_CHEMICAL_REACTOR_RECIPES = new ParallelRecipeMap(LARGE_CHEMICAL_RECIPES);
@@ -119,5 +120,6 @@ public class TJRecipeMaps {
         PARALLEL_UNPACKER_RECIPES = new ParallelRecipeMap(UNPACKER_RECIPES);
         PARALLEL_WIREMILL_RECIPES = new ParallelRecipeMap(WIREMILL_RECIPES);
         PARALLEL_PLASMA_CONDENSER_RECIPES = new ParallelRecipeMap(PLASMA_CONDENSER_RECIPES);
+        PARALLEL_BLAST_RECIPES = new ParallelRecipeMap(BLAST_RECIPES);
     }
 }

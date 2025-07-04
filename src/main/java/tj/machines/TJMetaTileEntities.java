@@ -87,6 +87,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityParallelLargePackager PARALLEL_LARGE_PACKAGER;
     public static MetaTileEntityParallelLargeWiremill PARALLEL_LARGE_WIREMILL;
     public static MetaTileEntityParallelPlasmaCondenser PARALLEL_PLASMA_CONDENSER;
+    public static MetaTileEntityParallelElectricBlastFurnace PARALLEL_ELECTRIC_BLAST_FURNACE;
     public static MetaTileEntityAcceleratorAnchorPoint ACCELERATOR_ANCHOR_POINT;
     public static MetaTileEntityLargeWirelessEnergyEmitter LARGE_WIRELESS_ENERGY_EMITTER;
     public static MetaTileEntityLargeWirelessEnergyReceiver LARGE_WIRELESS_ENERGY_RECEIVER;
@@ -182,6 +183,7 @@ public class TJMetaTileEntities {
         PARALLEL_LARGE_PACKAGER = GregTechAPI.registerMetaTileEntity(5102, new MetaTileEntityParallelLargePackager(TJId("parallel_large_packager")));
         PARALLEL_LARGE_WIREMILL = GregTechAPI.registerMetaTileEntity(5103, new MetaTileEntityParallelLargeWiremill(TJId("parallel_large_wiremill")));
         PARALLEL_PLASMA_CONDENSER = GregTechAPI.registerMetaTileEntity(5104, new MetaTileEntityParallelPlasmaCondenser(TJId("parallel_plasma_condenser")));
+        PARALLEL_ELECTRIC_BLAST_FURNACE = GregTechAPI.registerMetaTileEntity(5105, new MetaTileEntityParallelElectricBlastFurnace(TJId("parallel_electric_blast_furnace")));
 
         VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5127, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
         TELEPORTER = GregTechAPI.registerMetaTileEntity(5128, new MetaTileEntityTeleporter(TJId("teleporter")));
