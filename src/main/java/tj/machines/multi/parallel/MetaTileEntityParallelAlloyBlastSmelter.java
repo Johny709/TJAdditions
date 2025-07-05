@@ -1,6 +1,10 @@
 package tj.machines.multi.parallel;
 
 import gregicadditions.GAUtility;
+import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -11,9 +15,9 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockBoilerCasing;
-import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -29,27 +33,27 @@ import tj.builder.ParallelRecipeMap;
 import tj.builder.handlers.ParallelElectricBlastFurnaceRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
-import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
-import static gregicadditions.machines.multi.override.MetaTileEntityElectricBlastFurnace.heatingCoilPredicate;
+import static gregicadditions.machines.multi.TileEntityAlloyBlastFurnace.heatingCoilPredicate;
 import static gregicadditions.machines.multi.override.MetaTileEntityElectricBlastFurnace.heatingCoilPredicate2;
+import static gregicadditions.recipes.GARecipeMaps.BLAST_ALLOY_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.BLAST_RECIPES;
-import static tj.TJRecipeMaps.PARALLEL_BLAST_RECIPES;
+import static tj.TJRecipeMaps.PARALLEL_BLAST_ALLOY_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
-public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMultiblockController {
 
     private int blastFurnaceTemperature;
     private int bonusTemperature;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
 
-    public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
+    public MetaTileEntityParallelAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_ALLOY_RECIPES});
         this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature) {
             @Override
             protected long getMaxVoltage() {
@@ -60,7 +64,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityParallelElectricBlastFurnace(this.metaTileEntityId);
+        return new MetaTileEntityParallelAlloyBlastSmelter(this.metaTileEntityId);
     }
 
     @Override
@@ -83,30 +87,41 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
         }
     }
 
-    //TODO fix muffler hatch
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             if (layer % 4 == 0) {
-                String muffler = layer == 0 ? "XXXXX" : "XXPXX";
-                factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
-                factoryPattern.aisle("CCCCC", "C#C#C", "CCPCC", "C#C#C", "CCCCC");
-                factoryPattern.aisle("CCCCC", "C#C#C", "CCPCC", "C#C#C", "CCCCC");
+                String mufflerMM = layer == 0 ? "XXXXXXX" : "XXXPXXX";
+                factoryPattern.aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", mufflerMM, "XXXXXXX", "XXXXXXX", "~XXXXX~");
+                factoryPattern.aisle("~AAAAA~", "ACCCCCA", "AC#C#CA", "ACCPCCA", "AC#C#CA", "ACCCCCA", "~AAAAA~");
+                factoryPattern.aisle("~AAAAA~", "ACCCCCA", "AC#C#CA", "ACCPCCA", "AC#C#CA", "ACCCCCA", "~AAAAA~");
             }
         }
-        return factoryPattern.aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
+        return factoryPattern.aisle("~XXSXX~", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "~XXXXX~")
                 .where('S', this.selfPredicate())
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('C', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('A', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
+                .where('C', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('#', isAirPredicate())
-                .where('M', abilityPartPredicate(MUFFLER_HATCH))
+                .where('~', tile -> true)
                 .build();
     }
 
     private IBlockState getCasingState() {
-        return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF);
+        return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE);
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return ClientHandler.ZIRCONIUM_CARBIDE_CASING;
+    }
+
+    @Nonnull
+    @Override
+    protected OrientedOverlayRenderer getFrontOverlay() {
+        return Textures.PRIMITIVE_BLAST_FURNACE_OVERLAY;
     }
 
     @Override
@@ -127,17 +142,12 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     }
 
     @Override
-    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return Textures.HEAT_PROOF_CASING;
-    }
-
-    @Override
     public int getMaxParallel() {
-        return TJConfig.parallelElectricBlastFurnace.maximumParallel;
+        return TJConfig.parallelAlloyBlastSmelter.maximumParallel;
     }
 
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{BLAST_RECIPES};
+        return new RecipeMap[]{BLAST_ALLOY_RECIPES};
     }
 }

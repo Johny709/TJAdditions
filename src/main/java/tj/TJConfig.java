@@ -780,6 +780,17 @@ public class TJConfig {
         public int maximumParallel = 64;
     }
 
+    @Config.Comment("Parallel Vacuum Freezer")
+    public static ParallelAlloyBlastSmelter parallelAlloyBlastSmelter = new ParallelAlloyBlastSmelter();
+
+    public static class ParallelAlloyBlastSmelter {
+
+        @Config.Name("Parallel Limit")
+        @Config.Comment("Adjust the maximum number of parallel recipes the vacuum freezer can do")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
     @Config.Comment("Parallel Electric Blast Furnace")
     public static ParallelElectricBlastFurnace parallelElectricBlastFurnace = new ParallelElectricBlastFurnace();
 
@@ -792,7 +803,7 @@ public class TJConfig {
     }
 
     @Config.Comment("Parallel Vacuum Freezer")
-    public static ParallelVacuumFreezer  parallelVacuumFreezer = new ParallelVacuumFreezer ();
+    public static ParallelVacuumFreezer parallelVacuumFreezer = new ParallelVacuumFreezer();
 
     public static class ParallelVacuumFreezer {
 

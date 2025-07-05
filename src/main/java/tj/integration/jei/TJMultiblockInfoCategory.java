@@ -20,6 +20,8 @@ import tj.integration.jei.multi.*;
 import tj.integration.jei.multi.parallel.*;
 import tj.machines.TJMetaTileEntities;
 
+import javax.annotation.Nonnull;
+
 import static tj.machines.TJMetaTileEntities.LARGE_WIRELESS_ENERGY_EMITTER;
 import static tj.machines.TJMetaTileEntities.LARGE_WIRELESS_ENERGY_RECEIVER;
 import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
@@ -100,6 +102,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("parallel_large_packager", new MultiblockInfoRecipeWrapper(new ParallelLargePackagerInfo()))
                             .put("parallel_large_wiremill", new MultiblockInfoRecipeWrapper(new ParallelLargeWiremillInfo()))
                             .put("parallel_plasma_condenser", new MultiblockInfoRecipeWrapper(new ParallelPlasmaCondenserInfo()))
+                            .put("parallel_alloy_blast_smelter", new MultiblockInfoRecipeWrapper(new ParallelAlloyBlastSmelterInfo()))
                             .put("parallel_electric_blast_furnace", new MultiblockInfoRecipeWrapper(new ParallelElectricBlastFurnaceInfo()))
                             .put("parallel_vacuum_freezer", new MultiblockInfoRecipeWrapper(new ParallelVacuumFreezerInfo()))
                             .put("large_wireless_energy_emitter", new MultiblockInfoRecipeWrapper(new LargeWirelessEnergyEmitterInfo(INPUT, LARGE_WIRELESS_ENERGY_EMITTER)))
@@ -115,25 +118,33 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
     public static void registerRecipes(IModRegistry registry) {
         registry.addRecipes(getMultiblockRecipes().values(), "gregtech:multiblock_info");
     }
+
+    @Nonnull
     @Override
     public String getUid() {
         return "tj:multiblock_info";
     }
+
+    @Nonnull
     @Override
     public String getTitle() {
         return I18n.format("gregtech.multiblock.title");
     }
+
+    @Nonnull
     @Override
     public String getModName() {
         return TJ.MODID;
     }
+
+    @Nonnull
     @Override
     public IDrawable getBackground() {
         return this.background;
     }
 
     @Override
-    public void setRecipe(IRecipeLayout iRecipeLayout, MultiblockInfoRecipeWrapper recipeWrapper, IIngredients ingredients) {
+    public void setRecipe(IRecipeLayout iRecipeLayout, MultiblockInfoRecipeWrapper recipeWrapper, @Nonnull IIngredients ingredients) {
         recipeWrapper.setRecipeLayout((RecipeLayout) iRecipeLayout, guiHelper);
 
         IGuiItemStackGroup itemStackGroup = iRecipeLayout.getItemStacks();
