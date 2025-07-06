@@ -242,7 +242,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput, EntityPlayer player) {
         for (int i = 0; i < this.recipeMapWorkable.getSize(); i++) {
             if (this.recipeMapWorkable.getRecipe(i) == null) {
-                Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(itemInputs, itemOutputs, fluidInputs, fluidOutput);
+                Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
                 this.recipeMapWorkable.setRecipe(newRecipe, i);
                 player.sendMessage(newRecipe != null ? this.displayRecipe(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.success", i + 1)), newRecipe, 1)
                         : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.fail_2", i + 1)));

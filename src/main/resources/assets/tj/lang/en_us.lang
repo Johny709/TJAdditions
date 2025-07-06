@@ -192,7 +192,7 @@ tj.multiblock.fuel_amount=Fuel Amount: §b%d§r%% (§b%s§r)
 
 tj.multiblock.recipe.transfer.success=Recipe lock to Handler [§a%d§r]: §aSuccessful§r
 tj.multiblock.recipe.transfer.fail=Recipe lock §cFailed§r %n-All recipe handlers are occupied
-tj.multiblock.recipe.transfer.fail_2=Recipe lock to Handler [§a%d§r]: §cFailed§r %n-Recipe not found
+tj.multiblock.recipe.transfer.fail_2=Recipe lock to Handler [§a%d§r]: §cFailed§r %n-Recipe not found or insufficient voltage tier
 
 tj.multiblock.parallel.description.parallel=Parallels and layers can be adjusted with screwdriver. Left-Click to increment, Shift-Left-Click to decrement.
 tj.multiblock.parallel.layer.increment.success=Increased layers to:
