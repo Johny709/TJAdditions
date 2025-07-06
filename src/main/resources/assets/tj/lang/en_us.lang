@@ -552,7 +552,7 @@ machine.universal.tick.speed=Tick Speed: §e%.1f§r/t
 machine.universal.empty=§7Empty§r
 machine.universal.work_paused=§eWork Paused.
 machine.universal.idling=§7Idling.
-machine.universal.running=§aRunning Perfectly.
+machine.universal.running=§aRunning.
 
 every=Every
 seconds=Seconds
