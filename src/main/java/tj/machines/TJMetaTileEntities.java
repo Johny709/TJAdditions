@@ -213,7 +213,7 @@ public class TJMetaTileEntities {
         LARGE_BATTERY_CHARGER = GregTechAPI.registerMetaTileEntity(5505, new MetaTileEntityLargeBatteryCharger(TJId("large_battery_charger")));
 
         // range 6000+ -> hatches
-        int superBusID = 6000; // occupies ID range 6000 - 6020
+        int superBusID = 6000; // occupies ID range 6000 - 6019
         for (int i = 0; i < SUPER_ITEM_INPUT_BUS.length; i++) {
             int tier = Math.min(GAValues.MAX, 3 + (3 * i));
             SUPER_ITEM_INPUT_BUS[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperItemBus(TJId("super_input_bus." + GAValues.VN[tier]), tier, false));
@@ -222,7 +222,7 @@ public class TJMetaTileEntities {
             SUPER_FLUID_OUTPUT_HATCH[i] = GregTechAPI.registerMetaTileEntity(superBusID++, new MetaTileEntitySuperFluidHatch(TJId("super_output_hatch." + GAValues.VN[tier]), tier, true));
         }
 
-        int steamHatchID = 6021; // occupies ID range 6021 - 6026
+        int steamHatchID = 6020; // occupies ID range 6020 - 6025
         for (int i = 0; i < STEAM_INPUT_FLUID_HATCH.length; i++) {
             int tier = 3 + (3 * i);
             STEAM_INPUT_FLUID_HATCH[i] = GregTechAPI.registerMetaTileEntity(steamHatchID++, new MetaTileEntityTJSteamHatch(TJId("steam_input_hatch." + GAValues.VN[tier]), tier, false));
