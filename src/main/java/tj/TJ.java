@@ -18,13 +18,13 @@ import tj.machines.TJMetaTileEntities;
 
 
 @Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
-
-public class TJ
-{
+public class TJ {
 
     public static final String MODID = "tj";
     public static final String NAME = "TJ";
     public static final String VERSION = "1.0";
+
+    public static final String MODPACK_VERSION = "1.4";
 
     @SidedProxy(modId = MODID, clientSide = "tj.ClientProxy", serverSide = "tj.CommonProxy")
     public static CommonProxy proxy;
