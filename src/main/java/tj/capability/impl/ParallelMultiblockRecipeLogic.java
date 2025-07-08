@@ -115,7 +115,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     @Override
-    protected void calculateOverclock(int EUt, int duration) {
+    protected boolean calculateOverclock(int EUt, int duration) {
         super.calculateOverclock(EUt, duration);
         int numMaintenanceProblems = (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) ?
                 ((ParallelRecipeMapMultiblockController) this.metaTileEntity).getNumProblems() : 0;
@@ -123,6 +123,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
         double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
         int durationModified = (int) (this.overclockManager.getDuration() * maintenanceDurationMultiplier);
         this.overclockManager.setDuration(durationModified);
+        return true;
     }
 
     @Override

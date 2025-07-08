@@ -343,7 +343,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe) {
-        this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
+        if (!this.calculateOverclock(recipe.getEUt(), recipe.getDuration()))
+            return false;
         int resultEU = this.overclockManager.getEUt();
         long totalEUt = (long) resultEU * this.overclockManager.getDuration();
         IItemHandlerModifiable importInventory = this.getInputInventory();
@@ -361,16 +362,22 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return 2.8;
     }
 
-    protected void calculateOverclock(int EUt, int duration) {
+    /**
+     *
+     * @param EUt
+     * @param duration
+     * @return true if the overclock can be successfully performed
+     */
+    protected boolean calculateOverclock(int EUt, int duration) {
         if (!this.allowOverclocking) {
             this.overclockManager.setEUtAndDuration(EUt, duration);
-            return;
+            return true;
         }
         boolean negativeEU = EUt < 0;
         int tier = this.getOverclockingTier(this.overclockPolicy.getAsLong());
         if (this.V[tier] <= EUt || tier == 0) {
             this.overclockManager.setEUtAndDuration(EUt, duration);
-            return;
+            return true;
         }
         if (negativeEU)
             EUt = -EUt;
@@ -383,6 +390,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             resultDuration /= durationModifier;
         }
         this.overclockManager.setEUtAndDuration(resultEUt, (int) Math.round(resultDuration));
+        return true;
     }
 
     protected int getOverclockingTier(long voltage) {

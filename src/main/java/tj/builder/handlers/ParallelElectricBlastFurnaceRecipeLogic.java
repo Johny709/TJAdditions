@@ -25,35 +25,39 @@ public class ParallelElectricBlastFurnaceRecipeLogic extends ParallelMultiblockR
     }
 
     @Override
-    protected void calculateOverclock(int EUt, int duration) {
-        int numMaintenanceProblems = this.controller.getNumProblems();
-
-        double maintenanceDurationMultiplier = 1.0 + (0.1 * numMaintenanceProblems);
-        int durationModified = (int) (duration * maintenanceDurationMultiplier);
-
+    protected boolean calculateOverclock(int EUt, int duration) {
         if (!this.allowOverclocking) {
-            this.overclockManager.setEUtAndDuration(EUt, durationModified);
+            this.overclockManager.setEUtAndDuration(EUt, duration);
+            return true;
         }
+
         boolean negativeEU = EUt < 0;
 
-        int bonusAmount = Math.max(0, this.temperature.getAsInt() - (Integer) this.overclockManager.getRecipeProperty()) / 900;
+        Integer heatProperty = (Integer) this.overclockManager.getRecipeProperty();
+        if (heatProperty == null || heatProperty > this.temperature.getAsInt())
+            return false;
+
+        int bonusAmount = Math.max(0, this.temperature.getAsInt() - heatProperty) / 900;
 
         // Apply EUt discount for every 900K above the base recipe temperature
         EUt *= Math.pow(0.95, bonusAmount);
 
         int tier = getOverclockingTier(this.getMaxVoltage());
-        if (GAValues.V[tier] <= EUt || tier == 0)
-            this.overclockManager.setEUtAndDuration(EUt, durationModified);
+        if (GAValues.V[tier] <= EUt || tier == 0) {
+            this.overclockManager.setEUtAndDuration(EUt, duration);
+            return true;
+        }
         if (negativeEU)
             EUt = -EUt;
         if (EUt <= 16) {
             int multiplier = EUt <= 8 ? tier : tier - 1;
             int resultEUt = EUt * (1 << multiplier) * (1 << multiplier);
-            int resultDuration = durationModified / (1 << multiplier);
+            int resultDuration = duration / (1 << multiplier);
             this.overclockManager.setEUtAndDuration(negativeEU ? -resultEUt : resultEUt, resultDuration);
+            return true;
         } else {
             int resultEUt = EUt;
-            double resultDuration = durationModified;
+            double resultDuration = duration;
 
             // Do not overclock further if duration is already too small
             // Apply Super Overclocks for every 1800k above the base recipe temperature
@@ -72,6 +76,7 @@ public class ParallelElectricBlastFurnaceRecipeLogic extends ParallelMultiblockR
             }
 
             this.overclockManager.setEUtAndDuration(resultEUt, (int) Math.round(resultDuration));
+            return true;
         }
     }
 }
