@@ -9,13 +9,17 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.function.BooleanSupplier;
+
 
 public class PopUpWidgetGroup extends AbstractWidgetGroup {
 
     private final int width;
     private final int height;
     private final TextureArea textureArea;
+    private BooleanSupplier predicate;
     private boolean isEnabled;
+    private boolean inverted;
 
     public PopUpWidgetGroup(int x, int y, int width, int height, TextureArea textureArea) {
         super(new Position(x, y));
@@ -24,9 +28,34 @@ public class PopUpWidgetGroup extends AbstractWidgetGroup {
         this.textureArea = textureArea;
     }
 
-    public void setEnabled(Boolean isEnabled) {
+    public PopUpWidgetGroup(int x, int y, int width, int height) {
+        this(x, y, width, height, null);
+    }
+
+    public PopUpWidgetGroup setPredicate(BooleanSupplier predicate) {
+        this.predicate = predicate;
+        return this;
+    }
+
+    public PopUpWidgetGroup setInverted() {
+        this.inverted = !this.inverted;
+        return this;
+    }
+
+    public PopUpWidgetGroup setEnabled(Boolean isEnabled) {
         this.isEnabled = isEnabled;
         this.writeUpdateInfo(2, buffer -> buffer.writeBoolean(isEnabled));
+        return this;
+    }
+
+    public PopUpWidgetGroup addWidgets(Widget widget) {
+        super.addWidget(widget);
+        return this;
+    }
+
+    @Override
+    public void addWidget(Widget widget) {
+        super.addWidget(widget);
     }
 
     @Override
@@ -35,8 +64,12 @@ public class PopUpWidgetGroup extends AbstractWidgetGroup {
     }
 
     @Override
-    public void addWidget(Widget widget) {
-        super.addWidget(widget);
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if (this.predicate != null) {
+            this.isEnabled = this.predicate.getAsBoolean() == this.inverted;
+            this.writeUpdateInfo(2, buffer -> buffer.writeBoolean(this.isEnabled));
+        }
     }
 
     @Override

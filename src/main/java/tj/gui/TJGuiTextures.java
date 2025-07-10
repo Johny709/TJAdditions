@@ -17,6 +17,8 @@ public class TJGuiTextures {
     public static final TextureArea RESET_BUTTON = TextureArea.fullImage("textures/gui/widget/reset_button_toggle.png");
     public static final TextureArea UP_BUTTON = TextureArea.fullImage("textures/gui/widget/up_button_toggle.png");
     public static final TextureArea DOWN_BUTTON = TextureArea.fullImage("textures/gui/widget/down_button_toggle.png");
+    public static final TextureArea PLUS_BUTTON = TextureArea.fullImage("textures/gui/widget/plus_button_toggle.png");
+    public static final TextureArea MINUS_BUTTON = TextureArea.fullImage("textures/gui/widget/minus_button_toggle.png");
     public static final TextureArea CASE_SENSITIVE_BUTTON = TextureArea.fullImage("textures/gui/widget/case_sensitivity_toggle.png");
     public static final TextureArea SPACES_BUTTON = TextureArea.fullImage("textures/gui/widget/spaces_toggle.png");
 
