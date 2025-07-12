@@ -38,6 +38,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
 public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMapMultiblockController {
@@ -50,9 +51,8 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     }
 
     @Override
-    protected void reinitializeStructurePattern() {
-        this.parallelLayer = 1;
-        super.reinitializeStructurePattern();
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityLargeArchitectWorkbench(metaTileEntityId, recipeMap);
     }
 
     @Override
@@ -64,21 +64,20 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(BlockPattern.RelativeDirection.LEFT, BlockPattern.RelativeDirection.DOWN, BlockPattern.RelativeDirection.BACK);
-
-        for (int count = 0; count < this.parallelLayer; count++) {
-            factoryPattern.aisle("~~~", "~~~", "HHH", "HHH");
-            factoryPattern.aisle("CrC", "C#C", "HcH", "HHH");
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            factoryPattern.aisle("XXX", "XXX", "~~~", "~~~");
+            factoryPattern.aisle("XXX", "XcX", "C#C", "CrC");
         }
-        factoryPattern.aisle("~~~", "~~~","HSH", "HHH")
+        return factoryPattern.aisle("XXX", "XSX", "~~~", "~~~")
                 .where('S', selfPredicate())
                 .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('c', conveyorPredicate())
                 .where('r', robotArmPredicate())
                 .where('#', isAirPredicate())
-                .where('~', (tile) -> true);
-        return factoryPattern.build();
+                .where('~', tile -> true)
+                .build();
     }
 
     protected IBlockState getCasingState() {
@@ -100,6 +99,12 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     }
 
     @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 1;
+        super.reinitializeStructurePattern();
+    }
+
+    @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart iMultiblockPart) {
         return Textures.SOLID_STEEL_CASING;
     }
@@ -108,11 +113,6 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
         return Textures.ASSEMBLER_OVERLAY;
-    }
-
-    @Override
-    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeArchitectWorkbench(metaTileEntityId, recipeMap);
     }
 
     @Override
