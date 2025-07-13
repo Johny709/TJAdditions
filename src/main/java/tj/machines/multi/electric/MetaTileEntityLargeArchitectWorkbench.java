@@ -1,9 +1,17 @@
 package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
+import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.vec.Matrix4;
+import gregicadditions.GAUtility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.impl.EnergyContainerList;
+import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -11,9 +19,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -32,27 +38,36 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import tj.TJConfig;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
+import tj.builder.handlers.LargeArchitectWorkbenchWorkableHandler;
+import tj.builder.multicontrollers.MultiblockDisplayBuilder;
+import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.conveyorPredicate;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.robotArmPredicate;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
-public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMapMultiblockController {
+public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private final LargeArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new LargeArchitectWorkbenchWorkableHandler(this, this::getItemInputs, this::getItemOutputs, this::getEnergyInput, this::getMaxVoltage, this::getParallel);
     private int parallelLayer;
+    private ItemHandlerList itemInputs;
+    private ItemHandlerList itemOutputs;
+    private IEnergyContainer energyInput;
+    private long maxVoltage;
+    private int parallel;
 
-    public MetaTileEntityLargeArchitectWorkbench(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
-        super(metaTileEntityId, recipeMap, TJConfig.largeArchitectWorkbench.eutPercentage, TJConfig.largeArchitectWorkbench.durationPercentage, TJConfig.largeArchitectWorkbench.chancePercentage, TJConfig.largeArchitectWorkbench.stack);
+    public MetaTileEntityLargeArchitectWorkbench(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeArchitectWorkbench(metaTileEntityId, recipeMap);
+        return new MetaTileEntityLargeArchitectWorkbench(this.metaTileEntityId);
     }
 
     @Override
@@ -60,6 +75,27 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
         super.addInformation(stack, player, tooltip, advanced);
         if (!TJConfig.machines.loadArchitectureRecipes)
             tooltip.add(I18n.format("tj.multiblock.large_architect_workbench.recipes.disabled"));
+    }
+
+    @Override
+    protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
+        if (this.isStructureFormed())
+            MultiblockDisplayBuilder.start(textList)
+                    .voltageIn(this.energyInput)
+                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .isWorking(this.workbenchWorkableHandler.isWorkingEnabled(), this.workbenchWorkableHandler.isActive(), this.workbenchWorkableHandler.getProgress(), this.workbenchWorkableHandler.getMaxProgress());
+    }
+
+    @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
+    protected void updateFormedValid() {
+        if (this.getNumProblems() < 6)
+            this.workbenchWorkableHandler.update();
     }
 
     @Override
@@ -90,7 +126,11 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
         ConveyorCasing.CasingType conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV);
         RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
         int min = Math.min(conveyor.getTier(), robotArm.getTier());
-        maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.itemInputs = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.itemOutputs = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
+        this.energyInput = new EnergyContainerList(this.getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.parallel = 16;
     }
 
     public void resetStructure() {
@@ -105,14 +145,14 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
     }
 
     @Override
-    public ICubeRenderer getBaseTexture(IMultiblockPart iMultiblockPart) {
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return Textures.SOLID_STEEL_CASING;
     }
 
-    @Nonnull
     @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.ASSEMBLER_OVERLAY;
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        Textures.ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workbenchWorkableHandler.isActive());
     }
 
     @Override
@@ -141,7 +181,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
         if (getWorld().isRemote)
             playerIn.sendMessage(textComponent);
         else {
-            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(parallelLayer));
+            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
         }
         this.resetStructure();
         return true;
@@ -152,22 +192,22 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
-            this.structurePattern = createStructurePattern();
-            scheduleRenderUpdate();
+            this.structurePattern = this.createStructurePattern();
+            this.scheduleRenderUpdate();
         }
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeInt(parallelLayer);
+        buf.writeInt(this.parallelLayer);
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
-        this.structurePattern = createStructurePattern();
+        this.structurePattern = this.createStructurePattern();
     }
 
     @Override
@@ -183,5 +223,35 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJLargeSimpleRecipeMa
         this.parallelLayer = data.getInteger("Parallel");
         if (data.hasKey("Parallel"))
             this.structurePattern = createStructurePattern();
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isWorking) {
+        this.workbenchWorkableHandler.setWorkingEnabled(isWorking);
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.workbenchWorkableHandler.isWorkingEnabled();
+    }
+
+    public ItemHandlerList getItemInputs() {
+        return this.itemInputs;
+    }
+
+    public ItemHandlerList getItemOutputs() {
+        return this.itemOutputs;
+    }
+
+    public IEnergyContainer getEnergyInput() {
+        return this.energyInput;
+    }
+
+    public long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    public int getParallel() {
+        return this.parallel;
     }
 }

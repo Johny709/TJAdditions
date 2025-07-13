@@ -17,6 +17,7 @@ public class ArchitectureRecipes {
     private static int inputQuantity;
     private static int outputQuantity;
 
+    @Deprecated
     public static void init() {
         List<Integer> excludeShapeNumber = Arrays.asList(29, 39, 46, 47, 48, 49, 57, 58, 59, 69);
 
