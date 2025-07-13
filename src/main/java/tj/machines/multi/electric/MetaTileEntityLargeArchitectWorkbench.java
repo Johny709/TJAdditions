@@ -11,6 +11,7 @@ import gregicadditions.item.components.RobotArmCasing;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -37,6 +38,9 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.builder.handlers.LargeArchitectWorkbenchWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -47,13 +51,14 @@ import java.util.List;
 
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.conveyorPredicate;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.robotArmPredicate;
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
 public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final LargeArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new LargeArchitectWorkbenchWorkableHandler(this, this::getItemInputs, this::getItemOutputs, this::getEnergyInput, this::getMaxVoltage, this::getParallel);
+    private final LargeArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new LargeArchitectWorkbenchWorkableHandler(this, this::getItemInputs, this::getItemOutputs, this::getEnergyInput, this::getInputBus, this::getMaxVoltage, this::getParallel);
     private int parallelLayer;
     private ItemHandlerList itemInputs;
     private ItemHandlerList itemOutputs;
@@ -71,8 +76,10 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack));
         if (!TJConfig.machines.loadArchitectureRecipes)
             tooltip.add(I18n.format("tj.multiblock.large_architect_workbench.recipes.disabled"));
     }
@@ -84,7 +91,18 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyInput)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                    .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+                            .appendText(" ")
+                            .appendSibling(this.workbenchWorkableHandler.isDistinct()
+                                    ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
+                                    : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
                     .isWorking(this.workbenchWorkableHandler.isWorkingEnabled(), this.workbenchWorkableHandler.isActive(), this.workbenchWorkableHandler.getProgress(), this.workbenchWorkableHandler.getMaxProgress());
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        this.workbenchWorkableHandler.setDistinct(!componentData.equals("distinctEnabled"));
     }
 
     @Override
@@ -129,8 +147,9 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
         this.itemInputs = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
         this.itemOutputs = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
         this.energyInput = new EnergyContainerList(this.getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.workbenchWorkableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
         this.maxVoltage = (long) (Math.pow(4, min) * 8);
-        this.parallel = 16;
+        this.parallel = 16 * min;
     }
 
     public void resetStructure() {
@@ -235,23 +254,27 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
         return this.workbenchWorkableHandler.isWorkingEnabled();
     }
 
-    public ItemHandlerList getItemInputs() {
+    private IItemHandlerModifiable getInputBus(int index) {
+        return this.getAbilities(MultiblockAbility.IMPORT_ITEMS).get(index);
+    }
+
+    private ItemHandlerList getItemInputs() {
         return this.itemInputs;
     }
 
-    public ItemHandlerList getItemOutputs() {
+    private ItemHandlerList getItemOutputs() {
         return this.itemOutputs;
     }
 
-    public IEnergyContainer getEnergyInput() {
+    private IEnergyContainer getEnergyInput() {
         return this.energyInput;
     }
 
-    public long getMaxVoltage() {
+    private long getMaxVoltage() {
         return this.maxVoltage;
     }
 
-    public int getParallel() {
+    private int getParallel() {
         return this.parallel;
     }
 }

@@ -1,5 +1,7 @@
 package tj.builder.handlers;
 
+import gregicadditions.GAUtility;
+import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IWorkable;
@@ -11,19 +13,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
+import tj.capability.IItemFluidHandlerInfo;
+import tj.capability.TJCapabilities;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.*;
 
-public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements IWorkable {
+public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements IWorkable, IItemFluidHandlerInfo {
 
     private final Supplier<ItemHandlerList> itemInputs;
     private final Supplier<ItemHandlerList> itemOutputs;
     private final Supplier<IEnergyContainer> energyInputs;
-    private BooleanSupplier findInputs = this::findInputs;
+    private final IntFunction<IItemHandlerModifiable> inputBus;
     private final LongSupplier maxVoltage;
     private final IntSupplier parallel;
     private ItemStack catalyst;
@@ -33,15 +37,23 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     private boolean isActive;
     private boolean isDistinct;
     private int progress = -1;
-    private int maxProgress = 100;
+    private int maxProgress;
+    private int lastInputIndex;
+    private int busCount;
 
-    public LargeArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<ItemHandlerList> itemInputs, Supplier<ItemHandlerList> itemOutputs, Supplier<IEnergyContainer> energyInputs, LongSupplier maxVoltage, IntSupplier parallel) {
+    public LargeArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<ItemHandlerList> itemInputs, Supplier<ItemHandlerList> itemOutputs, Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
         super(metaTileEntity);
         this.itemInputs = itemInputs;
         this.itemOutputs = itemOutputs;
         this.energyInputs = energyInputs;
+        this.inputBus = inputBus;
         this.maxVoltage = maxVoltage;
         this.parallel = parallel;
+    }
+
+    public void initialize(int busCount) {
+        this.lastInputIndex = 0;
+        this.busCount = busCount;
     }
 
     @Override
@@ -62,15 +74,22 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     }
 
     private boolean startRecipe() {
-        if (this.findCatalyst() && this.findInputs.getAsBoolean()) {
-            this.output = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), this.input.getCount(), this.input.getMetadata());
-            NBTTagCompound compound = this.catalyst.getTagCompound();
+        boolean canStart = false;
+        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.itemInputs.get();
+        if (this.findCatalyst(itemInputs) && this.findInputs(itemInputs)) {
+            this.output = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), this.input.getCount());
+            NBTTagCompound compound = this.catalyst.getTagCompound().copy();
             compound.setString("BaseName", Item.REGISTRY.getNameForObject(this.input.getItem()).toString());
+            compound.setInteger("BaseData", this.input.getMetadata());
             this.output.setTagCompound(compound);
+            int recipeTickDuration = Math.round((float) 200L / GAUtility.getTierByVoltage(this.maxVoltage.getAsLong()));
+            this.maxProgress = Math.max(1, recipeTickDuration);
             this.setActive(true);
-            return true;
+            canStart = true;
         }
-        return false;
+        if (++this.lastInputIndex == this.busCount)
+            this.lastInputIndex = 0;
+        return canStart;
     }
 
     private void progressRecipe() {
@@ -95,8 +114,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
             this.setActive(false);
     }
 
-    private boolean findCatalyst() {
-        ItemHandlerList itemInputs = this.itemInputs.get();
+    private boolean findCatalyst(IItemHandlerModifiable itemInputs) {
         for (int i = 0; i < itemInputs.getSlots(); i++) {
             ItemStack stack = itemInputs.getStackInSlot(i);
             NBTTagCompound tagCompound = stack.getTagCompound();
@@ -110,8 +128,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
         return false;
     }
 
-    private boolean findInputs() {
-        ItemHandlerList itemInputs = this.itemInputs.get();
+    private boolean findInputs(IItemHandlerModifiable itemInputs) {
         int availableParallels = this.parallel.getAsInt();
         int count = 0;
         for (int i = 0; i < itemInputs.getSlots() && availableParallels != 0; i++) {
@@ -131,10 +148,6 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
             stack.shrink(reminder);
         }
         return this.input != null;
-    }
-
-    private boolean findInputsDistinct() {
-        return false;
     }
 
     @Override
@@ -178,7 +191,6 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
         this.progress = compound.getInteger("progress");
         this.isWorking = compound.getBoolean("isWorking");
         this.isDistinct = compound.getBoolean("isDistinct");
-        this.findInputs = this.isDistinct ? this::findInputsDistinct : this::findInputs;
         if (compound.hasKey("catalyst"))
             this.catalyst = new ItemStack(compound.getCompoundTag("catalyst"));
         if (compound.hasKey("input"))
@@ -199,7 +211,17 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
 
     @Override
     public <T> T getCapability(Capability<T> capability) {
+        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
+            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return capability == GregtechTileCapabilities.CAPABILITY_WORKABLE ? GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this) : null;
+    }
+
+    public void setDistinct(boolean distinct) {
+        this.isDistinct = distinct;
+    }
+
+    public boolean isDistinct() {
+        return this.isDistinct;
     }
 
     @Override
@@ -218,6 +240,16 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     }
 
     @Override
+    public List<ItemStack> getItemInputs() {
+        return Collections.singletonList(this.input);
+    }
+
+    @Override
+    public List<ItemStack> getItemOutputs() {
+        return Collections.singletonList(this.output);
+    }
+
+    @Override
     public boolean isWorkingEnabled() {
         return this.isWorking;
     }
@@ -230,7 +262,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
 
     public void setActive(boolean isActive) {
         this.isActive = isActive;
-        if (this.metaTileEntity.getWorld().isRemote) {
+        if (!this.metaTileEntity.getWorld().isRemote) {
             this.writeCustomData(1, buffer -> buffer.writeBoolean(isActive));
             this.metaTileEntity.markDirty();
         }

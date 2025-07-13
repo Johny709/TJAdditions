@@ -33,6 +33,12 @@ public class MultiblockDisplayBuilder {
         return this;
     }
 
+    public MultiblockDisplayBuilder addTranslation(String locale, Object... format) {
+        this.textList.add(new TextComponentString(I18n.translateToLocalFormatted(locale, format)));
+        return this;
+    }
+
+
     public MultiblockDisplayBuilder energyStored(long energyStored, long energyCapacity) {
         this.textList.add(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)));
         return this;
