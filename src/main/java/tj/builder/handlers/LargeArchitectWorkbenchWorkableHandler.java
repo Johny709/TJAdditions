@@ -1,7 +1,6 @@
 package tj.builder.handlers;
 
 import gregicadditions.GAUtility;
-import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IWorkable;
@@ -35,6 +34,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     private ItemStack output;
     private boolean isWorking;
     private boolean isActive;
+    private boolean wasActiveAndNeedsUpdate;
     private boolean isDistinct;
     private int progress = -1;
     private int maxProgress;
@@ -58,19 +58,20 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
 
     @Override
     public void update() {
-        if (!this.isWorking) {
-            if (this.isActive)
-                this.setActive(false);
+        if (!this.isWorking)
             return;
-        }
 
         if (this.progress < 0 && !this.startRecipe()) {
+            this.wasActiveAndNeedsUpdate = false;
             return;
         }
 
         if (this.progress < this.maxProgress) {
             this.progressRecipe();
         } else this.completeRecipe();
+
+        if (!this.wasActiveAndNeedsUpdate)
+            this.setActive(false);
     }
 
     private boolean startRecipe() {
@@ -84,6 +85,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
             this.output.setTagCompound(compound);
             int recipeTickDuration = Math.round((float) 200L / GAUtility.getTierByVoltage(this.maxVoltage.getAsLong()));
             this.maxProgress = Math.max(1, recipeTickDuration);
+            this.wasActiveAndNeedsUpdate = true;
             this.setActive(true);
             canStart = true;
         }
@@ -110,8 +112,6 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
         this.catalyst = null;
         this.input = null;
         this.output = null;
-        if (this.isActive)
-            this.setActive(false);
     }
 
     private boolean findCatalyst(IItemHandlerModifiable itemInputs) {
@@ -144,10 +144,10 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
             int reminder = Math.min(stack.getCount(), availableParallels);
             availableParallels -= reminder;
             count += reminder;
-            this.input.setCount(count);
             stack.shrink(reminder);
         }
-        return this.input != null;
+        this.input.setCount(count);
+        return availableParallels != this.parallel.getAsInt();
     }
 
     @Override
@@ -176,6 +176,8 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
         compound.setInteger("maxProgress", this.maxProgress);
         compound.setBoolean("isWorking", this.isWorking);
         compound.setBoolean("isDistinct", this.isDistinct);
+        compound.setBoolean("isActive", this.isActive);
+        compound.setBoolean("wasActiveAndNeedsUpdate", this.wasActiveAndNeedsUpdate);
         if (this.catalyst != null)
             compound.setTag("catalyst", this.catalyst.serializeNBT());
         if (this.input != null)
@@ -191,6 +193,8 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
         this.progress = compound.getInteger("progress");
         this.isWorking = compound.getBoolean("isWorking");
         this.isDistinct = compound.getBoolean("isDistinct");
+        this.isActive = compound.getBoolean("isActive");
+        this.wasActiveAndNeedsUpdate = compound.getBoolean("wasActiveAndNeedsUpdate");
         if (compound.hasKey("catalyst"))
             this.catalyst = new ItemStack(compound.getCompoundTag("catalyst"));
         if (compound.hasKey("input"))
@@ -257,7 +261,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
-        this.metaTileEntity.markDirty();
+        this.setActive(isWorking);
     }
 
     public void setActive(boolean isActive) {
