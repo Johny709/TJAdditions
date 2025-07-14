@@ -30,7 +30,7 @@ public class TJSimpleCubeRenderer implements ICubeRenderer, TextureUtils.IIconRe
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(TextureMap textureMap) {
-        this.sprite = textureMap.registerSprite(new ResourceLocation(modID, "blocks/" + basePath));
+        this.sprite = textureMap.registerSprite(new ResourceLocation(this.modID, this.basePath));
     }
 
     @SideOnly(Side.CLIENT)
@@ -40,7 +40,7 @@ public class TJSimpleCubeRenderer implements ICubeRenderer, TextureUtils.IIconRe
 
     @SideOnly(Side.CLIENT)
     public void renderSided(EnumFacing side, CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
-        renderSided(side, translation, Cuboid6.full, renderState, pipeline);
+        this.renderSided(side, translation, Cuboid6.full, renderState, pipeline);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class TJSimpleCubeRenderer implements ICubeRenderer, TextureUtils.IIconRe
     @SideOnly(Side.CLIENT)
     public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline, Cuboid6 bounds) {
         for (EnumFacing side : EnumFacing.values()) {
-            renderSided(side, translation, bounds, renderState, pipeline);
+            this.renderSided(side, translation, bounds, renderState, pipeline);
         }
     }
 }

@@ -23,40 +23,44 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static tj.textures.TJOrientedOverlayRenderer.OverlayFace.FRONT;
-import static tj.textures.TJOrientedOverlayRenderer.OverlayFace.TOP;
+import static tj.textures.OverlayFace.*;
 
 public class TJTextures {
 
     private static final ThreadLocal<BlockRenderer.BlockFace> blockFaces = ThreadLocal.withInitial(BlockRenderer.BlockFace::new);
     public static final List<TextureUtils.IIconRegister> iconRegisters = new ArrayList<>();
 
-    public static final TJSimpleCubeRenderer DRACONIC = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/draconiccasing");
-    public static final TJSimpleCubeRenderer AWAKENED = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/awakenedcasing");
-    public static final TJSimpleCubeRenderer CHOATIC = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/chaoticcasing");
-    public static final TJSimpleCubeRenderer ETERNITY = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/eternityblock");
-    public static final TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/soulcasing");
-    public static final TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/duranium");
-    public static final TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer(TJ.MODID,"casings/solid/seaborgium");
-    public static final TJSimpleCubeRenderer HEAVY_QUARK_DEGENERATE_MATTER = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/heavy_quark_degenerate_matter");
-    public static final TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer(TJ.MODID, "pipe/machine_casing_pipe_stainless");
-    public static final TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer(TJ.MODID, "casings/solid/tungsten_titanium_carbide");
-    public static final TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer(TJ.MODID, "cover/creative_fluid_cover_overlay");
-    public static final TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer(TJ.MODID, "cover/creative_energy_cover_overlay");
-    public static final TJSimpleCubeRenderer FIELD_GENERATOR_CORE = new TJSimpleCubeRenderer(TJ.MODID, "items/field_generator_core");
-    public static final TJSimpleOverlayRenderer FIELD_GENERATOR_SPIN = new TJSimpleOverlayRenderer(TJ.MODID, "items/field_generator_overlay");
+    public static final TJSimpleCubeRenderer DRACONIC = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/draconiccasing");
+    public static final TJSimpleCubeRenderer AWAKENED = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/awakenedcasing");
+    public static final TJSimpleCubeRenderer CHOATIC = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/chaoticcasing");
+    public static final TJSimpleCubeRenderer ETERNITY = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/eternityblock");
+    public static final TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/soulcasing");
+    public static final TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/duranium");
+    public static final TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer(TJ.MODID,"blocks/casings/solid/seaborgium");
+    public static final TJSimpleCubeRenderer HEAVY_QUARK_DEGENERATE_MATTER = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/heavy_quark_degenerate_matter");
+    public static final TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/pipe/machine_casing_pipe_stainless");
+    public static final TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/tungsten_titanium_carbide");
+    public static final TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/creative_fluid_cover_overlay");
+    public static final TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/creative_energy_cover_overlay");
+    public static final TJSimpleCubeRenderer FIELD_GENERATOR_CORE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/items/field_generator_core");
+    public static final TJSimpleOverlayRenderer FIELD_GENERATOR_SPIN = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/items/field_generator_overlay");
     public static final TJOrientedOverlayRenderer BOILER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "generators/boiler/coal", FRONT);
-    public static final TJSimpleOverlayRenderer OUTSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "cover/outside_overlay_base");
-    public static final TJSimpleOverlayRenderer INSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "cover/inside_overlay_base");
-    public static final TJSimpleOverlayRenderer PORTAL_OVERLAY = new TJSimpleOverlayRenderer("minecraft", "portal");
+    public static final TJSimpleOverlayRenderer OUTSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/outside_overlay_base");
+    public static final TJSimpleOverlayRenderer INSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/inside_overlay_base");
+    public static final TJSimpleOverlayRenderer PORTAL_OVERLAY = new TJSimpleOverlayRenderer("minecraft", "blocks/portal");
     public static final TJOrientedOverlayRenderer TELEPORTER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/teleporter", "teleporter", TOP);
 
-    public static final TJSimpleCubeRenderer FUSION_MK2 = new TJSimpleCubeRenderer(GTValues.MODID, "casings/fusion/machine_casing_fusion_2");
-    public static final TJSimpleCubeRenderer FUSION_PORT_LUV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_luv");
-    public static final TJSimpleCubeRenderer FUSION_PORT_ZPM = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_zpm");
-    public static final TJSimpleCubeRenderer FUSION_PORT_UV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_uv");
-    public static final TJSimpleCubeRenderer FUSION_PORT_UHV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_uhv");
-    public static final TJSimpleCubeRenderer FUSION_PORT_UEV = new TJSimpleCubeRenderer(TJ.MODID, "casings/ability/fusion_energy_port_uev");
+    public static final TJSimpleCubeRenderer FUSION_MK2 = new TJSimpleCubeRenderer(GTValues.MODID, "blocks/casings/fusion/machine_casing_fusion_2");
+    public static final TJSimpleCubeRenderer FUSION_PORT_LUV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_luv");
+    public static final TJSimpleCubeRenderer FUSION_PORT_ZPM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_zpm");
+    public static final TJSimpleCubeRenderer FUSION_PORT_UV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uv");
+    public static final TJSimpleCubeRenderer FUSION_PORT_UHV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uhv");
+    public static final TJSimpleCubeRenderer FUSION_PORT_UEV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uev");
+
+    public static final TJSimpleOverlayRenderer CHISEL = new TJSimpleOverlayRenderer("architecturecraft", "items/chisel");
+    public static final TJSimpleOverlayRenderer HAMMER = new TJSimpleOverlayRenderer("architecturecraft", "items/hammer");
+    public static final TJSimpleOverlayRenderer SAW_BLADE = new TJSimpleOverlayRenderer("architecturecraft", "items/sawblade");
+
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {

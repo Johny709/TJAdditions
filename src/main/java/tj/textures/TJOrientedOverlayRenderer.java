@@ -17,22 +17,6 @@ import java.util.Map;
 
 public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
 
-    public enum OverlayFace {
-        FRONT, BACK, TOP, BOTTOM, SIDE;
-
-        public static OverlayFace bySide(EnumFacing side, EnumFacing frontFacing) {
-            if (side == frontFacing) {
-                return FRONT;
-            } else if (side.getOpposite() == frontFacing) {
-                return BACK;
-            } else if (side == EnumFacing.UP) {
-                return TOP;
-            } else if (side == EnumFacing.DOWN) {
-                return BOTTOM;
-            } else return SIDE;
-        }
-    }
-
     private final String basePath;
     private final OverlayFace[] faces;
     private final String modID;
@@ -73,13 +57,13 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
     @SideOnly(Side.CLIENT)
     public void registerIcons(TextureMap textureMap) {
         this.sprites = new HashMap<>();
-        for (OverlayFace overlayFace : faces) {
+        for (OverlayFace overlayFace : this.faces) {
             String faceName = this.overlay != null ? this.overlay : overlayFace.name().toLowerCase();
-            ResourceLocation normalLocation = new ResourceLocation(modID, String.format("blocks/%s/overlay_%s", basePath, faceName));
-            ResourceLocation activeLocation = new ResourceLocation(modID, String.format("blocks/%s/overlay_%s_active", basePath, faceName));
+            ResourceLocation normalLocation = new ResourceLocation(this.modID, String.format("blocks/%s/overlay_%s", this.basePath, faceName));
+            ResourceLocation activeLocation = new ResourceLocation(this.modID, String.format("blocks/%s/overlay_%s_active", this.basePath, faceName));
             TextureAtlasSprite normalSprite = textureMap.registerSprite(normalLocation);
             TextureAtlasSprite activeSprite = textureMap.registerSprite(activeLocation);
-            sprites.put(overlayFace, new ActivePredicate(normalSprite, activeSprite));
+            this.sprites.put(overlayFace, new ActivePredicate(normalSprite, activeSprite));
         }
     }
 
@@ -87,8 +71,8 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
     public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] ops, Cuboid6 bounds, EnumFacing frontFacing, boolean isActive) {
         for (EnumFacing renderSide : EnumFacing.VALUES) {
             OverlayFace overlayFace = OverlayFace.bySide(renderSide, frontFacing);
-            if (sprites.containsKey(overlayFace)) {
-                TextureAtlasSprite renderSprite = sprites.get(overlayFace).getSprite(isActive);
+            if (this.sprites.containsKey(overlayFace)) {
+                TextureAtlasSprite renderSprite = this.sprites.get(overlayFace).getSprite(isActive);
                 TJTextures.renderFace(renderState, translation, ops, renderSide, bounds, renderSprite);
             }
         }
@@ -96,6 +80,6 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
 
     @SideOnly(Side.CLIENT)
     public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline, EnumFacing frontFacing, boolean isActive) {
-        render(renderState, translation, pipeline, Cuboid6.full, frontFacing, isActive);
+        this.render(renderState, translation, pipeline, Cuboid6.full, frontFacing, isActive);
     }
 }

@@ -42,9 +42,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
-import tj.builder.handlers.LargeArchitectWorkbenchWorkableHandler;
+import tj.builder.handlers.ArchitectWorkbenchWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -58,7 +60,7 @@ import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final LargeArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new LargeArchitectWorkbenchWorkableHandler(this, this::getItemInputs, this::getItemOutputs, this::getEnergyInput, this::getInputBus, this::getMaxVoltage, this::getParallel);
+    private final ArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new ArchitectWorkbenchWorkableHandler(this, () -> this.itemInputs, () -> this.itemOutputs, () -> this.energyInput, this::getInputBus, () -> this.maxVoltage, () -> this.parallel);
     private int parallelLayer;
     private ItemHandlerList itemInputs;
     private ItemHandlerList itemOutputs;
@@ -80,6 +82,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack));
+        tooltip.add(I18n.format("tj.multiblock.large_architect_workbench.description"));
         if (!TJConfig.machines.loadArchitectureRecipes)
             tooltip.add(I18n.format("tj.multiblock.large_architect_workbench.recipes.disabled"));
     }
@@ -164,14 +167,19 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return Textures.SOLID_STEEL_CASING;
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        Textures.ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workbenchWorkableHandler.isActive());
+        Textures.ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workbenchWorkableHandler.isActive());
+        TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
+        TJTextures.HAMMER.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
+        TJTextures.SAW_BLADE.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
     }
 
     @Override
@@ -256,25 +264,5 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
 
     private IItemHandlerModifiable getInputBus(int index) {
         return this.getAbilities(MultiblockAbility.IMPORT_ITEMS).get(index);
-    }
-
-    private ItemHandlerList getItemInputs() {
-        return this.itemInputs;
-    }
-
-    private ItemHandlerList getItemOutputs() {
-        return this.itemOutputs;
-    }
-
-    private IEnergyContainer getEnergyInput() {
-        return this.energyInput;
-    }
-
-    private long getMaxVoltage() {
-        return this.maxVoltage;
-    }
-
-    private int getParallel() {
-        return this.parallel;
     }
 }

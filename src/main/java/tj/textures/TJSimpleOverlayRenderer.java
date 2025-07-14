@@ -29,7 +29,7 @@ public class TJSimpleOverlayRenderer implements TextureUtils.IIconRegister {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(TextureMap textureMap) {
-        this.sprite = textureMap.registerSprite(new ResourceLocation(modID, "blocks/" + basePath));
+        this.sprite = textureMap.registerSprite(new ResourceLocation(this.modID, this.basePath));
     }
 
     @SideOnly(Side.CLIENT)
@@ -39,6 +39,6 @@ public class TJSimpleOverlayRenderer implements TextureUtils.IIconRegister {
 
     @SideOnly(Side.CLIENT)
     public void renderSided(EnumFacing side, CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
-        renderSided(side, Cuboid6.full, renderState, pipeline, translation);
+        this.renderSided(side, Cuboid6.full, renderState, pipeline, translation);
     }
 }
