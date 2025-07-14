@@ -25,6 +25,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 
@@ -52,7 +53,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
 
     @Override
     public void renderCover(CCRenderState ccRenderState, Matrix4 matrix4, IVertexOperation[] iVertexOperations, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
-        TJTextures.COVER_CREATIVE_FLUID.renderSided(attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
+        TJTextures.COVER_CREATIVE_FLUID.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
         itemFilterGroup.addWidget(new AdvancedTextWidget(12, 60, this::displayText, 0xFFFFFF));
         itemFilterGroup.addWidget(new ClickButtonWidget(-8, 55, 18, 18, "+", this::onIncrement));
         itemFilterGroup.addWidget(new ClickButtonWidget(65, 55, 18, 18, "-", this::onDecrement));
-        itemFilterGroup.addWidget(new ToggleButtonWidget(83, 55, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
+        itemFilterGroup.addWidget(new ToggleButtonWidget(83, 55, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::onReset)
                 .setTooltipText("machine.universal.toggle.reset"));
         itemFilterGroup.addWidget(new ToggleButtonWidget(101, 55, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
@@ -85,25 +86,21 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
-        markAsDirty();
+        this.markAsDirty();
     }
 
     @Override
     public boolean isWorkingEnabled() {
-        return isWorking;
+        return this.isWorking;
     }
 
     private void onReset(boolean reset) {
-        speed = 1;
-        markAsDirty();
-    }
-
-    private boolean isReset() {
-        return false;
+        this.speed = 1;
+        this.markAsDirty();
     }
 
     private void displayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", speed));
+        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
     }
 
 
@@ -111,16 +108,16 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
         int value = clickData.isCtrlClick ? 100
                 : clickData.isShiftClick ? 10
                 : 1;
-        speed = MathHelper.clamp(speed +value, 1, Integer.MAX_VALUE);
-        markAsDirty();
+        this.speed = MathHelper.clamp(this.speed +value, 1, Integer.MAX_VALUE);
+        this.markAsDirty();
     }
 
     private void onDecrement(Widget.ClickData clickData) {
         int value = clickData.isCtrlClick ? 100
                 : clickData.isShiftClick ? 10
                 : 1;
-        speed = MathHelper.clamp(speed -value, 1, Integer.MAX_VALUE);
-        markAsDirty();
+        this.speed = MathHelper.clamp(this.speed -value, 1, Integer.MAX_VALUE);
+        this.markAsDirty();
     }
 
     @Override
@@ -128,9 +125,9 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
         super.writeToNBT(data);
         NBTTagCompound compound = new NBTTagCompound();
         this.itemFilter.writeToNBT(compound);
-        data.setInteger("Speed", speed);
+        data.setInteger("Speed", this.speed);
         data.setTag("CreativeFilterItem", compound);
-        data.setBoolean("IsWorking", isWorking);
+        data.setBoolean("IsWorking", this.isWorking);
     }
 
     @Override
@@ -145,21 +142,11 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
 
     @Override
     public void update() {
-        if (isWorking && ++timer % speed == 0) {
+        if (this.isWorking && ++this.timer % this.speed == 0) {
             for (int i = 0; i < 9; i++) {
-                ItemStack itemFromFilter = this.itemFilter.getItemFilterSlots().getStackInSlot(i).copy();
-                int remainingCount = itemFromFilter.getCount();
-                for (int j = 0; j < itemHandler.getSlots(); j++) {
-                    itemFromFilter.setCount(remainingCount);
-                    ItemStack inStack = itemHandler.getStackInSlot(j);
-                    if (inStack.isItemEqual(itemFromFilter) || inStack.isEmpty())
-                        if (this.itemHandler.isItemValid(j, itemFromFilter)) {
-                            this.itemHandler.insertItem(j, itemFromFilter, false);
-                            remainingCount -= inStack.getMaxStackSize() - inStack.getCount();
-                            if (remainingCount <= 0)
-                                break;
-                    }
-                }
+                ItemStack filterStack = this.itemFilter.getItemFilterSlots().getStackInSlot(i).copy();
+                if (ItemHandlerHelper.insertItemStacked(this.itemHandler, filterStack, true).isEmpty())
+                    ItemHandlerHelper.insertItemStacked(this.itemHandler, filterStack, false);
             }
         }
     }

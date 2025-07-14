@@ -36,7 +36,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     private boolean isActive;
     private boolean wasActiveAndNeedsUpdate;
     private boolean isDistinct;
-    private int progress = -1;
+    private int progress;
     private int maxProgress;
     private int lastInputIndex;
     private int busCount;
@@ -58,20 +58,17 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
 
     @Override
     public void update() {
-        if (!this.isWorking)
-            return;
+        if (this.wasActiveAndNeedsUpdate)
+            this.setActive(false);
 
-        if (this.progress < 0 && !this.startRecipe()) {
-            this.wasActiveAndNeedsUpdate = false;
+        if (this.isWorking && this.progress < 1 && !this.startRecipe()) {
+            this.wasActiveAndNeedsUpdate = true;
             return;
         }
 
         if (this.progress < this.maxProgress) {
             this.progressRecipe();
         } else this.completeRecipe();
-
-        if (!this.wasActiveAndNeedsUpdate)
-            this.setActive(false);
     }
 
     private boolean startRecipe() {
@@ -85,7 +82,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
             this.output.setTagCompound(compound);
             int recipeTickDuration = Math.round((float) 200L / GAUtility.getTierByVoltage(this.maxVoltage.getAsLong()));
             this.maxProgress = Math.max(1, recipeTickDuration);
-            this.wasActiveAndNeedsUpdate = true;
+            this.wasActiveAndNeedsUpdate = false;
             this.setActive(true);
             canStart = true;
         }
@@ -108,7 +105,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
             return;
         }
         ItemHandlerHelper.insertItemStacked(this.itemOutputs.get(), this.output, false);
-        this.progress = -1;
+        this.progress = 0;
         this.catalyst = null;
         this.input = null;
         this.output = null;
@@ -145,9 +142,9 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
             availableParallels -= reminder;
             count += reminder;
             stack.shrink(reminder);
+            this.input.setCount(count);
         }
-        this.input.setCount(count);
-        return availableParallels != this.parallel.getAsInt();
+        return count > 0;
     }
 
     @Override
