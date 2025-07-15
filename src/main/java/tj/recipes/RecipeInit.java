@@ -6,6 +6,8 @@ import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
+import gregicadditions.recipes.helper.GACraftingComponents;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.material.type.Material;
@@ -31,12 +33,12 @@ import java.util.Arrays;
 
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
+import static gregicadditions.machines.GATileEntities.GA_HULLS;
 import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.Superconductor;
 import static gregtech.api.unification.material.Materials.*;
-import static gregtech.common.metatileentities.MetaTileEntities.QUANTUM_TANK;
-import static gregtech.common.metatileentities.MetaTileEntities.Super_tank;
+import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
 import static tj.machines.TJMetaTileEntities.*;
@@ -99,10 +101,20 @@ public class RecipeInit {
 
         ModHandler.addShapedRecipe("large_architect_workbench", LARGE_ARCHITECT_WORKBENCH.getStackForm(), "GCG", "RSB", "GCG",
                 'G', new UnificationEntry(OrePrefix.gear, Steel),
-                'C', CraftingComponent.CIRCUIT.getIngredient(4),
-                'R', CraftingComponent.ROBOT_ARM.getIngredient(4),
-                'B', CraftingComponent.CONVEYOR.getIngredient(4),
-                'S', new ItemStack(Item.getByNameOrId("architecturecraft:sawbench")));
+                'C', CraftingComponent.CIRCUIT.getIngredient(5),
+                'R', CraftingComponent.ROBOT_ARM.getIngredient(5),
+                'B', CraftingComponent.CONVEYOR.getIngredient(5),
+                'S', ARCHITECT_WORKBENCH[4].getStackForm());
+
+        for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
+            ModHandler.addShapedRecipe("architect_workbench_" + GAValues.VN[tier].toLowerCase(), ARCHITECT_WORKBENCH[i].getStackForm(), "PAP", "CSC", "MWM",
+                    'P', GACraftingComponents.PISTON.getIngredient(tier),
+                    'A', new ItemStack(Item.getByNameOrId("architecturecraft:sawbench")),
+                    'S', tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm(),
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
+                    'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier),
+                    'M', GACraftingComponents.MOTOR.getIngredient(tier));
+        }
 
         ModHandler.addShapedRecipe("elite_large_miner", ELITE_LARGE_MINER.getStackForm(), "GCG", "THT", "SCS",
                 'G', new UnificationEntry(OrePrefix.gear, Duranium),
