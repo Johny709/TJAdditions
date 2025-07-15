@@ -179,7 +179,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
         Textures.ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workbenchWorkableHandler.isActive());
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.HAMMER.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
-        TJTextures.SAW_BLADE.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
+        TJTextures.SAW_BLADE.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);;
     }
 
     @Override
@@ -193,7 +193,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         ITextComponent textComponent;
         if (!playerIn.isSneaking()) {
-            if (parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
+            if (parallelLayer < TJConfig.largeArchitectWorkbench.maximumSlices) {
                 this.parallelLayer++;
                 textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
             } else

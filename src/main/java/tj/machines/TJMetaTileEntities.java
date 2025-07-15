@@ -14,10 +14,7 @@ import tj.TJRecipeMaps;
 import tj.machines.multi.electric.*;
 import tj.machines.multi.parallel.*;
 import tj.machines.multi.steam.*;
-import tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
-import tj.machines.singleblock.MetaTileEntityCoalBoiler;
-import tj.machines.singleblock.MetaTileEntityFluidBoiler;
-import tj.machines.singleblock.MetaTileEntitySolarBoiler;
+import tj.machines.singleblock.*;
 import tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
 import tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
 import tj.multiblockpart.utility.*;
@@ -102,6 +99,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCoalBoiler[] COAL_BOILER = new MetaTileEntityCoalBoiler[3];
     public static MetaTileEntitySolarBoiler[] SOLAR_BOILER = new MetaTileEntitySolarBoiler[3];
     public static MetaTileEntityFluidBoiler[] FLUID_BOILER = new MetaTileEntityFluidBoiler[3];
+    public static MetaTileEntityArchitectWorkbench[] ARCHITECT_WORKBENCH = new MetaTileEntityArchitectWorkbench[14];
     public static MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
@@ -203,6 +201,10 @@ public class TJMetaTileEntities {
         FLUID_BOILER[0] = GregTechAPI.registerMetaTileEntity(5306, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_bronze"), BRONZE));
         FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5307, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
         FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5308, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
+        int architectID = 5309;
+        for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) { // occupies ID range 5309 - 5322
+            ARCHITECT_WORKBENCH[i] = GregTechAPI.registerMetaTileEntity(architectID++, new MetaTileEntityArchitectWorkbench(TJId("architect_workbench_" + GAValues.VN[tier]), tier));
+        }
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));

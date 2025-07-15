@@ -1,10 +1,10 @@
 package tj.builder.handlers;
 
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IWorkable;
-import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.Item;
@@ -21,10 +21,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.*;
 
-public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements IWorkable, IItemFluidHandlerInfo {
+public class ArchitectWorkbenchWorkableHandler extends MTETrait implements IWorkable, IItemFluidHandlerInfo {
 
-    private final Supplier<ItemHandlerList> itemInputs;
-    private final Supplier<ItemHandlerList> itemOutputs;
+    private final Supplier<IItemHandlerModifiable> itemInputs;
+    private final Supplier<IItemHandlerModifiable> itemOutputs;
     private final Supplier<IEnergyContainer> energyInputs;
     private final IntFunction<IItemHandlerModifiable> inputBus;
     private final LongSupplier maxVoltage;
@@ -32,16 +32,17 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     private ItemStack catalyst;
     private ItemStack input;
     private ItemStack output;
-    private boolean isWorking;
+    private boolean isWorking = true;
     private boolean isActive;
     private boolean wasActiveAndNeedsUpdate;
     private boolean isDistinct;
+    private int energyPerTick;
     private int progress;
     private int maxProgress;
     private int lastInputIndex;
     private int busCount;
 
-    public LargeArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<ItemHandlerList> itemInputs, Supplier<ItemHandlerList> itemOutputs, Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
+    public ArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs, Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
         super(metaTileEntity);
         this.itemInputs = itemInputs;
         this.itemOutputs = itemOutputs;
@@ -54,6 +55,8 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     public void initialize(int busCount) {
         this.lastInputIndex = 0;
         this.busCount = busCount;
+        int tier = GAUtility.getTierByVoltage(this.maxVoltage.getAsLong());
+        this.energyPerTick = GAValues.VA[tier];
     }
 
     @Override
@@ -61,7 +64,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
         if (this.wasActiveAndNeedsUpdate)
             this.setActive(false);
 
-        if (this.isWorking && this.progress < 1 && !this.startRecipe()) {
+        if (!this.isWorking || this.progress < 1 && !this.startRecipe()) {
             this.wasActiveAndNeedsUpdate = true;
             return;
         }
@@ -92,8 +95,8 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     }
 
     private void progressRecipe() {
-        if (this.energyInputs.get().getEnergyStored() > this.maxVoltage.getAsLong()) {
-            this.energyInputs.get().removeEnergy(this.maxVoltage.getAsLong());
+        if (this.energyInputs.get().getEnergyStored() >= this.energyPerTick) {
+            this.energyInputs.get().removeEnergy(this.energyPerTick);
             this.progress++;
         } else if (this.progress > 0)
             this.progress--;
@@ -202,7 +205,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
 
     @Override
     public String getName() {
-        return "RecipeMapWorkable";
+        return "RecipeWorkable";
     }
 
     @Override
@@ -235,6 +238,14 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
         return this.maxProgress;
     }
 
+    public double getProgressPercent() {
+        return this.getMaxProgress() == 0 ? 0.0 : this.getProgress() / (this.getMaxProgress() * 1.0);
+    }
+
+    public boolean hasNotEnoughEnergy() {
+        return this.isActive && this.energyInputs.get().getEnergyStored() < this.energyPerTick;
+    }
+
     @Override
     public boolean isActive() {
         return this.isActive;
@@ -242,12 +253,12 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
 
     @Override
     public List<ItemStack> getItemInputs() {
-        return Collections.singletonList(this.input);
+        return this.input != null ? Collections.singletonList(this.input) : Collections.emptyList();
     }
 
     @Override
     public List<ItemStack> getItemOutputs() {
-        return Collections.singletonList(this.output);
+        return this.output != null ? Collections.singletonList(this.output) : Collections.emptyList();
     }
 
     @Override
@@ -258,7 +269,7 @@ public class LargeArchitectWorkbenchWorkableHandler extends MTETrait implements 
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
-        this.setActive(isWorking);
+        this.metaTileEntity.markDirty();
     }
 
     public void setActive(boolean isActive) {
