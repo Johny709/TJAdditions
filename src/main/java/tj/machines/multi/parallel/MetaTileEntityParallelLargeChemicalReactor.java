@@ -1,5 +1,6 @@
 package tj.machines.multi.parallel;
 
+import gregtech.api.capability.IEnergyContainer;
 import tj.TJConfig;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 import static tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
@@ -74,19 +76,19 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
         factoryPattern.aisle("XXXXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            factoryPattern.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-            factoryPattern.aisle("F###F", "#MMM#", "#McM#", "#MMM#", "F###F");
+            factoryPattern.aisle("F###F", "#MMM#", "#MCM#", "#MMM#", "F###F");
+            factoryPattern.aisle("F###F", "#PPP#", "#PcP#", "#PPP#", "F###F");
         }
         return factoryPattern
-                .aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F")
+                .aisle("F###F", "#MMM#", "#MCM#", "#MMM#", "F###F")
                 .aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
                 .where('S', this.selfPredicate())
+                .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
-                .where('B', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
                 .where('#', (tile) -> true)
                 .build();
     }
@@ -141,10 +143,19 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
-        int min = pump.getTier();
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
-        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
+        this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
+                .mapToLong(IEnergyContainer::getInputVoltage)
+                .max()
+                .orElse(0);
+        long amps = this.getAbilities(INPUT_ENERGY).stream()
+                .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
+                .mapToLong(IEnergyContainer::getInputAmperage)
+                .sum() / this.parallelLayer;
+        amps = Math.min(1024, amps);
+        while (amps >= 4) {
+            amps /= 4;
+            this.maxVoltage *= 4;
+        }
     }
 
     @Override

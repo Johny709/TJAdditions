@@ -37,18 +37,17 @@ public class ParallelLargeChemicalReactorInfo extends MultiblockInfoPage {
             MetaTileEntityParallelLargeChemicalReactor chemicalReactor = TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
             builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
             for (int layer = 0; layer < shapeInfo; layer++) {
-                builder.aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F");
-                builder.aisle("F###F", "#CCC#", "#CcC#", "#CCC#", "F###F");
+                builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
+                builder.aisle("F###F", "#PPP#", "#PcP#", "#PPP#", "F###F");
             }
             shapeInfos.add(builder
-                    .aisle("F###F", "#PPP#", "#PBP#", "#PPP#", "F###F")
+                    .aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
                     .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC")
                     .where('S', chemicalReactor, EnumFacing.WEST)
                     .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
                     .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                     .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
                     .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
-                    .where('B', GAMetaBlocks.PUMP_CASING.getDefaultState())
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.WEST)
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
