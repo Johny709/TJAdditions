@@ -59,6 +59,7 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", VACUUM_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
     }

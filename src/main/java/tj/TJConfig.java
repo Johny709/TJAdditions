@@ -813,6 +813,32 @@ public class TJConfig {
         public int maximumParallel = 64;
     }
 
+    @Config.Comment("Parallel Volcanus")
+    public static ParallelVolcanus parallelVolcanus = new ParallelVolcanus();
+
+    public static class ParallelVolcanus {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 100;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 100;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 3;
+
+        @Config.Name("Parallel Limit")
+        @Config.Comment("Adjust the maximum number of parallel recipes the vacuum freezer can do")
+        @Config.RequiresMcRestart
+        public int maximumParallel = 64;
+    }
+
     @Config.Comment("Large World Accelerator")
     public static LargeWorldAccelerator largeWorldAccelerator = new LargeWorldAccelerator();
 

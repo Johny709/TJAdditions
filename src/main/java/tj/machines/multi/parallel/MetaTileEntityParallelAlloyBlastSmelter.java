@@ -54,7 +54,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
 
     public MetaTileEntityParallelAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_ALLOY_RECIPES});
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature) {
+        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, () -> this.blastFurnaceTemperature) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();
@@ -71,6 +71,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", BLAST_ALLOY_RECIPES.getLocalizedName()));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
         tooltip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"));
@@ -144,10 +145,6 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
         this.bonusTemperature = Math.max(0, 100 * (energyTier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
-    }
-
-    public int getBlastFurnaceTemperature() {
-        return this.blastFurnaceTemperature;
     }
 
     @Override
