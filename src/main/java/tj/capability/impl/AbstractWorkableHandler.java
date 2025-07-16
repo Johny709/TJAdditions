@@ -59,9 +59,12 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
         if (this.progress >= this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
-                this.hasProblem = false;
-            } else this.hasProblem = true;
-        }
+                if (this.hasProblem)
+                    this.setProblem(false);
+            } else if (!this.hasProblem)
+                this.setProblem(true);
+        } else if (!this.isActive)
+            this.setActive(true);
     }
 
     /**
@@ -100,20 +103,26 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
     @Override
     public void receiveCustomData(int id, PacketBuffer buffer) {
         super.receiveCustomData(id, buffer);
-        if (id == 1) {
-            this.isActive = buffer.readBoolean();
-            this.metaTileEntity.scheduleRenderUpdate();
+        switch (id) {
+            case 1: this.isActive = buffer.readBoolean(); break;
+            case 2: this.hasProblem = buffer.readBoolean(); break;
+            case 3: this.isWorking = buffer.readBoolean(); break;
         }
+        this.metaTileEntity.scheduleRenderUpdate();
     }
 
     @Override
     public void writeInitialData(PacketBuffer buffer) {
         buffer.writeBoolean(this.isActive);
+        buffer.writeBoolean(this.hasProblem);
+        buffer.writeBoolean(this.isWorking);
     }
 
     @Override
     public void receiveInitialData(PacketBuffer buffer) {
         this.isActive = buffer.readBoolean();
+        this.hasProblem = buffer.readBoolean();
+        this.isWorking = buffer.readBoolean();
     }
 
     @Override
@@ -188,6 +197,10 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
         return this.isActive;
     }
 
+    public boolean hasProblem() {
+        return this.hasProblem;
+    }
+
     @Override
     public boolean isWorkingEnabled() {
         return this.isWorking;
@@ -196,7 +209,18 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
-        this.metaTileEntity.markDirty();
+        if (!this.metaTileEntity.getWorld().isRemote) {
+            this.writeCustomData(3, buffer -> buffer.writeBoolean(isWorking));
+            this.metaTileEntity.markDirty();
+        }
+    }
+
+    public void setProblem(boolean hasProblem) {
+        this.hasProblem = hasProblem;
+        if (!this.metaTileEntity.getWorld().isRemote) {
+            this.writeCustomData(2, buffer -> buffer.writeBoolean(hasProblem));
+            this.metaTileEntity.markDirty();
+        }
     }
 
     public void setActive(boolean isActive) {

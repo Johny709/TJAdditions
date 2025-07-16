@@ -30,14 +30,26 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
 
         private final TextureAtlasSprite normalSprite;
         private final TextureAtlasSprite activeSprite;
+        private final TextureAtlasSprite pausedSprite;
+        private final TextureAtlasSprite problemSprite;
 
-        public ActivePredicate(TextureAtlasSprite normalSprite, TextureAtlasSprite activeSprite) {
+        public ActivePredicate(TextureAtlasSprite normalSprite, TextureAtlasSprite activeSprite, TextureAtlasSprite pausedSprite, TextureAtlasSprite problemSprite) {
             this.normalSprite = normalSprite;
             this.activeSprite = activeSprite;
+            this.pausedSprite = pausedSprite;
+            this.problemSprite = problemSprite;
         }
 
         public TextureAtlasSprite getSprite(boolean active) {
-            return active ? activeSprite : normalSprite;
+            return active ? this.activeSprite : this.normalSprite;
+        }
+
+        public TextureAtlasSprite getPausedSprite() {
+            return this.pausedSprite;
+        }
+
+        public TextureAtlasSprite getProblemSprite() {
+            return this.problemSprite;
         }
     }
 
@@ -61,18 +73,27 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
             String faceName = this.overlay != null ? this.overlay : overlayFace.name().toLowerCase();
             ResourceLocation normalLocation = new ResourceLocation(this.modID, String.format("blocks/%s/overlay_%s", this.basePath, faceName));
             ResourceLocation activeLocation = new ResourceLocation(this.modID, String.format("blocks/%s/overlay_%s_active", this.basePath, faceName));
+            ResourceLocation pausedLocation = new ResourceLocation(this.modID, String.format("blocks/%s/overlay_%s_paused", this.basePath, faceName));
+            ResourceLocation problemLocation = new ResourceLocation(this.modID, String.format("blocks/%s/overlay_%s_problem", this.basePath, faceName));
             TextureAtlasSprite normalSprite = textureMap.registerSprite(normalLocation);
             TextureAtlasSprite activeSprite = textureMap.registerSprite(activeLocation);
-            this.sprites.put(overlayFace, new ActivePredicate(normalSprite, activeSprite));
+            TextureAtlasSprite pausedSprite = textureMap.registerSprite(pausedLocation);
+            TextureAtlasSprite problemSprite = textureMap.registerSprite(problemLocation);
+            this.sprites.put(overlayFace, new ActivePredicate(normalSprite, activeSprite, pausedSprite, problemSprite));
         }
     }
 
     @SideOnly(Side.CLIENT)
-    public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] ops, Cuboid6 bounds, EnumFacing frontFacing, boolean isActive) {
+    public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] ops, Cuboid6 bounds, EnumFacing frontFacing, boolean isActive, boolean hasProblem, boolean isWorking) {
         for (EnumFacing renderSide : EnumFacing.VALUES) {
             OverlayFace overlayFace = OverlayFace.bySide(renderSide, frontFacing);
             if (this.sprites.containsKey(overlayFace)) {
-                TextureAtlasSprite renderSprite = this.sprites.get(overlayFace).getSprite(isActive);
+                ActivePredicate spritePredicate = this.sprites.get(overlayFace);
+                TextureAtlasSprite renderSprite = spritePredicate.getSprite(isActive);
+                if (hasProblem)
+                    renderSprite = spritePredicate.getProblemSprite();
+                if (!isWorking)
+                    renderSprite = spritePredicate.getPausedSprite();
                 TJTextures.renderFace(renderState, translation, ops, renderSide, bounds, renderSprite);
             }
         }
@@ -80,6 +101,11 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
 
     @SideOnly(Side.CLIENT)
     public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline, EnumFacing frontFacing, boolean isActive) {
-        this.render(renderState, translation, pipeline, Cuboid6.full, frontFacing, isActive);
+        this.render(renderState, translation, pipeline, Cuboid6.full, frontFacing, isActive, false, false);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline, EnumFacing frontFacing, boolean isActive, boolean hasProblem, boolean isWorking) {
+        this.render(renderState, translation, pipeline, Cuboid6.full, frontFacing, isActive, hasProblem, isWorking);
     }
 }

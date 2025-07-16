@@ -176,7 +176,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends TJMultiblockDisplayBa
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        Textures.ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workbenchWorkableHandler.isActive());
+        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workbenchWorkableHandler.isActive(), this.workbenchWorkableHandler.hasProblem(), this.workbenchWorkableHandler.isWorkingEnabled());
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.HAMMER.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.SAW_BLADE.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);;
