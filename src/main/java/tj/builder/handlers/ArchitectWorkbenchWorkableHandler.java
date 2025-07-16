@@ -6,7 +6,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemHandlerHelper;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 
@@ -48,8 +47,8 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler {
 
     @Override
     protected boolean completeRecipe() {
-        if (ItemHandlerHelper.insertItemStacked(this.itemOutputs.get(), this.output, true).isEmpty()) {
-            ItemHandlerHelper.insertItemStacked(this.itemOutputs.get(), this.output, false);
+        if (ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), this.output, true).isEmpty()) {
+            ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), this.output, false);
             this.catalyst = null;
             this.input = null;
             this.output = null;
