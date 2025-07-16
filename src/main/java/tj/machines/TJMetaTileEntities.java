@@ -87,6 +87,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityParallelAlloyBlastSmelter PARALLEL_ALLOY_BLAST_FURNACE;
     public static MetaTileEntityParallelElectricBlastFurnace PARALLEL_ELECTRIC_BLAST_FURNACE;
     public static MetaTileEntityParallelVacuumFreezer PARALLEL_VACUUM_FREEZER;
+    public static MetaTileEntityParallelCryogenicFreezer PARALLEL_CRYOGENIC_FREEZER;
     public static MetaTileEntityParallelVolcanus PARALLEL_VOLCANUS;
     public static MetaTileEntityAcceleratorAnchorPoint ACCELERATOR_ANCHOR_POINT;
     public static MetaTileEntityLargeWirelessEnergyEmitter LARGE_WIRELESS_ENERGY_EMITTER;
@@ -187,7 +188,9 @@ public class TJMetaTileEntities {
         PARALLEL_ALLOY_BLAST_FURNACE = GregTechAPI.registerMetaTileEntity(5105, new MetaTileEntityParallelAlloyBlastSmelter(TJId("parallel_alloy_blast_smelter")));
         PARALLEL_ELECTRIC_BLAST_FURNACE = GregTechAPI.registerMetaTileEntity(5106, new MetaTileEntityParallelElectricBlastFurnace(TJId("parallel_electric_blast_furnace")));
         PARALLEL_VACUUM_FREEZER = GregTechAPI.registerMetaTileEntity(5107, new MetaTileEntityParallelVacuumFreezer(TJId("parallel_vacuum_freezer")));
-        PARALLEL_VOLCANUS = GregTechAPI.registerMetaTileEntity(5108, new MetaTileEntityParallelVolcanus(TJId("parallel_volcanus")));
+        PARALLEL_CRYOGENIC_FREEZER = GregTechAPI.registerMetaTileEntity(5108, new MetaTileEntityParallelCryogenicFreezer(TJId("parallel_cryogenic_freezer")));
+        PARALLEL_VOLCANUS = GregTechAPI.registerMetaTileEntity(5109, new MetaTileEntityParallelVolcanus(TJId("parallel_volcanus")));
+
 
         VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5127, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
         TELEPORTER = GregTechAPI.registerMetaTileEntity(5128, new MetaTileEntityTeleporter(TJId("teleporter")));

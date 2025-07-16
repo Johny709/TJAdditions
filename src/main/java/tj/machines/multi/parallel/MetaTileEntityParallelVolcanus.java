@@ -80,6 +80,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelVolcanus.stack));
         tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        tooltip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
         tooltip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"));
         tooltip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2"));
         tooltip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));

@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  */
 public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLogic {
 
-    private final IntSupplier EUtPercentage;
-    private final IntSupplier durationPercentage;
-    private final IntSupplier chancePercentage;
-    private final IntSupplier stack;
+    protected final IntSupplier EUtPercentage;
+    protected final IntSupplier durationPercentage;
+    protected final IntSupplier chancePercentage;
+    protected final IntSupplier stack;
 
     public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
         super(tileEntity, TJConfig.machines.recipeCacheCapacity);
@@ -174,7 +174,6 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe, int j) {
         int maxItemsLimit = this.stack.getAsInt();
         int EUt = matchingRecipe.getEUt();
-        int duration = matchingRecipe.getDuration();
         int currentTier = this.getOverclockingTier(maxVoltage);
         int tierNeeded;
         int minMultiplier = Integer.MAX_VALUE;
@@ -228,19 +227,22 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             if (!canFitOutputs) {
                 continue;
             }
-
-            newRecipe.inputsIngredients(newRecipeInputs)
-                    .fluidInputs(newFluidInputs)
-                    .outputs(outputI)
-                    .fluidOutputs(outputF)
-                    .EUt(Math.max(1, EUt * this.EUtPercentage.getAsInt() / 100))
-                    .duration(Math.max(1, duration * this.durationPercentage.getAsInt() / 100));
-
             this.parallel[j] = attemptItemsLimit;
-            return newRecipe.build().getResult();
+            return this.buildRecipe(newRecipe, matchingRecipe, newRecipeInputs, newFluidInputs, outputI, outputF);
         }
         this.parallel[j] = 1;
         return matchingRecipe;
+    }
+
+    protected Recipe buildRecipe(RecipeBuilder<?> recipeBuilder, Recipe recipe, Collection<CountableIngredient> inputs, Collection<FluidStack> fluidInputs, Collection<ItemStack> outputs, Collection<FluidStack> fluidOutputs) {
+        return recipeBuilder.inputsIngredients(inputs)
+                .fluidInputs(fluidInputs)
+                .outputs(outputs)
+                .fluidOutputs(fluidOutputs)
+                .EUt(Math.max(1, recipe.getEUt() * this.EUtPercentage.getAsInt() / 100))
+                .duration(Math.max(1, recipe.getDuration() * this.durationPercentage.getAsInt() / 100))
+                .build()
+                .getResult();
     }
 
     protected void copyChancedItemOutputs(RecipeBuilder<?> newRecipe, Recipe oldRecipe, int multiplier) {

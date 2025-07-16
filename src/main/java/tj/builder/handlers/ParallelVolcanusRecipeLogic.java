@@ -2,11 +2,17 @@ package tj.builder.handlers;
 
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeBuilder;
+import gregtech.api.recipes.builders.BlastRecipeBuilder;
 import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 
+import java.util.Collection;
 import java.util.function.IntSupplier;
 
 import static gregicadditions.GAMaterials.Pyrotheum;
@@ -24,8 +30,10 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
 
     @Override
     protected boolean drawEnergy(int recipeEUt) {
-        if (this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), true).amount == 0)
-            this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), false);
+        FluidStack pyrotheum = this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), false);
+        if (pyrotheum != null && pyrotheum.amount == pyroConsumeAmount.getAsInt())
+            this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), true);
+        else return false;
         return super.drawEnergy(recipeEUt);
     }
 
@@ -89,5 +97,19 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
             this.overclockManager.setEUtAndDuration(resultEUt, (int) Math.round(resultDuration));
             return true;
         }
+    }
+
+    @Override
+    protected Recipe buildRecipe(RecipeBuilder<?> recipeBuilder, Recipe recipe, Collection<CountableIngredient> inputs, Collection<FluidStack> fluidInputs, Collection<ItemStack> outputs, Collection<FluidStack> fluidOutputs) {
+        BlastRecipeBuilder blastRecipeBuilder = (BlastRecipeBuilder) recipeBuilder;
+        return blastRecipeBuilder.inputsIngredients(inputs)
+                .fluidInputs(fluidInputs)
+                .outputs(outputs)
+                .fluidOutputs(fluidOutputs)
+                .EUt(Math.max(1, recipe.getEUt() * this.EUtPercentage.getAsInt() / 100))
+                .duration(Math.max(1, recipe.getDuration() * this.durationPercentage.getAsInt() / 100))
+                .blastFurnaceTemp(recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0))
+                .build()
+                .getResult();
     }
 }
