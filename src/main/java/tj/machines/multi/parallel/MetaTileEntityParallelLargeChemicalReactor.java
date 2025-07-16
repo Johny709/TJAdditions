@@ -143,6 +143,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
         this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                 .mapToLong(IEnergyContainer::getInputVoltage)
                 .max()
