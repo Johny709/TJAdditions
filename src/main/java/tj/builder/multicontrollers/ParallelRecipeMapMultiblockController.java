@@ -57,6 +57,7 @@ import tj.gui.widgets.JEIRecipeTransferWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected boolean advancedText;
     protected boolean isDistinctBus;
     protected int recipeMapIndex;
+    protected static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     protected IItemHandlerModifiable inputInventory;
     protected IItemHandlerModifiable outputInventory;

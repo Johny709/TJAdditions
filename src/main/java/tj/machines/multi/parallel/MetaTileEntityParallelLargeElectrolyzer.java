@@ -33,7 +33,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.text.DecimalFormat;
 import java.util.List;
 
 import static tj.TJRecipeMaps.PARALLEL_ELECTROLYZER_RECIPES;
@@ -46,7 +45,6 @@ import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
 public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
-    private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeElectrolyzer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ELECTROLYZER_RECIPES});

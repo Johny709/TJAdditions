@@ -31,7 +31,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.text.DecimalFormat;
 import java.util.List;
 
 import static tj.TJRecipeMaps.PARALLEL_EXTRACTOR_RECIPES;
@@ -49,7 +48,6 @@ import static gregtech.api.render.Textures.FLUID_EXTRACTOR_OVERLAY;
 public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
-    private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeExtractor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_FLUID_EXTRACTION_RECIPES, PARALLEL_EXTRACTOR_RECIPES});

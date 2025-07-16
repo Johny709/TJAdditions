@@ -29,7 +29,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.text.DecimalFormat;
 import java.util.List;
 
 import static tj.TJRecipeMaps.PARALLEL_ELECTROMAGNETIC_SEPARATOR_RECIPES;
@@ -48,7 +47,6 @@ import static gregtech.api.render.Textures.POLARIZER_OVERLAY;
 public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
-    private static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     public MetaTileEntityParallelLargeElectromagnet(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_POLARIZER_RECIPES, PARALLEL_ELECTROMAGNETIC_SEPARATOR_RECIPES});
