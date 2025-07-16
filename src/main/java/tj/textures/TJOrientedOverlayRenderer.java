@@ -101,7 +101,7 @@ public class TJOrientedOverlayRenderer implements TextureUtils.IIconRegister {
 
     @SideOnly(Side.CLIENT)
     public void render(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline, EnumFacing frontFacing, boolean isActive) {
-        this.render(renderState, translation, pipeline, Cuboid6.full, frontFacing, isActive, false, false);
+        this.render(renderState, translation, pipeline, Cuboid6.full, frontFacing, isActive, false, true);
     }
 
     @SideOnly(Side.CLIENT)

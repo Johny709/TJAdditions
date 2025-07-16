@@ -6,6 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 
@@ -49,6 +50,8 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler {
     protected boolean completeRecipe() {
         if (ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), this.output, true).isEmpty()) {
             ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), this.output, false);
+            if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
+                ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
             this.catalyst = null;
             this.input = null;
             this.output = null;

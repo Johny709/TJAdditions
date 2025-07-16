@@ -163,11 +163,14 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
 
     @Override
     public <T> T getCapability(Capability<T> capability) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE)
+            return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
         return capability == GregtechTileCapabilities.CAPABILITY_WORKABLE ? GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this) : null;
     }
 
     public void setDistinct(boolean distinct) {
         this.isDistinct = distinct;
+        this.metaTileEntity.markDirty();
     }
 
     public boolean isDistinct() {

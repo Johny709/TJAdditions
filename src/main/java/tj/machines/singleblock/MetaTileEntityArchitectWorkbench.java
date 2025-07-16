@@ -99,10 +99,10 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.HAMMER.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.SAW_BLADE.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
-        Textures.PIPE_OUT_OVERLAY.renderSided(this.getItemOutputFacing(), renderState, translation, pipeline);
+        Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
-            Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getItemOutputFacing(), renderState, translation, pipeline);
+            Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputFluids())
-            Textures.FLUID_OUTPUT_OVERLAY.renderSided(this.getFluidOutputFacing(), renderState, translation, pipeline);
+            Textures.FLUID_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
     }
 }

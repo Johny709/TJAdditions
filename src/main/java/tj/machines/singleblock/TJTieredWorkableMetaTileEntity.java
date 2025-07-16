@@ -6,14 +6,20 @@ import gregicadditions.machines.overrides.GATieredMetaTileEntity;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IActiveOutputSide;
 import gregtech.api.capability.IElectricItem;
+import gregtech.api.cover.CoverBehavior;
+import gregtech.api.cover.CoverDefinition;
+import gregtech.api.cover.ICoverable;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.util.EnumFacingHelper;
 
 /**
  * Serves as a basis to implement your own recipe or workable handler for single blocks.
@@ -21,8 +27,7 @@ import net.minecraftforge.items.ItemStackHandler;
 public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEntity implements IActiveOutputSide {
 
     protected final ItemStackHandler chargerInventory;
-    private EnumFacing itemOutputFacing = this.frontFacing.getOpposite();
-    private EnumFacing fluidOutputFacing = this.frontFacing.getOpposite();
+    private EnumFacing outputFacing = EnumFacingHelper.getBottomFacingFrom(this.frontFacing);
     private boolean allowInputFromOutputSide;
     private boolean isItemAutoOutput;
     private boolean isFluidAutoOutput;
@@ -47,40 +52,70 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         super.update();
         if (!this.getWorld().isRemote) {
             IElectricItem chargerContainer = this.chargerInventory.getStackInSlot(0).getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-            if (chargerContainer != null) {
-                chargerContainer.charge(this.getMaxVoltage(), 1, true, false);
+            if (chargerContainer != null && this.energyContainer.getEnergyStored() >= this.getMaxVoltage()) {
+                this.energyContainer.removeEnergy(chargerContainer.charge(this.getMaxVoltage(), 1, true, false));
             }
             if (this.getOffsetTimer() % 5 == 0) {
                 if (this.isItemAutoOutput)
-                    this.pushItemsIntoNearbyHandlers(this.itemOutputFacing);
+                    this.pushItemsIntoNearbyHandlers(this.outputFacing);
                 if (this.isFluidAutoOutput)
-                    this.pushFluidsIntoNearbyHandlers(this.fluidOutputFacing);
+                    this.pushFluidsIntoNearbyHandlers(this.outputFacing);
             }
         }
     }
 
     @Override
+    public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
+        EnumFacing hitFacing = ICoverable.determineGridSideHit(hitResult);
+        if (facing == this.getOutputFacing() || (hitFacing == this.getOutputFacing() && playerIn.isSneaking())) {
+            if (!this.getWorld().isRemote) {
+                if (isAllowInputFromOutputSide()) {
+                    this.setAllowInputFromOutputSide(false);
+                    playerIn.sendMessage(new TextComponentTranslation("gregtech.machine.basic.input_from_output_side.disallow"));
+                } else {
+                    this.setAllowInputFromOutputSide(true);
+                    playerIn.sendMessage(new TextComponentTranslation("gregtech.machine.basic.input_from_output_side.allow"));
+                }
+            }
+            return true;
+        }
+        return super.onScrewdriverClick(playerIn, hand, facing, hitResult);
+    }
+
+    @Override
     public boolean onWrenchClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        EnumFacing currentOutputSide = playerIn.isSneaking() ? this.fluidOutputFacing : this.itemOutputFacing;
-        if (currentOutputSide == facing || this.getFrontFacing() == facing) {
-            return false;
+        if (!playerIn.isSneaking()) {
+            EnumFacing currentOutputSide = this.getOutputFacing();
+            if (currentOutputSide == facing || this.getFrontFacing() == facing) {
+                return false;
+            }
+            if (!this.getWorld().isRemote) {
+                this.setOutputFacing(facing);
+            }
+            return true;
         }
-        if (!getWorld().isRemote) {
-            if (playerIn.isSneaking())
-                this.setFluidOutputFacing(facing);
-            else this.setItemOutputFacing(facing);
+        return super.onWrenchClick(playerIn, hand, facing, hitResult);
+    }
+
+    @Override
+    public boolean placeCoverOnSide(EnumFacing side, ItemStack itemStack, CoverDefinition coverDefinition) {
+        boolean coverPlaced = super.placeCoverOnSide(side, itemStack, coverDefinition);
+        if (coverPlaced && this.getOutputFacing() == side) {
+            CoverBehavior cover = getCoverAtSide(side);
+            if (cover != null && cover.shouldCoverInteractWithOutputside()) {
+                this.setAllowInputFromOutputSide(true);
+            }
         }
-        return true;
+        return coverPlaced;
     }
 
     @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         switch (dataId) {
-            case 100: this.itemOutputFacing = EnumFacing.VALUES[buf.readByte()]; break;
+            case 100: this.outputFacing = EnumFacing.VALUES[buf.readByte()]; break;
             case 101: this.isItemAutoOutput = buf.readBoolean(); break;
-            case 102: this.fluidOutputFacing = EnumFacing.VALUES[buf.readByte()]; break;
-            case 103: this.isFluidAutoOutput = buf.readBoolean(); break;
+            case 102: this.isFluidAutoOutput = buf.readBoolean(); break;
         }
         this.scheduleRenderUpdate();
     }
@@ -90,8 +125,8 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         super.writeInitialSyncData(buf);
         buf.writeBoolean(this.isItemAutoOutput);
         buf.writeBoolean(this.isFluidAutoOutput);
-        buf.writeByte(this.itemOutputFacing.getIndex());
-        buf.writeByte(this.fluidOutputFacing.getIndex());
+        buf.writeByte(this.outputFacing.getIndex());
+        buf.writeBoolean(this.allowInputFromOutputSide);
     }
 
     @Override
@@ -99,8 +134,8 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         super.receiveInitialSyncData(buf);
         this.isItemAutoOutput = buf.readBoolean();
         this.isFluidAutoOutput = buf.readBoolean();
-        this.itemOutputFacing = EnumFacing.VALUES[buf.readByte()];
-        this.fluidOutputFacing = EnumFacing.VALUES[buf.readByte()];
+        this.outputFacing = EnumFacing.VALUES[buf.readByte()];
+        this.allowInputFromOutputSide = buf.readBoolean();
     }
 
     @Override
@@ -109,8 +144,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         data.setBoolean("isItemAutoOutput", this.isItemAutoOutput);
         data.setBoolean("isFluidAutoOutput", this.isFluidAutoOutput);
         data.setBoolean("allowInputFromOutputSide", this.allowInputFromOutputSide);
-        data.setInteger("itemOutputFacing", this.itemOutputFacing.getIndex());
-        data.setInteger("fluidOutputFacing", this.fluidOutputFacing.getIndex());
+        data.setInteger("outputFacing", this.outputFacing.getIndex());
         return data;
     }
 
@@ -120,17 +154,15 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         this.isItemAutoOutput = data.getBoolean("isItemAutoOutput");
         this.isFluidAutoOutput = data.getBoolean("isFluidAutoOutput");
         this.allowInputFromOutputSide = data.getBoolean("allowInputFromOutputSide");
-        if (data.hasKey("itemOutputFacing"))
-            this.itemOutputFacing = EnumFacing.VALUES[data.getInteger("itemOutputFacing")];
-        if (data.hasKey("fluidOutputFacing"))
-            this.fluidOutputFacing = EnumFacing.VALUES[data.getInteger("fluidOutputFacing")];
+        if (data.hasKey("outputFacing"))
+            this.outputFacing = EnumFacing.VALUES[data.getInteger("outputFacing")];
     }
 
-    protected void setItemOutputFacing(EnumFacing itemOutputFacing) {
-        this.itemOutputFacing = itemOutputFacing;
+    protected void setOutputFacing(EnumFacing outputFacing) {
+        this.outputFacing = outputFacing;
         if (!this.getWorld().isRemote) {
             this.getHolder().notifyBlockUpdate();
-            this.writeCustomData(100, buf -> buf.writeByte(itemOutputFacing.getIndex()));
+            this.writeCustomData(100, buf -> buf.writeByte(outputFacing.getIndex()));
             this.markDirty();
         }
     }
@@ -143,29 +175,25 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         }
     }
 
-    protected void setFluidOutputFacing(EnumFacing fluidOutputFacing) {
-        this.fluidOutputFacing = fluidOutputFacing;
-        if (!this.getWorld().isRemote) {
-            this.getHolder().notifyBlockUpdate();
-            this.writeCustomData(102, buffer -> buffer.writeByte(fluidOutputFacing.getIndex()));
-            this.markDirty();
-        }
-    }
-
     protected void setFluidAutoOutput(boolean isFluidAutoOutput) {
         this.isFluidAutoOutput = isFluidAutoOutput;
         if (!this.getWorld().isRemote) {
-            this.writeCustomData(103, buffer -> buffer.writeBoolean(isFluidAutoOutput));
+            this.writeCustomData(102, buffer -> buffer.writeBoolean(isFluidAutoOutput));
             this.markDirty();
         }
     }
 
-    public EnumFacing getItemOutputFacing() {
-        return this.itemOutputFacing;
+    public void setAllowInputFromOutputSide(boolean allowInputFromOutputSide) {
+        this.allowInputFromOutputSide = allowInputFromOutputSide;
+        if (!this.getWorld().isRemote) {
+            this.getHolder().notifyBlockUpdate();
+            this.writeCustomData(103, buffer -> buffer.writeBoolean(allowInputFromOutputSide));
+            this.markDirty();
+        }
     }
 
-    public EnumFacing getFluidOutputFacing() {
-        return this.fluidOutputFacing;
+    public EnumFacing getOutputFacing() {
+        return this.outputFacing;
     }
 
     @Override
