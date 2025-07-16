@@ -54,8 +54,22 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CENTRIFUGE_RECIPES, PARALLEL_THERMAL_CENTRIFUGE_RECIPES, PARALLEL_GAS_CENTRIFUGE_RECIPES});
-        this.recipeMapWorkable = new ParallelLargeCentrifugeWorkableHandler(this, TJConfig.parallelLargeCentrifuge.eutPercentage,
-                TJConfig.parallelLargeCentrifuge.durationPercentage, TJConfig.parallelLargeCentrifuge.chancePercentage, TJConfig.parallelLargeCentrifuge.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCentrifuge.eutPercentage,
+                () -> TJConfig.parallelLargeCentrifuge.durationPercentage, () -> TJConfig.parallelLargeCentrifuge.chancePercentage, () -> TJConfig.parallelLargeCentrifuge.stack) {
+            @Override
+            protected long getMaxVoltage() {
+                return this.controller.getMaxVoltage();
+            }
+
+            @Override
+            protected void setupRecipe(Recipe recipe, int i) {
+                int energyBonus = this.controller.getEUBonus();
+                int resultOverclock = this.overclockManager.getEUt();
+                resultOverclock -= (int) (resultOverclock * energyBonus * 0.01f);
+                this.overclockManager.setEUt(resultOverclock);
+                super.setupRecipe(recipe, i);
+            }
+        };
     }
 
     @Override
@@ -138,26 +152,5 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
         return new RecipeMap[]{LARGE_CENTRIFUGE.recipeMap, LARGE_THERMAL_CENTRIFUGE.recipeMap, GAS_CENTRIFUGE.recipeMap};
-    }
-
-    private static class ParallelLargeCentrifugeWorkableHandler extends ParallelGAMultiblockRecipeLogic {
-
-        public ParallelLargeCentrifugeWorkableHandler(ParallelRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
-            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
-        }
-
-        @Override
-        protected long getMaxVoltage() {
-            return this.controller.getMaxVoltage();
-        }
-
-        @Override
-        protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = this.controller.getEUBonus();
-            int resultOverclock = this.overclockManager.getEUt();
-            resultOverclock -= (int) (resultOverclock * energyBonus * 0.01f);
-            this.overclockManager.setEUt(resultOverclock);
-            super.setupRecipe(recipe, i);
-        }
     }
 }

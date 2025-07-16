@@ -49,8 +49,8 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
 
     public MetaTileEntityParallelLargeWiremill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_WIREMILL_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeWiremill.eutPercentage, TJConfig.parallelLargeWashingMachine.durationPercentage,
-                TJConfig.parallelLargeWiremill.chancePercentage, TJConfig.parallelLargeWiremill.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeWiremill.eutPercentage, () -> TJConfig.parallelLargeWashingMachine.durationPercentage,
+                () -> TJConfig.parallelLargeWiremill.chancePercentage, () -> TJConfig.parallelLargeWiremill.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

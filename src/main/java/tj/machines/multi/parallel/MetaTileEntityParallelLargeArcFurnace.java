@@ -58,8 +58,8 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeArcFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ARC_FURNACE_RECIPES, PARALLEL_PLASMA_ARC_FURNACE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeArcFurnace.eutPercentage, TJConfig.parallelLargeArcFurnace.durationPercentage,
-                TJConfig.parallelLargeArcFurnace.chancePercentage, TJConfig.parallelLargeArcFurnace.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeArcFurnace.eutPercentage, () -> TJConfig.parallelLargeArcFurnace.durationPercentage,
+                () -> TJConfig.parallelLargeArcFurnace.chancePercentage, () -> TJConfig.parallelLargeArcFurnace.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

@@ -50,8 +50,8 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeCanningMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CANNER_RECIPES, PARALLEL_FLUID_CANNER_RECIPES, PARALLEL_FLUID_SOLIDIFICATION_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeCanningMachine.eutPercentage, TJConfig.parallelLargeCanningMachine.durationPercentage,
-                TJConfig.parallelLargeCanningMachine.chancePercentage, TJConfig.parallelLargeCanningMachine.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCanningMachine.eutPercentage, () -> TJConfig.parallelLargeCanningMachine.durationPercentage,
+                () -> TJConfig.parallelLargeCanningMachine.chancePercentage, () -> TJConfig.parallelLargeCanningMachine.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

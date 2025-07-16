@@ -17,6 +17,7 @@ import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 
 import java.util.*;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 
 /**
@@ -24,33 +25,17 @@ import java.util.stream.Collectors;
  */
 public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLogic {
 
-    private final int EUtPercentage;
-    private final int durationPercentage;
-    private final int chancePercentage;
-    private final int stack;
+    private final IntSupplier EUtPercentage;
+    private final IntSupplier durationPercentage;
+    private final IntSupplier chancePercentage;
+    private final IntSupplier stack;
 
-    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
         super(tileEntity, TJConfig.machines.recipeCacheCapacity);
         this.EUtPercentage = EUtPercentage;
         this.durationPercentage = durationPercentage;
         this.chancePercentage = chancePercentage;
         this.stack = stack;
-    }
-
-    public int getEUtPercentage() {
-        return this.EUtPercentage;
-    }
-
-    public int getDurationPercentage() {
-        return this.durationPercentage;
-    }
-
-    public int getChancePercentage() {
-        return this.chancePercentage;
-    }
-
-    public int getStack() {
-        return this.stack;
     }
 
     public boolean isBatching() {
@@ -187,7 +172,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     }
 
     protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe, int j) {
-        int maxItemsLimit = this.getStack();
+        int maxItemsLimit = this.stack.getAsInt();
         int EUt = matchingRecipe.getEUt();
         int duration = matchingRecipe.getDuration();
         int currentTier = this.getOverclockingTier(maxVoltage);
@@ -221,7 +206,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
         int tierDiff = currentTier - tierNeeded;
         for (int i = 0; i < tierDiff; i++) {
-            int attemptItemsLimit = this.getStack();
+            int attemptItemsLimit = this.stack.getAsInt();
             attemptItemsLimit *= tierDiff - i;
             attemptItemsLimit = Math.max(1, attemptItemsLimit);
             attemptItemsLimit = Math.min(minMultiplier, attemptItemsLimit);
@@ -248,8 +233,8 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                     .fluidInputs(newFluidInputs)
                     .outputs(outputI)
                     .fluidOutputs(outputF)
-                    .EUt(Math.max(1, EUt * this.getEUtPercentage() / 100))
-                    .duration(Math.max(1, duration * this.getDurationPercentage() / 100));
+                    .EUt(Math.max(1, EUt * this.EUtPercentage.getAsInt() / 100))
+                    .duration(Math.max(1, duration * this.durationPercentage.getAsInt() / 100));
 
             this.parallel[j] = attemptItemsLimit;
             return newRecipe.build().getResult();
@@ -260,8 +245,8 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
     protected void copyChancedItemOutputs(RecipeBuilder<?> newRecipe, Recipe oldRecipe, int multiplier) {
         for (Recipe.ChanceEntry s : oldRecipe.getChancedOutputs()) {
-            int chance = Math.min(10000, s.getChance() * this.getChancePercentage() / 100);
-            int boost = s.getBoostPerTier() * this.getChancePercentage() / 100;
+            int chance = Math.min(10000, s.getChance() * this.chancePercentage.getAsInt() / 100);
+            int boost = s.getBoostPerTier() * this.chancePercentage.getAsInt() / 100;
             ItemStack stack = s.getItemStack().copy();
             int count = stack.getCount();
             stack.setCount(count * multiplier);

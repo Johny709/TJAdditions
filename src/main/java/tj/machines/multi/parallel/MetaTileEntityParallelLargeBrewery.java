@@ -55,8 +55,8 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
 
     public MetaTileEntityParallelLargeBrewery(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BREWING_MACHINE_RECIPES, PARALLEL_FERMENTING_RECIPES, PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES, PARALLEL_CRACKING_UNIT_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeBrewery.eutPercentage,
-                TJConfig.parallelLargeBrewery.durationPercentage, TJConfig.parallelLargeBrewery.chancePercentage, TJConfig.parallelLargeBrewery.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeBrewery.eutPercentage,
+                () -> TJConfig.parallelLargeBrewery.durationPercentage, () -> TJConfig.parallelLargeBrewery.chancePercentage, () -> TJConfig.parallelLargeBrewery.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

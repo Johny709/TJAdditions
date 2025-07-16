@@ -53,8 +53,8 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
 
     public MetaTileEntityParallelLargePackager(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_PACKER_RECIPES, PARALLEL_UNPACKER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargePackager.eutPercentage, TJConfig.parallelLargePackager.durationPercentage,
-                TJConfig.parallelLargePackager.chancePercentage, TJConfig.parallelLargePackager.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargePackager.eutPercentage, () -> TJConfig.parallelLargePackager.durationPercentage,
+                () -> TJConfig.parallelLargePackager.chancePercentage, () -> TJConfig.parallelLargePackager.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

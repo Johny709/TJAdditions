@@ -52,8 +52,8 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
 
     public MetaTileEntityParallelLargeElectromagnet(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_POLARIZER_RECIPES, PARALLEL_ELECTROMAGNETIC_SEPARATOR_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeElectromagnet.eutPercentage, TJConfig.parallelLargeElectromagnet.durationPercentage,
-                TJConfig.parallelLargeElectromagnet.chancePercentage, TJConfig.parallelLargeElectromagnet.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeElectromagnet.eutPercentage, () -> TJConfig.parallelLargeElectromagnet.durationPercentage,
+                () -> TJConfig.parallelLargeElectromagnet.chancePercentage, () -> TJConfig.parallelLargeElectromagnet.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

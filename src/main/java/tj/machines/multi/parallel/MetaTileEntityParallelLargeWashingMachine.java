@@ -54,8 +54,8 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeWashingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ORE_WASHER_RECIPES, PARALLEL_CHEMICAL_BATH_RECIPES, PARALLEL_SIMPLE_ORE_WASHER_RECIPES, PARALLEL_AUTOCLAVE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeWashingMachine.eutPercentage,
-                TJConfig.parallelLargeWashingMachine.durationPercentage, TJConfig.parallelLargeWashingMachine.chancePercentage, TJConfig.parallelLargeWashingMachine.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeWashingMachine.eutPercentage,
+                () -> TJConfig.parallelLargeWashingMachine.durationPercentage, () -> TJConfig.parallelLargeWashingMachine.chancePercentage, () -> TJConfig.parallelLargeWashingMachine.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

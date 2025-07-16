@@ -51,8 +51,8 @@ public class MetaTileEntityParallelLargeForgeHammer extends ParallelRecipeMapMul
 
     public MetaTileEntityParallelLargeForgeHammer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_FORGE_HAMMER_RECIPES, PARALLEL_COMPRESSOR_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeForgeHammer.eutPercentage, TJConfig.parallelLargeForgeHammer.durationPercentage,
-                TJConfig.parallelLargeForgeHammer.chancePercentage, TJConfig.parallelLargeForgeHammer.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeForgeHammer.eutPercentage, () -> TJConfig.parallelLargeForgeHammer.durationPercentage,
+                () -> TJConfig.parallelLargeForgeHammer.chancePercentage, () -> TJConfig.parallelLargeForgeHammer.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

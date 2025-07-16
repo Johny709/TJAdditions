@@ -53,8 +53,8 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeCuttingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CUTTER_RECIPES, PARALLEL_LATHE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeCuttingMachine.eutPercentage, TJConfig.parallelLargeCuttingMachine.durationPercentage,
-                TJConfig.parallelLargeCuttingMachine.chancePercentage, TJConfig.parallelLargeCuttingMachine.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCuttingMachine.eutPercentage, () -> TJConfig.parallelLargeCuttingMachine.durationPercentage,
+                () -> TJConfig.parallelLargeCuttingMachine.chancePercentage, () -> TJConfig.parallelLargeCuttingMachine.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

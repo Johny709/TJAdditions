@@ -53,8 +53,8 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
 
     public MetaTileEntityParallelLargeExtractor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_FLUID_EXTRACTION_RECIPES, PARALLEL_EXTRACTOR_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeExtractor.eutPercentage, TJConfig.parallelLargeExtractor.durationPercentage,
-                TJConfig.parallelLargeExtractor.chancePercentage, TJConfig.parallelLargeExtractor.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeExtractor.eutPercentage, () -> TJConfig.parallelLargeExtractor.durationPercentage,
+                () -> TJConfig.parallelLargeExtractor.chancePercentage, () -> TJConfig.parallelLargeExtractor.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

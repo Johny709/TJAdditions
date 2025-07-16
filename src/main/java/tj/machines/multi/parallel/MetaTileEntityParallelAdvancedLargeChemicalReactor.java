@@ -160,8 +160,8 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {
 
         public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity) {
-            super(tileEntity, TJConfig.advancedParallelChemicalReactor.eutPercentage, TJConfig.advancedParallelChemicalReactor.durationPercentage,
-                    TJConfig.advancedParallelChemicalReactor.chancePercentage, TJConfig.advancedParallelChemicalReactor.stack);
+            super(tileEntity, () -> TJConfig.advancedParallelChemicalReactor.eutPercentage, () -> TJConfig.advancedParallelChemicalReactor.durationPercentage,
+                    () -> TJConfig.advancedParallelChemicalReactor.chancePercentage, () -> TJConfig.advancedParallelChemicalReactor.stack);
         }
 
         @Override

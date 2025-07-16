@@ -50,8 +50,8 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
 
     public MetaTileEntityParallelLargeElectrolyzer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ELECTROLYZER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeElectrolyzer.eutPercentage,
-                TJConfig.parallelLargeElectrolyzer.durationPercentage, TJConfig.parallelLargeElectrolyzer.chancePercentage, TJConfig.parallelLargeElectrolyzer.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeElectrolyzer.eutPercentage,
+                () -> TJConfig.parallelLargeElectrolyzer.durationPercentage, () -> TJConfig.parallelLargeElectrolyzer.chancePercentage, () -> TJConfig.parallelLargeElectrolyzer.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

@@ -49,8 +49,8 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
 
     public MetaTileEntityParallelLargeMacerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_MACERATOR_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeMacerator.eutPercentage,
-                TJConfig.parallelLargeMacerator.durationPercentage, TJConfig.parallelLargeMacerator.chancePercentage, TJConfig.parallelLargeMacerator.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeMacerator.eutPercentage,
+                () -> TJConfig.parallelLargeMacerator.durationPercentage, () -> TJConfig.parallelLargeMacerator.chancePercentage, () -> TJConfig.parallelLargeMacerator.stack) {
             @Override
             public long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

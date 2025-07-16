@@ -50,8 +50,8 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelPlasmaCondenser(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_PLASMA_CONDENSER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelPlasmaCondenser.eutPercentage, TJConfig.parallelPlasmaCondenser.durationPercentage,
-                TJConfig.parallelPlasmaCondenser.chancePercentage, TJConfig.parallelPlasmaCondenser.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelPlasmaCondenser.eutPercentage, () -> TJConfig.parallelPlasmaCondenser.durationPercentage,
+                () -> TJConfig.parallelPlasmaCondenser.chancePercentage, () -> TJConfig.parallelPlasmaCondenser.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();

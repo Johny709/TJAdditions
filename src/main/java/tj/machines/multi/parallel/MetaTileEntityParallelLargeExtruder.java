@@ -51,8 +51,8 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
 
     public MetaTileEntityParallelLargeExtruder(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_EXTRUDER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, TJConfig.parallelLargeExtruder.eutPercentage, TJConfig.parallelLargeExtruder.durationPercentage,
-                TJConfig.parallelLargeExtruder.chancePercentage, TJConfig.parallelLargeExtruder.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeExtruder.eutPercentage, () -> TJConfig.parallelLargeExtruder.durationPercentage,
+                () -> TJConfig.parallelLargeExtruder.chancePercentage, () -> TJConfig.parallelLargeExtruder.stack) {
             @Override
             protected long getMaxVoltage() {
                 return this.controller.getMaxVoltage();
