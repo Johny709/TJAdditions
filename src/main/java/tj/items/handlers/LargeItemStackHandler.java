@@ -16,12 +16,17 @@ public class LargeItemStackHandler extends ItemStackHandler {
     }
 
     public int getCapacity() {
-        return capacity;
+        return this.capacity;
+    }
+
+    @Override
+    public int getSlotLimit(int slot) {
+        return this.capacity;
     }
 
     @Override
     protected int getStackLimit(int slot, @Nonnull ItemStack stack) {
-        return capacity;
+        return this.capacity;
     }
 
     @Nonnull
@@ -30,26 +35,26 @@ public class LargeItemStackHandler extends ItemStackHandler {
         if (amount == 0)
             return ItemStack.EMPTY;
 
-        validateSlotIndex(slot);
+        this.validateSlotIndex(slot);
 
         ItemStack existing = this.stacks.get(slot);
 
         if (existing.isEmpty())
             return ItemStack.EMPTY;
 
-        int toExtract = Math.min(amount, capacity);
+        int toExtract = Math.min(amount, this.capacity);
 
         if (existing.getCount() <= toExtract) {
             if (!simulate) {
                 this.stacks.set(slot, ItemStack.EMPTY);
-                onContentsChanged(slot);
+                this.onContentsChanged(slot);
             }
             return existing;
         }
         else {
             if (!simulate) {
                 this.stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
-                onContentsChanged(slot);
+                this.onContentsChanged(slot);
             }
             return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
         }
