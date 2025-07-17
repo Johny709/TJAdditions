@@ -45,6 +45,7 @@ import static gregtech.api.recipes.RecipeMaps.FLUID_EXTRACTION_RECIPES;
 import static gregtech.api.render.Textures.EXTRACTOR_OVERLAY;
 import static gregtech.api.render.Textures.FLUID_EXTRACTOR_OVERLAY;
 
+
 public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -52,12 +53,8 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
     public MetaTileEntityParallelLargeExtractor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_FLUID_EXTRACTION_RECIPES, PARALLEL_EXTRACTOR_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeExtractor.eutPercentage, () -> TJConfig.parallelLargeExtractor.durationPercentage,
-                () -> TJConfig.parallelLargeExtractor.chancePercentage, () -> TJConfig.parallelLargeExtractor.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeExtractor.chancePercentage, () -> TJConfig.parallelLargeExtractor.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

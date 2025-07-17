@@ -43,8 +43,9 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     public int recipeCacheSize;
     protected boolean useOptimizedRecipeLookUp = true;
     protected boolean allowOverclocking = true;
-    private long overclockVoltage = 0;
-    protected LongSupplier overclockPolicy = this::getMaxVoltage;
+    private long overclockVoltage;
+    protected LongSupplier maxVoltage = this::getMaxVoltage;
+    protected LongSupplier overclockPolicy = this.maxVoltage;
 
     protected int[] progressTime = new int[1];
     protected int[] maxProgressTime = new int[1];
@@ -111,6 +112,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             this.workingEnabled[this.size -1] = true;
             this.parallel[this.size -1] = 1;
         }
+    }
+
+    public void setMaxVoltage(LongSupplier maxVoltage) {
+        this.maxVoltage = maxVoltage;
     }
 
     protected abstract long getEnergyStored();
@@ -225,7 +230,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected boolean trySearchNewRecipe(int i) {
-        long maxVoltage = this.getMaxVoltage();
+        long maxVoltage = this.maxVoltage.getAsLong();
         Recipe currentRecipe = null;
         IItemHandlerModifiable importInventory = this.getInputInventory();
         IMultipleTankHandler importFluids = this.getInputTank();
@@ -364,8 +369,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     /**
      *
-     * @param EUt
-     * @param duration
+     * @param EUt recipe EU/t
+     * @param duration recipe duration ticks
      * @return true if the overclock can be successfully performed
      */
     protected boolean calculateOverclock(int EUt, int duration) {
@@ -406,7 +411,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     public String[] getAvailableOverclockingTiers() {
-        final int maxTier = this.getOverclockingTier(this.getMaxVoltage());
+        final int maxTier = this.getOverclockingTier(this.maxVoltage.getAsLong());
         final String[] result = new String[maxTier + 2];
         result[0] = "gregtech.gui.overclock.off";
         for (int i = 0; i < maxTier + 1; ++i) {
@@ -430,7 +435,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected int getMachineTierForRecipe(Recipe recipe) {
-        return GTUtility.getGATierByVoltage(this.getMaxVoltage());
+        return GTUtility.getGATierByVoltage(this.maxVoltage.getAsLong());
     }
 
     protected void completeRecipe(int i) {
@@ -536,7 +541,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
      * Use setOverclockVoltage() or setOverclockTier() for a more dynamic use case.
      */
     public void enableOverclockVoltage() {
-        setOverclockVoltage(this.getMaxVoltage());
+        setOverclockVoltage(this.maxVoltage.getAsLong());
     }
 
     // The overclocking tier
@@ -713,7 +718,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             this.overclockVoltage = compound.getLong(OVERCLOCK_VOLTAGE);
         } else {
             // Calculate overclock voltage based on old allow flag
-            this.overclockVoltage = this.allowOverclocking ? this.getMaxVoltage() : 0;
+            this.overclockVoltage = this.allowOverclocking ? this.maxVoltage.getAsLong() : 0;
         }
         if (!compound.hasKey("Size")) {
             return;

@@ -46,6 +46,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.TJRecipeMaps.PARALLEL_BLAST_ALLOY_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
+
 public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMultiblockController {
 
     private int blastFurnaceTemperature;
@@ -54,12 +55,8 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
 
     public MetaTileEntityParallelAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_ALLOY_RECIPES});
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, () -> this.blastFurnaceTemperature) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, () -> this.blastFurnaceTemperature);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

@@ -41,6 +41,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.MACERATOR_RECIPES;
 
+
 public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
@@ -48,12 +49,8 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     public MetaTileEntityParallelLargeMacerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_MACERATOR_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeMacerator.eutPercentage,
-                () -> TJConfig.parallelLargeMacerator.durationPercentage, () -> TJConfig.parallelLargeMacerator.chancePercentage, () -> TJConfig.parallelLargeMacerator.stack) {
-            @Override
-            public long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeMacerator.durationPercentage, () -> TJConfig.parallelLargeMacerator.chancePercentage, () -> TJConfig.parallelLargeMacerator.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

@@ -46,6 +46,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
+
 public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
@@ -54,10 +55,6 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CENTRIFUGE_RECIPES, PARALLEL_THERMAL_CENTRIFUGE_RECIPES, PARALLEL_GAS_CENTRIFUGE_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCentrifuge.eutPercentage,
                 () -> TJConfig.parallelLargeCentrifuge.durationPercentage, () -> TJConfig.parallelLargeCentrifuge.chancePercentage, () -> TJConfig.parallelLargeCentrifuge.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
 
             @Override
             protected void setupRecipe(Recipe recipe, int i) {
@@ -68,6 +65,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
                 super.setupRecipe(recipe, i);
             }
         };
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

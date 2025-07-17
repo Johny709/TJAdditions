@@ -45,6 +45,7 @@ import static gregtech.api.recipes.RecipeMaps.LATHE_RECIPES;
 import static gregtech.api.render.Textures.CUTTER_OVERLAY;
 import static gregtech.api.render.Textures.LATHE_OVERLAY;
 
+
 public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -52,12 +53,8 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
     public MetaTileEntityParallelLargeCuttingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CUTTER_RECIPES, PARALLEL_LATHE_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCuttingMachine.eutPercentage, () -> TJConfig.parallelLargeCuttingMachine.durationPercentage,
-                () -> TJConfig.parallelLargeCuttingMachine.chancePercentage, () -> TJConfig.parallelLargeCuttingMachine.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeCuttingMachine.chancePercentage, () -> TJConfig.parallelLargeCuttingMachine.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

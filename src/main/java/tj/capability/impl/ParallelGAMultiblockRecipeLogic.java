@@ -48,7 +48,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
     @Override
     protected boolean trySearchNewRecipeCombined(int i) {
-        long maxVoltage = this.getMaxVoltage();
+        long maxVoltage = this.maxVoltage.getAsLong();
         Recipe currentRecipe = null;
         IItemHandlerModifiable importInventory = this.getInputInventory();
         IMultipleTankHandler importFluids = this.getInputTank();
@@ -94,7 +94,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
     @Override
     protected boolean trySearchNewRecipeDistinct(int i) {
-        long maxVoltage = this.getMaxVoltage();
+        long maxVoltage = this.maxVoltage.getAsLong();
         Recipe currentRecipe;
         List<IItemHandlerModifiable> importInventory = this.getInputBuses();
         IMultipleTankHandler importFluids = this.getInputTank();

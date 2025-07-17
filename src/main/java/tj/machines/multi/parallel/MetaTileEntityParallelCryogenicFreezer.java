@@ -43,6 +43,7 @@ import static gregtech.api.recipes.RecipeMaps.VACUUM_RECIPES;
 import static tj.TJRecipeMaps.PARALLEL_VACUUM_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
+
 public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
@@ -52,10 +53,6 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_VACUUM_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelCryogenicFreezer.eutPercentage,
                 () -> TJConfig.parallelCryogenicFreezer.durationPercentage, () -> TJConfig.parallelCryogenicFreezer.chancePercentage, () -> TJConfig.parallelCryogenicFreezer.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
 
             @Override
             protected boolean drawEnergy(int recipeEUt) {
@@ -66,6 +63,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
                 return super.drawEnergy(recipeEUt);
             }
         };
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

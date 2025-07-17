@@ -42,6 +42,7 @@ import static gregtech.api.recipes.RecipeMaps.BLAST_RECIPES;
 import static tj.TJRecipeMaps.PARALLEL_BLAST_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
+
 public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMapMultiblockController {
 
     private int blastFurnaceTemperature;
@@ -50,12 +51,8 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
 
     public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, () -> this.blastFurnaceTemperature) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, () -> this.blastFurnaceTemperature);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

@@ -45,6 +45,7 @@ import static gregtech.api.recipes.RecipeMaps.UNPACKER_RECIPES;
 import static gregtech.api.render.Textures.PACKER_OVERLAY;
 import static gregtech.api.render.Textures.UNPACKER_OVERLAY;
 
+
 public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -52,12 +53,8 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
     public MetaTileEntityParallelLargePackager(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_PACKER_RECIPES, PARALLEL_UNPACKER_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargePackager.eutPercentage, () -> TJConfig.parallelLargePackager.durationPercentage,
-                () -> TJConfig.parallelLargePackager.chancePercentage, () -> TJConfig.parallelLargePackager.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargePackager.chancePercentage, () -> TJConfig.parallelLargePackager.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

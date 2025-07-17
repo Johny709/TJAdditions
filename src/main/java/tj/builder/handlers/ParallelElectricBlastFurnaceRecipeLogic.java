@@ -42,7 +42,7 @@ public class ParallelElectricBlastFurnaceRecipeLogic extends ParallelMultiblockR
         // Apply EUt discount for every 900K above the base recipe temperature
         EUt *= Math.pow(0.95, bonusAmount);
 
-        int tier = getOverclockingTier(this.getMaxVoltage());
+        int tier = getOverclockingTier(this.maxVoltage.getAsLong());
         if (GAValues.V[tier] <= EUt || tier == 0) {
             this.overclockManager.setEUtAndDuration(EUt, duration);
             return true;

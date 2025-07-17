@@ -1,18 +1,16 @@
 package tj.machines.multi.parallel;
 
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.recipes.Recipe;
 import tj.TJConfig;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.ParallelMultiblockRecipeLogic;
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.components.PumpCasing;
-import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -20,7 +18,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.BlockWireCoil;
@@ -32,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.capability.impl.ParallelMultiblockRecipeLogic;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -46,13 +44,30 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
+
 public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES});
-        this.recipeMapWorkable = new ParallelMultiblockChemicalReactorWorkableHandler(this);
+        this.recipeMapWorkable = new ParallelMultiblockRecipeLogic(this, TJConfig.machines.recipeCacheCapacity) {
+
+            @Override
+            public double getDurationOverclock() {
+                return 4;
+            }
+
+            @Override
+            protected void setupRecipe(Recipe recipe, int i) {
+                int energyBonus = this.controller.getEUBonus();
+                int resultOverclock = this.overclockManager.getEUt();
+                resultOverclock -= (int) (resultOverclock * energyBonus * 0.01f);
+                this.overclockManager.setEUt(resultOverclock);
+                super.setupRecipe(recipe, i);
+            }
+        };
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -167,31 +182,5 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
         return new RecipeMap[]{CHEMICAL_RECIPES, LARGE_CHEMICAL_RECIPES};
-    }
-
-    private static class ParallelMultiblockChemicalReactorWorkableHandler extends ParallelMultiblockRecipeLogic {
-
-        public ParallelMultiblockChemicalReactorWorkableHandler(MetaTileEntityParallelLargeChemicalReactor tileEntity) {
-            super(tileEntity, TJConfig.machines.recipeCacheCapacity);
-        }
-
-        @Override
-        public long getMaxVoltage() {
-            return this.controller.getMaxVoltage();
-        }
-
-        @Override
-        public double getDurationOverclock() {
-            return 4;
-        }
-
-        @Override
-        protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = this.controller.getEUBonus();
-            int resultOverclock = this.overclockManager.getEUt();
-            resultOverclock -= (int) (resultOverclock * energyBonus * 0.01f);
-            this.overclockManager.setEUt(resultOverclock);
-            super.setupRecipe(recipe, i);
-        }
     }
 }

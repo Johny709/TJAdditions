@@ -43,6 +43,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.EXTRUDER_RECIPES;
 
+
 public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -50,12 +51,8 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
     public MetaTileEntityParallelLargeExtruder(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_EXTRUDER_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeExtruder.eutPercentage, () -> TJConfig.parallelLargeExtruder.durationPercentage,
-                () -> TJConfig.parallelLargeExtruder.chancePercentage, () -> TJConfig.parallelLargeExtruder.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeExtruder.chancePercentage, () -> TJConfig.parallelLargeExtruder.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

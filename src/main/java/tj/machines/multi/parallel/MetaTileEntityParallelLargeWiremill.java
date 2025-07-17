@@ -41,6 +41,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.WIREMILL_RECIPES;
 
+
 public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -48,12 +49,8 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
     public MetaTileEntityParallelLargeWiremill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_WIREMILL_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeWiremill.eutPercentage, () -> TJConfig.parallelLargeWashingMachine.durationPercentage,
-                () -> TJConfig.parallelLargeWiremill.chancePercentage, () -> TJConfig.parallelLargeWiremill.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeWiremill.chancePercentage, () -> TJConfig.parallelLargeWiremill.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

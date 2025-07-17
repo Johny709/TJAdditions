@@ -53,12 +53,8 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
     public MetaTileEntityParallelLargeLaserEngraver(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_LARGE_ENGRAVER_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeLaserEngraver.eutPercentage, () -> TJConfig.parallelLargeLaserEngraver.durationPercentage,
-                () -> TJConfig.parallelLargeLaserEngraver.chancePercentage, () -> TJConfig.parallelLargeLaserEngraver.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeLaserEngraver.chancePercentage, () -> TJConfig.parallelLargeLaserEngraver.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

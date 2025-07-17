@@ -42,6 +42,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.render.Textures.*;
 
+
 public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -49,12 +50,8 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     public MetaTileEntityParallelLargeCanningMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CANNER_RECIPES, PARALLEL_FLUID_CANNER_RECIPES, PARALLEL_FLUID_SOLIDIFICATION_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCanningMachine.eutPercentage, () -> TJConfig.parallelLargeCanningMachine.durationPercentage,
-                () -> TJConfig.parallelLargeCanningMachine.chancePercentage, () -> TJConfig.parallelLargeCanningMachine.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeCanningMachine.chancePercentage, () -> TJConfig.parallelLargeCanningMachine.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

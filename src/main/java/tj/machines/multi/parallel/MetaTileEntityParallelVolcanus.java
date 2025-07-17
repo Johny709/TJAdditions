@@ -47,6 +47,7 @@ import static gregtech.api.recipes.RecipeMaps.BLAST_RECIPES;
 import static tj.TJRecipeMaps.PARALLEL_BLAST_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
+
 public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController {
 
     private int pyroConsumeAmount;
@@ -57,12 +58,8 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     public MetaTileEntityParallelVolcanus(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
         this.recipeMapWorkable = new ParallelVolcanusRecipeLogic(this, () -> this.blastFurnaceTemperature, () -> this.pyroConsumeAmount, () -> TJConfig.parallelVolcanus.eutPercentage,
-                () -> TJConfig.parallelVolcanus.durationPercentage, () -> TJConfig.parallelVolcanus.chancePercentage, () -> TJConfig.parallelVolcanus.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelVolcanus.durationPercentage, () -> TJConfig.parallelVolcanus.chancePercentage, () -> TJConfig.parallelVolcanus.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

@@ -42,6 +42,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.ELECTROLYZER_RECIPES;
 
+
 public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
@@ -49,12 +50,8 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     public MetaTileEntityParallelLargeElectrolyzer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ELECTROLYZER_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeElectrolyzer.eutPercentage,
-                () -> TJConfig.parallelLargeElectrolyzer.durationPercentage, () -> TJConfig.parallelLargeElectrolyzer.chancePercentage, () -> TJConfig.parallelLargeElectrolyzer.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeElectrolyzer.durationPercentage, () -> TJConfig.parallelLargeElectrolyzer.chancePercentage, () -> TJConfig.parallelLargeElectrolyzer.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

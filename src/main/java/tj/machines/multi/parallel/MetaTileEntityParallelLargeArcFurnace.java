@@ -48,7 +48,6 @@ import static gregtech.api.recipes.RecipeMaps.PLASMA_ARC_FURNACE_RECIPES;
 import static gregtech.api.render.Textures.ARC_FURNACE_OVERLAY;
 import static gregtech.api.render.Textures.PLASMA_ARC_FURNACE_OVERLAY;
 
-;
 
 public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMultiblockController {
 
@@ -58,10 +57,6 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ARC_FURNACE_RECIPES, PARALLEL_PLASMA_ARC_FURNACE_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeArcFurnace.eutPercentage, () -> TJConfig.parallelLargeArcFurnace.durationPercentage,
                 () -> TJConfig.parallelLargeArcFurnace.chancePercentage, () -> TJConfig.parallelLargeArcFurnace.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
 
             @Override
             protected void setupRecipe(Recipe recipe, int i) {
@@ -72,6 +67,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
                 super.setupRecipe(recipe, i);
             }
         };
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

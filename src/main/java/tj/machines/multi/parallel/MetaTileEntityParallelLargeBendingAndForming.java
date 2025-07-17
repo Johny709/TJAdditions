@@ -44,6 +44,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.BENDER_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.FORMING_PRESS_RECIPES;
 
+
 public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -51,12 +52,8 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
     public MetaTileEntityParallelLargeBendingAndForming(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BENDER_RECIPES, PARALLEL_FORMING_PRESS_RECIPES, PARALLEL_CLUSTER_MILL_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeBendingAndForming.eutPercentage, () -> TJConfig.parallelLargeBendingAndForming.durationPercentage,
-                () -> TJConfig.parallelLargeBendingAndForming.chancePercentage, () -> TJConfig.parallelLargeBendingAndForming.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeBendingAndForming.chancePercentage, () -> TJConfig.parallelLargeBendingAndForming.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

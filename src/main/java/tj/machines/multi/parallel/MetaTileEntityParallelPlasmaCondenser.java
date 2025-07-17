@@ -42,6 +42,7 @@ import static gregicadditions.recipes.GARecipeMaps.PLASMA_CONDENSER_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
+
 public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -49,12 +50,8 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
     public MetaTileEntityParallelPlasmaCondenser(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_PLASMA_CONDENSER_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelPlasmaCondenser.eutPercentage, () -> TJConfig.parallelPlasmaCondenser.durationPercentage,
-                () -> TJConfig.parallelPlasmaCondenser.chancePercentage, () -> TJConfig.parallelPlasmaCondenser.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelPlasmaCondenser.chancePercentage, () -> TJConfig.parallelPlasmaCondenser.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

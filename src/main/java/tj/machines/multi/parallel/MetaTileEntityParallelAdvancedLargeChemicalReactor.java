@@ -48,6 +48,7 @@ import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
+
 public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS,
@@ -56,6 +57,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES, PARALLEL_CHEMICAL_PLANT_RECIPES});
         this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -160,11 +162,6 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
         public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity) {
             super(tileEntity, () -> TJConfig.advancedParallelChemicalReactor.eutPercentage, () -> TJConfig.advancedParallelChemicalReactor.durationPercentage,
                     () -> TJConfig.advancedParallelChemicalReactor.chancePercentage, () -> TJConfig.advancedParallelChemicalReactor.stack);
-        }
-
-        @Override
-        public long getMaxVoltage() {
-            return this.controller.getMaxVoltage();
         }
 
         @Override

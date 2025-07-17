@@ -166,7 +166,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     protected boolean trySearchNewRecipeDistinct(int i) {
-        long maxVoltage = this.getMaxVoltage();
+        long maxVoltage = this.maxVoltage.getAsLong();
         Recipe currentRecipe;
         List<IItemHandlerModifiable> importInventory = this.getInputBuses();
         IMultipleTankHandler importFluids = this.getInputTank();

@@ -47,6 +47,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.BREWING_RECIPES;
 
+
 public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH};
@@ -54,12 +55,8 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     public MetaTileEntityParallelLargeBrewery(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BREWING_MACHINE_RECIPES, PARALLEL_FERMENTING_RECIPES, PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES, PARALLEL_CRACKING_UNIT_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeBrewery.eutPercentage,
-                () -> TJConfig.parallelLargeBrewery.durationPercentage, () -> TJConfig.parallelLargeBrewery.chancePercentage, () -> TJConfig.parallelLargeBrewery.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeBrewery.durationPercentage, () -> TJConfig.parallelLargeBrewery.chancePercentage, () -> TJConfig.parallelLargeBrewery.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

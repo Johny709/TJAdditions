@@ -44,6 +44,7 @@ import static gregtech.api.recipes.RecipeMaps.POLARIZER_RECIPES;
 import static gregtech.api.render.Textures.ELECTROMAGNETIC_SEPARATOR_OVERLAY;
 import static gregtech.api.render.Textures.POLARIZER_OVERLAY;
 
+
 public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
@@ -51,12 +52,8 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
     public MetaTileEntityParallelLargeElectromagnet(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_POLARIZER_RECIPES, PARALLEL_ELECTROMAGNETIC_SEPARATOR_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeElectromagnet.eutPercentage, () -> TJConfig.parallelLargeElectromagnet.durationPercentage,
-                () -> TJConfig.parallelLargeElectromagnet.chancePercentage, () -> TJConfig.parallelLargeElectromagnet.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeElectromagnet.chancePercentage, () -> TJConfig.parallelLargeElectromagnet.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override

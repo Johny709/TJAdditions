@@ -53,12 +53,8 @@ public class MetaTileEntityParallelLargeAssembler extends ParallelRecipeMapMulti
     public MetaTileEntityParallelLargeAssembler(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ASSEMBLER_RECIPES});
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeAssembler.eutPercentage, () -> TJConfig.parallelLargeAssembler.durationPercentage,
-                () -> TJConfig.parallelLargeAssembler.chancePercentage, () -> TJConfig.parallelLargeAssembler.stack) {
-            @Override
-            protected long getMaxVoltage() {
-                return this.controller.getMaxVoltage();
-            }
-        };
+                () -> TJConfig.parallelLargeAssembler.chancePercentage, () -> TJConfig.parallelLargeAssembler.stack);
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
