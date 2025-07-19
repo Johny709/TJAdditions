@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
+import gregicadditions.GAValues;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraftforge.fluids.FluidStack;
@@ -147,7 +148,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
         this.outputInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
         this.energyContainer = new EnergyContainerList(this.getAbilities(MultiblockAbility.INPUT_ENERGY));
         this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
+        this.maxVoltage = GAValues.VA[this.tier];
         this.minerRecipeLogic.initialize(this.tier);
     }
 

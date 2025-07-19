@@ -1,6 +1,5 @@
 package tj.builder.handlers;
 
-import gregicadditions.GAValues;
 import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.GTValues;
 import gregtech.api.capability.IEnergyContainer;
@@ -57,7 +56,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
         int multiplier3 = startTier > 2 ? (int) Math.pow(2.8, startTier - 2) : 1;
         this.maxTemperature = multiplier * ((long) multiplier2 * multiplier3);
         this.maxProgress = 20;
-        this.energyPerTick = GAValues.VA[tier];
+        this.energyPerTick = this.maxVoltage.getAsLong();
     }
 
     @Override
