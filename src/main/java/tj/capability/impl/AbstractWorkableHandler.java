@@ -120,7 +120,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     }
 
     public <N extends Number> boolean canOutputFluid(FluidStack fluid, N amount) {
-        if (this.exportFluids instanceof IFluidHandler) {
+        if (this.exportFluids.get() instanceof IFluidHandler) {
             int fluidStack = ((IFluidHandler) this.exportFluids.get()).fill(fluid, false);
             return fluidStack == amount.intValue();
         }

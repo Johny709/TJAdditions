@@ -135,7 +135,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
 
     @Override
     protected void updateFormedValid() {
-        if (this.tier > GTValues.ZPM)
+        if (this.tier > GTValues.ZPM && this.getNumProblems() < 6)
             this.minerRecipeLogic.update();
     }
 
@@ -190,5 +190,15 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.minerRecipeLogic.isActive(), this.minerRecipeLogic.hasProblem(), this.minerRecipeLogic.isWorkingEnabled());
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isActivationAllowed) {
+        this.minerRecipeLogic.setWorkingEnabled(isActivationAllowed);
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.minerRecipeLogic.isWorkingEnabled();
     }
 }
