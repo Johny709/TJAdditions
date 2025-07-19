@@ -5,6 +5,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.impl.AbstractWorkableHandler;
@@ -15,20 +16,21 @@ import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler {
+public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidTank> {
 
     private ItemStack catalyst;
     private ItemStack input;
     private ItemStack output;
 
-    public ArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs, Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
-        super(metaTileEntity, itemInputs, itemOutputs, energyInputs, inputBus, maxVoltage, parallel);
+    public ArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs,
+                                             Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
+        super(metaTileEntity, itemInputs, itemOutputs, null, null, energyInputs, inputBus, maxVoltage, parallel);
     }
 
     @Override
     protected boolean startRecipe() {
         boolean canStart = false;
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.itemInputs.get();
+        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItems.get();
         if (this.findCatalyst(itemInputs) && this.findInputs(itemInputs)) {
             this.output = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), this.input.getCount());
             NBTTagCompound compound = this.catalyst.getTagCompound().copy();
@@ -48,8 +50,8 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler {
 
     @Override
     protected boolean completeRecipe() {
-        if (ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), this.output, true).isEmpty()) {
-            ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), this.output, false);
+        if (ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.output, true).isEmpty()) {
+            ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.output, false);
             if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
                 ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
             this.catalyst = null;

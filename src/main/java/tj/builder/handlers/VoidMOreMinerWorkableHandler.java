@@ -29,23 +29,20 @@ import static gregicadditions.GAMaterials.*;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
 
-public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler implements IHeatInfo, IItemFluidHandlerInfo {
+public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IHeatInfo, IItemFluidHandlerInfo {
 
     private static final int CONSUME_START = 100;
     private boolean overheat;
     private long maxTemperature;
     private long temperature = 0;
     private double currentDrillingFluid = CONSUME_START;
-    private final Supplier<IMultipleTankHandler> fluidImports;
-    private final Supplier<IMultipleTankHandler> fluidExports;
     private final List<FluidStack> fluidInputsList = new ArrayList<>();
     private final List<FluidStack> fluidOutputsList = new ArrayList<>();
     private final List<ItemStack> oreOutputs = new ArrayList<>();
 
-    public VoidMOreMinerWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs, Supplier<IMultipleTankHandler> fluidImports, Supplier<IMultipleTankHandler> fluidExports, Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
-        super(metaTileEntity, itemInputs, itemOutputs, energyInputs, inputBus, maxVoltage, parallel);
-        this.fluidImports = fluidImports;
-        this.fluidExports = fluidExports;
+    public VoidMOreMinerWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs, Supplier<IMultipleTankHandler> fluidImports, Supplier<IMultipleTankHandler> fluidExports,
+                                        Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
+        super(metaTileEntity, itemInputs, itemOutputs, fluidImports, fluidExports, energyInputs, inputBus, maxVoltage, parallel);
     }
 
     @Override
@@ -65,16 +62,16 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler implem
         boolean hasEnoughPyrotheum = this.hasEnoughFluid(Pyrotheum.getFluid((int) this.currentDrillingFluid), this.currentDrillingFluid);
         boolean hasEnoughCryotheum = this.hasEnoughFluid(Cryotheum.getFluid((int) this.currentDrillingFluid), this.currentDrillingFluid);
         if (hasEnoughPyrotheum && hasEnoughCryotheum) {
-            this.fluidInputsList.add(this.fluidImports.get().drain(Pyrotheum.getFluid((int) this.currentDrillingFluid), true));
-            this.fluidInputsList.add(this.fluidImports.get().drain(Cryotheum.getFluid((int) this.currentDrillingFluid), true));
+            this.fluidInputsList.add(this.importFluids.get().drain(Pyrotheum.getFluid((int) this.currentDrillingFluid), true));
+            this.fluidInputsList.add(this.importFluids.get().drain(Cryotheum.getFluid((int) this.currentDrillingFluid), true));
             canMineOres = true;
         } else if (hasEnoughPyrotheum) {
-            this.fluidInputsList.add(this.fluidImports.get().drain(Pyrotheum.getFluid((int) this.currentDrillingFluid), true));
+            this.fluidInputsList.add(this.importFluids.get().drain(Pyrotheum.getFluid((int) this.currentDrillingFluid), true));
             this.temperature += (long) (this.currentDrillingFluid / 100.0);
             this.currentDrillingFluid *= 1.02;
             canMineOres = true;
         } else if (hasEnoughCryotheum) {
-            this.fluidInputsList.add(this.fluidImports.get().drain(Cryotheum.getFluid((int) this.currentDrillingFluid), true));
+            this.fluidInputsList.add(this.importFluids.get().drain(Cryotheum.getFluid((int) this.currentDrillingFluid), true));
             this.currentDrillingFluid /= 1.02;
             this.temperature -= (long) (this.currentDrillingFluid / 100.0);
         } else {
@@ -99,8 +96,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler implem
         boolean hasEnoughDrillingMud = this.hasEnoughFluid(DrillingMud.getFluid((int) this.currentDrillingFluid), this.currentDrillingFluid);
         boolean canOutputUsedDrillingMud = this.canOutputFluid(UsedDrillingMud.getFluid((int) this.currentDrillingFluid), this.currentDrillingFluid);
         if (hasEnoughDrillingMud && canOutputUsedDrillingMud) {
-            this.fluidInputsList.add(this.fluidImports.get().drain(DrillingMud.getFluid((int) this.currentDrillingFluid), true));
-            int outputAmount = this.fluidImports.get().fill(UsedDrillingMud.getFluid((int) this.currentDrillingFluid), true);
+            this.fluidInputsList.add(this.importFluids.get().drain(DrillingMud.getFluid((int) this.currentDrillingFluid), true));
+            int outputAmount = this.importFluids.get().fill(UsedDrillingMud.getFluid((int) this.currentDrillingFluid), true);
             this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
             long nbOres = this.temperature / 1000;
 
@@ -121,8 +118,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler implem
     @Override
     protected boolean completeRecipe() {
         boolean didOutputOre = this.oreOutputs.stream()
-                .filter(ore -> ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), ore, true).isEmpty())
-                .peek(ore -> ItemStackHelper.insertIntoItemHandler(this.itemOutputs.get(), ore, false))
+                .filter(ore -> ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), ore, true).isEmpty())
+                .peek(ore -> ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), ore, false))
                 .findAny()
                 .isPresent();
         if (didOutputOre) {
@@ -159,16 +156,6 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler implem
         if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
             return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
-    }
-
-    public boolean hasEnoughFluid(FluidStack fluid, double amount) {
-        FluidStack fluidStack = this.fluidImports.get().drain(fluid, false);
-        return fluidStack != null && fluidStack.amount == (int) amount;
-    }
-
-    public boolean canOutputFluid(FluidStack fluid, double amount) {
-        int fluidStack = this.fluidExports.get().fill(fluid, false);
-        return fluidStack == (int) amount;
     }
 
     public int getCurrentDrillingFluid() {

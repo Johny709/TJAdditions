@@ -8,16 +8,24 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import java.util.function.*;
 
-public abstract class AbstractWorkableHandler extends MTETrait implements IWorkable {
+/**
+ *
+ * @param <I> type of item handler impl
+ * @param <F> type of fluid tank impl
+ */
+public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements IWorkable {
 
-    protected final Supplier<IItemHandlerModifiable> itemInputs;
-    protected final Supplier<IItemHandlerModifiable> itemOutputs;
+    protected final Supplier<I> importItems;
+    protected final Supplier<I> exportItems;
+    protected final Supplier<F> importFluids;
+    protected final Supplier<F> exportFluids;
     protected final Supplier<IEnergyContainer> energyInputs;
-    protected final IntFunction<IItemHandlerModifiable> inputBus;
+    protected final IntFunction<I> inputBus;
     protected final LongSupplier maxVoltage;
     protected final IntSupplier parallel;
     protected boolean isWorking = true;
@@ -31,10 +39,13 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
     protected int lastInputIndex;
     protected int busCount;
 
-    public AbstractWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs, Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
+    public AbstractWorkableHandler(MetaTileEntity metaTileEntity, Supplier<I> importItems, Supplier<I> exportItems, Supplier<F> importFluids, Supplier<F> exportFluids,
+                                   Supplier<IEnergyContainer> energyInputs, IntFunction<I> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
         super(metaTileEntity);
-        this.itemInputs = itemInputs;
-        this.itemOutputs = itemOutputs;
+        this.importItems = importItems;
+        this.exportItems = exportItems;
+        this.importFluids = importFluids;
+        this.exportFluids = exportFluids;
         this.energyInputs = energyInputs;
         this.inputBus = inputBus;
         this.maxVoltage = maxVoltage;
@@ -100,6 +111,22 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
         return Math.max(1, duration);
     }
 
+    public <N extends Number> boolean hasEnoughFluid(FluidStack fluid, N amount) {
+        if (this.importFluids.get() instanceof IFluidHandler) {
+            FluidStack fluidStack = ((IFluidHandler) this.importFluids.get()).drain(fluid, false);
+            return fluidStack != null && fluidStack.amount == amount.intValue();
+        }
+        return false;
+    }
+
+    public <N extends Number> boolean canOutputFluid(FluidStack fluid, N amount) {
+        if (this.exportFluids instanceof IFluidHandler) {
+            int fluidStack = ((IFluidHandler) this.exportFluids.get()).fill(fluid, false);
+            return fluidStack == amount.intValue();
+        }
+        return false;
+    }
+
     @Override
     public void receiveCustomData(int id, PacketBuffer buffer) {
         super.receiveCustomData(id, buffer);
@@ -152,6 +179,13 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
     }
 
     @Override
+    public <T> T getCapability(Capability<T> capability) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE)
+            return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
+        return capability == GregtechTileCapabilities.CAPABILITY_WORKABLE ? GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this) : null;
+    }
+
+    @Override
     public String getName() {
         return "RecipeWorkable";
     }
@@ -159,13 +193,6 @@ public abstract class AbstractWorkableHandler extends MTETrait implements IWorka
     @Override
     public int getNetworkID() {
         return TraitNetworkIds.TRAIT_ID_WORKABLE;
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE)
-            return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
-        return capability == GregtechTileCapabilities.CAPABILITY_WORKABLE ? GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this) : null;
     }
 
     public void setDistinct(boolean distinct) {
