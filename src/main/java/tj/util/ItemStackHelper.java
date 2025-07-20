@@ -5,6 +5,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
+
 
 public class ItemStackHelper {
 
@@ -84,7 +86,7 @@ public class ItemStackHelper {
      * @param simulate test to see if the item can be inserted without actually inserting the item for real.
      * @return ItemStack reminder. returns empty when ItemStack is fully inserted. returns the stack unmodified when unable to insert at all.
      */
-    public static ItemStack insertIntoItemHandler(IItemHandler itemHandler, ItemStack stack, boolean simulate) {
+    public static ItemStack insertIntoItemHandler(IItemHandler itemHandler, @Nonnull ItemStack stack, boolean simulate) {
         if (itemHandler == null || stack.isEmpty())
             return stack;
 

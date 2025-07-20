@@ -39,6 +39,7 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             this.output.setTagCompound(compound);
             this.maxProgress = this.calculateOverclock(30, 200, 2.8F);
             this.wasActiveAndNeedsUpdate = false;
+            this.progress = 0;
             canStart = true;
             if (!this.isActive)
                 this.setActive(true);

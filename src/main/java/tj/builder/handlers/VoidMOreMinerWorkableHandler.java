@@ -119,6 +119,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
             }
         } else return false;
         this.wasActiveAndNeedsUpdate = false;
+        this.progress = 0;
         if (!this.isActive)
             this.setActive(true);
         return true;

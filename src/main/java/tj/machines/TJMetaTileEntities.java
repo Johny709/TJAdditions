@@ -10,7 +10,6 @@ import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityL
 import net.minecraft.util.ResourceLocation;
 import tj.TJ;
 import tj.TJConfig;
-import tj.TJRecipeMaps;
 import tj.machines.multi.electric.*;
 import tj.machines.multi.parallel.*;
 import tj.machines.multi.steam.*;

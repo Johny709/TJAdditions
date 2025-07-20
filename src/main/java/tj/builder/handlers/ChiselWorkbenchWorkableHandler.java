@@ -40,6 +40,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IIte
             this.output.setCount(this.input.getCount());
             this.maxProgress = this.calculateOverclock(30, 200, 2.8F);
             this.wasActiveAndNeedsUpdate = false;
+            this.progress = 0;
             canStart = true;
         }
         if (++this.lastInputIndex == this.busCount)
