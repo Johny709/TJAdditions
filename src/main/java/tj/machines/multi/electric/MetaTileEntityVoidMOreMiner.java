@@ -51,7 +51,9 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -88,6 +90,18 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
         tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.5"));
         tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.6"));
         tooltip.add(I18n.format("tj.multiblock.void_more_miner.description"));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+
+        return maintenanceCount == 1 &&
+                fluidInputsCount >= 1 &&
+                fluidOutputsCount >= 1 &&
+                abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
     }
 
     @Override
