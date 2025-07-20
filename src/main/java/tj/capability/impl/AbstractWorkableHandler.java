@@ -73,8 +73,11 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
                 this.progress = 0;
                 if (this.hasProblem)
                     this.setProblem(false);
-            } else if (!this.hasProblem)
-                this.setProblem(true);
+            } else {
+                this.progress--;
+                if (!this.hasProblem)
+                    this.setProblem(true);
+            }
         } else if (!this.isActive)
             this.setActive(true);
     }

@@ -116,6 +116,16 @@ public class RecipeInit {
                     'M', GACraftingComponents.MOTOR.getIngredient(tier));
         }
 
+        for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
+            ModHandler.addShapedRecipe("chisel_workbench_" + GAValues.VN[tier].toLowerCase(), ARCHITECT_WORKBENCH[i].getStackForm(), "CAC", "RSR", "GWG",
+                    'R', GACraftingComponents.CONVEYOR.getIngredient(tier),
+                    'A', new ItemStack(Item.getByNameOrId("chisel:auto_chisel")),
+                    'S', tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm(),
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
+                    'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier),
+                    'G', GACraftingComponents.GEAR.getIngredient(tier));
+        }
+
         ModHandler.addShapedRecipe("elite_large_miner", ELITE_LARGE_MINER.getStackForm(), "GCG", "THT", "SCS",
                 'G', new UnificationEntry(OrePrefix.gear, Duranium),
                 'C', CraftingComponent.CIRCUIT.getIngredient(7),

@@ -9,6 +9,7 @@ import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.TransformationList;
 import codechicken.lib.vec.uv.IconTransformation;
 import codechicken.lib.vec.uv.UVTransformationList;
+import team.chisel.Chisel;
 import tj.TJ;
 import gregtech.api.GTValues;
 import gregtech.api.render.UVMirror;
@@ -59,10 +60,10 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer FUSION_PORT_UHV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uhv");
     public static final TJSimpleCubeRenderer FUSION_PORT_UEV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uev");
 
-    public static final TJSimpleOverlayRenderer CHISEL = new TJSimpleOverlayRenderer("architecturecraft", "items/chisel");
+    public static final TJSimpleOverlayRenderer CHISEL_ARCHITECTURE = new TJSimpleOverlayRenderer("architecturecraft", "items/chisel");
     public static final TJSimpleOverlayRenderer HAMMER = new TJSimpleOverlayRenderer("architecturecraft", "items/hammer");
     public static final TJSimpleOverlayRenderer SAW_BLADE = new TJSimpleOverlayRenderer("architecturecraft", "items/sawblade");
-
+    public static final TJSimpleOverlayRenderer CHISEL = new TJSimpleOverlayRenderer(Chisel.MOD_ID, "items/chisel_iron");
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {

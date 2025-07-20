@@ -58,8 +58,7 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             this.input = null;
             this.output = null;
             return true;
-        } else if (this.progress > 1)
-            this.progress--;
+        }
         return false;
     }
 
