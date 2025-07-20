@@ -7,7 +7,6 @@ import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.recipes.helper.GACraftingComponents;
-import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.material.type.Material;
@@ -106,6 +105,13 @@ public class RecipeInit {
                 'B', CraftingComponent.CONVEYOR.getIngredient(5),
                 'S', ARCHITECT_WORKBENCH[4].getStackForm());
 
+        ModHandler.addShapedRecipe("large_chisel_workbench", LARGE_CHISEL_WORKBENCH.getStackForm(), "GCG", "RSB", "GCG",
+                'G', new UnificationEntry(OrePrefix.gear, MaragingSteel250),
+                'C', CraftingComponent.CIRCUIT.getIngredient(5),
+                'R', CraftingComponent.ROBOT_ARM.getIngredient(5),
+                'B', CraftingComponent.CONVEYOR.getIngredient(5),
+                'S', CHISEL_WORKBENCH[4].getStackForm());
+
         for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
             ModHandler.addShapedRecipe("architect_workbench_" + GAValues.VN[tier].toLowerCase(), ARCHITECT_WORKBENCH[i].getStackForm(), "PAP", "CSC", "MWM",
                     'P', GACraftingComponents.PISTON.getIngredient(tier),
@@ -117,7 +123,7 @@ public class RecipeInit {
         }
 
         for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
-            ModHandler.addShapedRecipe("chisel_workbench_" + GAValues.VN[tier].toLowerCase(), ARCHITECT_WORKBENCH[i].getStackForm(), "CAC", "RSR", "GWG",
+            ModHandler.addShapedRecipe("chisel_workbench_" + GAValues.VN[tier].toLowerCase(), CHISEL_WORKBENCH[i].getStackForm(), "CAC", "RSR", "GWG",
                     'R', GACraftingComponents.CONVEYOR.getIngredient(tier),
                     'A', new ItemStack(Item.getByNameOrId("chisel:auto_chisel")),
                     'S', tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm(),

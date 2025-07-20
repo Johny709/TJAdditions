@@ -42,6 +42,8 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IIte
             this.wasActiveAndNeedsUpdate = false;
             canStart = true;
         }
+        if (++this.lastInputIndex == this.busCount)
+            this.lastInputIndex = 0;
         return canStart;
     }
 

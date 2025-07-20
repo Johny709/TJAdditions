@@ -231,6 +231,10 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         return this.isActive && this.energyInputs.get().getEnergyStored() < this.energyPerTick;
     }
 
+    public long getEnergyPerTick() {
+        return this.energyPerTick;
+    }
+
     @Override
     public boolean isActive() {
         return this.isActive;
