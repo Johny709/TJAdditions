@@ -63,6 +63,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
             this.setActive(false);
 
         if (!this.isWorking || this.progress < 1 && !this.startRecipe()) {
+            this.stopRecipe();
             this.wasActiveAndNeedsUpdate = true;
             return;
         } else this.progressRecipe();
@@ -84,6 +85,11 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected boolean startRecipe() {
         return false;
     }
+
+    /**
+     * When recipe fails to start or gets interrupted
+     */
+    protected void stopRecipe() {}
 
     protected void progressRecipe() {
         if (this.energyInputs.get().getEnergyStored() >= this.energyPerTick) {

@@ -62,7 +62,6 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
     @Override
     protected boolean startRecipe() {
         if (this.overheat) {
-            this.temperature--;
             if (this.temperature < 0) {
                 this.overheat = false;
                 this.temperature = 0;
@@ -123,6 +122,12 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
         if (!this.isActive)
             this.setActive(true);
         return true;
+    }
+
+    @Override
+    protected void stopRecipe() {
+        if (this.temperature > 0)
+            this.temperature--;
     }
 
     @Override
