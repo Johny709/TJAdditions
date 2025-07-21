@@ -19,21 +19,21 @@ import gregtech.api.render.OrientedOverlayRenderer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import tj.TJConfig;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 
 import javax.annotation.Nonnull;
 
-public class MetaTileEntityLargeDecayChamber extends TJLargeSimpleRecipeMapMultiblockController {
+public class MetaTileEntityLargeDecayChamberBase extends TJLargeSimpleRecipeMapMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    public MetaTileEntityLargeDecayChamber(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityLargeDecayChamberBase(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.DECAY_CHAMBERS_RECIPES, TJConfig.decayChamber.eutPercentage, TJConfig.decayChamber.durationPercentage, TJConfig.decayChamber.chancePercentage, TJConfig.decayChamber.stack);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeDecayChamber(metaTileEntityId);
+        return new MetaTileEntityLargeDecayChamberBase(metaTileEntityId);
     }
 
     @Override

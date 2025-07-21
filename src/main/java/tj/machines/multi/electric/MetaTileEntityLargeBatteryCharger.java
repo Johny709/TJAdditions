@@ -307,7 +307,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     private AbstractWidgetGroup linkedPlayersTab(Function<Widget, WidgetGroup> widgetGroup) {
-        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 12, 178, 97) {
+        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
@@ -316,7 +316,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedPlayersText2, 0xFFFFFF)
                 .setClickHandler(this::handleLinkedPlayersClick)
                 .setMaxWidthLimit(1000));
-        widgetGroup.apply(new AdvancedTextWidget(10, 0, this::addDisplayLinkedPlayersText, 0xFFFFFF));
+        widgetGroup.apply(new AdvancedTextWidget(10, -20, this::addDisplayLinkedPlayersText, 0xFFFFFF));
         widgetGroup.apply(scrollWidget);
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
                 .setTooltipText("machine.universal.case_sensitive"));

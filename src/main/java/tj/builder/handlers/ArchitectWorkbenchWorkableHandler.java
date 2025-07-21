@@ -5,18 +5,23 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.IItemFluidHandlerInfo;
+import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidTank> {
+public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidTank> implements IItemFluidHandlerInfo {
 
     private ItemStack catalyst;
     private ItemStack input;
@@ -119,5 +124,22 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             this.input = new ItemStack(compound.getCompoundTag("input"));
         if (compound.hasKey("output"))
             this.output = new ItemStack(compound.getCompoundTag("output"));
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability) {
+        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
+            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
+        return super.getCapability(capability);
+    }
+
+    @Override
+    public List<ItemStack> getItemInputs() {
+        return this.input != null ? Collections.singletonList(this.input) : null;
+    }
+
+    @Override
+    public List<ItemStack> getItemOutputs() {
+        return this.output != null ? Collections.singletonList(this.output) : null;
     }
 }

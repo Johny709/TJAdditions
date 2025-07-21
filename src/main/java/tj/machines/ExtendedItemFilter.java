@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 public class ExtendedItemFilter extends SimpleItemFilter {
 
     public ExtendedItemFilter() {
-        this.itemFilterSlots = new LargeStackSizeItemStackHandler(50) {
+        this.itemFilterSlots = new LargeStackSizeItemStackHandler(60) {
             @Override
             public int getSlotLimit(int slot) {
                 return getMaxStackSize();
@@ -21,8 +21,8 @@ public class ExtendedItemFilter extends SimpleItemFilter {
 
     @Override
     public void initUI(Consumer<Widget> widgetGroup) {
-        for (int i = 0; i < 50; i++) {
-            widgetGroup.accept(new PhantomSlotWidget(itemFilterSlots, i, 9 + 18 * (i % 10), 30 + 18 * (i / 10))
+        for (int i = 0; i < 60; i++) {
+            widgetGroup.accept(new PhantomSlotWidget(itemFilterSlots, i, 9 + 18 * (i % 10), 12 + 18 * (i / 10))
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
     }

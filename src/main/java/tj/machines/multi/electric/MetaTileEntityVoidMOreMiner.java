@@ -112,7 +112,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     }
 
     private AbstractWidgetGroup fluidsTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addFluidDisplayText, 0xFFFFFF)
+        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }
 
@@ -122,8 +122,9 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
         if (this.isStructureFormed()) {
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
+                    .voltageTier(this.tier)
+                    .energyInput(!this.minerRecipeLogic.hasNotEnoughEnergy(), this.minerRecipeLogic.getEnergyPerTick())
                     .temperature(this.minerRecipeLogic.heat(), this.minerRecipeLogic.maxHeat())
-                    .energyInput(!this.minerRecipeLogic.hasNotEnoughEnergy(), this.maxVoltage)
                     .isWorking(this.minerRecipeLogic.isWorkingEnabled(), this.minerRecipeLogic.isActive(), this.minerRecipeLogic.getProgress(), this.minerRecipeLogic.getMaxProgress());
             if (this.minerRecipeLogic.isOverheat())
                 textList.add(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));

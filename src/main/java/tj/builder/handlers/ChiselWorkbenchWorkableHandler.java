@@ -4,21 +4,25 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import team.chisel.api.carving.CarvingUtils;
 import team.chisel.api.carving.ICarvingGroup;
 import team.chisel.api.carving.ICarvingVariation;
+import tj.capability.IItemFluidHandlerInfo;
+import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidHandler> {
+public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidHandler> implements IItemFluidHandlerInfo {
 
     private int circuitNumber;
     private ItemStack input;
@@ -120,5 +124,22 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IIte
             this.input = new ItemStack(compound.getCompoundTag("itemInput"));
         if (compound.hasKey("itemOutput"))
             this.output = new ItemStack(compound.getCompoundTag("itemOutput"));
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability) {
+        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
+            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
+        return super.getCapability(capability);
+    }
+
+    @Override
+    public List<ItemStack> getItemInputs() {
+        return this.input != null ? Collections.singletonList(this.input) : null;
+    }
+
+    @Override
+    public List<ItemStack> getItemOutputs() {
+        return this.output != null ? Collections.singletonList(this.output) : null;
     }
 }

@@ -2,7 +2,7 @@ package tj.machines.multi.electric;
 
 import tj.builder.handlers.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
-import tj.builder.multicontrollers.TJRotorHolderMultiblockController;
+import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
 import tj.gui.TJWidgetGroup;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
@@ -54,7 +54,7 @@ import java.util.function.Function;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 
-public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockController {
+public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBase {
 
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.STEAM};

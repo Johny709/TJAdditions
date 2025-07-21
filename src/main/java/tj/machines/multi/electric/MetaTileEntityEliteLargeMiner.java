@@ -339,8 +339,8 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
         super.addNewTabs(tabs, extended);
         TJWidgetGroup widgetFilterGroup = new TJWidgetGroup(), widgetSettingsGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab(widgetFilterGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab(widgetSettingsGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), this.filterTab(widgetFilterGroup::addWidgets)));
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), this.settingsTab(widgetSettingsGroup::addWidgets)));
     }
 
     @Override
@@ -389,7 +389,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     protected AbstractWidgetGroup settingsTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10,18, this::addSettingsDisplayText, 0xFFFFFF)
+        return widgetGroup.apply(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleSettingDisplayText));
     }

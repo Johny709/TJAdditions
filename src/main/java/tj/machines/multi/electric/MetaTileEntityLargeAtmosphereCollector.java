@@ -38,7 +38,7 @@ import tj.blocks.BlockPipeCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.handlers.LargeAtmosphereCollectorWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
-import tj.builder.multicontrollers.TJRotorHolderMultiblockController;
+import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ import java.util.Map;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockController {
+public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.STEAM};
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;

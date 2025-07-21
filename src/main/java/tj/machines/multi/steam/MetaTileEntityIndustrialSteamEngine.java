@@ -3,7 +3,7 @@ package tj.machines.multi.steam;
 import tj.builder.handlers.TJFuelRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
-import tj.builder.multicontrollers.TJFueledMultiblockController;
+import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -47,7 +47,7 @@ import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapControl
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
-public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockController {
+public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};

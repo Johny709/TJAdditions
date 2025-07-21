@@ -57,7 +57,7 @@ import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
-import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 import tj.gui.widgets.TJCycleButtonWidget;
@@ -78,7 +78,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
 
-public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController implements IHeatInfo {
+public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockControllerBase implements IHeatInfo {
 
     private int parallelLayer;
     private long energyToStart;

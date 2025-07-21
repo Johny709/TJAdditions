@@ -18,12 +18,12 @@ import net.minecraft.util.ResourceLocation;
 import tj.TJRecipeMaps;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJGARecipeMapMultiblockControllerBase;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nonnull;
 
-public class MetaTileEntityDragonReplicator extends TJGARecipeMapMultiblockController {
+public class MetaTileEntityDragonReplicator extends TJGARecipeMapMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 

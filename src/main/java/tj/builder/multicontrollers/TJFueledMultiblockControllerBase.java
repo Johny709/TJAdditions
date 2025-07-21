@@ -30,11 +30,14 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public abstract class TJFueledMultiblockController extends GAFueledMultiblockController {
+import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
+
+public abstract class TJFueledMultiblockControllerBase extends GAFueledMultiblockController {
 
     private boolean doStructureCheck;
 
-    public TJFueledMultiblockController(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
+    public TJFueledMultiblockControllerBase(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
         super(metaTileEntityId, recipeMap, maxVoltage);
     }
 
@@ -47,11 +50,11 @@ public abstract class TJFueledMultiblockController extends GAFueledMultiblockCon
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
         ModularUI.Builder builder = ModularUI.extendedBuilder();
-        builder.image(-10, 0, 195, 217, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
+        builder.image(-10, -20, 195, 237, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
-        builder.widget(new LabelWidget(0, 7, getMetaFullName(), 0xFFFFFF));
+        builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
 
-        TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT, TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM), new Position(-10, 1));
+        TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM), new Position(-10, 1));
         List<Triple<String, ItemStack, AbstractWidgetGroup>> tabList = new ArrayList<>();
         addNewTabs(tabList::add);
         tabList.forEach(tabs -> tabGroup.addTab(new ItemTabInfo(tabs.getLeft(), tabs.getMiddle()), tabs.getRight()));
@@ -66,7 +69,7 @@ public abstract class TJFueledMultiblockController extends GAFueledMultiblockCon
     }
 
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
         widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
@@ -75,7 +78,7 @@ public abstract class TJFueledMultiblockController extends GAFueledMultiblockCon
     }
 
     protected AbstractWidgetGroup maintenanceTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addMaintenanceDisplayText, 0xFFFFFF)
+        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addMaintenanceDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }
 

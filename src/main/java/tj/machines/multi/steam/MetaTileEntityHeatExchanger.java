@@ -1,7 +1,7 @@
 package tj.machines.multi.steam;
 
 import tj.TJRecipeMaps;
-import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -25,7 +25,7 @@ import java.util.Map;
 import static gregicadditions.client.ClientHandler.ZIRCONIUM_CARBIDE_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
-public class MetaTileEntityHeatExchanger extends TJRecipeMapMultiblockController {
+public class MetaTileEntityHeatExchanger extends TJRecipeMapMultiblockControllerBase {
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS};
 
     public MetaTileEntityHeatExchanger (ResourceLocation metaTileEntityId) {

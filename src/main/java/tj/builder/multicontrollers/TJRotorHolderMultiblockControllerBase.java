@@ -39,8 +39,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
+import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
-public abstract class TJRotorHolderMultiblockController extends RotorHolderMultiblockController implements IMaintenance {
+public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderMultiblockController implements IMaintenance {
 
     /**
      * This value stores whether each of the 5 maintenance problems have been fixed.
@@ -57,7 +59,7 @@ public abstract class TJRotorHolderMultiblockController extends RotorHolderMulti
     private boolean storedTaped = false;
     protected boolean doStructureCheck;
 
-    public TJRotorHolderMultiblockController(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
+    public TJRotorHolderMultiblockControllerBase(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
         super(metaTileEntityId, recipeMap, maxVoltage);
     }
 
@@ -87,11 +89,11 @@ public abstract class TJRotorHolderMultiblockController extends RotorHolderMulti
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
         ModularUI.Builder builder = ModularUI.extendedBuilder();
-        builder.image(-10, 0, 195, 217, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
+        builder.image(-10, -20, 195, 237, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
-        builder.widget(new LabelWidget(0, 7, getMetaFullName(), 0xFFFFFF));
+        builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
 
-        TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT, TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM), new Position(-10, 1));
+        TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM), new Position(-10, 1));
         List<Triple<String, ItemStack, AbstractWidgetGroup>> tabList = new ArrayList<>();
         addNewTabs(tabList::add);
         tabList.forEach(tabs -> tabGroup.addTab(new ItemTabInfo(tabs.getLeft(), tabs.getMiddle()), tabs.getRight()));

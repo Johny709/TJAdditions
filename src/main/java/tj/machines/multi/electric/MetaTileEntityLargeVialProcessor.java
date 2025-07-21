@@ -3,7 +3,7 @@ package tj.machines.multi.electric;
 import tj.TJRecipeMaps;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.TJGARecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJGARecipeMapMultiblockControllerBase;
 import tj.textures.TJTextures;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;
@@ -27,7 +27,7 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class MetaTileEntityLargeVialProcessor extends TJGARecipeMapMultiblockController {
+public class MetaTileEntityLargeVialProcessor extends TJGARecipeMapMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 

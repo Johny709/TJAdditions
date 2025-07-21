@@ -111,6 +111,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
         FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount());
         FluidStack veinStack = this.fluidDrillWorkableHandler.getVeinFluidStack();
         MultiblockDisplayBuilder.start(textList)
+                .voltageIn(this.energyContainer)
+                .voltageTier(this.tier)
                 .energyInput(!this.fluidDrillWorkableHandler.hasNotEnoughEnergy(), this.maxVoltage)
                 .fluidInput(this.fluidDrillWorkableHandler.hasEnoughFluid(drillingMud, amount), drillingMud)
                 .fluidOutput(this.fluidDrillWorkableHandler.canOutputFluid(usedDrillingMud, amount), usedDrillingMud)

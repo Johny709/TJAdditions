@@ -3,7 +3,6 @@ package tj.builder.multicontrollers;
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.machines.GATileEntities;
-import gregicadditions.machines.multi.GAMultiblockWithDisplayBase;
 import gregicadditions.machines.multi.IMaintenance;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMaintenanceHatch;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMufflerHatch;
@@ -181,9 +180,9 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     protected ModularUI.Builder createUI(EntityPlayer player, int extended) {
         ModularUI.Builder builder = ModularUI.extendedBuilder();
         WidgetGroup widgetGroup = new WidgetGroup();
-        builder.image(-10, 0, 195, 217 + extended, extended == 0 ? NEW_MULTIBLOCK_DISPLAY : NEW_MULTIBLOCK_DISPLAY_EXTENDED);
+        builder.image(-10, -20, 195, 237 + extended, extended == 0 ? NEW_MULTIBLOCK_DISPLAY : NEW_MULTIBLOCK_DISPLAY_EXTENDED);
         builder.bindPlayerInventory(player.inventory, GuiTextures.SLOT ,-3, 134 + extended);
-        widgetGroup.addWidget(new LabelWidget(0, 7, getMetaFullName(), 0xFFFFFF));
+        widgetGroup.addWidget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
         this.additionalWidgets(widgetGroup::addWidget);
         builder.widget(widgetGroup);
 
@@ -207,7 +206,7 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     }
 
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
-        widgetGroup.apply(new AdvancedTextWidget(10, 18 - extended, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.apply(new AdvancedTextWidget(10, -2 -extended, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
         widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
@@ -216,7 +215,7 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     }
 
     protected AbstractWidgetGroup maintenanceTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18 - extended, this::addMaintenanceDisplayText, 0xFFFFFF)
+        return widgetGroup.apply(new AdvancedTextWidget(10, -2 - extended, this::addMaintenanceDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }
 

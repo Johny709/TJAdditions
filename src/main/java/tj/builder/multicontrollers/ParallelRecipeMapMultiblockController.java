@@ -229,7 +229,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
                 .setTooltipText("tj.multiblock.parallel.recipe.clear"));
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addWorkableDisplayText, 0xFFFFFF)
+        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addWorkableDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleWorkableDisplayClick));
     }
@@ -237,7 +237,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private AbstractWidgetGroup debugTab(Function<Widget, WidgetGroup> widgetGroup) {
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
                 .setTooltipText("tj.multiblock.parallel.recipe.clear"));
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDebugDisplayText, 0xFFFFFF)
+        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }
 

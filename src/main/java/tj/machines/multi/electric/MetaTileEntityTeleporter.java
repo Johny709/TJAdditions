@@ -348,7 +348,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private AbstractWidgetGroup addScrollWidgets(Function<Widget, WidgetGroup> widgetGroup, Consumer<List<ITextComponent>> displayText, Consumer<List<ITextComponent>> displayText2, Supplier<String> searchSupplier, Consumer<String> searchResponder, Consumer<Widget.ClickData> onClear) {
-        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, 12, 178, 97) {
+        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
                 return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
@@ -357,7 +357,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, displayText2, 0xFFFFFF)
                 .setClickHandler(this::handlePosDisplayClick)
                 .setMaxWidthLimit(1000));
-        widgetGroup.apply(new AdvancedTextWidget(10, 0, displayText, 0xFFFFFF));
+        widgetGroup.apply(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
         widgetGroup.apply(scrollWidget);
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
                 .setTooltipText("machine.universal.case_sensitive"));

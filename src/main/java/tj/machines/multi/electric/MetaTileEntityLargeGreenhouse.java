@@ -37,7 +37,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.TJRecipeMaps;
-import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockControllerBase;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
@@ -46,7 +46,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockController {
+public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     DecimalFormat formatter = new DecimalFormat("#0.00");

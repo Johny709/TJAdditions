@@ -17,7 +17,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.builder.multicontrollers.TJFueledMultiblockController;
+import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 
@@ -59,8 +59,8 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
             setActive(true);
 
         if (progress >= maxProgress) {
-            if (metaTileEntity instanceof TJFueledMultiblockController)
-                ((TJFueledMultiblockController) metaTileEntity).calculateMaintenance(this.maxProgress);
+            if (metaTileEntity instanceof TJFueledMultiblockControllerBase)
+                ((TJFueledMultiblockControllerBase) metaTileEntity).calculateMaintenance(this.maxProgress);
             progress = 0;
             setActive(false);
         }

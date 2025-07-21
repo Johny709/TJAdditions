@@ -5,7 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import tj.TJConfig;
 import tj.TJRecipeMaps;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 import gregicadditions.GAUtility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -57,19 +57,19 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 ;
 
-public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultiblockController {
+public class MetaTileEntityLargeRockBreakerBase extends TJLargeSimpleRecipeMapMultiblockControllerBase {
 
     private int slices;
     public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    public MetaTileEntityLargeRockBreaker(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityLargeRockBreakerBase(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.ROCK_BREAKER_RECIPES, TJConfig.largeRockBreaker.eutPercentage, TJConfig.largeRockBreaker.durationPercentage, TJConfig.largeRockBreaker.chancePercentage, TJConfig.largeRockBreaker.stack);
         this.recipeMapWorkable = new LargeRockBreakerRecipeLogic(this, EUtPercentage, durationPercentage, chancePercentage, stack);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeRockBreaker(metaTileEntityId);
+        return new MetaTileEntityLargeRockBreakerBase(metaTileEntityId);
     }
 
     @Override

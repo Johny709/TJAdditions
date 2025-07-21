@@ -1,7 +1,7 @@
 package tj.machines.multi.steam;
 
 import tj.TJRecipeMaps;
-import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockController {
+public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockControllerBase {
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
 
     public MetaTileEntityCokeOven (ResourceLocation metaTileEntityId) {

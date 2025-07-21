@@ -21,7 +21,7 @@ import gregtech.common.blocks.BlockWireCoil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import tj.TJConfig;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -29,19 +29,19 @@ import java.util.function.Predicate;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
-public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMultiblockController {
+public class MetaTileEntityLargeAlloySmelterBase extends TJLargeSimpleRecipeMapMultiblockControllerBase {
 
     private int tier;
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    public MetaTileEntityLargeAlloySmelter(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityLargeAlloySmelterBase(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, RecipeMaps.ALLOY_SMELTER_RECIPES, TJConfig.largeAlloySmelter.eutPercentage, TJConfig.largeAlloySmelter.durationPercentage, TJConfig.largeAlloySmelter.chancePercentage, TJConfig.largeAlloySmelter.stack);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity (MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeAlloySmelter(metaTileEntityId);
+        return new MetaTileEntityLargeAlloySmelterBase(metaTileEntityId);
     }
 
     @Override

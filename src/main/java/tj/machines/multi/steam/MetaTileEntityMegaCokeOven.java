@@ -1,7 +1,7 @@
 package tj.machines.multi.steam;
 
 import tj.TJRecipeMaps;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 import gregicadditions.utils.GALog;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MetaTileEntityMegaCokeOven extends TJLargeSimpleRecipeMapMultiblockController {
+public class MetaTileEntityMegaCokeOven extends TJLargeSimpleRecipeMapMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
 
