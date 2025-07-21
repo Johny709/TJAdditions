@@ -23,6 +23,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
+import tj.util.ItemStackHelper;
 
 import java.util.*;
 import java.util.function.LongSupplier;
@@ -353,13 +354,9 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         int resultEU = this.overclockManager.getEUt();
         long totalEUt = (long) resultEU * this.overclockManager.getDuration();
         IItemHandlerModifiable importInventory = this.getInputInventory();
-        IItemHandlerModifiable exportInventory = this.getOutputInventory();
         IMultipleTankHandler importFluids = this.getInputTank();
-        IMultipleTankHandler exportFluids = this.getOutputTank();
         return (totalEUt >= 0 ? this.getEnergyStored() >= (totalEUt > this.getEnergyCapacity() / 2 ? resultEU : totalEUt) :
                 (this.getEnergyStored() - resultEU <= this.getEnergyCapacity())) &&
-                MetaTileEntity.addItemsToItemHandler(exportInventory, true, recipe.getAllItemOutputs(exportInventory.getSlots())) &&
-                MetaTileEntity.addFluidsToFluidHandler(exportFluids, true, recipe.getFluidOutputs()) &&
                 recipe.matches(true, importInventory, importFluids);
     }
 
@@ -439,7 +436,9 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected void completeRecipe(int i) {
-        MetaTileEntity.addItemsToItemHandler(this.getOutputInventory(), false, this.itemOutputs.get(i));
+        List<ItemStack> itemOutputs = this.itemOutputs.get(i);
+        for (ItemStack stack : itemOutputs)
+            ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, false);
         MetaTileEntity.addFluidsToFluidHandler(this.getOutputTank(), false, this.fluidOutputs.get(i));
         this.progressTime[i] = 0;
         this.setMaxProgress(0, i);

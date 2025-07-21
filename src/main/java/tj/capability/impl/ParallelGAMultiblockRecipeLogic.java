@@ -222,11 +222,6 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             // if there isn't, we can't process this recipe.
             List<ItemStack> totalOutputs = newRecipe.getChancedOutputs().stream().map(Recipe.ChanceEntry::getItemStack).collect(Collectors.toList());
             totalOutputs.addAll(outputI);
-            boolean canFitOutputs = InventoryUtils.simulateItemStackMerge(totalOutputs, this.getOutputInventory());
-            canFitOutputs = canFitOutputs && GTFluidUtils.simulateFluidStackMerge(outputF, this.getOutputTank());
-            if (!canFitOutputs) {
-                continue;
-            }
             this.parallel[j] = attemptItemsLimit;
             return this.buildRecipe(newRecipe, matchingRecipe, newRecipeInputs, newFluidInputs, outputI, outputF);
         }

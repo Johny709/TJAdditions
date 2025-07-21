@@ -91,7 +91,7 @@ public class ItemStackHelper {
             return stack;
 
         stack = simulate ? stack.copy() : stack;
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
+        for (int i = 0; i < itemHandler.getSlots() && !stack.isEmpty(); i++) {
             ItemStack slotStack = itemHandler.getStackInSlot(i);
             int maxStackSize = itemHandler.getSlotLimit(i);
             if (slotStack.isEmpty()) {
