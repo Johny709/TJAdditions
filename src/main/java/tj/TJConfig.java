@@ -15,11 +15,6 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public boolean replaceCTMultis = false;
 
-        @Config.Name("Load Architecture Recipes")
-        @Config.Comment("Loads the recipes for Large Architecture multiblock")
-        @Config.RequiresMcRestart
-        public boolean loadArchitectureRecipes = false;
-
         @Config.Name("Parallel Recipe Cache Capacity")
         @Config.Comment("Recipe LRU Caching for Parallel Multiblock Recipe Logic. Recommended not to make this too large.")
         @Config.RequiresMcRestart

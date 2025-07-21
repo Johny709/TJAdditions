@@ -74,8 +74,6 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack));
         tooltip.add(I18n.format("tj.multiblock.large_architect_workbench.description"));
-        if (!TJConfig.machines.loadArchitectureRecipes)
-            tooltip.add(I18n.format("tj.multiblock.large_architect_workbench.recipes.disabled"));
     }
 
     @Override

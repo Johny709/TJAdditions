@@ -56,9 +56,6 @@ public class RecipeInit {
         RockBreakerRecipes.init();
         CokeOvenRecipes.init();
 
-        if (TJConfig.machines.loadArchitectureRecipes)
-            ArchitectureRecipes.init();
-
         if (TJConfig.machines.replaceCTMultis) {
             PrimitiveAlloySmelterRecipes.init();
             HeatExchangerRecipes.init();
