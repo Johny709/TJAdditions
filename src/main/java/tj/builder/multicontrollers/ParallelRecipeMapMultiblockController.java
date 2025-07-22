@@ -66,9 +66,11 @@ import java.util.function.Function;
 import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
+import static gregtech.api.gui.GuiTextures.BUTTON_FLUID_VOID;
+import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_VOID;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
-import static tj.gui.TJGuiTextures.RESET_BUTTON;
+import static tj.gui.TJGuiTextures.*;
 
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController, IMultiRecipe {
 
@@ -229,6 +231,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
                 .setTooltipText("tj.multiblock.parallel.recipe.clear"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeMapWorkable::isVoidingItems, this.recipeMapWorkable::setVoidItems)
+                .setTooltipText("machine.universal.toggle.item_voiding"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
+                .setTooltipText("machine.universal.toggle.fluid_voiding"));
         return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addWorkableDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleWorkableDisplayClick));
@@ -237,6 +243,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private AbstractWidgetGroup debugTab(Function<Widget, WidgetGroup> widgetGroup) {
         widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
                 .setTooltipText("tj.multiblock.parallel.recipe.clear"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeMapWorkable::isVoidingItems, this.recipeMapWorkable::setVoidItems)
+                .setTooltipText("machine.universal.toggle.item_voiding"));
+        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
+                .setTooltipText("machine.universal.toggle.fluid_voiding"));
         return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180));
     }
@@ -362,6 +372,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                         }
                     }
                     String isRunning = !this.recipeMapWorkable.isWorkingEnabled(i) ? I18n.translateToLocal("machine.universal.work_paused")
+                            : this.recipeMapWorkable.hasProblems(i) ? I18n.translateToLocal("machine.universal.has_problems")
                             : !this.recipeMapWorkable.isInstanceActive(i) ? I18n.translateToLocal("machine.universal.idling")
                             : I18n.translateToLocal("machine.universal.running");
 

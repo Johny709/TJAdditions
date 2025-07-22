@@ -59,11 +59,14 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     protected boolean isActive;
     protected boolean distinct;
+    protected boolean voidItems;
+    protected boolean voidFluids;
     protected boolean[] isInstanceActive = new boolean[1];
     protected boolean[] workingEnabled = new boolean[1];
     protected boolean[] hasNotEnoughEnergy = new boolean[1];
     protected boolean[] wasActiveAndNeedsUpdate = new boolean[1];
     protected boolean[] lockRecipe = new boolean[1];
+    protected boolean[] hasProblems = new boolean[1];
     private final long[] V;
     private final String[] VN;
 
@@ -101,6 +104,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.wasActiveAndNeedsUpdate = Arrays.copyOf(this.wasActiveAndNeedsUpdate, this.size);
         this.hasNotEnoughEnergy = Arrays.copyOf(this.hasNotEnoughEnergy, this.size);
         this.lockRecipe = Arrays.copyOf(this.lockRecipe, this.size);
+        this.hasProblems = Arrays.copyOf(this.hasProblems, this.size);
         this.sleepTimer = Arrays.copyOf(this.sleepTimer, this.size);
         this.sleepTime = Arrays.copyOf(this.sleepTime, this.size);
         this.failCount = Arrays.copyOf(this.failCount, this.size);
@@ -166,6 +170,29 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return this.controller.getPageSize();
     }
 
+    @Override
+    public boolean hasProblems(int i) {
+        return this.hasProblems[i];
+    }
+
+    public boolean isVoidingItems() {
+        return this.voidItems;
+    }
+
+    public void setVoidItems(boolean voidItems) {
+        this.voidItems = voidItems;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidingFluids() {
+        return this.voidFluids;
+    }
+
+    public void setVoidFluids(boolean voidFluids) {
+        this.voidFluids = voidFluids;
+        this.metaTileEntity.markDirty();
+    }
+
     public void setLockingMode(boolean setLockingMode, int i) {
         this.lockRecipe[i] = setLockingMode;
         this.metaTileEntity.markDirty();
@@ -209,11 +236,14 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected void updateRecipeProgress(int i) {
-        boolean drawEnergy = this.drawEnergy(this.recipeEUt[i]);
-        if (drawEnergy || (this.recipeEUt[i] < 0)) {
+        if ((this.recipeEUt[i] < 0) || this.drawEnergy(this.recipeEUt[i])) {
             //as recipe starts with progress on 1 this has to be > only not => to compensate for it
             if (++this.progressTime[i] > this.maxProgressTime[i]) {
-                this.completeRecipe(i);
+                if (!this.completeRecipe(i)) {
+                    this.progressTime[i] = 1;
+                    this.recipeEUt[i] = -1;
+                    this.hasProblems[i] = true;
+                } else this.hasProblems[i] = false;
             }
         } else if (this.recipeEUt[i] > 0) {
             //only set hasNotEnoughEnergy if this recipe is consuming recipe
@@ -435,11 +465,27 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return GTUtility.getGATierByVoltage(this.maxVoltage.getAsLong());
     }
 
-    protected void completeRecipe(int i) {
+    protected boolean canFitItemOutputs(int i) {
         List<ItemStack> itemOutputs = this.itemOutputs.get(i);
         for (ItemStack stack : itemOutputs)
-            ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, false);
-        MetaTileEntity.addFluidsToFluidHandler(this.getOutputTank(), false, this.fluidOutputs.get(i));
+            if (!ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, true).isEmpty())
+                return false;
+        return true;
+    }
+
+    protected boolean canFitFluidOutputs(int i) {
+        return MetaTileEntity.addFluidsToFluidHandler(this.getOutputTank(), true, this.fluidOutputs.get(i));
+    }
+
+    protected boolean completeRecipe(int i) {
+        List<ItemStack> itemOutputs = this.itemOutputs.get(i);
+        if (this.voidItems || this.canFitItemOutputs(i))
+            for (ItemStack stack : itemOutputs)
+                ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, false);
+        else return false;
+        if (this.voidFluids || this.canFitFluidOutputs(i))
+            MetaTileEntity.addFluidsToFluidHandler(this.getOutputTank(), false, this.fluidOutputs.get(i));
+        else return false;
         this.progressTime[i] = 0;
         this.setMaxProgress(0, i);
         this.recipeEUt[i] = 0;
@@ -448,6 +494,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         //force recipe recheck because inputs could have changed since last time
         //we checked them before starting our recipe, especially if recipe took long time
         this.forceRecipeRecheck[i] = true;
+        return true;
     }
 
     public double getProgressPercent(int i) {
@@ -669,6 +716,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             NBTTagCompound workableInstanceCompound = new NBTTagCompound();
             workableInstanceCompound.setBoolean("Enabled", this.workingEnabled[i]);
             workableInstanceCompound.setBoolean("Lock", this.lockRecipe[i]);
+            workableInstanceCompound.setBoolean("HasProblems", this.hasProblems[i]);
             workableInstanceCompound.setBoolean("Active", this.isInstanceActive[i]);
             workableInstanceCompound.setInteger("MaxProgress", this.maxProgressTime[i]);
             workableInstanceCompound.setInteger("Progress", this.progressTime[i]);
@@ -693,6 +741,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         mainCompound.setLong(OVERCLOCK_VOLTAGE, this.overclockVoltage);
         mainCompound.setBoolean("IsActive", this.isActive);
         mainCompound.setBoolean("Distinct", this.distinct);
+        mainCompound.setBoolean("VoidItems", this.voidItems);
+        mainCompound.setBoolean("VoidFluids", this.voidFluids);
         mainCompound.setInteger("Size", this.size);
         mainCompound.setTag("OccupiedRecipes", occupiedRecipeList);
         mainCompound.setTag("WorkableInstances", workableInstanceList);
@@ -704,12 +754,10 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         NBTTagList workableInstanceList = compound.getTagList("WorkableInstances", Constants.NBT.TAG_COMPOUND);
         NBTTagList occupiedRecipeList = compound.getTagList("OccupiedRecipes", Constants.NBT.TAG_COMPOUND);
 
-        if (compound.hasKey("Distinct")) {
-            this.distinct = compound.getBoolean("Distinct");
-        }
-        if (compound.hasKey("IsActive")) {
-            this.isActive = compound.getBoolean("IsActive");
-        }
+        this.voidItems = compound.getBoolean("VoidItems");
+        this.voidFluids = compound.getBoolean("VoidFluids");
+        this.distinct = compound.getBoolean("Distinct");
+        this.isActive = compound.getBoolean("IsActive");
         if (compound.hasKey(ALLOW_OVERCLOCKING)) {
             this.allowOverclocking = compound.getBoolean(ALLOW_OVERCLOCKING);
         }
@@ -734,6 +782,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.wasActiveAndNeedsUpdate = new boolean[this.size];
         this.hasNotEnoughEnergy = new boolean[this.size];
         this.lockRecipe = new boolean[this.size];
+        this.hasProblems = new boolean[this.size];
         this.sleepTimer = new int[this.size];
         this.sleepTime = new int[this.size];
         this.failCount = new int[this.size];
@@ -745,6 +794,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             NBTTagCompound workableInstanceCompound = workableInstanceList.getCompoundTagAt(i);
             this.workingEnabled[i] = workableInstanceCompound.getBoolean("Enabled");
             this.lockRecipe[i] = workableInstanceCompound.getBoolean("Lock");
+            this.hasProblems[i] = workableInstanceCompound.getBoolean("HasProblems");
             this.isInstanceActive[i] = workableInstanceCompound.getBoolean("Active");
             this.maxProgressTime[i] = workableInstanceCompound.getInteger("MaxProgress");
             this.progressTime[i] = workableInstanceCompound.getInteger("Progress");

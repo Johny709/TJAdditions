@@ -35,12 +35,14 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                 int progressScaled = maxProgress == 0 ? 0 : (int) Math.floor(currentProgress / (maxProgress * 1.0) * 100);
                 boolean isWorking = capability.isWorkingEnabled(i);
                 boolean isActive = capability.isInstanceActive(i);
+                boolean hasProblems = capability.hasProblems(i);
 
                 IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
                 nameInfo.text(TextStyleClass.INFO + "{*tj.multiblock.parallel.status*} " + (!isWorking ? "§e{*gregtech.multiblock.work_paused*}§r"
+                        : hasProblems ? "§6{*machine.universal.has_problems*}§r"
                         : isActive ? "§a{*gregtech.multiblock.running*}§r"
-                        : "{*gregtech.multiblock.idling*}"));
+                        : "§7{*gregtech.multiblock.idling*}"));
 
                 IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 progressInfo.text(TextStyleClass.INFO + "{*gregtech.top.progress*} ");

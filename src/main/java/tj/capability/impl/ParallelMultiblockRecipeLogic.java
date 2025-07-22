@@ -132,7 +132,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     @Override
-    protected void completeRecipe(int i) {
+    protected boolean completeRecipe(int i) {
         if (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
             ParallelRecipeMapMultiblockController gaController = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
             //if (gaController.hasMufflerHatch()) {
@@ -142,7 +142,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
                 gaController.calculateMaintenance(this.maxProgressTime[i]);
             }
         }
-        super.completeRecipe(i);
+        return super.completeRecipe(i);
     }
 
     @Override
