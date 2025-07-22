@@ -46,7 +46,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected boolean allowOverclocking = true;
     private long overclockVoltage;
     protected LongSupplier maxVoltage = this::getMaxVoltage;
-    protected LongSupplier overclockPolicy = this.maxVoltage;
 
     protected int[] progressTime = new int[1];
     protected int[] maxProgressTime = new int[1];
@@ -406,7 +405,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             return true;
         }
         boolean negativeEU = EUt < 0;
-        int tier = this.getOverclockingTier(this.overclockPolicy.getAsLong());
+        int tier = this.getOverclockingTier(this.maxVoltage.getAsLong());
         if (this.V[tier] <= EUt || tier == 0) {
             this.overclockManager.setEUtAndDuration(EUt, duration);
             return true;
@@ -552,21 +551,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return this.workingEnabled[i];
     }
 
-    public boolean isAllowOverclocking() {
-        return this.allowOverclocking;
-    }
-
-    public long getOverclockVoltage() {
-        return this.overclockVoltage;
-    }
-
-    public void setOverclockVoltage(final long overclockVoltage) {
-        this.overclockPolicy = this::getOverclockVoltage;
-        this.overclockVoltage = overclockVoltage;
-        this.allowOverclocking = (overclockVoltage != 0);
-        this.metaTileEntity.markDirty();
-    }
-
     public boolean isDistinct() {
         return this.distinct;
     }
@@ -576,35 +560,6 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.previousRecipe.clear();
         Arrays.fill(this.occupiedRecipes, null);
         this.metaTileEntity.markDirty();
-    }
-
-    /**
-     * Sets the overclocking policy to use getOverclockVoltage() instead of getMaxVoltage()
-     * and initialises the overclock voltage to max voltage.
-     * The actual value will come from the saved tag when the tile is loaded for pre-existing machines.
-     * <p>
-     * NOTE: This should only be used directly after construction of the workable.
-     * Use setOverclockVoltage() or setOverclockTier() for a more dynamic use case.
-     */
-    public void enableOverclockVoltage() {
-        setOverclockVoltage(this.maxVoltage.getAsLong());
-    }
-
-    // The overclocking tier
-    // it is 1 greater than the index into GTValues.V since here the "0 tier" represents 0 EU or no overclock
-    public int getOverclockTier() {
-        if (this.overclockVoltage == 0) {
-            return 0;
-        }
-        return 1 + this.getOverclockingTier(this.overclockVoltage);
-    }
-
-    public void setOverclockTier(final int tier) {
-        if (tier == 0) {
-            this.setOverclockVoltage(0);
-            return;
-        }
-        this.setOverclockVoltage(getVoltageByTier(tier - 1));
     }
 
     @Override
