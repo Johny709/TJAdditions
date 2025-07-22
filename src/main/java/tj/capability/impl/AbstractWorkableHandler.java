@@ -112,11 +112,11 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
         long voltage = this.maxVoltage.getAsLong();
         baseEnergy *= 4;
-        for (int i = 1; duration > 1 && baseEnergy <= voltage; i++) {
+        while (duration > 1 && baseEnergy <= voltage) {
             duration /= multiplier;
             baseEnergy *= 4;
         }
-        this.energyPerTick = baseEnergy;
+        this.energyPerTick = baseEnergy / 4;
         return Math.max(1, duration);
     }
 
