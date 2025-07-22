@@ -20,6 +20,11 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int recipeCacheCapacity = 10;
 
+        @Config.Name("Recipe has problems cooldown")
+        @Config.Comment("Set tick duration of cooldown timer")
+        @Config.RequiresMcRestart
+        public int recipeCooldown = 200;
+
     }
 
     @Config.Comment("Industrial Fusion Reactor")
