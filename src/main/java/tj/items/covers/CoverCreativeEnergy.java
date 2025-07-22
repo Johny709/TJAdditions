@@ -11,6 +11,7 @@ import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
@@ -82,14 +83,15 @@ public class CoverCreativeEnergy extends CoverBehavior implements ITickable, Cov
                 .widget(new ToggleButtonWidget(7, 22, 18, 18, POWER_BUTTON, this::isActive, this::setActive)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(26, 22, 124, 18, this::getSimulateVoltage, this::setSimulateVoltage))
-                .widget(new ToggleButtonWidget(151, 22, 18, 18, this::isDraining, this::setDraining)
-                        .setTooltipText("machine.universal.mode.transfer"))
+                .widget(new CycleButtonWidget(151, 22, 18, 18, this::isDraining, this::setDraining, "machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
                 .widget(new PopUpWidgetGroup(7, 40, 162, 40)
                         .addWidgets(new TJTextFieldWidget(24, 5, 119, 12, false, this::getEnergyRate, this::setEnergyRate)
                                 .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
                                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()))
-                        .addWidgets(new ToggleButtonWidget(0, 0, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.energyRate *= 2))
-                        .addWidgets(new ToggleButtonWidget(144, 0, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.energyRate /= 2))
+                        .addWidgets(new ToggleButtonWidget(0, 0, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.energyRate = Math.max(1, this.energyRate * 2)))
+                        .addWidgets(new ToggleButtonWidget(144, 0, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.energyRate = Math.max(1, this.energyRate / 2)))
+                        .addWidgets(new ToggleButtonWidget(144, 18, 18, 18, RESET_BUTTON, () -> false, (reset) -> this.energyRate = Long.MAX_VALUE)
+                                .setTooltipText("machine.universal.toggle.reset"))
                         .addWidgets(new LabelWidget(25, -13, "metaitem.creative_energy_cover.simulate_voltage", false))
                         .setPredicate(this::getSimulateVoltage))
                 .widget(new PopUpWidgetGroup(7, 40, 162, 40)
@@ -100,10 +102,10 @@ public class CoverCreativeEnergy extends CoverBehavior implements ITickable, Cov
                         .addWidgets(new TJTextFieldWidget(24, 23, 119, 12, false, this::getAmps, this::setAmps)
                                 .setTooltipText("metaitem.creative_energy_cover.set.amps")
                                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()))
-                        .addWidgets(new ToggleButtonWidget(0, 0, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.voltage *= 2))
-                        .addWidgets(new ToggleButtonWidget(144, 0, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.voltage /= 2))
-                        .addWidgets(new ToggleButtonWidget(0, 18, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.amps *= 2))
-                        .addWidgets(new ToggleButtonWidget(144, 18, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.amps /= 2))
+                        .addWidgets(new ToggleButtonWidget(0, 0, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.voltage = Math.max(1, this.voltage * 2)))
+                        .addWidgets(new ToggleButtonWidget(144, 0, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.voltage = Math.max(1, this.voltage / 2)))
+                        .addWidgets(new ToggleButtonWidget(0, 18, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.amps = Math.max(1, this.amps * 2)))
+                        .addWidgets(new ToggleButtonWidget(144, 18, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.amps = Math.max(1, this.amps / 2)))
                         .addWidgets(new LabelWidget(25, -13, "metaitem.creative_energy_cover.simulate_voltage", true))
                         .setPredicate(this::getSimulateVoltage)
                         .setInverted())
