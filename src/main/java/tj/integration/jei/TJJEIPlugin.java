@@ -28,7 +28,6 @@ public class TJJEIPlugin implements IModPlugin {
         TJMultiblockInfoCategory.registerRecipes(registry);
 
         registry.addRecipeCatalyst(INFINITE_FLUID_DRILL.getStackForm(), Gregicality.MODID + ":drilling_rig");
-        List<String> recipeCategoriesUIds = new ArrayList<>();
 
         for (ResourceLocation metaTileEntityId : GregTechAPI.META_TILE_ENTITY_REGISTRY.getKeys()) {
             MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(metaTileEntityId);
@@ -38,12 +37,9 @@ public class TJJEIPlugin implements IModPlugin {
                     registry.addRecipeCatalyst(metaTileEntity.getStackForm(), recipeName);
                     GTRecipeTransferGuiHandler gtRecipeTransferGuiHandler = new GTRecipeTransferGuiHandler(jeiHelpers.recipeTransferHandlerHelper());
                     registry.getRecipeTransferRegistry().addRecipeTransferHandler(gtRecipeTransferGuiHandler, recipeName);
-                    recipeCategoriesUIds.add(recipeName);
                 }
             }
         }
-        String[] UIds = new String[recipeCategoriesUIds.size()];
-        registry.addRecipeClickArea(ModularUIGui.class, 0, -20, 190, 20, recipeCategoriesUIds.toArray(UIds));
 
         TJMultiblockInfoCategory.getMultiblockRecipes().values().forEach(v -> {
             MultiblockInfoPage infoPage = v.getInfoPage();
