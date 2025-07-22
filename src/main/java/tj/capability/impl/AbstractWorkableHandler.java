@@ -10,6 +10,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import tj.capability.IRecipeInfo;
+import tj.capability.TJCapabilities;
 
 import java.util.function.*;
 
@@ -18,7 +20,7 @@ import java.util.function.*;
  * @param <I> type of item handler impl
  * @param <F> type of fluid tank impl
  */
-public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements IWorkable {
+public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements IWorkable, IRecipeInfo {
 
     protected final Supplier<I> importItems;
     protected final Supplier<I> exportItems;
@@ -191,6 +193,8 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     public <T> T getCapability(Capability<T> capability) {
         if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE)
             return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_RECIPE)
+            return TJCapabilities.CAPABILITY_RECIPE.cast(this);
         return capability == GregtechTileCapabilities.CAPABILITY_WORKABLE ? GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this) : null;
     }
 
@@ -231,7 +235,8 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         return this.isActive && this.energyInputs.get().getEnergyStored() < this.energyPerTick;
     }
 
-    public long getEnergyPerTick() {
+    @Override
+    public long getEUt() {
         return this.energyPerTick;
     }
 

@@ -83,7 +83,7 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyInput)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.chiselWorkableHandler.hasNotEnoughEnergy(), this.chiselWorkableHandler.getEnergyPerTick())
+                    .energyInput(!this.chiselWorkableHandler.hasNotEnoughEnergy(), this.chiselWorkableHandler.getEUt())
                     .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")

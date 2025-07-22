@@ -123,7 +123,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
-                    .energyInput(!this.minerRecipeLogic.hasNotEnoughEnergy(), this.minerRecipeLogic.getEnergyPerTick())
+                    .energyInput(!this.minerRecipeLogic.hasNotEnoughEnergy(), this.minerRecipeLogic.getEUt())
                     .temperature(this.minerRecipeLogic.heat(), this.minerRecipeLogic.maxHeat())
                     .isWorking(this.minerRecipeLogic.isWorkingEnabled(), this.minerRecipeLogic.isActive(), this.minerRecipeLogic.getProgress(), this.minerRecipeLogic.getMaxProgress());
             if (this.minerRecipeLogic.isOverheat())

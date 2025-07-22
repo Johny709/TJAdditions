@@ -5,6 +5,9 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 
 public class TJCapabilities {
 
+    @CapabilityInject(IRecipeInfo.class)
+    public static Capability<IRecipeInfo> CAPABILITY_RECIPE = null;
+
     @CapabilityInject(IMultipleWorkable.class)
     public static Capability<IMultipleWorkable> CAPABILITY_MULTIPLE_WORKABLE = null;
 

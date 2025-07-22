@@ -83,7 +83,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyInput)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.workbenchWorkableHandler.hasNotEnoughEnergy(), this.workbenchWorkableHandler.getEnergyPerTick())
+                    .energyInput(!this.workbenchWorkableHandler.hasNotEnoughEnergy(), this.workbenchWorkableHandler.getEUt())
                     .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
