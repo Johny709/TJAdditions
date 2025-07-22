@@ -34,7 +34,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected boolean isDistinct;
     protected boolean hasProblem;
     protected long energyPerTick;
-    protected int progress = -1;
+    protected int progress;
     protected int maxProgress;
     protected int lastInputIndex;
     protected int busCount;
@@ -62,15 +62,15 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
 
-        if (!this.isWorking || this.progress < 0 && !this.startRecipe()) {
+        if (!this.isWorking || this.progress < 1 && !this.startRecipe()) {
             this.stopRecipe();
             this.wasActiveAndNeedsUpdate = true;
             return;
         } else this.progressRecipe();
 
-        if (this.progress >= this.maxProgress) {
+        if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
-                this.progress = -1;
+                this.progress = 0;
                 if (this.hasProblem)
                     this.setProblem(false);
             } else {
@@ -98,7 +98,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         if (this.energyInputs.get().getEnergyStored() >= this.energyPerTick) {
             this.energyInputs.get().removeEnergy(this.energyPerTick);
             this.progress++;
-        } else if (this.progress > 0)
+        } else if (this.progress > 1)
             this.progress--;
     }
 
