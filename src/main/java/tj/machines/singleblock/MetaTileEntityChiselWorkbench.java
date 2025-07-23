@@ -4,12 +4,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.DischargerSlotWidget;
-import gregtech.api.gui.widgets.ImageWidget;
-import gregtech.api.gui.widgets.LabelWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import net.minecraft.client.resources.I18n;
@@ -26,9 +22,8 @@ import tj.util.EnumFacingHelper;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static gregtech.api.gui.GuiTextures.BUTTON_FLUID_OUTPUT;
-import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_OUTPUT;
-import static tj.TJRecipeMaps.ARCHITECT_RECIPES;
+import static gregtech.api.gui.GuiTextures.*;
+import static gregtech.api.gui.GuiTextures.SLOT;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntity {
@@ -72,16 +67,25 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        return ARCHITECT_RECIPES.createUITemplate(this.chiselWorkableHandler::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids)
+        return ModularUI.defaultBuilder()
+                .widget(new ProgressWidget(this.chiselWorkableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new SlotWidget(this.importItems, 0, 16, 22, true, true)
+                        .setBackgroundTexture(SLOT, INT_CIRCUIT_OVERLAY))
+                .widget(new SlotWidget(this.importItems, 1, 34, 22, true, true)
+                        .setBackgroundTexture(SLOT, INT_CIRCUIT_OVERLAY))
+                .widget(new SlotWidget(this.importItems, 2, 52, 22, true, true)
+                        .setBackgroundTexture(SLOT, MOLD_OVERLAY))
+                .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
+                        .setBackgroundTexture(SLOT))
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
-                        .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
+                        .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.chiselWorkableHandler::isWorkingEnabled, this.chiselWorkableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
-                .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
+                .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.chiselWorkableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
                 .build(this.getHolder(), player);
