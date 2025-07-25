@@ -11,6 +11,10 @@ import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockContr
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.AbstractWidgetGroup;
+import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -24,6 +28,7 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -33,17 +38,22 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.handlers.InfiniteFluidDrillWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.gui.TJWidgetGroup;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static gregicadditions.GAMaterials.*;
 import static net.minecraft.util.text.TextFormatting.RED;
@@ -95,6 +105,18 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     }
 
     @Override
+    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
+        super.addNewTabs(tabs, extended);
+        TJWidgetGroup widgetFluidGroup = new TJWidgetGroup();
+        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab(widgetFluidGroup::addWidgets)));
+    }
+
+    private AbstractWidgetGroup fluidsTab(Function<Widget, WidgetGroup> widgetGroup) {
+        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180));
+    }
+
+    @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (!this.isStructureFormed())
@@ -105,20 +127,26 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
             return;
         }
 
-        int amount = this.fluidDrillWorkableHandler.getDrillingMudAmount();
-        int veinAmount = this.fluidDrillWorkableHandler.getOutputVeinFluidAmount();
-        FluidStack drillingMud = DrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount());
-        FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount());
-        FluidStack veinStack = this.fluidDrillWorkableHandler.getVeinFluidStack();
         MultiblockDisplayBuilder.start(textList)
                 .voltageIn(this.energyContainer)
                 .voltageTier(this.tier)
                 .energyInput(!this.fluidDrillWorkableHandler.hasNotEnoughEnergy(), this.maxVoltage)
-                .fluidInput(this.fluidDrillWorkableHandler.hasEnoughFluid(drillingMud, amount), drillingMud)
-                .fluidOutput(this.fluidDrillWorkableHandler.canOutputFluid(usedDrillingMud, amount), usedDrillingMud)
-                .fluidOutput(this.fluidDrillWorkableHandler.canOutputFluid(veinStack, veinAmount), veinStack)
-                .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.fluid", this.fluidDrillWorkableHandler.getVeinFluid().getName())))
+                .addTranslation("gtadditions.multiblock.drilling_rig.fluid", this.fluidDrillWorkableHandler.getVeinFluid().getName())
                 .isWorking(this.fluidDrillWorkableHandler.isWorkingEnabled(), this.fluidDrillWorkableHandler.isActive(), this.fluidDrillWorkableHandler.getProgress(), this.fluidDrillWorkableHandler.getMaxProgress());
+    }
+
+    private void addFluidDisplayText(List<ITextComponent> textList) {
+        FluidStack drillingMud = DrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount());
+        List<FluidStack> fluidOutputs = this.fluidDrillWorkableHandler.getFluidOutputs();
+
+        MultiblockDisplayBuilder builder = new MultiblockDisplayBuilder(textList);
+        builder.fluidInput(this.fluidDrillWorkableHandler.hasEnoughFluid(drillingMud, this.fluidDrillWorkableHandler.getDrillingMudAmount()), drillingMud);
+        for (FluidStack fluidOutput : fluidOutputs) {
+            int amount = fluidOutput.isFluidEqual(UsedDrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount()))
+                    ? this.fluidDrillWorkableHandler.getDrillingMudAmount()
+                    : this.fluidDrillWorkableHandler.getOutputVeinFluidAmount();
+            builder.fluidOutput(this.fluidDrillWorkableHandler.canOutputFluid(fluidOutput, amount), fluidOutput);
+        }
     }
 
     @Override
