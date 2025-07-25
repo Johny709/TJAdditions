@@ -66,7 +66,7 @@ public class MegaBoilerInfo extends MultiblockInfoPage {
                         : boilerType == MetaTileEntityLargeBoiler.BoilerType.STEEL ? "tj.multiblock.mega_steel_boiler.description"
                         : boilerType == MetaTileEntityLargeBoiler.BoilerType.TITANIUM ? "tj.multiblock.mega_titanium_boiler.description"
                         : "tj.multiblock.mega_tungstensteel_boiler.description"),
-                I18n.format("tj.multiblock.mega_boiler.parallel.description", megaBoiler.getMAX_PROCESSES())};
+                I18n.format("tj.multiblock.mega_boiler.parallel.description", megaBoiler.getParallel())};
     }
 
     @Override

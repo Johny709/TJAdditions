@@ -184,9 +184,6 @@ tj.machine.machine_controller.automatic.tooltip=Turns Workable Instances ON/OFF.
 
 tj.machine.accelerator_anchor_point.description=Can be linked to Large World Accelerators to accelerate random tick around this block. Apply Redstone signal to stop acceleration.
 
-tj.multiblock.large_boiler.item_display=Current Item Processed:
-tj.multiblock.large_boiler.clear_item=Clear Item:
-tj.multiblock.large_boiler.items_process_hover=Current Items going to be processed. Will start when boiler reaches max capacity
 tj.multiblock.large_boiler.insert_item=Insert Item
 tj.multiblock.large_boiler.insert_burnable.name=Insert Burnable
 

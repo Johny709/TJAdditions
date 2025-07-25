@@ -5,6 +5,7 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IWorkable;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
@@ -30,6 +31,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected final IntFunction<I> inputBus;
     protected final LongSupplier maxVoltage;
     protected final IntSupplier parallel;
+    private BooleanConsumer activeConsumer;
     protected boolean isWorking = true;
     protected boolean isActive;
     protected boolean wasActiveAndNeedsUpdate;
@@ -61,6 +63,10 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     public void initialize(int busCount) {
         this.lastInputIndex = 0;
         this.busCount = busCount;
+    }
+
+    public void setActiveConsumer(BooleanConsumer activeConsumer) {
+        this.activeConsumer = activeConsumer;
     }
 
     @Override
@@ -129,7 +135,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     public <N extends Number> boolean hasEnoughFluid(FluidStack fluid, N amount) {
         if (this.importFluids.get() instanceof IFluidHandler) {
             FluidStack fluidStack = ((IFluidHandler) this.importFluids.get()).drain(fluid, false);
-            return fluidStack != null && fluidStack.amount == amount.intValue();
+            return fluidStack != null && fluidStack.amount == amount.intValue() || amount.intValue() == 0;
         }
         return false;
     }
@@ -137,7 +143,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     public <N extends Number> boolean canOutputFluid(FluidStack fluid, N amount) {
         if (this.exportFluids.get() instanceof IFluidHandler) {
             int fluidStack = ((IFluidHandler) this.exportFluids.get()).fill(fluid, false);
-            return fluidStack == amount.intValue();
+            return fluidStack == amount.intValue() || amount.intValue() == 0;
         }
         return false;
     }
@@ -277,6 +283,8 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
 
     public void setActive(boolean isActive) {
         this.isActive = isActive;
+        if (this.activeConsumer != null)
+            this.activeConsumer.apply(isActive);
         if (!this.metaTileEntity.getWorld().isRemote) {
             this.writeCustomData(1, buffer -> buffer.writeBoolean(isActive));
             this.metaTileEntity.markDirty();
