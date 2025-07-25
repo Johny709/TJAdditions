@@ -141,10 +141,11 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
         MultiblockDisplayBuilder builder = new MultiblockDisplayBuilder(textList);
         builder.fluidInput(this.fluidDrillWorkableHandler.hasEnoughFluid(drillingMud, this.fluidDrillWorkableHandler.getDrillingMudAmount()), drillingMud);
+        int index = 0;
         for (FluidStack fluidOutput : fluidOutputs) {
             int amount = fluidOutput.isFluidEqual(UsedDrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount()))
                     ? this.fluidDrillWorkableHandler.getDrillingMudAmount()
-                    : this.fluidDrillWorkableHandler.getOutputVeinFluidAmount();
+                    : this.fluidDrillWorkableHandler.getOutputVeinFluidAmount()[index++];
             builder.fluidOutput(this.fluidDrillWorkableHandler.canOutputFluid(fluidOutput, amount), fluidOutput);
         }
     }

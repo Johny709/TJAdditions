@@ -54,6 +54,10 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         this.parallel = parallel;
     }
 
+    /**
+     * this should be called to initialize some stuff before this workable handler starts running!
+     * @param busCount amount of item input buses
+     */
     public void initialize(int busCount) {
         this.lastInputIndex = 0;
         this.busCount = busCount;
@@ -105,7 +109,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     }
 
     /**
-     * @return true if the recipe can be completed
+     * @return true if the recipe can be completed and then will start the next recipe.
      */
     protected boolean completeRecipe() {
         return false;
