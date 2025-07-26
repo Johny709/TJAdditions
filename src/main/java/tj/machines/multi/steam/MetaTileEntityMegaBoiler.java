@@ -49,8 +49,10 @@ import tj.textures.TJTextures;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Water;
 
 public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
@@ -89,10 +91,10 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
+        boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
         boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
         boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
-        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        int maintenanceCount = abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size();
 
         return maintenanceCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput);
     }
@@ -104,9 +106,9 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
 
-        this.fluidImportInventory = new FluidTankList(true, this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        this.fluidImportInventory = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
         this.steamOutputTank = new FluidTankList(true, fluidTanks);
-        this.itemImportInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.itemImportInventory = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
         this.itemExportInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
     }
 
@@ -225,7 +227,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
                 .where('S', this.selfPredicate())
                 .where('P', statePredicate(boilerType.pipeState))
                 .where('X', state -> statePredicate(GTUtility.getAllPropertyValues(boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
-                        .or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.MAINTENANCE_HATCH)).test(state))
+                        .or(abilityPartPredicate(IMPORT_FLUIDS, IMPORT_ITEMS, MAINTENANCE_HATCH, EXPORT_ITEMS)).test(state))
                 .where('C', statePredicate(boilerType.casingState).or(abilityPartPredicate(OUTPUT_ABILITIES)))
                 .build();
     }
@@ -275,7 +277,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
 
     @Override
     public void setWorkingEnabled(boolean isActivationAllowed) {
-        this.boilerRecipeLogic.setWorkingEnabled(this.isWorkingEnabled);
+        this.boilerRecipeLogic.setWorkingEnabled(isActivationAllowed);
     }
 
     @Override

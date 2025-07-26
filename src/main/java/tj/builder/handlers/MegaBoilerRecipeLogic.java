@@ -12,6 +12,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipes.FuelRecipe;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
@@ -26,13 +27,13 @@ import tj.capability.IGeneratorInfo;
 import tj.capability.IHeatInfo;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.impl.AbstractWorkableHandler;
+import tj.util.ItemStackHelper;
 
 import java.util.*;
 import java.util.function.*;
 
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_FUELABLE;
-import static gregtech.api.unification.material.Materials.Steam;
-import static gregtech.api.unification.material.Materials.Water;
+import static gregtech.api.unification.material.Materials.*;
 import static tj.capability.TJCapabilities.*;
 import static tj.capability.TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING;
 
@@ -51,7 +52,9 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
     private int steamProduction;
     private int throttlePercentage = 100;
     private final List<FluidStack> fluidInput = new ArrayList<>();
+    private final List<FluidStack> fluidOutput = new ArrayList<>();
     private final List<ItemStack> itemInput = new ArrayList<>();
+    private final List<ItemStack> itemOutput = new ArrayList<>();
 
     public MegaBoilerRecipeLogic(MetaTileEntity metaTileEntity, Supplier<IItemHandler> importItems, Supplier<IItemHandler> exportItems, Supplier<IMultipleTankHandler> importFluids, Supplier<IMultipleTankHandler> exportFluids,
                                  Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandler> inputBus, LongSupplier maxVoltage, IntSupplier parallel,
@@ -117,10 +120,14 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
 
     @Override
     protected boolean completeRecipe() {
-        this.itemInput.clear();
-        this.fluidInput.clear();
+        if (!this.itemOutput.isEmpty())
+            ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.itemOutput.remove(0), false);
+        if (!this.fluidOutput.isEmpty())
+            this.exportFluids.get().fill(this.fluidOutput.remove(0), true);
         if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
             ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
+        this.itemInput.clear();
+        this.fluidInput.clear();
         return true;
     }
 
@@ -146,7 +153,9 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
                 this.fluidInput.add(this.importFluids.get().drain(fuelStack, true));
                 long recipeVoltage = FuelRecipeLogic.getTieredVoltage(dieselRecipe.getMinVoltage());
                 int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
-                return (int) Math.ceil(dieselRecipe.getDuration() * CONSUMPTION_MULTIPLIER / 2.0 * voltageMultiplier * this.getThrottleMultiplier());
+                int burnTime = (int) Math.ceil(dieselRecipe.getDuration() * CONSUMPTION_MULTIPLIER / 2.0 * voltageMultiplier * this.getThrottleMultiplier());
+                this.getCarbonDioxideByproduct(burnTime, fuelStack.amount);
+                return burnTime;
             }
         }
         FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
@@ -157,10 +166,20 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
                 this.fluidInput.add(this.importFluids.get().drain(fuelStack, true));
                 long recipeVoltage = FuelRecipeLogic.getTieredVoltage(denseFuelRecipe.getMinVoltage());
                 int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
-                return (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * this.getThrottleMultiplier());
+                int burnTime = (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * this.getThrottleMultiplier());
+                this.getCarbonDioxideByproduct(burnTime, fuelStack.amount);
+                return burnTime;
             }
         }
         return 0;
+    }
+
+    private void getCarbonDioxideByproduct(int burnTime, int fuelAmount) {
+        double carbonBurnTime = 1600F / this.parallel.getAsInt();
+        if (burnTime >= carbonBurnTime) {
+            int amount = (int) (fuelAmount * Math.max(0.4, Math.random()));
+            this.fluidOutput.add(CarbonDioxide.getFluid(amount));
+        }
     }
 
     private int findItemInputs() {
@@ -188,6 +207,11 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
             if (availableParallels < 1)
                 break;
         }
+        double ashBurnTime = 1600F / this.parallel.getAsInt();
+        if (burnTime >= ashBurnTime) {
+            int amount = (int) ((burnTime / ashBurnTime) * Math.max(0.4, Math.random()));
+            this.itemOutput.add(new ItemStack(Item.getByNameOrId("gregtech:meta_item_1"), amount, 2110)); // dark ashes
+        }
         return burnTime;
     }
 
@@ -202,9 +226,13 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
         compound.setBoolean("HasNoWater", this.hasNoWater);
         compound.setInteger("ThrottlePercentage", this.throttlePercentage);
         if (!this.itemInput.isEmpty())
-            compound.setTag("CurrentItem", this.itemInput.get(0).writeToNBT(new NBTTagCompound()));
+            compound.setTag("itemInput", this.itemInput.get(0).serializeNBT());
+        if (!this.itemOutput.isEmpty())
+            compound.setTag("itemOutput", this.itemOutput.get(0).serializeNBT());
         if (!this.fluidInput.isEmpty())
-            compound.setTag("CurrentFluid", this.fluidInput.get(0).writeToNBT(new NBTTagCompound()));
+            compound.setTag("fluidInput", this.fluidInput.get(0).writeToNBT(new NBTTagCompound()));
+        if (!this.fluidOutput.isEmpty())
+            compound.setTag("fluidOutput", this.fluidOutput.get(0).writeToNBT(new NBTTagCompound()));
         return compound;
     }
 
@@ -215,10 +243,14 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
         this.hasNoWater = compound.getBoolean("HasNoWater");
         if (compound.hasKey("ThrottlePercentage"))
             this.throttlePercentage = compound.getInteger("ThrottlePercentage");
-        if (compound.hasKey("CurrentItem"))
-            this.itemInput.add(new ItemStack(compound.getCompoundTag("CurrentItem")));
-        if (compound.hasKey("CurrentFluid"))
-            this.fluidInput.add(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("CurrentFluid")));
+        if (compound.hasKey("itemInput"))
+            this.itemInput.add(new ItemStack(compound.getCompoundTag("itemInput")));
+        if (compound.hasKey("itemOutput"))
+            this.itemOutput.add(new ItemStack(compound.getCompoundTag("itemOutput")));
+        if (compound.hasKey("fluidInput"))
+            this.fluidInput.add(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("fluidInput")));
+        if (compound.hasKey("fluidOutput"))
+            this.fluidOutput.add(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("fluidOutput")));
     }
 
     @Override
@@ -335,8 +367,18 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
     }
 
     @Override
+    public List<ItemStack> getItemOutputs() {
+        return this.itemOutput;
+    }
+
+    @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInput;
+    }
+
+    @Override
+    public List<FluidStack> getFluidOutputs() {
+        return this.fluidOutput;
     }
 
     @Override
