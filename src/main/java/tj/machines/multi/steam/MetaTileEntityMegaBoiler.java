@@ -9,7 +9,6 @@ import tj.builder.handlers.MegaBoilerRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.multiblockpart.TJMultiblockAbility;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.impl.*;
 import gregtech.api.capability.tool.ISoftHammerItem;

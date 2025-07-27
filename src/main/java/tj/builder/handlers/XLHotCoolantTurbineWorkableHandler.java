@@ -119,18 +119,25 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     }
 
     private boolean tryAcquireNewRecipe() {
-        IMultipleTankHandler fluidTanks = this.fluidTank.get();
-        for (IFluidTank fluidTank : fluidTanks) {
-            FluidStack tankContents = fluidTank.getFluid();
-            if (tankContents != null && tankContents.amount > 0) {
-                int fuelAmountUsed = this.tryAcquireNewRecipe(tankContents);
-                if (fuelAmountUsed > 0) {
-                    FluidStack fluidStack = fluidTank.drain(fuelAmountUsed, true);
-                    this.consumption = fluidStack.amount;
-                    this.fuelName = fluidStack.getUnlocalizedName();
-                    return true; //recipe is found and ready to use
-                }
+        FluidStack fuelStack = null;
+        for (int i = 0; i < this.fluidTank.get().getTanks(); i++) {
+            IFluidTank tank = this.fluidTank.get().getTankAt(i);
+            FluidStack stack = tank.getFluid();
+            if (stack == null)
+                continue;
+            if (fuelStack == null)
+                fuelStack = stack.copy();
+            else if (fuelStack.isFluidEqual(stack)) {
+                long amount = fuelStack.amount + stack.amount;
+                fuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
             }
+        }
+        int fuelAmountUsed = this.tryAcquireNewRecipe(fuelStack);
+        if (fuelAmountUsed > 0) {
+            FluidStack fluidStack = this.fluidTank.get().drain(fuelAmountUsed, true);
+            this.consumption = fluidStack.amount;
+            this.fuelName = fluidStack.getUnlocalizedName();
+            return true; //recipe is found and ready to use
         }
         return false;
     }
