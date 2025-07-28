@@ -28,14 +28,20 @@ import java.util.List;
 import static gregtech.api.gui.GuiTextures.*;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
+
 public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEntity {
 
-    private final ArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new ArchitectWorkbenchWorkableHandler(this, this::getImportItems, this::getExportItems, () -> this.energyContainer, (bus) -> null, this::getMaxVoltage, () -> 1);
+    private final ArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new ArchitectWorkbenchWorkableHandler(this);
 
     public MetaTileEntityArchitectWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.initializeInventory();
         this.workbenchWorkableHandler.initialize(1);
+        this.workbenchWorkableHandler.setImportItems(this::getImportItems);
+        this.workbenchWorkableHandler.setExportItems(this::getExportItems);
+        this.workbenchWorkableHandler.setImportEnergy(() -> this.energyContainer);
+        this.workbenchWorkableHandler.setMaxVoltage(this::getMaxVoltage);
+        this.workbenchWorkableHandler.setParallel(() -> 1);
     }
 
     @Override

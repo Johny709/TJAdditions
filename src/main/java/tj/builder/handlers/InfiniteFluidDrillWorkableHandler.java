@@ -2,7 +2,6 @@ package tj.builder.handlers;
 
 import gregicadditions.GAValues;
 import gregicadditions.worldgen.PumpjackHandler;
-import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,11 +20,10 @@ import tj.capability.impl.AbstractWorkableHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
 
 import static gregicadditions.GAMaterials.DrillingMud;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
+
 
 public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IItemFluidHandlerInfo {
 
@@ -37,8 +35,8 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
     private final List<FluidStack> fluidInputsList = new ArrayList<>();
     private final List<FluidStack> fluidOutputsList = new ArrayList<>();
 
-    public InfiniteFluidDrillWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IMultipleTankHandler> importFluids, Supplier<IMultipleTankHandler> exportFluids, Supplier<IEnergyContainer> energyInputs, LongSupplier maxVoltage) {
-        super(metaTileEntity, null, null, importFluids, exportFluids, energyInputs, null, maxVoltage, null);
+    public InfiniteFluidDrillWorkableHandler(MetaTileEntity metaTileEntity) {
+        super(metaTileEntity);
     }
 
     @Override

@@ -69,10 +69,14 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     private long maxVoltage;
     private int tier;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final VoidMOreMinerWorkableHandler minerRecipeLogic = new VoidMOreMinerWorkableHandler(this, null, () -> this.outputInventory, () -> this.importFluidHandler, () -> this.exportFluidHandler, () -> this.energyContainer, null, () -> this.maxVoltage, null);
+    private final VoidMOreMinerWorkableHandler minerRecipeLogic = new VoidMOreMinerWorkableHandler(this);
 
     public MetaTileEntityVoidMOreMiner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
+        this.minerRecipeLogic.setExportItems(() -> this.outputInventory);
+        this.minerRecipeLogic.setImportFluids(() -> this.importFluidHandler);
+        this.minerRecipeLogic.setExportFluids(() -> this.exportFluidHandler);
+        this.minerRecipeLogic.setMaxVoltage(() -> this.maxVoltage);
     }
 
     @Override

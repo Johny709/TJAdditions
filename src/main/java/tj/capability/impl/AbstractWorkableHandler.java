@@ -23,14 +23,14 @@ import java.util.function.*;
  */
 public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements IWorkable, IRecipeInfo {
 
-    protected final Supplier<I> importItems;
-    protected final Supplier<I> exportItems;
-    protected final Supplier<F> importFluids;
-    protected final Supplier<F> exportFluids;
-    protected final Supplier<IEnergyContainer> energyInputs;
-    protected final IntFunction<I> inputBus;
-    protected final LongSupplier maxVoltage;
-    protected final IntSupplier parallel;
+    protected Supplier<I> importItems;
+    protected Supplier<I> exportItems;
+    protected Supplier<F> importFluids;
+    protected Supplier<F> exportFluids;
+    protected Supplier<IEnergyContainer> importEnergy;
+    protected IntFunction<I> inputBus;
+    protected LongSupplier maxVoltage;
+    protected IntSupplier parallel;
     private BooleanConsumer activeConsumer;
     protected boolean isWorking = true;
     protected boolean isActive;
@@ -43,17 +43,8 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected int lastInputIndex;
     protected int busCount;
 
-    public AbstractWorkableHandler(MetaTileEntity metaTileEntity, Supplier<I> importItems, Supplier<I> exportItems, Supplier<F> importFluids, Supplier<F> exportFluids,
-                                   Supplier<IEnergyContainer> energyInputs, IntFunction<I> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
+    public AbstractWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
-        this.importItems = importItems;
-        this.exportItems = exportItems;
-        this.importFluids = importFluids;
-        this.exportFluids = exportFluids;
-        this.energyInputs = energyInputs;
-        this.inputBus = inputBus;
-        this.maxVoltage = maxVoltage;
-        this.parallel = parallel;
     }
 
     /**
@@ -65,7 +56,66 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         this.busCount = busCount;
     }
 
-    public void setActiveConsumer(BooleanConsumer activeConsumer) {
+    /**
+     * @param importItems Item input supplier
+     */
+    public void setImportItems(Supplier<I> importItems) {
+        this.importItems = importItems;
+    }
+
+    /**
+     * @param exportItems Item output supplier
+     */
+    public void setExportItems(Supplier<I> exportItems) {
+        this.exportItems = exportItems;
+    }
+
+    /**
+     * @param importFluids Fluid input supplier
+     */
+    public void setImportFluids(Supplier<F> importFluids) {
+        this.importFluids = importFluids;
+    }
+
+    /**
+     * @param exportFluids Fluid output supplier
+     */
+    public void setExportFluids(Supplier<F> exportFluids) {
+        this.exportFluids = exportFluids;
+    }
+
+    /**
+     * @param importEnergy Energy Input supplier
+     */
+    public void setImportEnergy(Supplier<IEnergyContainer> importEnergy) {
+        this.importEnergy = importEnergy;
+    }
+
+    /**
+     * @param inputBus For Input bus distinct mode
+     */
+    public void setInputBus(IntFunction<I> inputBus) {
+        this.inputBus = inputBus;
+    }
+
+    /**
+     * @param maxVoltage Voltage long supplier
+     */
+    public void setMaxVoltage(LongSupplier maxVoltage) {
+        this.maxVoltage = maxVoltage;
+    }
+
+    /**
+     * @param parallel amount of parallels int supplier
+     */
+    public void setParallel(IntSupplier parallel) {
+        this.parallel = parallel;
+    }
+
+    /**
+     * @param activeConsumer isActive boolean consumer
+     */
+    public void setActive(BooleanConsumer activeConsumer) {
         this.activeConsumer = activeConsumer;
     }
 
@@ -107,8 +157,8 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected void stopRecipe() {}
 
     protected void progressRecipe() {
-        if (this.energyInputs.get().getEnergyStored() >= this.energyPerTick) {
-            this.energyInputs.get().removeEnergy(this.energyPerTick);
+        if (this.importEnergy.get().getEnergyStored() >= this.energyPerTick) {
+            this.importEnergy.get().removeEnergy(this.energyPerTick);
             this.progress++;
         } else if (this.progress > 1)
             this.progress--;
@@ -242,7 +292,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     }
 
     public boolean hasNotEnoughEnergy() {
-        return this.isActive && this.energyInputs.get().getEnergyStored() < this.energyPerTick;
+        return this.isActive && this.importEnergy.get().getEnergyStored() < this.energyPerTick;
     }
 
     @Override

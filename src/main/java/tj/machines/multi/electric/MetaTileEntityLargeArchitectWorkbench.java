@@ -52,7 +52,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final ArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new ArchitectWorkbenchWorkableHandler(this, () -> this.itemInputs, () -> this.itemOutputs, () -> this.energyInput, this::getInputBus, () -> this.maxVoltage, () -> this.parallel);
+    private final ArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new ArchitectWorkbenchWorkableHandler(this);
     private ItemHandlerList itemInputs;
     private ItemHandlerList itemOutputs;
     private IEnergyContainer energyInput;
@@ -61,6 +61,12 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
 
     public MetaTileEntityLargeArchitectWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
+        this.workbenchWorkableHandler.setImportItems(() -> this.itemInputs);
+        this.workbenchWorkableHandler.setExportItems(() -> this.itemOutputs);
+        this.workbenchWorkableHandler.setImportEnergy(() -> this.energyInput);
+        this.workbenchWorkableHandler.setInputBus(this::getInputBus);
+        this.workbenchWorkableHandler.setMaxVoltage(() -> this.maxVoltage);
+        this.workbenchWorkableHandler.setParallel(() -> this.parallel);
     }
 
     @Override

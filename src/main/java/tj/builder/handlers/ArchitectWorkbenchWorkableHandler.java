@@ -1,6 +1,5 @@
 package tj.builder.handlers;
 
-import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,10 +15,7 @@ import tj.util.ItemStackHelper;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.IntFunction;
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+
 
 public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidTank> implements IItemFluidHandlerInfo {
 
@@ -27,9 +23,8 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
     private ItemStack input;
     private ItemStack output;
 
-    public ArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs,
-                                             Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
-        super(metaTileEntity, itemInputs, itemOutputs, null, null, energyInputs, inputBus, maxVoltage, parallel);
+    public ArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity) {
+        super(metaTileEntity);
     }
 
     @Override

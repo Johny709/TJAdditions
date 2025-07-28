@@ -2,7 +2,6 @@ package tj.builder.handlers;
 
 import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.GTValues;
-import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
@@ -21,10 +20,6 @@ import tj.util.ItemStackHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.IntFunction;
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static gregicadditions.GAMaterials.*;
@@ -42,9 +37,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
     private final List<FluidStack> fluidOutputsList = new ArrayList<>();
     private final List<ItemStack> oreOutputs = new ArrayList<>();
 
-    public VoidMOreMinerWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> itemInputs, Supplier<IItemHandlerModifiable> itemOutputs, Supplier<IMultipleTankHandler> fluidImports, Supplier<IMultipleTankHandler> fluidExports,
-                                        Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
-        super(metaTileEntity, itemInputs, itemOutputs, fluidImports, fluidExports, energyInputs, inputBus, maxVoltage, parallel);
+    public VoidMOreMinerWorkableHandler(MetaTileEntity metaTileEntity) {
+        super(metaTileEntity);
     }
 
     @Override

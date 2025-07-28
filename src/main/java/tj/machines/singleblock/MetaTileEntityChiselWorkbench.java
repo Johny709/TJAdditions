@@ -28,12 +28,17 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntity {
 
-    private final ChiselWorkbenchWorkableHandler chiselWorkableHandler = new ChiselWorkbenchWorkableHandler(this, () -> this.importItems, () -> this.exportItems, () -> this.energyContainer, null, this::getMaxVoltage, () -> 1);
+    private final ChiselWorkbenchWorkableHandler chiselWorkableHandler = new ChiselWorkbenchWorkableHandler(this);
 
     public MetaTileEntityChiselWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.initializeInventory();
         this.chiselWorkableHandler.initialize(1);
+        this.chiselWorkableHandler.setImportItems(() -> this.importItems);
+        this.chiselWorkableHandler.setExportItems(() -> this.exportItems);
+        this.chiselWorkableHandler.setImportEnergy(() -> this.energyContainer);
+        this.chiselWorkableHandler.setMaxVoltage(this::getMaxVoltage);
+        this.chiselWorkableHandler.setParallel(() -> 1);
     }
 
     @Override

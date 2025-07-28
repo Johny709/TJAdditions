@@ -58,11 +58,12 @@ import java.util.function.Function;
 import static gregicadditions.GAMaterials.*;
 import static net.minecraft.util.text.TextFormatting.RED;
 
+
 public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final InfiniteFluidDrillWorkableHandler fluidDrillWorkableHandler = new InfiniteFluidDrillWorkableHandler(this, () -> this.inputFluid, () -> this.outputFluid, () -> this.energyContainer, () -> this.maxVoltage);
+    private final InfiniteFluidDrillWorkableHandler fluidDrillWorkableHandler = new InfiniteFluidDrillWorkableHandler(this);
     private long maxVoltage;
     private int tier;
     private IMultipleTankHandler outputFluid;
@@ -71,6 +72,10 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     public MetaTileEntityInfiniteFluidDrill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
+        this.fluidDrillWorkableHandler.setImportFluids(() -> this.inputFluid);
+        this.fluidDrillWorkableHandler.setExportFluids(() -> this.outputFluid);
+        this.fluidDrillWorkableHandler.setImportEnergy(() -> this.energyContainer);
+        this.fluidDrillWorkableHandler.setMaxVoltage(() -> this.maxVoltage);
     }
 
     @Override

@@ -52,7 +52,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final ChiselWorkbenchWorkableHandler chiselWorkableHandler = new ChiselWorkbenchWorkableHandler(this, () -> this.itemInputs, () -> this.itemOutputs, () -> this.energyInput, this::getInputBus, () -> this.maxVoltage, () -> this.parallel);
+    private final ChiselWorkbenchWorkableHandler chiselWorkableHandler = new ChiselWorkbenchWorkableHandler(this);
     private IItemHandlerModifiable itemInputs;
     private IItemHandlerModifiable itemOutputs;
     private IEnergyContainer energyInput;
@@ -61,6 +61,12 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
 
     public MetaTileEntityLargeChiselWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
+        this.chiselWorkableHandler.setImportItems(() -> this.itemInputs);
+        this.chiselWorkableHandler.setExportItems(() -> this.itemOutputs);
+        this.chiselWorkableHandler.setImportEnergy(() -> this.energyInput);
+        this.chiselWorkableHandler.setInputBus(this::getInputBus);
+        this.chiselWorkableHandler.setMaxVoltage(() -> this.maxVoltage);
+        this.chiselWorkableHandler.setParallel(() -> this.parallel);
     }
 
     @Override

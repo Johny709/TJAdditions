@@ -1,6 +1,5 @@
 package tj.builder.handlers;
 
-import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,10 +16,7 @@ import tj.util.ItemStackHelper;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.IntFunction;
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+
 
 public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidHandler> implements IItemFluidHandlerInfo {
 
@@ -28,9 +24,8 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IIte
     private ItemStack input;
     private ItemStack output;
 
-    public ChiselWorkbenchWorkableHandler(MetaTileEntity metaTileEntity, Supplier<IItemHandlerModifiable> importItems, Supplier<IItemHandlerModifiable> exportItems,
-                                          Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandlerModifiable> inputBus, LongSupplier maxVoltage, IntSupplier parallel) {
-        super(metaTileEntity, importItems, exportItems, null, null, energyInputs, inputBus, maxVoltage, parallel);
+    public ChiselWorkbenchWorkableHandler(MetaTileEntity metaTileEntity) {
+        super(metaTileEntity);
     }
 
     @Override

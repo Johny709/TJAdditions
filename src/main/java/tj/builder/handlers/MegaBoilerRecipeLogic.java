@@ -1,7 +1,6 @@
 package tj.builder.handlers;
 
 import gregtech.api.GTValues;
-import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IFuelInfo;
 import gregtech.api.capability.IFuelable;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -56,10 +55,8 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
     private final List<ItemStack> itemInput = new ArrayList<>();
     private final List<ItemStack> itemOutput = new ArrayList<>();
 
-    public MegaBoilerRecipeLogic(MetaTileEntity metaTileEntity, Supplier<IItemHandler> importItems, Supplier<IItemHandler> exportItems, Supplier<IMultipleTankHandler> importFluids, Supplier<IMultipleTankHandler> exportFluids,
-                                 Supplier<IEnergyContainer> energyInputs, IntFunction<IItemHandler> inputBus, LongSupplier maxVoltage, IntSupplier parallel,
-                                 DoubleSupplier heatEfficiency, DoubleSupplier fuelConsumptionMultiplier, IntSupplier baseSteamOutput, IntSupplier maxTemperature) {
-        super(metaTileEntity, importItems, exportItems, importFluids, exportFluids, energyInputs, inputBus, maxVoltage, parallel);
+    public MegaBoilerRecipeLogic(MetaTileEntity metaTileEntity, DoubleSupplier heatEfficiency, DoubleSupplier fuelConsumptionMultiplier, IntSupplier baseSteamOutput, IntSupplier maxTemperature) {
+        super(metaTileEntity);
         this.heatEfficiency = heatEfficiency;
         this.fuelConsumptionMultiplier = fuelConsumptionMultiplier;
         this.baseSteamOutput = baseSteamOutput;
