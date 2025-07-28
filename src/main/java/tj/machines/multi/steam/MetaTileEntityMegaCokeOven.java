@@ -37,7 +37,7 @@ public class MetaTileEntityMegaCokeOven extends TJLargeSimpleRecipeMapMultiblock
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
 
     public MetaTileEntityMegaCokeOven (ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES, 0, 100, 100, 256, false, false, false);
+        super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES, 0, 100, 100, 512, false, false, false);
         this.recipeMapWorkable = new MegaCokeOvenRecipeLogic(this, EUtPercentage, durationPercentage, chancePercentage, stack);
         maintenance_problems = 0b111111;
     }
