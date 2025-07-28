@@ -103,9 +103,8 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagList fluidInputsList = new NBTTagList(),
-                fluidOutputsList = new NBTTagList();
         NBTTagCompound compound = super.serializeNBT();
+        NBTTagList fluidInputsList = new NBTTagList(), fluidOutputsList = new NBTTagList();
         for (FluidStack fluid : this.fluidInputsList)
             fluidInputsList.appendTag(fluid.writeToNBT(new NBTTagCompound()));
         for (FluidStack fluid : this.fluidOutputsList)
@@ -120,8 +119,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
         this.outputIndex = compound.getInteger("outputIndex");
-        NBTTagList fluidInputsList = compound.getTagList("fluidInputsList", 10),
-            fluidOutputsList = compound.getTagList("fluidOutputsList", 10);
+        NBTTagList fluidInputsList = compound.getTagList("fluidInputsList", 10), fluidOutputsList = compound.getTagList("fluidOutputsList", 10);
         for (int i = 0; i < fluidInputsList.tagCount(); i++)
             this.fluidInputsList.add(FluidStack.loadFluidStackFromNBT(fluidInputsList.getCompoundTagAt(i)));
         for (int i = 0; i < fluidOutputsList.tagCount(); i++)

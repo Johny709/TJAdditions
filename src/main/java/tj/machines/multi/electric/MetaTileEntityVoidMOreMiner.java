@@ -76,6 +76,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
         this.minerRecipeLogic.setExportItems(() -> this.outputInventory);
         this.minerRecipeLogic.setImportFluids(() -> this.importFluidHandler);
         this.minerRecipeLogic.setExportFluids(() -> this.exportFluidHandler);
+        this.minerRecipeLogic.setImportEnergy(() -> this.energyContainer);
         this.minerRecipeLogic.setMaxVoltage(() -> this.maxVoltage);
     }
 

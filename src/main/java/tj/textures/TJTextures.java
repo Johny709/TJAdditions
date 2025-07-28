@@ -64,6 +64,7 @@ public class TJTextures {
     public static final TJSimpleOverlayRenderer HAMMER = new TJSimpleOverlayRenderer("architecturecraft", "items/hammer");
     public static final TJSimpleOverlayRenderer SAW_BLADE = new TJSimpleOverlayRenderer("architecturecraft", "items/sawblade");
     public static final TJSimpleOverlayRenderer CHISEL = new TJSimpleOverlayRenderer(Chisel.MOD_ID, "items/chisel_iron");
+    public static final TJSimpleOverlayRenderer ENCHANTED_BOOK = new TJSimpleOverlayRenderer("minecraft", "items/book_enchanted");
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {

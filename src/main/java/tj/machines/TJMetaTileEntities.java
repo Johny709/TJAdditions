@@ -103,6 +103,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityFluidBoiler[] FLUID_BOILER = new MetaTileEntityFluidBoiler[3];
     public static MetaTileEntityArchitectWorkbench[] ARCHITECT_WORKBENCH = new MetaTileEntityArchitectWorkbench[14];
     public static MetaTileEntityChiselWorkbench[] CHISEL_WORKBENCH = new MetaTileEntityChiselWorkbench[14];
+    public static MetaTileEntityEnchanter[] ENCHANTER = new MetaTileEntityEnchanter[14];
     public static MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
@@ -207,11 +208,13 @@ public class TJMetaTileEntities {
         FLUID_BOILER[0] = GregTechAPI.registerMetaTileEntity(5306, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_bronze"), BRONZE));
         FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5307, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
         FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5308, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
-        int architectID = 5309, chiselID = 5323;
+        int architectID = 5309, chiselID = 5323, enchanterID = 5337;
         for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++)  // occupies ID range 5309 - 5322
             ARCHITECT_WORKBENCH[i] = GregTechAPI.registerMetaTileEntity(architectID++, new MetaTileEntityArchitectWorkbench(TJId("architect_workbench_" + GAValues.VN[tier]), tier));
         for (int i = 0, tier = 1; i < CHISEL_WORKBENCH.length; i++, tier++) // occupies ID range 5322 - 5336
             CHISEL_WORKBENCH[i] = GregTechAPI.registerMetaTileEntity(chiselID++, new MetaTileEntityChiselWorkbench(TJId("chisel_workbench_" + GAValues.VN[tier]), tier));
+        for (int i = 0, tier = 1; i < ENCHANTER.length; i++, tier++) // occupies ID range 5337 - 5350
+            ENCHANTER[i] = GregTechAPI.registerMetaTileEntity(enchanterID++, new MetaTileEntityEnchanter(TJId("enchanter_" + GAValues.VN[tier]), tier));
 
 
         // range 5500+ -> misc

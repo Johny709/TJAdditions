@@ -138,10 +138,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagList oreList = new NBTTagList(),
-                fluidInputList = new NBTTagList(),
-                fluidOutputList = new NBTTagList();
         NBTTagCompound compound = super.serializeNBT();
+        NBTTagList oreList = new NBTTagList(), fluidInputList = new NBTTagList(), fluidOutputList = new NBTTagList();
         for (ItemStack item : this.oreOutputs)
             oreList.appendTag(item.serializeNBT());
         for (FluidStack fluid : this.fluidInputsList)
@@ -160,8 +158,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList oreList = compound.getTagList("oreList", 10),
-                fluidInputList = compound.getTagList("fluidInputList", 10),
+        NBTTagList oreList = compound.getTagList("oreList", 10), fluidInputList = compound.getTagList("fluidInputList", 10),
                 fluidOutputList = compound.getTagList("fluidOutputList", 10);
         for (int i = 0; i < oreList.tagCount(); i++)
             this.oreOutputs.add(new ItemStack(oreList.getCompoundTagAt(i)));
