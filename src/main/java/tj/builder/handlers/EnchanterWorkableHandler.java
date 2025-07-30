@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.IItemFluidHandlerInfo;
@@ -22,6 +23,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
 
     private ItemStack catalyst;
     private int outputIndex;
+    private int experience;
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<FluidStack> fluidInputs = new ArrayList<>();
@@ -35,10 +37,15 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
         boolean canStart = false;
         IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItems.get();
         int catalystSlotIndex = this.findCatalyst(itemInputs);
-        if (catalystSlotIndex > -1 && this.findInputs(itemInputs, catalystSlotIndex)) {
-            this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
-            this.progress = 1;
-            canStart = true;
+        if (catalystSlotIndex > -1 && this.findInputs(itemInputs, catalystSlotIndex, true)) {
+            FluidStack fluid = FluidRegistry.getFluidStack("xpjuice", this.experience);
+            if (this.hasEnoughFluid(fluid, this.experience)) {
+                this.findInputs(itemInputs, catalystSlotIndex, false);
+                this.importFluids.get().drain(fluid, true);
+                this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
+                this.progress = 1;
+                canStart = true;
+            }
         }
         if (++this.lastInputIndex == this.busCount)
             this.lastInputIndex = 0;
@@ -55,6 +62,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
             } else return false;
         }
         this.outputIndex = 0;
+        this.experience = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
         this.fluidInputs.clear();
@@ -72,28 +80,31 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
         return -1;
     }
 
-    private boolean findInputs(IItemHandlerModifiable itemInputs, int catalystSlotIndex) {
+    private boolean findInputs(IItemHandlerModifiable itemInputs, int catalystSlotIndex, boolean simulate) {
         int applied = 0;
         for (int i = 0; i < itemInputs.getSlots(); i++) {
             ItemStack stack = itemInputs.getStackInSlot(i);
             ItemStack catalystStack = null;
             if (i != catalystSlotIndex && !stack.isEmpty()) {
-                this.itemInputs.add(stack.copy());
                 catalystStack = this.catalyst.copy();
                 catalystStack.setCount(1);
-                this.itemInputs.add(catalystStack.copy());
-                this.catalyst.shrink(1);
-                applied += this.applyEnchantments(catalystStack, stack);
+                if (!simulate) {
+                    this.itemInputs.add(stack.copy());
+                    this.itemInputs.add(catalystStack.copy());
+                    this.catalyst.shrink(1);
+                }
+                applied += this.applyEnchantments(catalystStack, stack, simulate);
             }
-            if (catalystStack != null) {
+            if (catalystStack != null && !simulate) {
                 catalystStack = this.setBookOrEnchantedBook(catalystStack);
                 this.itemOutputs.add(catalystStack);
             }
         }
-        return applied > 0;
+        this.experience = applied * 100;
+        return this.experience > 0;
     }
 
-    private int applyEnchantments(ItemStack catalyst, ItemStack stack) {
+    private int applyEnchantments(ItemStack catalyst, ItemStack stack, boolean simulate) {
         int applied = 0;
         NBTTagList catalystEnchants = this.getEnchantments(catalyst.getTagCompound()), newCatalystEnchants = new NBTTagList();
         NBTTagList stackEnchants = this.getEnchantments(stack.getTagCompound()), newStackEnchants = new NBTTagList();
@@ -111,7 +122,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
                             : catalystLevel > stackLevel ? catalystLevel
                             : stackLevel;
                     hasApplied = true;
-                    applied++;
+                    applied += stackLevel;
                 }
                 NBTTagCompound newStackCompound = new NBTTagCompound();
                 newStackCompound.setShort("id", stackEnchant);
@@ -124,17 +135,19 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
                 newCatalystCompound.setShort("lvl", catalystLevel);
                 if (newStackEnchants.tagCount() == 0) {
                     newStackEnchants.appendTag(newCatalystCompound);
-                    applied++;
+                    applied += catalystLevel;
                 } else newCatalystEnchants.appendTag(newCatalystCompound);
             }
         }
         ItemStack newStack = stack.copy();
         newStack.setCount(1);
-        stack.shrink(1);
         this.setEnchantments(catalyst, newCatalystEnchants);
         this.setEnchantments(newStack, newStackEnchants);
         newStack = this.setBookOrEnchantedBook(newStack);
-        this.itemOutputs.add(newStack);
+        if (!simulate) {
+            stack.shrink(1);
+            this.itemOutputs.add(newStack);
+        }
         return applied;
     }
 
@@ -193,6 +206,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
         compound.setTag("itemOutputs", itemOutputs);
         compound.setTag("fluidInputs", fluidInputs);
         compound.setInteger("outputIndex", this.outputIndex);
+        compound.setInteger("experience", this.experience);
         return compound;
     }
 
@@ -200,6 +214,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
         this.outputIndex = compound.getInteger("outputIndex");
+        this.experience = compound.getInteger("experience");
         NBTTagList itemInputs = compound.getTagList("itemInputs", 10), itemOutputs = compound.getTagList("itemOutputs", 10),
                 fluidInputs = compound.getTagList("fluidInputs", 10);
         for (int i = 0; i < itemInputs.tagCount(); i++)

@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -13,6 +14,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -31,9 +34,11 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     private final EnchanterWorkableHandler enchanterWorkableHandler = new EnchanterWorkableHandler(this);
+    private final IFluidTank tank;
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+        this.tank = new FluidTank(16000);
         this.enchanterWorkableHandler.initialize(1);
         this.enchanterWorkableHandler.setImportItems(this::getImportItems);
         this.enchanterWorkableHandler.setExportItems(this::getExportItems);
@@ -75,6 +80,11 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     }
 
     @Override
+    protected FluidTankList createImportFluidHandler() {
+        return new FluidTankList(true, this.tank);
+    }
+
+    @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
                 .widget(new ProgressWidget(this.enchanterWorkableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
@@ -86,6 +96,8 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setBackgroundTexture(SLOT))
                 .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
                         .setBackgroundTexture(SLOT))
+                .widget(new TankWidget(this.tank, 16, 22, 18, 18)
+                        .setBackgroundTexture(FLUID_SLOT))
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
