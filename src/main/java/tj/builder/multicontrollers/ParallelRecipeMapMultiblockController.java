@@ -66,8 +66,6 @@ import java.util.function.Function;
 import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
-import static gregtech.api.gui.GuiTextures.BUTTON_FLUID_VOID;
-import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_VOID;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;

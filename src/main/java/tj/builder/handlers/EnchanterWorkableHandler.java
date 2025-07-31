@@ -43,6 +43,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
                 this.findInputs(itemInputs, catalystSlotIndex, false);
                 this.importFluids.get().drain(fluid, true);
                 this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
+                this.wasActiveAndNeedsUpdate = false;
                 this.progress = 1;
                 canStart = true;
             }
@@ -54,7 +55,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
 
     @Override
     protected boolean completeRecipe() {
-        for (int i = 0; i < this.itemOutputs.size() && i >= this.outputIndex; i++) {
+        for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
             if (ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), stack, true).isEmpty()) {
                 ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), stack, false);
@@ -100,7 +101,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
                 this.itemOutputs.add(catalystStack);
             }
         }
-        this.experience = applied * 100;
+        this.experience = applied * 1000;
         return this.experience > 0;
     }
 

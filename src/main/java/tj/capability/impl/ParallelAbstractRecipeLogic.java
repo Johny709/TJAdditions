@@ -52,6 +52,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected int[] maxProgressTime = new int[1];
     protected int[] recipeEUt = new int[1];
     protected int[] parallel = new int[1];
+    protected int[] itemOutputIndex = new int[1];
+    protected int[] fluidOutputIndex = new int[1];
     protected Recipe[] occupiedRecipes = new Recipe[1];
     protected Map<Integer, List<FluidStack>> fluidOutputs = new HashMap<>();
     protected Map<Integer, NonNullList<ItemStack>> itemOutputs = new HashMap<>();
@@ -99,6 +101,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.maxProgressTime = Arrays.copyOf(this.maxProgressTime, this.size);
         this.recipeEUt = Arrays.copyOf(this.recipeEUt, this.size);
         this.parallel = Arrays.copyOf(this.parallel, this.size);
+        this.itemOutputIndex = Arrays.copyOf(this.itemOutputIndex, this.size);
+        this.fluidOutputIndex = Arrays.copyOf(this.fluidOutputIndex, this.size);
         this.isInstanceActive = Arrays.copyOf(this.isInstanceActive, this.size);
         this.workingEnabled = Arrays.copyOf(this.workingEnabled, this.size);
         this.wasActiveAndNeedsUpdate = Arrays.copyOf(this.wasActiveAndNeedsUpdate, this.size);
@@ -466,27 +470,25 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return GTUtility.getGATierByVoltage(this.maxVoltage.getAsLong());
     }
 
-    protected boolean canFitItemOutputs(int i) {
-        List<ItemStack> itemOutputs = this.itemOutputs.get(i);
-        for (ItemStack stack : itemOutputs)
-            if (!ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, true).isEmpty())
-                return false;
-        return true;
-    }
-
-    protected boolean canFitFluidOutputs(int i) {
-        return MetaTileEntity.addFluidsToFluidHandler(this.getOutputTank(), true, this.fluidOutputs.get(i));
-    }
-
     protected boolean completeRecipe(int i) {
         List<ItemStack> itemOutputs = this.itemOutputs.get(i);
-        if (this.voidItems || this.canFitItemOutputs(i))
-            for (ItemStack stack : itemOutputs)
+        for (int j = this.itemOutputIndex[i]; j < itemOutputs.size(); j++) {
+            ItemStack stack = itemOutputs.get(j);
+            if (this.voidItems || ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, true).isEmpty()) {
                 ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, false);
-        else return false;
-        if (this.voidFluids || this.canFitFluidOutputs(i))
-            MetaTileEntity.addFluidsToFluidHandler(this.getOutputTank(), false, this.fluidOutputs.get(i));
-        else return false;
+                this.itemOutputIndex[i]++;
+            } else return false;
+        }
+        List<FluidStack> fluidOutputs = this.fluidOutputs.get(i);
+        for (int j = this.fluidOutputIndex[i]; j < fluidOutputs.size(); j++) {
+            FluidStack stack = fluidOutputs.get(j);
+            if (this.voidFluids || this.getOutputTank().fill(stack, false) == stack.amount) {
+                this.getOutputTank().fill(stack, true);
+                this.fluidOutputIndex[i]++;
+            } else return false;
+        }
+        this.itemOutputIndex[i] = 0;
+        this.fluidOutputIndex[i] = 0;
         this.progressTime[i] = 0;
         this.setMaxProgress(0, i);
         this.recipeEUt[i] = 0;
@@ -678,6 +680,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             workableInstanceCompound.setInteger("MaxProgress", this.maxProgressTime[i]);
             workableInstanceCompound.setInteger("Progress", this.progressTime[i]);
             workableInstanceCompound.setInteger("EUt", this.recipeEUt[i]);
+            workableInstanceCompound.setInteger("ItemIndex", this.itemOutputIndex[i]);
+            workableInstanceCompound.setInteger("FluidIndex", this.fluidOutputIndex[i]);
 
             if (this.progressTime[i] > 0) {
                 NBTTagList itemOutputsList = new NBTTagList();
@@ -734,6 +738,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.maxProgressTime = new int[this.size];
         this.recipeEUt = new int[this.size];
         this.parallel = new int[this.size];
+        this.itemOutputIndex = new int[this.size];
+        this.fluidOutputIndex = new int[this.size];
         this.isInstanceActive = new boolean[this.size];
         this.workingEnabled = new boolean[this.size];
         this.wasActiveAndNeedsUpdate = new boolean[this.size];
@@ -756,6 +762,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             this.maxProgressTime[i] = workableInstanceCompound.getInteger("MaxProgress");
             this.progressTime[i] = workableInstanceCompound.getInteger("Progress");
             this.recipeEUt[i] = workableInstanceCompound.getInteger("EUt");
+            this.itemOutputIndex[i] = workableInstanceCompound.getInteger("ItemIndex");
+            this.fluidOutputIndex[i] = workableInstanceCompound.getInteger("FluidIndex");
             if (this.progressTime[i] > 0) {
                 NBTTagList itemOutputsList = workableInstanceCompound.getTagList("ItemOutputs", Constants.NBT.TAG_COMPOUND);
                 this.itemOutputs.put(i, NonNullList.create());

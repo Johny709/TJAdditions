@@ -87,7 +87,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
 
     @Override
     protected boolean completeRecipe() {
-        for (int i = 0; i < this.veinFluidStack.length && i >= this.outputIndex; i++) {
+        for (int i = this.outputIndex; i < this.veinFluidStack.length; i++) {
             if (!this.canOutputFluid(this.veinFluidStack[i], this.outputVeinFluidAmount[i]))
                 return false;
             this.exportFluids.get().fill(this.veinFluidStack[i], true);

@@ -13,7 +13,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
@@ -32,6 +31,7 @@ import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
+
 public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     private final EnchanterWorkableHandler enchanterWorkableHandler = new EnchanterWorkableHandler(this);
@@ -39,7 +39,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
-        this.tank = new FluidTank(16000);
+        this.tank = new FluidTank(64000);
         this.enchanterWorkableHandler.initialize(1);
         this.enchanterWorkableHandler.setImportItems(this::getImportItems);
         this.enchanterWorkableHandler.setExportItems(this::getExportItems);
