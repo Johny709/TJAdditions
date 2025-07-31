@@ -64,6 +64,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     private IEnergyContainer energyInput;
     private long maxVoltage;
     private int parallel;
+    private int tier;
 
     public MetaTileEntityLargeEnchanter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -73,6 +74,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
         this.workableHandler.setImportEnergy(() -> this.energyInput);
         this.workableHandler.setInputBus(this::getInputBus);
         this.workableHandler.setMaxVoltage(() -> this.maxVoltage);
+        this.workableHandler.setTier(() -> this.tier);
         this.workableHandler.setParallel(() -> parallel);
     }
 
@@ -161,14 +163,14 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
         super.formStructure(context);
         int fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
         int sensor = context.getOrDefault("Sensor", SensorCasing.CasingType.SENSOR_LV).getTier();
-        int min = Math.min(fieldGen, sensor);
+        this.tier = Math.min(fieldGen, sensor);
         this.itemInputs = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
         this.itemOutputs = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
         this.fluidInputs = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
         this.energyInput = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
-        this.parallel = TJConfig.largeEnchanter.stack * min;
+        this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
+        this.parallel = TJConfig.largeEnchanter.stack * this.tier;
     }
 
     @Override

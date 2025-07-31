@@ -30,6 +30,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected Supplier<IEnergyContainer> importEnergy;
     protected IntFunction<I> inputBus;
     protected LongSupplier maxVoltage;
+    protected IntSupplier tier;
     protected IntSupplier parallel;
     private BooleanConsumer activeConsumer;
     protected boolean isWorking = true;
@@ -103,6 +104,13 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
      */
     public void setMaxVoltage(LongSupplier maxVoltage) {
         this.maxVoltage = maxVoltage;
+    }
+
+    /**
+     * @param tier tier int supplier
+     */
+    public void setTier(IntSupplier tier) {
+        this.tier = tier;
     }
 
     /**

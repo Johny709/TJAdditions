@@ -46,6 +46,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
         this.workableHandler.setImportFluids(this::getImportFluids);
         this.workableHandler.setImportEnergy(() -> this.energyContainer);
         this.workableHandler.setMaxVoltage(this::getMaxVoltage);
+        this.workableHandler.setTier(this::getTier);
         this.workableHandler.setParallel(() -> 1);
         this.initializeInventory();
     }

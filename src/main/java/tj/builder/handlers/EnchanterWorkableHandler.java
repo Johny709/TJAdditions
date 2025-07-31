@@ -106,7 +106,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
     }
 
     private int applyEnchantments(ItemStack catalyst, ItemStack stack, boolean simulate) {
-        int applied = 0;
+        int applied = 0, parallelsUsed = 0;
         NBTTagList catalystEnchants = this.getEnchantments(catalyst.getTagCompound()), newCatalystEnchants = new NBTTagList();
         NBTTagList stackEnchants = this.getEnchantments(stack.getTagCompound()), newStackEnchants = new NBTTagList();
         for (int i = 0; i < catalystEnchants.tagCount(); i++) {
@@ -114,7 +114,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
             boolean hasApplied = false;
             short catalystEnchant = catalystCompound.getShort("id");
             short catalystLevel = catalystCompound.getShort("lvl");
-            for (int j = 0; j < stackEnchants.tagCount(); j++) {
+            for (int j = 0; j < stackEnchants.tagCount() && parallelsUsed < this.parallel.getAsInt(); j++) {
                 NBTTagCompound stackCompound = stackEnchants.getCompoundTagAt(i);
                 short stackEnchant = stackCompound.getShort("id");
                 short stackLevel = stackCompound.getShort("lvl");
@@ -122,8 +122,11 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
                     stackLevel = catalystLevel == stackLevel ? (short) (catalystLevel + 1)
                             : catalystLevel > stackLevel ? catalystLevel
                             : stackLevel;
+                    if (stackLevel > this.tier.getAsInt())
+                        continue;
                     hasApplied = true;
                     applied += stackLevel;
+                    parallelsUsed++;
                 }
                 NBTTagCompound newStackCompound = new NBTTagCompound();
                 newStackCompound.setShort("id", stackEnchant);
@@ -134,9 +137,10 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
                 NBTTagCompound newCatalystCompound = new NBTTagCompound();
                 newCatalystCompound.setShort("id", catalystEnchant);
                 newCatalystCompound.setShort("lvl", catalystLevel);
-                if (newStackEnchants.tagCount() == 0) {
+                if (parallelsUsed < this.parallel.getAsInt()) {
                     newStackEnchants.appendTag(newCatalystCompound);
                     applied += catalystLevel;
+                    parallelsUsed++;
                 } else newCatalystEnchants.appendTag(newCatalystCompound);
             }
         }
