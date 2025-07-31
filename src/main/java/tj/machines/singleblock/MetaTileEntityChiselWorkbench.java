@@ -30,17 +30,17 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntity {
 
-    private final ChiselWorkbenchWorkableHandler chiselWorkableHandler = new ChiselWorkbenchWorkableHandler(this);
+    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
 
     public MetaTileEntityChiselWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.initializeInventory();
-        this.chiselWorkableHandler.initialize(1);
-        this.chiselWorkableHandler.setImportItems(() -> this.importItems);
-        this.chiselWorkableHandler.setExportItems(() -> this.exportItems);
-        this.chiselWorkableHandler.setImportEnergy(() -> this.energyContainer);
-        this.chiselWorkableHandler.setMaxVoltage(this::getMaxVoltage);
-        this.chiselWorkableHandler.setParallel(() -> 1);
+        this.workableHandler.initialize(1);
+        this.workableHandler.setImportItems(() -> this.importItems);
+        this.workableHandler.setExportItems(() -> this.exportItems);
+        this.workableHandler.setImportEnergy(() -> this.energyContainer);
+        this.workableHandler.setMaxVoltage(this::getMaxVoltage);
+        this.workableHandler.setParallel(() -> 1);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
     public void update() {
         super.update();
         if (!this.getWorld().isRemote)
-            this.chiselWorkableHandler.update();
+            this.workableHandler.update();
     }
 
     @Override
@@ -75,7 +75,7 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
-                .widget(new ProgressWidget(this.chiselWorkableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 16, 22, true, true)
                         .setBackgroundTexture(SLOT, INT_CIRCUIT_OVERLAY))
                 .widget(new SlotWidget(this.importItems, 1, 34, 22, true, true)
@@ -87,13 +87,13 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.chiselWorkableHandler::isWorkingEnabled, this.chiselWorkableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
-                        .setPredicate(this.chiselWorkableHandler::hasNotEnoughEnergy))
+                        .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
                 .build(this.getHolder(), player);
     }
@@ -102,7 +102,7 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.chiselWorkableHandler.isActive(), this.chiselWorkableHandler.hasProblem(), this.chiselWorkableHandler.isWorkingEnabled());
+        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         TJTextures.CHISEL.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);

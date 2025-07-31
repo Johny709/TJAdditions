@@ -31,17 +31,17 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEntity {
 
-    private final ArchitectWorkbenchWorkableHandler workbenchWorkableHandler = new ArchitectWorkbenchWorkableHandler(this);
+    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this);
 
     public MetaTileEntityArchitectWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.initializeInventory();
-        this.workbenchWorkableHandler.initialize(1);
-        this.workbenchWorkableHandler.setImportItems(this::getImportItems);
-        this.workbenchWorkableHandler.setExportItems(this::getExportItems);
-        this.workbenchWorkableHandler.setImportEnergy(() -> this.energyContainer);
-        this.workbenchWorkableHandler.setMaxVoltage(this::getMaxVoltage);
-        this.workbenchWorkableHandler.setParallel(() -> 1);
+        this.workableHandler.initialize(1);
+        this.workableHandler.setImportItems(this::getImportItems);
+        this.workableHandler.setExportItems(this::getExportItems);
+        this.workableHandler.setImportEnergy(() -> this.energyContainer);
+        this.workableHandler.setMaxVoltage(this::getMaxVoltage);
+        this.workableHandler.setParallel(() -> 1);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
     public void update() {
         super.update();
         if (!this.getWorld().isRemote) {
-            this.workbenchWorkableHandler.update();
+            this.workableHandler.update();
         }
     }
 
@@ -77,7 +77,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
-                .widget(new ProgressWidget(this.workbenchWorkableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)
@@ -87,13 +87,13 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workbenchWorkableHandler::isWorkingEnabled, this.workbenchWorkableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
-                        .setPredicate(this.workbenchWorkableHandler::hasNotEnoughEnergy))
+                        .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
                 .build(this.getHolder(), player);
     }
@@ -102,7 +102,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workbenchWorkableHandler.isActive(), this.workbenchWorkableHandler.hasProblem(), this.workbenchWorkableHandler.isWorkingEnabled());
+        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         TJTextures.CHISEL_ARCHITECTURE.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.HAMMER.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.SAW_BLADE.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);

@@ -52,7 +52,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final ChiselWorkbenchWorkableHandler chiselWorkableHandler = new ChiselWorkbenchWorkableHandler(this);
+    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
     private IItemHandlerModifiable itemInputs;
     private IItemHandlerModifiable itemOutputs;
     private IEnergyContainer energyInput;
@@ -61,12 +61,12 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
 
     public MetaTileEntityLargeChiselWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.chiselWorkableHandler.setImportItems(() -> this.itemInputs);
-        this.chiselWorkableHandler.setExportItems(() -> this.itemOutputs);
-        this.chiselWorkableHandler.setImportEnergy(() -> this.energyInput);
-        this.chiselWorkableHandler.setInputBus(this::getInputBus);
-        this.chiselWorkableHandler.setMaxVoltage(() -> this.maxVoltage);
-        this.chiselWorkableHandler.setParallel(() -> this.parallel);
+        this.workableHandler.setImportItems(() -> this.itemInputs);
+        this.workableHandler.setExportItems(() -> this.itemOutputs);
+        this.workableHandler.setImportEnergy(() -> this.energyInput);
+        this.workableHandler.setInputBus(this::getInputBus);
+        this.workableHandler.setMaxVoltage(() -> this.maxVoltage);
+        this.workableHandler.setParallel(() -> this.parallel);
     }
 
     @Override
@@ -89,19 +89,19 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyInput)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.chiselWorkableHandler.hasNotEnoughEnergy(), this.chiselWorkableHandler.getEUt())
+                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEUt())
                     .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
-                            .appendSibling(this.chiselWorkableHandler.isDistinct()
+                            .appendSibling(this.workableHandler.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorking(this.chiselWorkableHandler.isWorkingEnabled(), this.chiselWorkableHandler.isActive(), this.chiselWorkableHandler.getProgress(), this.chiselWorkableHandler.getMaxProgress());
+                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        this.chiselWorkableHandler.setDistinct(!componentData.equals("distinctEnabled"));
+        this.workableHandler.setDistinct(!componentData.equals("distinctEnabled"));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     @Override
     protected void updateFormedValid() {
         if (this.getNumProblems() < 6)
-            this.chiselWorkableHandler.update();
+            this.workableHandler.update();
     }
 
     @Override
@@ -146,7 +146,7 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
         this.itemInputs = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
         this.itemOutputs = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
         this.energyInput = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
-        this.chiselWorkableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
+        this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.maxVoltage = (long) (Math.pow(4, min) * 8);
         this.parallel = TJConfig.largeChiselWorkbench.stack * min;
     }
@@ -160,19 +160,19 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.chiselWorkableHandler.isActive(), this.chiselWorkableHandler.hasProblem(), this.chiselWorkableHandler.isWorkingEnabled());
+        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
     }
 
     @Override
     public void setWorkingEnabled(boolean isWorking) {
-        this.chiselWorkableHandler.setWorkingEnabled(isWorking);
+        this.workableHandler.setWorkingEnabled(isWorking);
     }
 
     @Override
     public boolean isWorkingEnabled() {
-        return this.chiselWorkableHandler.isWorkingEnabled();
+        return this.workableHandler.isWorkingEnabled();
     }
 
     private IItemHandlerModifiable getInputBus(int index) {

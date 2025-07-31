@@ -95,6 +95,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityVoidMOreMiner VOID_MORE_MINER;
     public static MetaTileEntityTeleporter TELEPORTER;
     public static MetaTileEntityLargeChiselWorkbench LARGE_CHISEL_WORKBENCH;
+    public static MetaTileEntityLargeEnchanter LARGE_ENCHANTER;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -193,10 +194,10 @@ public class TJMetaTileEntities {
         PARALLEL_CRYOGENIC_FREEZER = GregTechAPI.registerMetaTileEntity(5108, new MetaTileEntityParallelCryogenicFreezer(TJId("parallel_cryogenic_freezer")));
         PARALLEL_VOLCANUS = GregTechAPI.registerMetaTileEntity(5109, new MetaTileEntityParallelVolcanus(TJId("parallel_volcanus")));
 
-
         VOID_MORE_MINER = GregTechAPI.registerMetaTileEntity(5127, new MetaTileEntityVoidMOreMiner(TJId("void_more_miner")));
         TELEPORTER = GregTechAPI.registerMetaTileEntity(5128, new MetaTileEntityTeleporter(TJId("teleporter")));
         LARGE_CHISEL_WORKBENCH = GregTechAPI.registerMetaTileEntity(5129, new MetaTileEntityLargeChiselWorkbench(TJId("large_chisel_workbench")));
+        LARGE_ENCHANTER = GregTechAPI.registerMetaTileEntity(5130, new MetaTileEntityLargeEnchanter(TJId("large_enchanter")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
