@@ -4,8 +4,9 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
-import gregicadditions.item.components.ConveyorCasing;
-import gregicadditions.item.components.RobotArmCasing;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.item.components.FieldGenCasing;
+import gregicadditions.item.components.SensorCasing;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
@@ -41,6 +42,7 @@ import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -85,6 +87,16 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeEnchanter.stack));
         tooltip.add(I18n.format("tj.multiblock.large_enchanter.description"));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        return maintenanceCount == 1 &&
+                abilities.containsKey(IMPORT_ITEMS) &&
+                abilities.containsKey(EXPORT_ITEMS) &&
+                abilities.containsKey(IMPORT_FLUIDS) &&
+                abilities.containsKey(INPUT_ENERGY);
     }
 
     @Override
@@ -147,8 +159,8 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int fieldGen = context.getOrDefault("FieldGen", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        int sensor = context.getOrDefault("Sensor", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        int fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
+        int sensor = context.getOrDefault("Sensor", SensorCasing.CasingType.SENSOR_LV).getTier();
         int min = Math.min(fieldGen, sensor);
         this.itemInputs = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
         this.itemOutputs = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));

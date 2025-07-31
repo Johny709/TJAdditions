@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.ConveyorCasing;
@@ -40,7 +41,9 @@ import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.conveyorPredicate;
@@ -80,6 +83,15 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeChiselWorkbench.stack));
         tooltip.add(I18n.format("tj.multiblock.large_chisel_workbench.description"));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        return maintenanceCount == 1 &&
+                abilities.containsKey(IMPORT_ITEMS) &&
+                abilities.containsKey(EXPORT_ITEMS) &&
+                abilities.containsKey(INPUT_ENERGY);
     }
 
     @Override
