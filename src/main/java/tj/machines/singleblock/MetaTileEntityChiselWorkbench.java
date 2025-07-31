@@ -13,6 +13,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.ChiselWorkbenchWorkableHandler;
@@ -97,9 +99,11 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.chiselWorkableHandler.isActive(), this.chiselWorkableHandler.hasProblem(), this.chiselWorkableHandler.isWorkingEnabled());
+        TJTextures.CHISEL.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
     }
