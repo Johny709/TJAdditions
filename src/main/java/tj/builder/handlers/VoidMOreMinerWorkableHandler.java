@@ -50,7 +50,6 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
         int multiplier3 = startTier > 2 ? (int) Math.pow(2.8, startTier - 2) : 1;
         this.maxTemperature = multiplier * ((long) multiplier2 * multiplier3);
         this.maxProgress = 20;
-        this.energyPerTick = this.maxVoltage.getAsLong();
     }
 
     @Override
@@ -112,6 +111,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
                         .collect(Collectors.toCollection(ArrayList::new)));
             }
         } else return false;
+        this.energyPerTick = this.maxVoltage.getAsLong();
         this.wasActiveAndNeedsUpdate = false;
         this.progress = 1;
         if (!this.isActive)

@@ -46,7 +46,6 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
 
         World world = this.metaTileEntity.getWorld();
         BlockPos pos = this.metaTileEntity.getPos();
-        this.energyPerTick = this.maxVoltage.getAsLong();
         this.veinFluid = PumpjackHandler.getFluid(world, world.getChunk(this.metaTileEntity.getPos()).x, world.getChunk(pos).z);
         this.maxProgress = 20;
 
@@ -76,6 +75,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
             int outputAmount = this.exportFluids.get().fill(UsedDrillingMud.getFluid(this.drillingMudAmount), true);
             this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
             this.fluidOutputsList.addAll(Arrays.asList(this.veinFluidStack));
+            this.energyPerTick = this.maxVoltage.getAsLong();
             this.wasActiveAndNeedsUpdate = false;
             this.progress = 1;
             if (!this.isActive)

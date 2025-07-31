@@ -133,6 +133,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
+                this.energyPerTick = 0;
                 if (this.hasProblem)
                     this.setProblem(false);
             } else {
