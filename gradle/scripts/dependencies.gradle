@@ -68,14 +68,14 @@ dependencies {
     // implementation ('com.google.code.gson:gson:2.8.6') {
     //     transitive = false
     // }
-    implementation 'curse.maven:had-enough-items-557549:5906628'
-    implementation 'curse.maven:crafttweaker-239197:5486112'
-    implementation 'curse.maven:codechickenlib-242818:2779848'
-    implementation 'curse.maven:CTM-267602:2915363'
-    implementation 'curse.maven:forestry-59751:6104316'
-    implementation 'curse.maven:theoneprobe-245211:2667280'
-    implementation 'curse.maven:ae2-extended-life-570458:5411078'
-    api 'curse.maven:chisel-235279:2915375'
-    implementation name: 'gregicality_tj_fork-0.26.1'
-    implementation name: 'gregtech_tj_fork-1.18.1'
+    implementation("curse.maven:had-enough-items-557549:5906628")
+    implementation("curse.maven:crafttweaker-239197:5486112")
+    implementation("curse.maven:codechickenlib-242818:2779848")
+    implementation("curse.maven:CTM-267602:2915363")
+    implementation("curse.maven:forestry-59751:6104316")
+    implementation("curse.maven:theoneprobe-245211:2667280")
+    implementation("curse.maven:ae2-extended-life-570458:5411078")
+    api("curse.maven:chisel-235279:2915375")
+    implementation(rfg.deobf(project.files("libs/gregtech_tj_fork-1.18.1-dev.jar")))
+    implementation(rfg.deobf(project.files("libs/gregicality_tj_fork-0.26.1-dev.jar")))
 }
