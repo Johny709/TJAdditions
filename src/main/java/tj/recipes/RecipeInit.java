@@ -129,6 +129,16 @@ public class RecipeInit {
                     'G', GACraftingComponents.GEAR.getIngredient(tier));
         }
 
+        for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
+            ModHandler.addShapedRecipe("enchanter_" + GAValues.VN[tier].toLowerCase(), ENCHANTER[i].getStackForm(), "CEC", "PSP", "DWD",
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
+                    'E', new ItemStack(Blocks.ENCHANTING_TABLE),
+                    'S', tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm(),
+                    'P', GACraftingComponents.PUMP.getIngredient(tier),
+                    'D', new UnificationEntry(OrePrefix.block, Diamond),
+                    'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier));
+        }
+
         ModHandler.addShapedRecipe("elite_large_miner", ELITE_LARGE_MINER.getStackForm(), "GCG", "THT", "SCS",
                 'G', new UnificationEntry(OrePrefix.gear, Duranium),
                 'C', CraftingComponent.CIRCUIT.getIngredient(7),
