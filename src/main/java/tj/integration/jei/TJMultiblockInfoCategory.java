@@ -112,8 +112,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("large_battery_charger", new MultiblockInfoRecipeWrapper(new LargeBatteryChargerInfo()))
                             .put("void_more_miner", new MultiblockInfoRecipeWrapper(new VoidMOreMinerInfo()))
                             .put("teleporter", new MultiblockInfoRecipeWrapper(new TeleporterInfo()))
-                            .put("large_chisel_workbench", new MultiblockInfoRecipeWrapper(new LargeChiselWorkbenchInfo()))
-                            .put("large_enchanter", new MultiblockInfoRecipeWrapper(new LargeEnchanterInfo()));
+                            .put("large_chisel_workbench", new MultiblockInfoRecipeWrapper(new LargeChiselWorkbenchInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;
