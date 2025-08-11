@@ -142,9 +142,13 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
         @Override
         protected void copyChancedItemOutputs(RecipeBuilder<?> newRecipe, Recipe oldRecipe, int multiplier) {
             for (Recipe.ChanceEntry s : oldRecipe.getChancedOutputs()) {
-                int chance = Math.min(10000, s.getChance() * (getRecipeMapIndex() == 0 ? chancePercentage : TJConfig.largeGreenhouse.chancePercentageTree) / 100);
-                int boost = s.getBoostPerTier() * (getRecipeMapIndex() == 0 ? chancePercentage : TJConfig.largeGreenhouse.chancePercentageTree) / 100;
-                IntStream.range(0, multiplier).forEach(value -> {
+                int chance = Math.min(10000, s.getChance() * this.getChancePercentage() / 100);
+                int boost = s.getBoostPerTier() * this.getChancePercentage() / 100;
+                if (chance == 10000) {
+                    ItemStack itemStack = s.getItemStack().copy();
+                    itemStack.setCount(multiplier);
+                    newRecipe.outputs(itemStack);
+                } else IntStream.range(0, multiplier).forEach(value -> {
                     ItemStack itemStack = s.getItemStack().copy();
                     newRecipe.chancedOutput(itemStack, chance, boost);
                 });
@@ -152,8 +156,28 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
         }
 
         @Override
+        public int getEUtPercentage() {
+            return getRecipeMapIndex() == 0 ? super.getEUtPercentage() : TJConfig.largeGreenhouse.eutPercentage;
+        }
+
+        @Override
+        public int getDurationPercentage() {
+            return getRecipeMapIndex() == 0 ? super.getDurationPercentage() : TJConfig.largeGreenhouse.durationPercentage;
+        }
+
+        @Override
+        public int getChancePercentage() {
+            return getRecipeMapIndex() == 0 ? super.getChancePercentage() : TJConfig.largeGreenhouse.chancePercentage;
+        }
+
+        @Override
+        public int getStack() {
+            return getRecipeMapIndex() == 0 ? super.getStack() : TJConfig.largeGreenhouse.stackTree;
+        }
+
+        @Override
         protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
-            int maxItemsLimit = (getRecipeMapIndex() == 0 ? this.getStack() : TJConfig.largeGreenhouse.stackTree);
+            int maxItemsLimit = this.getStack();
             int EUt;
             int duration;
             int currentTier = getOverclockingTier(maxVoltage);
@@ -202,7 +226,7 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
                 // Get the currently selected RecipeMap
 
                 RecipeBuilder<?> newRecipe = recipeMaps[getRecipeMapIndex()].recipeBuilder();
-                copyChancedItemOutputs(newRecipe, matchingRecipe, attemptItemsLimit);
+                this.copyChancedItemOutputs(newRecipe, matchingRecipe, attemptItemsLimit);
 
                 // determine if there is enough room in the output to fit all of this
                 // if there isn't, we can't process this recipe.
@@ -217,8 +241,8 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
                         .fluidInputs(newFluidInputs)
                         .outputs(outputI)
                         .fluidOutputs(outputF)
-                        .EUt(Math.max(1, EUt * (getRecipeMapIndex() == 0 ? this.getEUtPercentage() : TJConfig.largeGreenhouse.eutPercentageTree) / 100))
-                        .duration((int) Math.max(3, duration * ((getRecipeMapIndex() == 0 ? this.getDurationPercentage() : TJConfig.largeGreenhouse.durationPercentageTree) / 100.0)));
+                        .EUt(Math.max(1, EUt * this.getEUtPercentage() / 100))
+                        .duration((int) Math.max(3, duration * (this.getDurationPercentage() / 100.0)));
 
                 return newRecipe.build().getResult();
             }
