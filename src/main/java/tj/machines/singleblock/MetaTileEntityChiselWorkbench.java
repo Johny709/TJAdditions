@@ -49,13 +49,6 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_in", this.energyContainer.getInputVoltage(), GAValues.VN[this.getTier()]));
-        tooltip.add(I18n.format("gregtech.universal.tooltip.energy_storage_capacity", this.energyContainer.getEnergyCapacity()));
-    }
-
-    @Override
     public void update() {
         super.update();
         if (!this.getWorld().isRemote)

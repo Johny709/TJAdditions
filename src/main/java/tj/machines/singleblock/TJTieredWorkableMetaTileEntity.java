@@ -10,6 +10,7 @@ import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.metatileentity.MTETrait;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,8 +19,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
 import tj.util.EnumFacingHelper;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Serves as a basis to implement your own recipe or workable handler for single blocks.
@@ -40,6 +48,15 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
                 return 1;
             }
         };
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        String color = TJValues.VCC[this.getTier()];
+        tooltip.add(I18n.format("machine.universal.tooltip.voltage_in", this.energyContainer.getInputVoltage(), color, GAValues.VN[this.getTier()]));
+        tooltip.add(I18n.format("gregtech.universal.tooltip.energy_storage_capacity", this.energyContainer.getEnergyCapacity()));
     }
 
     @Override
