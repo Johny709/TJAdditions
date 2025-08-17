@@ -293,6 +293,8 @@ tj.multiblock.teleporter.queue=Queued §6%s§r for teleportation
 tj.multiblock.teleporter.success=Teleport Successful
 tj.multiblock.teleporter.fail=Teleport Failed
 
+tj.multiblock.large_enchanter.level.max=Max Enchanter Level %d
+
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven
 recipemap.heat_exchanger.tj.name=Heat Exchanger

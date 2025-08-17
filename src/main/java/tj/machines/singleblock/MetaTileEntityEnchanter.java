@@ -57,6 +57,12 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     }
 
     @Override
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("tj.multiblock.large_enchanter.level.max", this.getTier()));
+    }
+
+    @Override
     public void update() {
         super.update();
         if (!this.getWorld().isRemote)
