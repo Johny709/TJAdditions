@@ -5,8 +5,9 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.item.components.FieldGenCasing;
+import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.SensorCasing;
+import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
@@ -23,6 +24,7 @@ import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
@@ -47,11 +49,11 @@ import java.util.List;
 import java.util.Map;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
-import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.fieldGenPredicate;
-import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.sensorPredicate;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.unification.material.Materials.BlackSteel;
 
 
 public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
@@ -137,17 +139,23 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start(RIGHT, FRONT, DOWN)
-                .aisle("~DDD~", "DXXXD", "DXXXD", "DXXXD", "~DDD~")
-                .aisle("DBBBD", "B###B", "B#s#B", "B###B", "DBBBD")
-                .aisle("DBSBD", "B#s#B", "BsFsB", "B#s#B", "DBBBD")
-                .aisle("DBBBD", "B###B", "B#s#B", "B###B", "DBBBD")
-                .aisle("~DDD~", "DXXXD", "DXXXD", "DXXXD", "~DDD~")
+                .aisle("~~~~~~~", "~~~~~~~", "~~~C~~~", "~~CCC~~", "~~~C~~~", "~~~~~~~", "~~~~~~~")
+                .aisle("~~~~~~~", "~~~~~~~", "~~CCC~~", "~~CEC~~", "~~CCC~~", "~~~~~~~", "~~~~~~~")
+                .aisle("~~~~~~~", "~C~~~C~", "~~CGC~~", "~~G#G~~", "~~CGC~~", "~C~~~C~", "~~~~~~~")
+                .aisle("~~~~~~~", "~CFFFC~", "~FCCCF~", "~FCCCF~", "~FCCCF~", "~CFFFC~", "~~~~~~~")
+                .aisle("~~~~~~~", "~CXGXC~", "~X###X~", "~G###G~", "~X###X~", "~CXGXC~", "~~~~~~~")
+                .aisle("~~~~~~~", "~CGGGC~", "~GBBBG~", "~GB#BG~", "~GBBBG~", "~CGGGC~", "~~~~~~~")
+                .aisle("~~~~~~~", "~CGGGC~", "~GBBBG~", "~GB#BG~", "~GBBBG~", "~CGGGC~", "~~~~~~~")
+                .aisle("~~~~~~~", "~CGGGC~", "~GBBBG~", "~GB#BG~", "~GBBBG~", "~CGGGC~", "~~~~~~~")
+                .aisle("~~~~~~~", "~XXSXX~", "~XOOOX~", "~XOOOX~", "~XOOOX~", "~XXXXX~", "~~~~~~~")
+                .aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "~XXXXX~")
                 .where('S', this.selfPredicate())
-                .where('X', blockPredicate(Blocks.OBSIDIAN).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('D', blockPredicate(Blocks.DIAMOND_BLOCK))
+                .where('C', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL)))
+                .where('X', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('E', emitterPredicate())
+                .where('O', blockPredicate(Blocks.OBSIDIAN))
                 .where('B', this::bookshelfPredicate)
-                .where('F', fieldGenPredicate())
-                .where('s', sensorPredicate())
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(BlackSteel).getDefaultState()))
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
                 .build();
@@ -161,9 +169,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
-        int sensor = context.getOrDefault("Sensor", SensorCasing.CasingType.SENSOR_LV).getTier();
-        this.tier = Math.min(fieldGen, sensor);
+        this.tier = context.getOrDefault("Emitter", SensorCasing.CasingType.SENSOR_LV).getTier();
         this.itemInputs = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
         this.itemOutputs = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
         this.fluidInputs = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
