@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
@@ -1007,6 +1008,25 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.screw, Enderium, 64)
                 .outputs(TELEPORTER.getStackForm())
                 .EUt(GAValues.VA[7])
+                .duration(600)
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(4608))
+                .fluidInputs(FluidRegistry.getFluidStack("xpjuice", 61440))
+                .fluidInputs(Lubricant.getFluid(16000))
+                .inputs(HULL[8].getStackForm())
+                .input(OrePrefix.plate, Diamond, 50)
+                .input(OrePrefix.plate, Lapis, 60)
+                .input(OrePrefix.circuit, Infinite, 10)
+                .input(OrePrefix.screw, Tritanium, 64)
+                .input(OrePrefix.gear, Dubnium, 10)
+                .input(OrePrefix.cableGtSingle, NaquadahAlloy, 16)
+                .inputs(ELECTRIC_PUMP_UV.getStackForm(8))
+                .inputs(ELECTRIC_MOTOR_UV.getStackForm(4))
+                .inputs(EMITTER_UV.getStackForm(4))
+                .outputs(LARGE_ENCHANTER.getStackForm())
+                .EUt(GAValues.VA[8])
                 .duration(600)
                 .buildAndRegister();
     }
