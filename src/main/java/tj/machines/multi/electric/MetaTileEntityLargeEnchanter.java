@@ -5,8 +5,9 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.components.SensorCasing;
+import gregicadditions.item.components.EmitterCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -54,6 +55,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.BlackSteel;
+import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
 
 public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
@@ -152,6 +154,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL)))
                 .where('X', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('G', glassPredicate())
                 .where('E', emitterPredicate())
                 .where('O', blockPredicate(Blocks.OBSIDIAN))
                 .where('B', this::bookshelfPredicate)
@@ -169,7 +172,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Emitter", SensorCasing.CasingType.SENSOR_LV).getTier();
+        this.tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
         this.itemInputs = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
         this.itemOutputs = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
         this.fluidInputs = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
@@ -182,7 +185,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     @Override
     @SideOnly(Side.CLIENT)
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return TJTextures.OBSIDIAN;
+        return ClientHandler.BLACK_STEEL_CASING;
     }
 
     @Override

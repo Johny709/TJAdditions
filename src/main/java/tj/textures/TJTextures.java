@@ -41,7 +41,6 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer HEAVY_QUARK_DEGENERATE_MATTER = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/heavy_quark_degenerate_matter");
     public static final TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/pipe/machine_casing_pipe_stainless");
     public static final TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/tungsten_titanium_carbide");
-    public static final TJSimpleCubeRenderer OBSIDIAN = new TJSimpleCubeRenderer("minecraft", "blocks/obsidian");
 
     public static final TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/creative_fluid_cover_overlay");
     public static final TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/creative_energy_cover_overlay");
