@@ -245,7 +245,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new TJCycleButtonWidget(172, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR)
+        widgetGroup.apply(new TJCycleButtonWidget(172, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                 .setTooltipFormat(this::getTooltipFormat)
                 .setToggle(true)
                 .setButtonTexture(TOGGLE_BUTTON_BACK)

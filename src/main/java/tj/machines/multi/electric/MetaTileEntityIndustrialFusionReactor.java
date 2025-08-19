@@ -284,7 +284,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        return widgetGroup.apply(new TJCycleButtonWidget(172, 151, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR)
+        return widgetGroup.apply(new TJCycleButtonWidget(172, 151, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                 .setTooltipFormat(this::getTooltipFormat)
                 .setToggle(true)
                 .setButtonTexture(TOGGLE_BUTTON_BACK)
