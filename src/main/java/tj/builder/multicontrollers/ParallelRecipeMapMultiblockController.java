@@ -54,6 +54,8 @@ import tj.capability.impl.ParallelMultiblockRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJWidgetGroup;
 import tj.gui.widgets.JEIRecipeTransferWidget;
+import tj.gui.widgets.TJCycleButtonWidget;
+import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
 
@@ -66,6 +68,7 @@ import java.util.function.Function;
 import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
+import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
@@ -82,6 +85,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected boolean advancedText;
     protected boolean isDistinctBus;
     protected int recipeMapIndex;
+    protected BatchMode batchMode = BatchMode.ONE;
     protected static final DecimalFormat formatter = new DecimalFormat("#0.00");
 
     protected IItemHandlerModifiable inputInventory;
@@ -135,6 +139,20 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     public int getEUBonus() {
         return this.energyBonus;
+    }
+
+    @Override
+    public BatchMode getBatchMode() {
+        return this.batchMode;
+    }
+
+    private void setBatchMode(BatchMode batchMode) {
+        this.batchMode = batchMode;
+        this.markDirty();
+    }
+
+    private String[] getTooltipFormat() {
+        return ArrayUtils.toArray(String.valueOf(this.batchMode.getAmount()));
     }
 
     @Override
@@ -227,8 +245,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
-                .setTooltipText("tj.multiblock.parallel.recipe.clear"));
+        widgetGroup.apply(new TJCycleButtonWidget(172, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR)
+                .setTooltipFormat(this::getTooltipFormat)
+                .setToggle(true)
+                .setButtonTexture(TOGGLE_BUTTON_BACK)
+                .setTooltipHoverString("machine.universal.batch.amount"));
         widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeMapWorkable::isVoidingItems, this.recipeMapWorkable::setVoidItems)
                 .setTooltipText("machine.universal.toggle.item_voiding"));
         widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
@@ -269,8 +290,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         if (this.isStructureFormed()) {
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
-                    .energyInput(this.energyContainer.getEnergyStored() >= totalEnergyConsumption, totalEnergyConsumption)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .energyInput(this.energyContainer.getEnergyStored() >= totalEnergyConsumption, totalEnergyConsumption)
                     .energyBonus(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
                     .recipeMap(this.getMultiblockRecipe());
         }
@@ -619,6 +640,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         NBTTagCompound tagCompound = super.writeToNBT(data);
         tagCompound.setInteger("RecipeMapIndex", this.recipeMapIndex);
         tagCompound.setInteger("Parallel", this.parallelLayer);
+        tagCompound.setInteger("BatchMode", this.batchMode.ordinal());
         tagCompound.setBoolean("DistinctBus", this.isDistinctBus);
         tagCompound.setBoolean("UseOptimizedRecipeLookUp", this.recipeMapWorkable.getUseOptimizedRecipeLookUp());
         return tagCompound;
@@ -628,6 +650,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public void readFromNBT(NBTTagCompound data) {
         this.recipeMapIndex = data.getInteger("RecipeMapIndex");
         this.isDistinctBus = data.getBoolean("DistinctBus");
+        this.batchMode = BatchMode.values()[data.getInteger("BatchMode")];
         if (data.hasKey("Parallel")) {
             this.parallelLayer = data.getInteger("Parallel");
             this.structurePattern = this.createStructurePattern();

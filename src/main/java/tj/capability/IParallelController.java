@@ -1,6 +1,7 @@
 package tj.capability;
 
 import gregtech.api.recipes.RecipeMap;
+import tj.machines.multi.BatchMode;
 
 public interface IParallelController {
 
@@ -22,6 +23,10 @@ public interface IParallelController {
 
     default long getTotalEnergyConsumption() {
         return 0;
+    }
+
+    default BatchMode getBatchMode() {
+        return BatchMode.ONE;
     }
 
     long getVoltageTier();

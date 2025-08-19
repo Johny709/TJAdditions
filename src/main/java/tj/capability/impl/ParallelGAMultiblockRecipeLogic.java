@@ -172,7 +172,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     }
 
     protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe, int j) {
-        int maxItemsLimit = this.stack.getAsInt();
+        int maxItemsLimit = this.stack.getAsInt() * this.controller.getBatchMode().getAmount();
         int EUt = matchingRecipe.getEUt();
         int currentTier = this.getOverclockingTier(maxVoltage);
         int tierNeeded;
@@ -205,7 +205,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
         int tierDiff = currentTier - tierNeeded;
         for (int i = 0; i < tierDiff; i++) {
-            int attemptItemsLimit = this.stack.getAsInt();
+            int attemptItemsLimit = this.stack.getAsInt() * this.controller.getBatchMode().getAmount();
             attemptItemsLimit *= tierDiff - i;
             attemptItemsLimit = Math.max(1, attemptItemsLimit);
             attemptItemsLimit = Math.min(minMultiplier, attemptItemsLimit);
@@ -235,7 +235,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 .outputs(outputs)
                 .fluidOutputs(fluidOutputs)
                 .EUt(Math.max(1, recipe.getEUt() * this.EUtPercentage.getAsInt() / 100))
-                .duration(Math.max(1, recipe.getDuration() * this.durationPercentage.getAsInt() / 100))
+                .duration(Math.max(1, recipe.getDuration() * this.controller.getBatchMode().getAmount() * this.durationPercentage.getAsInt() / 100))
                 .build()
                 .getResult();
     }

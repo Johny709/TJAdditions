@@ -43,7 +43,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
@@ -61,6 +60,7 @@ import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 import tj.gui.widgets.TJCycleButtonWidget;
+import tj.machines.multi.BatchMode;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nonnull;
@@ -526,30 +526,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 recipeEnergy *= 2;
             }
             return OCMultiplier;
-        }
-    }
-
-    public enum BatchMode implements IStringSerializable {
-        ONE("batch_one", 1),
-        FOUR("batch_four", 4),
-        SIXTEEN("batch_sixteen", 16),
-        SIXTY_FOUR("batch_sixty_four", 64);
-
-        BatchMode(String name, int amount) {
-            this.name = name;
-            this.amount = amount;
-        }
-
-        private final String name;
-        private final int amount;
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        public int getAmount() {
-            return amount;
         }
     }
 }
