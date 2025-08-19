@@ -63,8 +63,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
         }
 
         boolean canMineOres = false;
-        boolean hasEnoughPyrotheum = this.hasEnoughFluid(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), this.currentDrillingFluid);
-        boolean hasEnoughCryotheum = this.hasEnoughFluid(Cryotheum.getFluid(this.getCurrentDrillingFluid()), this.currentDrillingFluid);
+        boolean hasEnoughPyrotheum = this.hasEnoughFluid(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
+        boolean hasEnoughCryotheum = this.hasEnoughFluid(Cryotheum.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
         if (hasEnoughPyrotheum && hasEnoughCryotheum) {
             this.fluidInputsList.add(this.importFluids.get().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
             this.fluidInputsList.add(this.importFluids.get().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
@@ -94,8 +94,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
         if (this.metaTileEntity instanceof IMaintenance)
             this.currentDrillingFluid += ((IMaintenance) this.metaTileEntity).getNumProblems();
 
-        boolean hasEnoughDrillingMud = this.hasEnoughFluid(DrillingMud.getFluid(this.getCurrentDrillingFluid()), this.currentDrillingFluid);
-        boolean canOutputUsedDrillingMud = this.canOutputFluid(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), this.currentDrillingFluid);
+        boolean hasEnoughDrillingMud = this.hasEnoughFluid(DrillingMud.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
+        boolean canOutputUsedDrillingMud = this.canOutputFluid(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
         if (hasEnoughDrillingMud && canOutputUsedDrillingMud) {
             this.fluidInputsList.add(this.importFluids.get().drain(DrillingMud.getFluid(this.getCurrentDrillingFluid()), true));
             int outputAmount = this.exportFluids.get().fill(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), true);

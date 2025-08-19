@@ -191,18 +191,18 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         return Math.max(1, duration);
     }
 
-    public <N extends Number> boolean hasEnoughFluid(FluidStack fluid, N amount) {
+    public boolean hasEnoughFluid(FluidStack fluid, int amount) {
         if (this.importFluids.get() instanceof IFluidHandler) {
             FluidStack fluidStack = ((IFluidHandler) this.importFluids.get()).drain(fluid, false);
-            return fluidStack != null && fluidStack.amount == amount.intValue() || amount.intValue() == 0;
+            return fluidStack != null && fluidStack.amount == amount || amount == 0;
         }
         return false;
     }
 
-    public <N extends Number> boolean canOutputFluid(FluidStack fluid, N amount) {
+    public boolean canOutputFluid(FluidStack fluid, int amount) {
         if (this.exportFluids.get() instanceof IFluidHandler) {
             int fluidStack = ((IFluidHandler) this.exportFluids.get()).fill(fluid, false);
-            return fluidStack == amount.intValue() || amount.intValue() == 0;
+            return fluidStack == amount || amount == 0;
         }
         return false;
     }
