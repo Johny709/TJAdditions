@@ -126,14 +126,15 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     }
 
     private void replaceFireboxAsActive(boolean isActive) {
-        BlockPos centerPos = this.getPos().offset(this.getFrontFacing().getOpposite()).down();
-        for (int x = -13; x <= 13; x++) {
-            for (int z = -13; z <= 13; z++) {
-                BlockPos blockPos = centerPos.add(x, -1, z);
-                IBlockState blockState = this.getWorld().getBlockState(blockPos);
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(this.getPos().offset(this.getFrontFacing().getOpposite()).down());
+        int posX = pos.getX(), posY = pos.getY(), posZ = pos.getZ();
+        for (int x = -7; x <= 7; x++) {
+            for (int z = 0; z <= 13; z++) {
+                pos.setPos(posX + x, posY - 1, posZ + z);
+                IBlockState blockState = this.getWorld().getBlockState(pos);
                 if (blockState.getBlock() instanceof BlockFireboxCasing) {
                     blockState = blockState.withProperty(BlockFireboxCasing.ACTIVE, isActive);
-                    this.getWorld().setBlockState(blockPos, blockState);
+                    this.getWorld().setBlockState(pos, blockState);
                 }
             }
         }
