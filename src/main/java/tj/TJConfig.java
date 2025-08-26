@@ -880,7 +880,7 @@ public class TJConfig {
 
         @Config.Name("Stack Size")
         @Config.RequiresMcRestart
-        public int stack = 3;
+        public int stack = 4;
 
         @Config.Name("Parallel Limit")
         @Config.Comment("Adjust the maximum number of parallel recipes the vacuum freezer can do")
@@ -906,7 +906,7 @@ public class TJConfig {
 
         @Config.Name("Stack Size")
         @Config.RequiresMcRestart
-        public int stack = 3;
+        public int stack = 4;
 
         @Config.Name("Parallel Limit")
         @Config.Comment("Adjust the maximum number of parallel recipes the vacuum freezer can do")

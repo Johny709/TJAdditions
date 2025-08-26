@@ -5,6 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
+import net.minecraft.block.state.BlockWorldState;
 import tj.builder.handlers.MegaBoilerRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
@@ -44,6 +45,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -59,6 +61,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     private final int parallel;
     private MetaTileEntityLargeBoiler.BoilerType boilerType;
     private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
+    private final List<IBlockState> states = new ArrayList<>();
     private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, () -> boilerType.fuelConsumptionMultiplier, () -> boilerType.baseSteamOutput, () -> this.boilerType.maxTemperature);
 
     private FluidTankList fluidImportInventory;
@@ -126,11 +129,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     }
 
     private void replaceFireboxAsActive(boolean isActive) {
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(this.getPos().offset(this.getFrontFacing().getOpposite()).down());
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(this.getPos().offset(this.getFrontFacing().getOpposite()).down(2));
         int posX = pos.getX(), posY = pos.getY(), posZ = pos.getZ();
         for (int x = -7; x <= 7; x++) {
             for (int z = 0; z <= 13; z++) {
-                pos.setPos(posX + x, posY - 1, posZ + z);
+                pos.setPos(posX + x, posY, posZ + z);
                 IBlockState blockState = this.getWorld().getBlockState(pos);
                 if (blockState.getBlock() instanceof BlockFireboxCasing) {
                     blockState = blockState.withProperty(BlockFireboxCasing.ACTIVE, isActive);
