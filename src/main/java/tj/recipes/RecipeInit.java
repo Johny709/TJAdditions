@@ -89,11 +89,11 @@ public class RecipeInit {
                 'S', GATileEntities.ALLOY_SMELTER[4].getMetaTileEntity().getStackForm());
 
         ModHandler.addShapedRecipe("large_greenhouse", LARGE_GREENHOUSE.getStackForm(), "PCP", "RSR", "GCG",
-                'P', new UnificationEntry(OrePrefix.plate, StainlessSteel),
-                'G', new UnificationEntry(OrePrefix.gear, StainlessSteel),
-                'C', CraftingComponent.CIRCUIT.getIngredient(5),
-                'R', CraftingComponent.PUMP.getIngredient(5),
-                'S', GATileEntities.GREEN_HOUSE[4].getMetaTileEntity().getStackForm());
+                'P', new UnificationEntry(OrePrefix.plate, RhodiumPlatedPalladium),
+                'G', new UnificationEntry(OrePrefix.gear, RhodiumPlatedPalladium),
+                'C', CraftingComponent.CIRCUIT.getIngredient(6),
+                'R', CraftingComponent.PUMP.getIngredient(6),
+                'S', GATileEntities.GREEN_HOUSE[5].getMetaTileEntity().getStackForm());
 
         ModHandler.addShapedRecipe("large_architect_workbench", LARGE_ARCHITECT_WORKBENCH.getStackForm(), "GCG", "RSB", "GCG",
                 'G', new UnificationEntry(OrePrefix.gear, Steel),
