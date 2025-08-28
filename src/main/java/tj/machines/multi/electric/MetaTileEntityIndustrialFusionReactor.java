@@ -89,6 +89,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private long heat;
     private long maxHeat;
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
+    private final List<BlockPos> activeStates = new ArrayList<>();
     private BatchMode batchMode = BatchMode.ONE;
     private Recipe recipe;
 
@@ -157,24 +158,13 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     private void replaceEnergyPortsAsActive(boolean active) {
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(this.getPos().offset(this.getFrontFacing().getOpposite(), 7));
-        int posX = pos.getX(), posY = pos.getY(), posZ = pos.getZ(), parallel = this.parallelLayer * 2;
-        for (int x = -7; x < 8; x++) {
-            int blockX = posX + x;
-            for (int y = 0; y < parallel; y++) {
-                if (y % 2 == 0) {
-                    int blockY = posY + y;
-                    for (int z = -7; z < 8; z++) {
-                        pos.setPos(blockX, blockY, posZ + z);
-                        IBlockState blockState = this.getWorld().getBlockState(pos);
-                        if (blockState.getBlock() instanceof BlockAbilityCasings) {
-                            blockState = blockState.withProperty(BlockAbilityCasings.ACTIVE, active);
-                            this.getWorld().setBlockState(pos, blockState);
-                        }
-                    }
-                }
+        this.activeStates.forEach(pos -> {
+            IBlockState state = this.getWorld().getBlockState(pos);
+            if (state.getBlock() instanceof BlockAbilityCasings) {
+                state = state.withProperty(BlockAbilityCasings.ACTIVE, active);
+                this.getWorld().setBlockState(pos, state);
             }
-        }
+        });
     }
 
     @Override
@@ -211,18 +201,20 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         };
     }
 
-    public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
+    public Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof BlockAbilityCasings)) {
-                return false;
-            } else {
-                BlockAbilityCasings abilityCasings = (BlockAbilityCasings)blockState.getBlock();
+            if (blockState.getBlock() instanceof BlockAbilityCasings) {
+                BlockAbilityCasings abilityCasings = (BlockAbilityCasings) blockState.getBlock();
                 BlockAbilityCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
                 List<BlockAbilityCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 currentCasing.add(tieredCasingType);
-                return currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier;
+                if (currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier && blockWorldState.getWorld() != null) {
+                    this.activeStates.add(blockWorldState.getPos());
+                    return true;
+                }
             }
+            return false;
         };
     }
 

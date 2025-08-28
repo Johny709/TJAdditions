@@ -5,7 +5,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
-import net.minecraft.block.state.BlockWorldState;
+import gregtech.api.multiblock.BlockWorldState;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.handlers.MegaBoilerRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
@@ -45,10 +46,10 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.textures.TJTextures;
-import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -61,7 +62,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     private final int parallel;
     private MetaTileEntityLargeBoiler.BoilerType boilerType;
     private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
-    private final List<IBlockState> states = new ArrayList<>();
+    private final List<BlockPos> activeStates = new ArrayList<>();
     private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, () -> boilerType.fuelConsumptionMultiplier, () -> boilerType.baseSteamOutput, () -> this.boilerType.maxTemperature);
 
     private FluidTankList fluidImportInventory;
@@ -129,21 +130,13 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     }
 
     private void replaceFireboxAsActive(boolean isActive) {
-        System.out.println(EnumFacingHelper.getBottomFacingFrom(this.getFrontFacing().getOpposite()));
-        BlockPos down = this.getPos().offset(EnumFacingHelper.getBottomFacingFrom(this.getFrontFacing().getOpposite()), 2);
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(down.offset(this.getFrontFacing().getOpposite(), 7));
-        int posX = pos.getX(), posY = pos.getY(), posZ = pos.getZ();
-        for (int x = -7; x < 8; x++) {
-            int blockX = posX + x;
-            for (int z = -7; z < 8; z++) {
-                pos.setPos(blockX, posY, posZ + z);
-                IBlockState blockState = this.getWorld().getBlockState(pos);
-                if (blockState.getBlock() instanceof BlockFireboxCasing) {
-                    blockState = blockState.withProperty(BlockFireboxCasing.ACTIVE, isActive);
-                    this.getWorld().setBlockState(pos, blockState);
-                }
+        this.activeStates.forEach(pos -> {
+            IBlockState state = this.getWorld().getBlockState(pos);
+            if (state.getBlock() instanceof BlockFireboxCasing) {
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
             }
-        }
+        });
     }
 
     @Override
@@ -236,10 +229,22 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
                 .setAmountAtLeast('C', 200)
                 .where('S', this.selfPredicate())
                 .where('P', statePredicate(boilerType.pipeState))
-                .where('X', state -> statePredicate(GTUtility.getAllPropertyValues(boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
+                .where('X', state -> this.fireboxStatePredicate(GTUtility.getAllPropertyValues(boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
                         .or(abilityPartPredicate(IMPORT_FLUIDS, IMPORT_ITEMS, MAINTENANCE_HATCH, EXPORT_ITEMS)).test(state))
                 .where('C', statePredicate(boilerType.casingState).or(abilityPartPredicate(OUTPUT_ABILITIES)))
                 .build();
+    }
+
+    public Predicate<BlockWorldState> fireboxStatePredicate(IBlockState... allowedStates) {
+        return (blockWorldState) -> {
+            IBlockState state = blockWorldState.getBlockState();
+            if (ArrayUtils.contains(allowedStates, state)) {
+                if (blockWorldState.getWorld() != null)
+                    this.activeStates.add(blockWorldState.getPos());
+                return true;
+            }
+            return false;
+        };
     }
 
     @Override

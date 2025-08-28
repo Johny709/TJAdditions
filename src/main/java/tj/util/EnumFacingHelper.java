@@ -30,4 +30,34 @@ public class EnumFacingHelper {
     public static EnumFacing getRightFacingFrom(EnumFacing facing) {
         return getLeftFacingFrom(facing).getOpposite();
     }
+
+    public static EnumFacing getBottomFacingFromSpin(EnumFacing facing) {
+        switch (facing) {
+            case NORTH: return EnumFacingHelper.getBottomFacingFrom(facing);
+            case SOUTH: return EnumFacingHelper.getTopFacingFrom(facing);
+            case WEST: return EnumFacingHelper.getLeftFacingFrom(facing);
+            case EAST: return EnumFacingHelper.getRightFacingFrom(facing);
+            default: return facing;
+        }
+    }
+
+    public static EnumFacing getLeftFacingFromSpin(EnumFacing facing) {
+        switch (facing) {
+            case NORTH: return EnumFacingHelper.getLeftFacingFrom(facing);
+            case SOUTH: return EnumFacingHelper.getRightFacingFrom(facing);
+            case WEST: return EnumFacingHelper.getBottomFacingFrom(facing);
+            case EAST: return EnumFacingHelper.getTopFacingFrom(facing);
+            default: return facing;
+        }
+    }
+
+    public static EnumFacing getRightFacingFromSpin(EnumFacing facing) {
+        switch (facing) {
+            case NORTH: return EnumFacingHelper.getRightFacingFrom(facing);
+            case SOUTH: return EnumFacingHelper.getLeftFacingFrom(facing);
+            case WEST: return EnumFacingHelper.getTopFacingFrom(facing);
+            case EAST: return EnumFacingHelper.getBottomFacingFrom(facing);
+            default: return facing;
+        }
+    }
 }
