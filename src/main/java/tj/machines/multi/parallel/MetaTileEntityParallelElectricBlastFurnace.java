@@ -34,12 +34,12 @@ import java.util.List;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
-import static gregicadditions.machines.multi.override.MetaTileEntityElectricBlastFurnace.heatingCoilPredicate;
-import static gregicadditions.machines.multi.override.MetaTileEntityElectricBlastFurnace.heatingCoilPredicate2;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.recipes.RecipeMaps.BLAST_RECIPES;
 import static tj.TJRecipeMaps.PARALLEL_BLAST_RECIPES;
+import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelterBase.heatingCoilPredicate;
+import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelterBase.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
