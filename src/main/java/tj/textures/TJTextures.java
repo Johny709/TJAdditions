@@ -56,10 +56,15 @@ public class TJTextures {
 
     public static final TJSimpleCubeRenderer FUSION_MK2 = new TJSimpleCubeRenderer(GTValues.MODID, "blocks/casings/fusion/machine_casing_fusion_2");
     public static final TJSimpleCubeRenderer FUSION_PORT_LUV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_luv");
+    public static final TJSimpleCubeRenderer FUSION_PORT_LUV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_luv_active");
     public static final TJSimpleCubeRenderer FUSION_PORT_ZPM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_zpm");
+    public static final TJSimpleCubeRenderer FUSION_PORT_ZPM_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_zpm_active");
     public static final TJSimpleCubeRenderer FUSION_PORT_UV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uv");
+    public static final TJSimpleCubeRenderer FUSION_PORT_UV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uv_active");
     public static final TJSimpleCubeRenderer FUSION_PORT_UHV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uhv");
+    public static final TJSimpleCubeRenderer FUSION_PORT_UHV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uhv_active");
     public static final TJSimpleCubeRenderer FUSION_PORT_UEV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uev");
+    public static final TJSimpleCubeRenderer FUSION_PORT_UEV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uev_active");
 
     public static final TJSimpleOverlayRenderer CHISEL_ARCHITECTURE = new TJSimpleOverlayRenderer("architecturecraft", "items/chisel");
     public static final TJSimpleOverlayRenderer HAMMER = new TJSimpleOverlayRenderer("architecturecraft", "items/hammer");

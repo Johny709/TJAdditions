@@ -30,6 +30,7 @@ import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipeproperties.FusionEUToStartProperty;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
@@ -44,6 +45,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -130,6 +132,20 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.structurePattern = this.createStructurePattern();
     }
 
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.replaceEnergyPortsAsActive(false);
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote && this.isStructureFormed()) {
+            this.replaceEnergyPortsAsActive(false);
+        }
+    }
+
     public int getTier() {
         return this.tier;
     }
@@ -138,6 +154,27 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     protected void reinitializeStructurePattern() {
         this.parallelLayer = 1;
         super.reinitializeStructurePattern();
+    }
+
+    private void replaceEnergyPortsAsActive(boolean active) {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(this.getPos().offset(this.getFrontFacing().getOpposite(), 7));
+        int posX = pos.getX(), posY = pos.getY(), posZ = pos.getZ(), parallel = this.parallelLayer * 2;
+        for (int x = -7; x < 8; x++) {
+            int blockX = posX + x;
+            for (int y = 0; y < parallel; y++) {
+                if (y % 2 == 0) {
+                    int blockY = posY + y;
+                    for (int z = -7; z < 8; z++) {
+                        pos.setPos(blockX, blockY, posZ + z);
+                        IBlockState blockState = this.getWorld().getBlockState(pos);
+                        if (blockState.getBlock() instanceof BlockAbilityCasings) {
+                            blockState = blockState.withProperty(BlockAbilityCasings.ACTIVE, active);
+                            this.getWorld().setBlockState(pos, blockState);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -190,13 +227,13 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public ICubeRenderer getBaseTexture(IMultiblockPart iMultiblockPart) {
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         switch (tier) {
-            case 6: return TJTextures.FUSION_PORT_LUV;
-            case 7: return TJTextures.FUSION_PORT_ZPM;
-            case 8: return TJTextures.FUSION_PORT_UV;
-            case 9: return TJTextures.FUSION_PORT_UHV;
-            default: return TJTextures.FUSION_PORT_UEV;
+            case 6: return this.recipeMapWorkable.isActive() ? TJTextures.FUSION_PORT_LUV_ACTIVE : TJTextures.FUSION_PORT_LUV;
+            case 7: return this.recipeMapWorkable.isActive() ? TJTextures.FUSION_PORT_ZPM_ACTIVE : TJTextures.FUSION_PORT_ZPM;
+            case 8: return this.recipeMapWorkable.isActive() ? TJTextures.FUSION_PORT_UV_ACTIVE : TJTextures.FUSION_PORT_UV;
+            case 9: return this.recipeMapWorkable.isActive() ? TJTextures.FUSION_PORT_UHV_ACTIVE : TJTextures.FUSION_PORT_UHV;
+            default: return this.recipeMapWorkable.isActive() ? TJTextures.FUSION_PORT_UEV_ACTIVE : TJTextures.FUSION_PORT_UEV;
         }
     }
 
@@ -449,6 +486,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         private final int durationPercentage;
         public RecipeMap<?> recipeMap;
         private final BiConsumer<Recipe, Long> currentRecipe;
+        private final BooleanConsumer abilityActive;
 
         public IndustrialFusionRecipeLogic(MetaTileEntityIndustrialFusionReactor tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
             super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
@@ -457,6 +495,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             this.durationPercentage = durationPercentage;
             this.recipeMap = tileEntity.recipeMap;
             this.currentRecipe = tileEntity::setRecipe;
+            this.abilityActive = tileEntity::replaceEnergyPortsAsActive;
         }
 
         @Override
@@ -526,6 +565,13 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 recipeEnergy *= 2;
             }
             return OCMultiplier;
+        }
+
+        @Override
+        protected void setActive(boolean active) {
+            if (!getWorld().isRemote)
+                this.abilityActive.apply(active);
+            super.setActive(active);
         }
     }
 }

@@ -3,6 +3,8 @@ package tj.blocks;
 import gregtech.common.blocks.VariantBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -20,6 +22,8 @@ import java.util.List;
 
 public class BlockAbilityCasings extends VariantBlock<BlockAbilityCasings.AbilityType> {
 
+    public static final PropertyBool ACTIVE = PropertyBool.create("active");
+
     public BlockAbilityCasings() {
         super(Material.IRON);
         setHardness(5.0f);
@@ -27,7 +31,28 @@ public class BlockAbilityCasings extends VariantBlock<BlockAbilityCasings.Abilit
         setTranslationKey("ability_casing");
         setSoundType(SoundType.METAL);
         setHarvestLevel("wrench", 2);
-        setDefaultState(getState(AbilityType.ENERGY_PORT_LUV));
+        setDefaultState(getState(AbilityType.ENERGY_PORT_LUV).withProperty(ACTIVE, false));
+    }
+
+    @Override
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return state.getValue(ACTIVE) ? 15 : 0;
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState() {
+        super.createBlockState();
+        return new BlockStateContainer(this, VARIANT, ACTIVE);
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return super.getStateFromMeta(meta % 10).withProperty(ACTIVE, meta / 10 >= 1);
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return super.getMetaFromState(state) + (state.getValue(ACTIVE) ? 10 : 0);
     }
 
     @Override

@@ -342,9 +342,9 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
 
     public void setActive(boolean isActive) {
         this.isActive = isActive;
-        if (this.activeConsumer != null)
-            this.activeConsumer.apply(isActive);
         if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.activeConsumer != null)
+                this.activeConsumer.apply(isActive);
             this.writeCustomData(1, buffer -> buffer.writeBoolean(isActive));
             this.metaTileEntity.markDirty();
         }
