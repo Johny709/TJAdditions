@@ -89,7 +89,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private long heat;
     private long maxHeat;
     private static final DecimalFormat formatter = new DecimalFormat("#0.00");
-    private final List<BlockPos> activeStates = new ArrayList<>();
+    private final Set<BlockPos> activeStates = new HashSet<>();
     private BatchMode batchMode = BatchMode.ONE;
     private Recipe recipe;
 

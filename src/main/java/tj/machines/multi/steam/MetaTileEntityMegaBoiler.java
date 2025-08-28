@@ -62,7 +62,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     private final int parallel;
     private MetaTileEntityLargeBoiler.BoilerType boilerType;
     private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
-    private final List<BlockPos> activeStates = new ArrayList<>();
+    private final Set<BlockPos> activeStates = new HashSet<>();
     private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, () -> boilerType.fuelConsumptionMultiplier, () -> boilerType.baseSteamOutput, () -> this.boilerType.maxTemperature);
 
     private FluidTankList fluidImportInventory;
