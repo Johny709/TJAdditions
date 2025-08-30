@@ -47,12 +47,17 @@ public class BlockAbilityCasings extends VariantBlock<BlockAbilityCasings.Abilit
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return super.getStateFromMeta(meta % 10).withProperty(ACTIVE, meta / 10 >= 1);
+        return super.getStateFromMeta(meta % 5).withProperty(ACTIVE, meta / 5 >= 1);
     }
 
     @Override
     public int getMetaFromState(IBlockState state) {
-        return super.getMetaFromState(state) + (state.getValue(ACTIVE) ? 10 : 0);
+        return super.getMetaFromState(state) + (state.getValue(ACTIVE) ? 5 : 0);
+    }
+
+    @Override
+    public int damageDropped(IBlockState state) {
+        return super.damageDropped(state) - (state.getValue(ACTIVE) ? 5 : 0);
     }
 
     @Override

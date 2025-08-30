@@ -134,15 +134,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.replaceEnergyPortsAsActive(false);
-    }
-
-    @Override
     public void onRemoval() {
         super.onRemoval();
-        if (!this.getWorld().isRemote && this.isStructureFormed()) {
+        if (!this.getWorld().isRemote) {
             this.replaceEnergyPortsAsActive(false);
         }
     }

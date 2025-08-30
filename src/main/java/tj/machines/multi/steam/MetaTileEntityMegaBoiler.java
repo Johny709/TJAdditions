@@ -126,7 +126,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         this.steamOutputTank = new FluidTankList(true);
         this.itemImportInventory = new ItemHandlerList(Collections.emptyList());
         this.itemExportInventory = new ItemHandlerList(Collections.emptyList());
-        this.replaceFireboxAsActive(false);
     }
 
     private void replaceFireboxAsActive(boolean isActive) {
@@ -142,7 +141,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     @Override
     public void onRemoval() {
         super.onRemoval();
-        if (!this.getWorld().isRemote && this.isStructureFormed()) {
+        if (!this.getWorld().isRemote) {
             this.replaceFireboxAsActive(false);
         }
     }
