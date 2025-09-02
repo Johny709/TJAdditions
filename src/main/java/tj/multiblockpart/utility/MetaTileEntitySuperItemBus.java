@@ -3,7 +3,9 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.impl.GhostCircuitWidget;
 import tj.items.handlers.LargeItemStackHandler;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
@@ -37,25 +39,26 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_IT
 
 public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
+    private final IItemHandlerModifiable ghostCircuitSlot = new ItemStackHandler(1);
     private final boolean isExport;
     private int ticks = 5;
 
     public MetaTileEntitySuperItemBus(ResourceLocation metaTileEntityId, int tier, boolean isExport) {
         super(metaTileEntityId, tier);
         this.isExport = isExport;
-        initializeInventory();
+        this.initializeInventory();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntitySuperItemBus(metaTileEntityId, getTier(), isExport);
+        return new MetaTileEntitySuperItemBus(this.metaTileEntityId, this.getTier(), this.isExport);
     }
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        int slots = Math.min(100,(getTier() + 1) * (getTier() + 1));
-        int size = getTier() < GAValues.UMV ? 1024
-                : getTier() < GAValues.MAX ? 16384
+        int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
+        int size = this.getTier() < GAValues.UMV ? 1024
+                : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
         tooltip.add(I18n.format("machine.universal.stack", size));
@@ -65,20 +68,20 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        int slots = Math.min(100,(getTier() + 1) * (getTier() + 1));
-        int size = getTier() < GAValues.UMV ? 1024
-                : getTier() < GAValues.MAX ? 16384
+        int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
+        int size = this.getTier() < GAValues.UMV ? 1024
+                : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
-        return isExport ? super.createImportItemHandler()
+        return this.isExport ? super.createImportItemHandler()
                 : new LargeItemStackHandler(slots, size);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        int slots = Math.min(100,(getTier() + 1) * (getTier() + 1));
-        int size = getTier() < GAValues.UMV ? 1024
-                : getTier() < GAValues.MAX ? 16384
+        int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
+        int size = this.getTier() < GAValues.UMV ? 1024
+                : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
         return isExport ? new LargeItemStackHandler(slots, size)
@@ -88,73 +91,57 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     @Override
     public void update() {
         super.update();
-        if (!getWorld().isRemote && getOffsetTimer() % ticks == 0) {
-            if (isExport) {
-                pushItemsIntoNearbyHandlers(getFrontFacing());
+        if (!this.getWorld().isRemote && this.getOffsetTimer() % this.ticks == 0) {
+            if (this.isExport) {
+                this.pushItemsIntoNearbyHandlers(getFrontFacing());
             } else {
-                pullItemsFromNearbyHandlers(getFrontFacing());
+                this.pullItemsFromNearbyHandlers(getFrontFacing());
             }
         }
     }
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        IItemHandlerModifiable bus = isExport ? exportItems : importItems;
-        int tier = Math.min(3, getTier() / 3);
+        IItemHandlerModifiable bus = this.isExport ? this.exportItems : this.importItems;
+        int tier = Math.min(3, this.getTier() / 3);
         WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new ImageWidget(169, 72 * tier, 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * tier, this::addDisplayText, 0xFFFFFF));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.UP_BUTTON, this::isIncrement, this::onIncrement)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.UP_BUTTON, () -> false, this::onIncrement)
                 .setTooltipText("machine.universal.toggle.increment"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * tier, 18, 18, TJGuiTextures.DOWN_BUTTON, this::isDecrement, this::onDecrement)
-                .setTooltipText("machine.universal.toggle.decrement"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 40 + 72 * tier, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
+        widgetGroup.addWidget(new GhostCircuitWidget(this.ghostCircuitSlot, 169, 18 + 72 * tier));
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 40 + 72 * tier, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, (reset) -> this.ticks = 5)
                 .setTooltipText("machine.universal.toggle.reset"));
         for (int i = 0; i < bus.getSlots(); i++) {
-            widgetGroup.addWidget(new SlotWidget(bus, i, 7 + 18 * (i % 10), 14 + 18 * (i / 10), true, !isExport)
+            widgetGroup.addWidget(new SlotWidget(bus, i, 7 + 18 * (i % 10), 14 + 18 * (i / 10), true, !this.isExport)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 63 + 72 * tier)
-                .label(7, 4, getMetaFullName())
+                .label(7, 4, this.getMetaFullName())
                 .bindPlayerInventory(player.inventory, -18 + 72 * tier)
                 .widget(widgetGroup)
                 .build(getHolder(), player);
     }
 
     private void addDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString(ticks + "t")
+        textList.add(new TextComponentString(this.ticks + "t")
                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.ticks.operation")))));
     }
 
     private void onIncrement(boolean b) {
-        ticks = MathHelper.clamp(ticks + 1, 1, Integer.MAX_VALUE);
-    }
-
-    private boolean isIncrement() {
-        return false;
+        this.ticks = MathHelper.clamp(this.ticks + 1, 1, Integer.MAX_VALUE);
+        this.markDirty();
     }
 
     private void onDecrement(boolean b) {
         ticks = MathHelper.clamp(ticks - 1, 1, Integer.MAX_VALUE);
+        this.markDirty();
     }
-
-    private boolean isDecrement() {
-        return false;
-    }
-
-    private void onReset(boolean b) {
-        ticks = 5;
-    }
-
-    private boolean isReset() {
-        return false;
-    }
-
 
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        if (isExport) {
+        if (this.isExport) {
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.ITEM_HATCH_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.PIPE_OUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
@@ -167,24 +154,29 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
 
     @Override
     public MultiblockAbility<IItemHandlerModifiable> getAbility() {
-        return isExport ? EXPORT_ITEMS : IMPORT_ITEMS;
+        return this.isExport ? EXPORT_ITEMS : IMPORT_ITEMS;
     }
 
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
-        list.add(isExport ? exportItems : importItems);
+        if (!this.isExport)
+            list.add(this.ghostCircuitSlot);
+        list.add(this.isExport ? this.exportItems : this.importItems);
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("Ticks", ticks);
+        data.setInteger("Ticks", this.ticks);
+        data.setTag("GhostCircuit", this.ghostCircuitSlot.getStackInSlot(0).serializeNBT());
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        ticks = data.hasKey("Ticks") ? data.getInteger("Ticks") : 5;
+        this.ticks = data.hasKey("Ticks") ? data.getInteger("Ticks") : 5;
+        if (data.hasKey("GhostCircuit"))
+            this.ghostCircuitSlot.setStackInSlot(0, new ItemStack(data.getCompoundTag("GhostCircuit")));
     }
 }

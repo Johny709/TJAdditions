@@ -1,4 +1,4 @@
-package tj.gui.widgets;
+package tj.gui.widgets.impl;
 
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.impl.ModularUIContainer;
@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
-import tj.util.QuadConsumer;
+import tj.gui.widgets.IGTRecipeTransferHandler;
 import tj.util.QuintConsumer;
 
 import java.io.IOException;

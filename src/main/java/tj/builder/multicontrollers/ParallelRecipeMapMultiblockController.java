@@ -53,7 +53,7 @@ import tj.capability.TJCapabilities;
 import tj.capability.impl.ParallelMultiblockRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJWidgetGroup;
-import tj.gui.widgets.JEIRecipeTransferWidget;
+import tj.gui.widgets.impl.JEIRecipeTransferWidget;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
