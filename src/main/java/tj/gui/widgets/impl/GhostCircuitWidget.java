@@ -50,20 +50,27 @@ public class GhostCircuitWidget extends SlotWidget {
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
-            int num = buffer.readVarInt();
-            ItemStack stack = this.slotReference.getStack();
-            if (stack.isEmpty()) {
-                ItemStack circuitStack = MetaItems.INTEGRATED_CIRCUIT.getStackForm();
-                IntCircuitIngredient.setCircuitConfiguration(circuitStack, num > 0 ? 0 : 32);
-                this.slotReference.putStack(circuitStack);
-            } else if (MetaItems.INTEGRATED_CIRCUIT.isItemEqual(stack)) {
-                int config = IntCircuitIngredient.getCircuitConfiguration(stack) + num;
-                if (config > 32 || config < 0)
-                    this.slotReference.putStack(ItemStack.EMPTY);
-                else IntCircuitIngredient.setCircuitConfiguration(stack, config);
+            this.setCircuit(buffer.readVarInt());
+        } else if (id == 2) {
+            switch (buffer.readVarInt()) {
+                case 0: this.setCircuit(1); break;
+                case 1: this.setCircuit(-1); break;
+                case 2: this.slotReference.putStack(ItemStack.EMPTY);
             }
-        } else if (id == 2 && buffer.readVarInt() == 1) {
-            this.slotReference.putStack(ItemStack.EMPTY);
+        }
+    }
+
+    private void setCircuit(int num) {
+        ItemStack stack = this.slotReference.getStack();
+        if (stack.isEmpty()) {
+            ItemStack circuitStack = MetaItems.INTEGRATED_CIRCUIT.getStackForm();
+            IntCircuitIngredient.setCircuitConfiguration(circuitStack, num > 0 ? 0 : 32);
+            this.slotReference.putStack(circuitStack);
+        } else if (MetaItems.INTEGRATED_CIRCUIT.isItemEqual(stack)) {
+            int config = IntCircuitIngredient.getCircuitConfiguration(stack) + num;
+            if (config > 32 || config < 0)
+                this.slotReference.putStack(ItemStack.EMPTY);
+            else IntCircuitIngredient.setCircuitConfiguration(stack, config);
         }
     }
 }
