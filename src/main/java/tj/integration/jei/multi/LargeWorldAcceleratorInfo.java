@@ -1,24 +1,27 @@
 package tj.integration.jei.multi;
 
-import com.google.common.collect.Lists;
 import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.components.EmitterCasing;
+import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class LargeWorldAcceleratorInfo extends MultiblockInfoPage {
+public class LargeWorldAcceleratorInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -27,19 +30,19 @@ public class LargeWorldAcceleratorInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
+        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("#C#", "HEC", "#C#")
                 .aisle("IEC", "SFE", "MEC")
                 .aisle("#C#", "CEC", "#C#")
                 .where('S', TJMetaTileEntities.LARGE_WORLD_ACCELERATOR, EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM))
-                .where('F', GAMetaBlocks.FIELD_GEN_CASING.getDefaultState())
-                .where('E', GAMetaBlocks.EMITTER_CASING.getDefaultState())
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
-                .where('H', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV], EnumFacing.WEST)
-                .build();
-        return Lists.newArrayList(shapeInfo);
+                .where('H', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV], EnumFacing.WEST);
+        return Arrays.stream(FieldGenCasing.CasingType.values())
+                .map(casingType -> shapeInfo.where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(casingType))
+                        .where('E', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[casingType.ordinal()])).build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -47,6 +50,8 @@ public class LargeWorldAcceleratorInfo extends MultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(GAMetaBlocks.METAL_CASING_2.getItemVariant(MetalCasing2.CasingType.TRITANIUM), new TextComponentTranslation("gregtech.multiblock.preview.limit", 2)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
+        Arrays.stream(FieldGenCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.FIELD_GEN_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
+        Arrays.stream(EmitterCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.EMITTER_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override

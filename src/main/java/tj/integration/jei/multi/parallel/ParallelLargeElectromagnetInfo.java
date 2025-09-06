@@ -2,17 +2,18 @@ package tj.integration.jei.multi.parallel;
 
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
+import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
-public class ParallelLargeElectromagnetInfo extends MultiblockInfoPage {
+public class ParallelLargeElectromagnetInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -59,6 +60,7 @@ public class ParallelLargeElectromagnetInfo extends MultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.BABBITT_ALLOY), new TextComponentTranslation("gregtech.multiblock.preview.limit", 10)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
+        this.addBlockTooltip(GAMetaBlocks.FIELD_GEN_CASING.getItemVariant(FieldGenCasing.CasingType.FIELD_GENERATOR_LV), COMPONENT_BLOCK_TOOLTIP);
     }
 
     @Override

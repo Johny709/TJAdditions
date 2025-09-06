@@ -12,13 +12,13 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.List;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
-public class LargeAlloySmelterInfo extends MultiblockInfoPage {
+public class LargeAlloySmelterInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -83,6 +83,7 @@ public class LargeAlloySmelterInfo extends MultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE), new TextComponentTranslation("gregtech.multiblock.preview.limit", 15)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
+        Arrays.stream(GAHeatingCoil.CoilType.values()).forEach(coilType -> this.addBlockTooltip(GAMetaBlocks.HEATING_COIL.getItemVariant(coilType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override

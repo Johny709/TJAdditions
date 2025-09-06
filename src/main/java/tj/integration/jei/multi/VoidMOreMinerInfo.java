@@ -8,7 +8,6 @@ import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
@@ -17,13 +16,14 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
+import tj.integration.jei.TJMultiblockInfoPage;
 
 import java.util.List;
 
 import static gregicadditions.GAMaterials.QCDMatter;
 import static tj.machines.TJMetaTileEntities.VOID_MORE_MINER;
 
-public class VoidMOreMinerInfo extends MultiblockInfoPage {
+public class VoidMOreMinerInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -61,6 +61,7 @@ public class VoidMOreMinerInfo extends MultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER), new TextComponentTranslation("gregtech.multiblock.preview.limit", 100)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
+        this.addBlockTooltip(GAMetaBlocks.MOTOR_CASING.getItemVariant(MotorCasing.CasingType.MOTOR_UV), COMPONENT_BLOCK_TOOLTIP);
     }
 
     @Override
