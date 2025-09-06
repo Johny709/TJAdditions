@@ -89,14 +89,16 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
             if (layer % 4 == 0) {
                 String muffler = layer == 0 ? "XXXXX" : "XXPXX";
                 factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
-                factoryPattern.aisle("CCCCC", "C#C#C", "CCPCC", "C#C#C", "CCCCC");
-                factoryPattern.aisle("CCCCC", "C#C#C", "CCPCC", "C#C#C", "CCCCC");
+                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
+                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
             }
         }
         return factoryPattern.aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
+                .setAmountAtLeast('L', 12)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('C', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('#', isAirPredicate())
                 .where('M', abilityPartPredicate(MUFFLER_HATCH))

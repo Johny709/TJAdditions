@@ -80,7 +80,9 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
             factoryPattern.aisle("XXGXX", "XP#mX", "XXGXX", "C###C");
         }
         return factoryPattern.aisle("XXXXX", "XXSXX", "XXGXX", "CC#CC")
+                .setAmountAtLeast('L', 14)
                 .where('S', selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))

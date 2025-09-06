@@ -86,7 +86,9 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
         return factoryPattern
                 .aisle("~C~C~", "X#X#X", "G###G", "X#X#X", "~C~C~")
                 .aisle("~~~~~", "~XXX~", "~XSX~", "~XXX~", "~~~~~")
+                .setAmountAtLeast('L', 10)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', glassPredicate())

@@ -90,7 +90,9 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
             factoryPattern.aisle("XXXXX", "XP#PX", "X###X", "CGCGC");
         }
         return factoryPattern.aisle("XXXXX", "XmSmX", "XXXXX", "~CCC~")
+                .setAmountAtLeast('L', 24)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))

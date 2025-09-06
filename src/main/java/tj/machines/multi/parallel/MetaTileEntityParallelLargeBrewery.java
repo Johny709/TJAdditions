@@ -88,18 +88,18 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
             factoryPattern.aisle("~CCC~", "~~C~~", "~G#G~", "C#P#C", "~G#G~", "~~C~~");
         }
          return factoryPattern.aisle("CCCCC", "F~C~F", "CXSXC", "CXmXC", "CXXXC", "~CCC~")
-                .where('S', this.selfPredicate())
-                .where('C', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
-                .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
-                .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
-                .where('F', statePredicate(MetaBlocks.FRAMES.get(Grisium).getDefaultState()))
-                .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
-                .where('p', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
-                .where('#', isAirPredicate())
-                .where('~', tile -> true)
-                .build();
+                 .where('S', this.selfPredicate())
+                 .where('C', statePredicate(this.getCasingState()))
+                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                 .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
+                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
+                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
+                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Grisium).getDefaultState()))
+                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
+                 .where('p', LargeSimpleRecipeMapMultiblockController.pumpPredicate())
+                 .where('#', isAirPredicate())
+                 .where('~', tile -> true)
+                 .build();
     }
 
     private IBlockState getCasingState() {

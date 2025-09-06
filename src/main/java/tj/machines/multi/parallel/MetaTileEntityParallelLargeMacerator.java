@@ -82,7 +82,9 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
         return factoryPattern
                 .aisle("XXXXX", "XGBGX", "XB#BX", "X###X")
                 .aisle("XXXXX", "XmSmX", "XXXXX", "XXXXX")
+                .setAmountAtLeast('L', 22)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
                 .where('B', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))

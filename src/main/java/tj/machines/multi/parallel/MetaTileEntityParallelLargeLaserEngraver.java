@@ -83,7 +83,9 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
             factoryPattern.aisle("XXX", "GcG", "XEX", "CBC");
         }
         return factoryPattern.aisle("XXX", "XSX", "XXX", "~C~")
+                .setAmountAtLeast('L', 8)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.IRIDIUM_GLASS)))

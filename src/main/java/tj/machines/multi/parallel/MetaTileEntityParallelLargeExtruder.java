@@ -84,7 +84,9 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
         return factoryPattern
                 .aisle("XXXXX", "X#P#X", "~XMX~", "~~X~~")
                 .aisle("XXXXX", "XXSXX", "~XXX~", "~~X~~")
+                .setAmountAtLeast('L', 11)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))

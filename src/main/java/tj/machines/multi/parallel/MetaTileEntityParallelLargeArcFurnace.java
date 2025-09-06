@@ -100,7 +100,9 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
             factoryPattern.aisle(entityS, "GT#TG", "GP#PG", "GT#TG", "~GGG~");
         }
         return factoryPattern.aisle("~XXX~", "XXcXX", "XXcXX", "XXcXX", "~XXX~")
+                .setAmountAtLeast('L', 9)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('P', pumpPredicate())

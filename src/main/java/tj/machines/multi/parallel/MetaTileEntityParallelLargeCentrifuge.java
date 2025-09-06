@@ -95,16 +95,17 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
             String entityS = layer == this.parallelLayer - 1 ? "~XSX~" : "~XGX~";
 
-            factoryPattern.aisle("~XXX~", "XCCCX", "XCmCX", "XCCCX", "~XXX~");
+            factoryPattern.aisle("~XXX~", "XcccX", "XcmcX", "XcccX", "~XXX~");
             factoryPattern.aisle("XXXXX", "X###X", "X#P#X", "X###X", "XXXXX");
             factoryPattern.aisle(entityS, "X###X", "G#P#G", "X###X", "~XGX~");
             factoryPattern.aisle("XXXXX", "X###X", "X#P#X", "X###X", "XXXXX");
         }
-        return factoryPattern.aisle("~XXX~", "XCCCX", "XCmCX", "XCCCX", "~XXX~")
-                .validateLayer(2, context -> context.getInt("RedstoneControllerAmount") <= 1)
+        return factoryPattern.aisle("~XXX~", "XcccX", "XcmcX", "XcccX", "~XXX~")
+                .setAmountAtLeast('L', 26)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('C', MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate().or(MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2()))
+                .where('c', MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate().or(MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2()))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())

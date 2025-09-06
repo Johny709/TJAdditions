@@ -96,7 +96,9 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
                 new String[]{"XXXXXXX", "X#XSX#X", "C#C~C#C"} :
                 new String[]{"~~XXXXX", "~~XSX#X", "~~~~C#C"};
         return factoryPattern.aisle(controller)
+                .setAmountAtLeast('L', 10)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('c', conveyorPredicate())

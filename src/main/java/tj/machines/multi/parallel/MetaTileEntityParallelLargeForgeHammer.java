@@ -81,7 +81,9 @@ public class MetaTileEntityParallelLargeForgeHammer extends ParallelRecipeMapMul
             factoryPattern.aisle("XXX", "XCX", "C#C", "CPC", "CCC");
         }
         return factoryPattern.aisle("XSX", "~X~", "~~~", "~~~", "~~~")
+                .setAmountAtLeast('L', 9)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', pistonPredicate())

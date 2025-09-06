@@ -83,7 +83,9 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
             factoryPattern.aisle("XXX", "XCX", "XRX");
         }
         return factoryPattern.aisle("XXX", "XSX", "XXX")
+                .setAmountAtLeast('L', 4)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('C', conveyorPredicate())
                 .where('R', robotArmPredicate())

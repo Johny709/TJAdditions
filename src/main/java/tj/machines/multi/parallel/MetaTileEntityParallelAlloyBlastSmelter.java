@@ -92,16 +92,18 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
             if (layer % 4 == 0) {
                 String mufflerMM = layer == 0 ? "XXXXXXX" : "XXXPXXX";
                 factoryPattern.aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", mufflerMM, "XXXXXXX", "XXXXXXX", "~XXXXX~");
-                factoryPattern.aisle("~AAAAA~", "ACCCCCA", "AC#C#CA", "ACCPCCA", "AC#C#CA", "ACCCCCA", "~AAAAA~");
-                factoryPattern.aisle("~AAAAA~", "ACCCCCA", "AC#C#CA", "ACCPCCA", "AC#C#CA", "ACCCCCA", "~AAAAA~");
+                factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
+                factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
             }
         }
         return factoryPattern.aisle("~XXSXX~", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "~XXXXX~")
+                .setAmountAtLeast('L', 22)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('A', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
-                .where('C', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
                 .build();

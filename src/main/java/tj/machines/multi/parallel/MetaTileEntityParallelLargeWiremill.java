@@ -79,7 +79,9 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
             factoryPattern.aisle("XXXXX", "XMGMX", "C###C", "CMGMC", "CCCCC");
         }
         return factoryPattern.aisle("XXXXX", "~XSX~", "~~~~~", "~~~~~", "~~~~~")
+                .setAmountAtLeast('L', 12)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', statePredicate(MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX)))

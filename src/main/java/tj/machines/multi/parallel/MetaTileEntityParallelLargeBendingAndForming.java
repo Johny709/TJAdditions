@@ -84,7 +84,9 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
             factoryPattern.aisle("XXXXX", "XMpMX", "XPXPX");
         }
         return factoryPattern.aisle("XXXXX", "XXSXX", "XPXPX")
+                .setAmountAtLeast('L', 5)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('M', motorPredicate())
