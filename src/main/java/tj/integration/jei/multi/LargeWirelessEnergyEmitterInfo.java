@@ -1,23 +1,26 @@
 package tj.integration.jei.multi;
 
-import com.google.common.collect.Lists;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
 
-public class LargeWirelessEnergyEmitterInfo extends MultiblockInfoPage {
+public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
 
     private final MetaTileEntityLargeWirelessEnergyEmitter.TransferType transferType;
     private final MetaTileEntityLargeWirelessEnergyEmitter tileEntity;
@@ -29,27 +32,34 @@ public class LargeWirelessEnergyEmitterInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
-        return tileEntity;
+        return this.tileEntity;
     }
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
+        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("~CCC~", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CCCCC", "CCFCC", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("iCCCH", "SFIFM", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
                 .aisle("CCCCC", "CCFCC", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~CCC~", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
-                .where('S', getController(), EnumFacing.WEST)
-                .where('C', tileEntity.getCasingState(transferType))
-                .where('F', tileEntity.getFrameState(transferType))
-                .where('I', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TIERED_HULL_UV))
+                .where('S', this.getController(), EnumFacing.WEST)
+                .where('C', this.tileEntity.getCasingState(transferType))
+                .where('F', this.tileEntity.getFrameState(transferType))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
                 .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
-                .where('H', transferType == INPUT ? MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV]
-                        : MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.UV], EnumFacing.EAST)
-                .build();
-        return Lists.newArrayList(shapeInfo);
+                .where('H', this.transferType == INPUT ? MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV]
+                        : MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.UV], EnumFacing.EAST);
+        return IntStream.range(1, 15)
+                .mapToObj(tier -> shapeInfo.where('I', this.getVoltageCasing(tier)).build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        Arrays.stream(GAMultiblockCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
+        Arrays.stream(GAMultiblockCasing2.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING2.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override

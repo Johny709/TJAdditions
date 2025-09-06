@@ -1,8 +1,8 @@
 package tj.integration.jei.multi;
 
-import com.google.common.collect.Lists;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
@@ -18,7 +18,9 @@ import net.minecraft.util.text.TextFormatting;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
@@ -31,20 +33,20 @@ public class IndustrialSteamEngineInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
+        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("~~C~", "~CCC", "~~C~")
                 .aisle("mCCC", "SFRE", "ICCO")
                 .aisle("CCCC", "CCCC", "CCCC")
-                .where('S', TJMetaTileEntities.INDUSTRIAL_STEAM_ENGINE, EnumFacing.WEST)
+                .where('S', this.getController(), EnumFacing.WEST)
                 .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TUMBAGA))
                 .where('E', MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.MV], EnumFacing.EAST)
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MV], EnumFacing.WEST)
-                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.EAST)
-                .where('R', GAMetaBlocks.MOTOR_CASING.getDefaultState())
-                .where('F', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TIERED_HULL_MV))
-                .build();
-        return Lists.newArrayList(shapeInfo);
+                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.EAST);
+        return Arrays.stream(MotorCasing.CasingType.values())
+                .map(casingType -> shapeInfo.where('R', GAMetaBlocks.MOTOR_CASING.getState(casingType))
+                        .where('F', this.getVoltageCasing(casingType.getTier())).build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -52,8 +54,9 @@ public class IndustrialSteamEngineInfo extends TJMultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TUMBAGA), new TextComponentTranslation("gregtech.multiblock.preview.limit", 8)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
-        this.addBlockTooltip(GAMetaBlocks.MOTOR_CASING.getItemVariant(MotorCasing.CasingType.MOTOR_LV), COMPONENT_BLOCK_TOOLTIP);
-        this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.TIERED_HULL_MV), COMPONENT_BLOCK_TOOLTIP);
+        Arrays.stream(MotorCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MOTOR_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
+        Arrays.stream(GAMultiblockCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
+        Arrays.stream(GAMultiblockCasing2.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING2.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override

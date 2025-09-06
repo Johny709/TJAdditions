@@ -36,6 +36,7 @@ public class LargeEnchanterInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
+        GATransparentCasing.CasingType[] glasses = GATransparentCasing.CasingType.values();
         GAMultiblockShapeInfo.Builder shapeInfo = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN)
                 .aisle("~~~~~~~", "~~~~~~~", "~~~C~~~", "~~CCC~~", "~~~C~~~", "~~~~~~~", "~~~~~~~")
                 .aisle("~~~~~~~", "~~~~~~~", "~~CCC~~", "~~CeC~~", "~~CCC~~", "~~~~~~~", "~~~~~~~")
@@ -58,8 +59,9 @@ public class LargeEnchanterInfo extends TJMultiblockInfoPage {
                 .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EnumFacing.EAST);
-        return Arrays.stream(GATransparentCasing.CasingType.values())
-                .map(glass -> shapeInfo.where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glass)).build())
+        return Arrays.stream(EmitterCasing.CasingType.values())
+                .map(casingType -> shapeInfo.where('e', GAMetaBlocks.EMITTER_CASING.getState(casingType))
+                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glasses[Math.min(glasses.length - 1, casingType.ordinal())])).build())
                 .collect(Collectors.toList());
     }
 
@@ -68,7 +70,8 @@ public class LargeEnchanterInfo extends TJMultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(GAMetaBlocks.METAL_CASING_2.getItemVariant(MetalCasing2.CasingType.BLACK_STEEL), new TextComponentTranslation("gregtech.multiblock.preview.limit", 64)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
-        this.addBlockTooltip(GAMetaBlocks.EMITTER_CASING.getItemVariant(EmitterCasing.CasingType.EMITTER_LV), COMPONENT_BLOCK_TOOLTIP);
+        Arrays.stream(GATransparentCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.TRANSPARENT_CASING.getItemVariant(casingType), COMPONENT_TIER_ANY_TOOLTIP));
+        Arrays.stream(EmitterCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.EMITTER_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
 
