@@ -12,6 +12,9 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -55,6 +58,13 @@ public class ParallelLargeLaserEngraverInfo extends MultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING2.getItemVariant(GAMultiblockCasing2.CasingType.LASER_ENGRAVER), new TextComponentTranslation("gregtech.multiblock.preview.limit", 8)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
     }
 
     @Override

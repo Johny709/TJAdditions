@@ -13,6 +13,9 @@ import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.TJMetaTileEntities;
 import tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor;
 
@@ -57,6 +60,13 @@ public class ParallelLargeChemicalReactorInfo extends MultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.CHEMICALLY_INERT), new TextComponentTranslation("gregtech.multiblock.preview.limit", 0)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
     }
 
     @Override
