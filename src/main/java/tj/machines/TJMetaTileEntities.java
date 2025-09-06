@@ -41,8 +41,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntityXLHotCoolantTurbine XL_COOLANT_TURBINE;
     public static MetaTileEntityRotorHolderUHVPlus ROTOR_HOLDER_UMV;
     public static MetaTileEntityRotorHolderForNuclearCoolantUHVPlus COOLANT_ROTOR_HOLDER_UMV;
-    public static MetaTileEntityLargeDecayChamberBase LARGE_DECAY_CHAMBER;
-    public static MetaTileEntityLargeAlloySmelterBase LARGE_ALLOY_SMELTER;
+    public static MetaTileEntityLargeDecayChamber LARGE_DECAY_CHAMBER;
+    public static MetaTileEntityLargeAlloySmelter LARGE_ALLOY_SMELTER;
     public static MetaTileEntityIndustrialFusionReactor INDUSTRIAL_FUSION_REACTOR_LUV;
     public static MetaTileEntityIndustrialFusionReactor INDUSTRIAL_FUSION_REACTOR_ZPM;
     public static MetaTileEntityIndustrialFusionReactor INDUSTRIAL_FUSION_REACTOR_UV;
@@ -58,7 +58,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityUltimateLargeMiner ULTIMATE_LARGE_MINER;
     public static MetaTileEntityWorldDestroyer WORLD_DESTROYER;
     public static MetaTileEntityLargeWorldAccelerator LARGE_WORLD_ACCELERATOR;
-    public static MetaTileEntityLargeRockBreakerBase LARGE_ROCK_BREAKER;
+    public static MetaTileEntityLargeRockBreaker LARGE_ROCK_BREAKER;
     public static MetaTileEntityInfiniteFluidDrill INFINITE_FLUID_DRILL;
     public static MetaTileEntityIndustrialSteamEngine INDUSTRIAL_STEAM_ENGINE;
     public static MetaTileEntityParallelAdvancedLargeChemicalReactor ADVANCED_PARALLEL_CHEMICAL_REACTOR;
@@ -132,8 +132,8 @@ public class TJMetaTileEntities {
         XL_COOLANT_TURBINE = GregTechAPI.registerMetaTileEntity(4209, new MetaTileEntityXLHotCoolantTurbine(TJId("xl_turbine.coolant"), MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT));
 
         LARGE_GREENHOUSE = GregTechAPI.registerMetaTileEntity(5000, new MetaTileEntityLargeGreenhouse(TJId("large_greenhouse"), GARecipeMaps.GREEN_HOUSE_RECIPES));
-        LARGE_DECAY_CHAMBER = GregTechAPI.registerMetaTileEntity(5001, new MetaTileEntityLargeDecayChamberBase(TJId("large_decay_chamber")));
-        LARGE_ALLOY_SMELTER = GregTechAPI.registerMetaTileEntity(5002, new MetaTileEntityLargeAlloySmelterBase(TJId("large_alloy_smelter")));
+        LARGE_DECAY_CHAMBER = GregTechAPI.registerMetaTileEntity(5001, new MetaTileEntityLargeDecayChamber(TJId("large_decay_chamber")));
+        LARGE_ALLOY_SMELTER = GregTechAPI.registerMetaTileEntity(5002, new MetaTileEntityLargeAlloySmelter(TJId("large_alloy_smelter")));
 
         INDUSTRIAL_FUSION_REACTOR_LUV = GregTechAPI.registerMetaTileEntity(5003, new MetaTileEntityIndustrialFusionReactor(TJId("industrial_fusion_reactor.luv"), 6));
         INDUSTRIAL_FUSION_REACTOR_ZPM = GregTechAPI.registerMetaTileEntity(5004, new MetaTileEntityIndustrialFusionReactor(TJId("industrial_fusion_reactor.zpm"), 7));
@@ -151,7 +151,7 @@ public class TJMetaTileEntities {
         PARALLEL_CHEMICAL_REACTOR = GregTechAPI.registerMetaTileEntity(5014, new MetaTileEntityParallelLargeChemicalReactor(TJId("parallel_chemical_reactor")));
         LARGE_ARCHITECT_WORKBENCH = GregTechAPI.registerMetaTileEntity(5015, new MetaTileEntityLargeArchitectWorkbench(TJId("large_architect_workbench")));
         LARGE_WORLD_ACCELERATOR = GregTechAPI.registerMetaTileEntity(5052, new MetaTileEntityLargeWorldAccelerator(TJId("large_world_accelerator")));
-        LARGE_ROCK_BREAKER = GregTechAPI.registerMetaTileEntity(5053, new MetaTileEntityLargeRockBreakerBase(TJId("large_rock_breaker")));
+        LARGE_ROCK_BREAKER = GregTechAPI.registerMetaTileEntity(5053, new MetaTileEntityLargeRockBreaker(TJId("large_rock_breaker")));
 
         MEGA_BOILER[0] = GregTechAPI.registerMetaTileEntity(5054, new MetaTileEntityMegaBoiler(TJId("mega_bronze_boiler"), MetaTileEntityLargeBoiler.BoilerType.BRONZE, 512));
         MEGA_BOILER[1] = GregTechAPI.registerMetaTileEntity(5055, new MetaTileEntityMegaBoiler(TJId("mega_steel_boiler"), MetaTileEntityLargeBoiler.BoilerType.STEEL, 512));

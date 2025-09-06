@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import gregicadditions.GAValues;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
+import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.FluidStack;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
@@ -193,13 +194,19 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
                 .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "##D###D##", "#########")
                 .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
                 .aisle("CCCCCCCCC", "CCCCSCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
+                .setAmountAtLeast('L', 100)
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('L', statePredicate(this.getCasingState()))
+                .where('C', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('D', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.PERIODICIUM)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(QCDMatter).getDefaultState()))
                 .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('#', (tile) -> true)
                 .build();
+    }
+
+    private IBlockState getCasingState() {
+        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER);
     }
 
     @Override

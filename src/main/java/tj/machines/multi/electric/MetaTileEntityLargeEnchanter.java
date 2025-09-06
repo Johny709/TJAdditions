@@ -27,6 +27,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -151,9 +152,11 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
                 .aisle("~~~~~~~", "~CGGGC~", "~GBBBG~", "~GB#BG~", "~GBBBG~", "~CGGGC~", "~~~~~~~")
                 .aisle("~~~~~~~", "~XXSXX~", "~XOOOX~", "~XOOOX~", "~XOOOX~", "~XXXXX~", "~~~~~~~")
                 .aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "~XXXXX~")
+                .setAmountAtLeast('L', 64)
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL)))
-                .where('X', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('L', statePredicate(this.getCasingState()))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('G', glassPredicate())
                 .where('E', emitterPredicate())
                 .where('O', blockPredicate(Blocks.OBSIDIAN))
@@ -162,6 +165,10 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
                 .build();
+    }
+
+    private IBlockState getCasingState() {
+        return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL);
     }
 
     private boolean bookshelfPredicate(BlockWorldState blockWorldState) {

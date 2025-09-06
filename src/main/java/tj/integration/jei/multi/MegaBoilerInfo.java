@@ -8,8 +8,13 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.multi.steam.MetaTileEntityMegaBoiler;
 
 import java.util.List;
@@ -26,7 +31,7 @@ public class MegaBoilerInfo extends MultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
-        return megaBoiler;
+        return this.megaBoiler;
     }
 
     @Override
@@ -47,10 +52,10 @@ public class MegaBoilerInfo extends MultiblockInfoPage {
                 .aisle("XXXXXXXXXXXXXXX", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CCCCCCCCCCCCCCC")
                 .aisle("XXXXXXXXXXXXXXX", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CCCCCCCCCCCCCCC")
                 .aisle("XXXXXXXXXXXXXXX", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC")
-                .where('S', megaBoiler, EnumFacing.WEST)
-                .where('C', boilerType.casingState)
-                .where('X', boilerType.fireboxState)
-                .where('P', boilerType.pipeState)
+                .where('S', this.megaBoiler, EnumFacing.WEST)
+                .where('C', this.boilerType.casingState)
+                .where('X', this.boilerType.fireboxState)
+                .where('P', this.boilerType.pipeState)
                 .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MAX], EnumFacing.WEST)
                 .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
                 .where('H', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
@@ -60,13 +65,25 @@ public class MegaBoilerInfo extends MultiblockInfoPage {
     }
 
     @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        Block casing = this.boilerType.casingState.getBlock();
+        Block firebox = this.boilerType.fireboxState.getBlock();
+        this.addBlockTooltip(new ItemStack(casing, 1, casing.getMetaFromState(this.boilerType.casingState)), new TextComponentTranslation("gregtech.multiblock.preview.limit", 200)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+        this.addBlockTooltip(new ItemStack(firebox, 1, firebox.getMetaFromState(this.boilerType.fireboxState)), new TextComponentTranslation("gregtech.multiblock.preview.limit", 200)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+    }
+
+
+    @Override
     public String[] getDescription() {
         return new String[] {
                 I18n.format(boilerType == MetaTileEntityLargeBoiler.BoilerType.BRONZE ? "tj.multiblock.mega_bronze_boiler.description"
                         : boilerType == MetaTileEntityLargeBoiler.BoilerType.STEEL ? "tj.multiblock.mega_steel_boiler.description"
                         : boilerType == MetaTileEntityLargeBoiler.BoilerType.TITANIUM ? "tj.multiblock.mega_titanium_boiler.description"
                         : "tj.multiblock.mega_tungstensteel_boiler.description"),
-                I18n.format("tj.multiblock.mega_boiler.parallel.description", megaBoiler.getParallel())};
+                I18n.format("tj.multiblock.mega_boiler.parallel.description", this.megaBoiler.getParallel())};
     }
 
     @Override

@@ -14,6 +14,9 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.Arrays;
@@ -58,6 +61,14 @@ public class LargeEnchanterInfo extends MultiblockInfoPage {
                 .map(glass -> shapeInfo.where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glass)).build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        this.addBlockTooltip(GAMetaBlocks.METAL_CASING_2.getItemVariant(MetalCasing2.CasingType.BLACK_STEEL), new TextComponentTranslation("gregtech.multiblock.preview.limit", 64)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+    }
+
 
     @Override
     public String[] getDescription() {

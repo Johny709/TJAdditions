@@ -10,6 +10,9 @@ import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.List;
@@ -42,6 +45,14 @@ public class MegaCokeOvenInfo extends MultiblockInfoPage {
                 .build();
         return Lists.newArrayList(shapeInfo);
     }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        this.addBlockTooltip(MetaBlocks.METAL_CASING.getItemVariant(BlockMetalCasing.MetalCasingType.COKE_BRICKS), new TextComponentTranslation("gregtech.multiblock.preview.limit", 100)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+    }
+
 
     @Override
     public String[] getDescription() {

@@ -29,19 +29,19 @@ import java.util.function.Predicate;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
-public class MetaTileEntityLargeAlloySmelterBase extends TJLargeSimpleRecipeMapMultiblockControllerBase {
+public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMultiblockControllerBase {
 
     private int tier;
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    public MetaTileEntityLargeAlloySmelterBase(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityLargeAlloySmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, RecipeMaps.ALLOY_SMELTER_RECIPES, TJConfig.largeAlloySmelter.eutPercentage, TJConfig.largeAlloySmelter.durationPercentage, TJConfig.largeAlloySmelter.chancePercentage, TJConfig.largeAlloySmelter.stack);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity (MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeAlloySmelterBase(metaTileEntityId);
+        return new MetaTileEntityLargeAlloySmelter(metaTileEntityId);
     }
 
     @Override
@@ -105,11 +105,13 @@ public class MetaTileEntityLargeAlloySmelterBase extends TJLargeSimpleRecipeMapM
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
                 .aisle("HHHHH", "HHHHH", "HHHHH", "~H~H~")
-                .aisle("HHHHH", "CcCcC", "c#c#c", "~c~c~")
-                .aisle("HHHHH", "CcCcC", "c#c#c", "~c~c~")
-                .aisle("HHHHH", "CcCcC", "c#c#c", "~c~c~")
+                .aisle("HHHHH", "HcCcH", "c#c#c", "~c~c~")
+                .aisle("HHHHH", "HcCcH", "c#c#c", "~c~c~")
+                .aisle("HHHHH", "HcCcH", "c#c#c", "~c~c~")
                 .aisle("HHHHH", "HHSHH", "HHHHH", "~H~H~")
+                .setAmountAtLeast('L', 15)
                 .where('S', selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))

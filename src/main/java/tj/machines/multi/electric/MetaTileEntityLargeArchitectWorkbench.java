@@ -135,9 +135,11 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
             factoryPattern.aisle("XXX", "XcX", "C#C", "CrC");
         }
         return factoryPattern.aisle("XXX", "XSX", "~~~", "~~~")
+                .setAmountAtLeast('L', 6)
                 .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('L', statePredicate(this.getCasingState()))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('c', conveyorPredicate())
                 .where('r', robotArmPredicate())
                 .where('#', isAirPredicate())

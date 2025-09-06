@@ -55,21 +55,20 @@ import java.util.stream.Collectors;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-;
 
-public class MetaTileEntityLargeRockBreakerBase extends TJLargeSimpleRecipeMapMultiblockControllerBase {
+public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultiblockControllerBase {
 
     private int slices;
     public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    public MetaTileEntityLargeRockBreakerBase(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityLargeRockBreaker(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.ROCK_BREAKER_RECIPES, TJConfig.largeRockBreaker.eutPercentage, TJConfig.largeRockBreaker.durationPercentage, TJConfig.largeRockBreaker.chancePercentage, TJConfig.largeRockBreaker.stack);
         this.recipeMapWorkable = new LargeRockBreakerRecipeLogic(this, EUtPercentage, durationPercentage, chancePercentage, stack);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeRockBreakerBase(metaTileEntityId);
+        return new MetaTileEntityLargeRockBreaker(this.metaTileEntityId);
     }
 
     @Override
@@ -81,8 +80,8 @@ public class MetaTileEntityLargeRockBreakerBase extends TJLargeSimpleRecipeMapMu
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (isStructureFormed())
-            textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", stack * slices));
+        if (this.isStructureFormed())
+            textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", this.stack * this.slices));
     }
 
     @Override
@@ -93,7 +92,13 @@ public class MetaTileEntityLargeRockBreakerBase extends TJLargeSimpleRecipeMapMu
                 .aisle("FFVVVHH", "P#T#T#P", "FFVVVHH").setRepeatable(1, TJConfig.largeRockBreaker.maximumSlices)
                 .aisle("FFVVVHH", "FfVGVhH", "FFVVVHH")
                 .aisle("~~VVV~~", "~~VSV~~", "~~VVV~~")
+                .setAmountAtLeast('L', 15)
+                .setAmountAtLeast('l', 6)
+                .setAmountAtLeast('I', 6)
                 .where('S', selfPredicate())
+                .where('L', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY)))
+                .where('l', statePredicate(GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM)))
+                .where('I', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF)))
                 .where('V', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('f', statePredicate(GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM)).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
                 .where('h', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF)).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
@@ -130,20 +135,20 @@ public class MetaTileEntityLargeRockBreakerBase extends TJLargeSimpleRecipeMapMu
         MotorCasing.CasingType motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV);
         PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
         int min = Math.min(motor.getTier(), pump.getTier());
-        maxVoltage = (long) (Math.pow(4, min) * 8);
-        slices = Collections.unmodifiableList(context.getOrDefault("Pumps", Collections.emptyList())).size() / 2;
+        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.slices = Collections.unmodifiableList(context.getOrDefault("Pumps", Collections.emptyList())).size() / 2;
     }
 
     @Override
     protected void updateFormedValid() {
-        if (slices != 0)
+        if (this.slices != 0)
             super.updateFormedValid();
     }
 
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
-        slices = 0;
+        this.slices = 0;
     }
 
     @Override
@@ -161,7 +166,7 @@ public class MetaTileEntityLargeRockBreakerBase extends TJLargeSimpleRecipeMapMu
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.ROCK_CRUSHER_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
-        if (recipeMapWorkable.isActive())
+        if (this.recipeMapWorkable.isActive())
             Textures.ROCK_CRUSHER_ACTIVE_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
     }
 

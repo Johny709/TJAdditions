@@ -224,13 +224,15 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
                 .aisle("XXXXXXXXXXXXXXX", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CCCCCCCCCCCCCCC")
                 .aisle("XXXXXXXXXXXXXXX", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CPPPPPPPPPPPPPC", "CCCCCCCCCCCCCCC")
                 .aisle("XXXXXXXXXXXXXXX", "CCCCCCCCCCCCCCC", "CCCCCCCSCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC")
-                .setAmountAtLeast('X', 200)
-                .setAmountAtLeast('C', 200)
+                .setAmountAtLeast('L', 200)
+                .setAmountAtLeast('l', 200)
                 .where('S', this.selfPredicate())
-                .where('P', statePredicate(boilerType.pipeState))
-                .where('X', state -> this.fireboxStatePredicate(GTUtility.getAllPropertyValues(boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
+                .where('L', statePredicate(this.boilerType.casingState))
+                .where('l', statePredicate(GTUtility.getAllPropertyValues(this.boilerType.fireboxState, BlockFireboxCasing.ACTIVE)))
+                .where('P', statePredicate(this.boilerType.pipeState))
+                .where('X', state -> this.fireboxStatePredicate(GTUtility.getAllPropertyValues(this.boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
                         .or(abilityPartPredicate(IMPORT_FLUIDS, IMPORT_ITEMS, MAINTENANCE_HATCH, EXPORT_ITEMS)).test(state))
-                .where('C', statePredicate(boilerType.casingState).or(abilityPartPredicate(OUTPUT_ABILITIES)))
+                .where('C', statePredicate(this.boilerType.casingState).or(abilityPartPredicate(OUTPUT_ABILITIES)))
                 .build();
     }
 

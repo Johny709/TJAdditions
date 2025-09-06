@@ -135,7 +135,9 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
             factoryPattern.aisle("XXX", "XcX", "###", "CrC");
         }
         return factoryPattern.aisle("XXX", "XSX", "C~C", "C~C")
+                .setAmountAtLeast('L', 12)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('c', conveyorPredicate())

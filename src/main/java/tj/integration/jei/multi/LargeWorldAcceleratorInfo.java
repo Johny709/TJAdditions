@@ -11,6 +11,9 @@ import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.List;
@@ -37,6 +40,13 @@ public class LargeWorldAcceleratorInfo extends MultiblockInfoPage {
                 .where('H', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV], EnumFacing.WEST)
                 .build();
         return Lists.newArrayList(shapeInfo);
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        this.addBlockTooltip(GAMetaBlocks.METAL_CASING_2.getItemVariant(MetalCasing2.CasingType.TRITANIUM), new TextComponentTranslation("gregtech.multiblock.preview.limit", 2)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
     }
 
     @Override

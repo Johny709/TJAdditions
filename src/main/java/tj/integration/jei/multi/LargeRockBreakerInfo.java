@@ -16,6 +16,9 @@ import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -58,6 +61,17 @@ public class LargeRockBreakerInfo extends MultiblockInfoPage {
             shapes.add(builder.build());
         }
         return shapes;
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        this.addBlockTooltip(GAMetaBlocks.METAL_CASING_2.getItemVariant(MetalCasing2.CasingType.STABALLOY), new TextComponentTranslation("gregtech.multiblock.preview.limit", 15)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+        this.addBlockTooltip(GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.GRISIUM), new TextComponentTranslation("gregtech.multiblock.preview.limit", 6)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
+        this.addBlockTooltip(MetaBlocks.METAL_CASING.getItemVariant(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF), new TextComponentTranslation("gregtech.multiblock.preview.limit", 6)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
     }
 
     @Override

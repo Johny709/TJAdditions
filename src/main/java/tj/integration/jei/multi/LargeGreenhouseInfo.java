@@ -16,6 +16,9 @@ import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -53,6 +56,13 @@ public class LargeGreenhouseInfo extends MultiblockInfoPage {
                     .build());
         }
         return shapeInfo;
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        this.addBlockTooltip(MetaBlocks.METAL_CASING.getItemVariant(BlockMetalCasing.MetalCasingType.STAINLESS_CLEAN), new TextComponentTranslation("gregtech.multiblock.preview.limit", 25)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
     }
 
     @Override

@@ -42,8 +42,8 @@ import static gregicadditions.recipes.GARecipeMaps.BLAST_ALLOY_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.TJRecipeMaps.PARALLEL_BLAST_ALLOY_RECIPES;
-import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelterBase.heatingCoilPredicate;
-import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelterBase.heatingCoilPredicate2;
+import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate;
+import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 

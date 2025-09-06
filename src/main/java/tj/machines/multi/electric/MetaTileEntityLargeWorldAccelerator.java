@@ -547,14 +547,19 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 .aisle("#C#", "CEC", "#C#")
                 .aisle("CEC", "EFE", "CEC")
                 .aisle("#C#", "CSC", "#C#")
+                .setAmountAtLeast('L', 2)
                 .where('S', selfPredicate())
-                .where('C', statePredicate(GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('L', statePredicate(this.getCasingState()))
+                .where('C', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', LargeSimpleRecipeMapMultiblockController.fieldGenPredicate())
                 .where('E', LargeSimpleRecipeMapMultiblockController.emitterPredicate())
                 .where('#', (tile) -> true)
                 .build();
     }
 
+    private IBlockState getCasingState() {
+        return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM);
+    }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart iMultiblockPart) {

@@ -23,17 +23,17 @@ import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBas
 
 import javax.annotation.Nonnull;
 
-public class MetaTileEntityLargeDecayChamberBase extends TJLargeSimpleRecipeMapMultiblockControllerBase {
+public class MetaTileEntityLargeDecayChamber extends TJLargeSimpleRecipeMapMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
-    public MetaTileEntityLargeDecayChamberBase(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityLargeDecayChamber(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.DECAY_CHAMBERS_RECIPES, TJConfig.decayChamber.eutPercentage, TJConfig.decayChamber.durationPercentage, TJConfig.decayChamber.chancePercentage, TJConfig.decayChamber.stack);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityLargeDecayChamberBase(metaTileEntityId);
+        return new MetaTileEntityLargeDecayChamber(this.metaTileEntityId);
     }
 
     @Override
@@ -44,9 +44,11 @@ public class MetaTileEntityLargeDecayChamberBase extends TJLargeSimpleRecipeMapM
                 .aisle("CHHHC", "C#F#C", "CFRFC", "C#F#C", "CHHHC")
                 .aisle("~HHH~", "C###C", "C#F#C", "C###C", "~HHH~")
                 .aisle("~~C~~", "~HHH~", "CHSHC", "~HHH~", "~~C~~")
+                .setAmountAtLeast('L', 24)
                 .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('L', statePredicate(this.getCasingState()))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('R', MetaTileEntityNuclearReactor.heatingCoilPredicate())
                 .where('F', fieldGenPredicate())
                 .where('#', isAirPredicate())
@@ -67,7 +69,7 @@ public class MetaTileEntityLargeDecayChamberBase extends TJLargeSimpleRecipeMapM
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         int min = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
-        maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.maxVoltage = (long) (Math.pow(4, min) * 8);
     }
 
     @Nonnull
