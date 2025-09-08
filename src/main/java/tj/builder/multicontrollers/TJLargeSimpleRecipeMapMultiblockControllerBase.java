@@ -18,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
@@ -29,6 +30,8 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
@@ -123,8 +126,20 @@ public abstract class TJLargeSimpleRecipeMapMultiblockControllerBase extends Lar
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        MultiblockDisplaysUtility.recipeMapWorkable(textList, isStructureFormed(), recipeMapWorkable);
-        MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
+        MultiblockDisplaysUtility.recipeMapWorkable(textList, this.isStructureFormed(), this.recipeMapWorkable);
+        if (this.canDistinct) {
+            ITextComponent buttonText = new TextComponentTranslation("gtadditions.multiblock.universal.distinct");
+            buttonText.appendText(" ");
+            ITextComponent button = withButton((isDistinct ?
+                    new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes") :
+                    new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no")), "distinct");
+            withHoverTextTranslate(button, "gtadditions.multiblock.universal.distinct.info");
+            buttonText.appendSibling(button);
+            textList.add(buttonText);
+        }
+        if (isStructureFormed() && !hasProblems())
+            textList.add(new TextComponentTranslation("gregtech.multiblock.universal.framework", this.maxVoltage));
+        MultiblockDisplaysUtility.isInvalid(textList, this.isStructureFormed());
     }
 
     protected boolean getToggleMode() {
