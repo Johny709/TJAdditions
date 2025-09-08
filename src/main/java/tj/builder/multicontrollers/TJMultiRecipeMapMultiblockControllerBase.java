@@ -13,9 +13,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.common.items.MetaItems;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
@@ -26,9 +24,9 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
+import tj.gui.widgets.impl.GhostCircuitWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,15 +49,7 @@ public abstract class TJMultiRecipeMapMultiblockControllerBase extends MultiReci
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(1) {
-            @Override
-            @Nonnull
-            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-                if (!stack.isItemEqual(MetaItems.INTEGRATED_CIRCUIT.getStackForm()))
-                    return stack;
-                return super.insertItem(slot, stack, simulate);
-            }
-        };
+        return new ItemStackHandler(1);
     }
 
     @Override
@@ -116,7 +106,7 @@ public abstract class TJMultiRecipeMapMultiblockControllerBase extends MultiReci
         widgetGroup.addWidget(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(new SlotWidget(this.importItems, 0, 172, 191));
+        widgetGroup.addWidget(new GhostCircuitWidget(this.importItems, 172, 191));
         widgetGroup.addWidget(new ImageWidget(171, 190, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
                 .setTooltipText("machine.universal.toggle.run.mode"));
@@ -184,12 +174,8 @@ public abstract class TJMultiRecipeMapMultiblockControllerBase extends MultiReci
     }
 
     @Override
-    public void addToMultiBlock(MultiblockControllerBase multiblockControllerBase) {
-
-    }
+    public void addToMultiBlock(MultiblockControllerBase multiblockControllerBase) {}
 
     @Override
-    public void removeFromMultiBlock(MultiblockControllerBase multiblockControllerBase) {
-
-    }
+    public void removeFromMultiBlock(MultiblockControllerBase multiblockControllerBase) {}
 }
