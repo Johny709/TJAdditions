@@ -53,8 +53,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
+import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IParallelController;
@@ -62,7 +61,6 @@ import tj.capability.LinkEntity;
 import tj.capability.LinkEvent;
 import tj.capability.TJCapabilities;
 import tj.gui.TJGuiTextures;
-import tj.gui.TJWidgetGroup;
 import tj.gui.uifactory.IPlayerUI;
 import tj.gui.uifactory.PlayerHolder;
 import tj.gui.widgets.OnTextFieldWidget;
@@ -77,8 +75,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
@@ -266,8 +262,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    protected ModularUI.Builder createUITemplate(EntityPlayer player) {
-        return createUI(player, 18);
+    protected int getExtended() {
+        return 18;
     }
 
     @Override
@@ -286,50 +282,47 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
-        super.addNewTabs(tabs, extended);
-        TJWidgetGroup widgetLinkedPlayersGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), this.linkedPlayersTab(widgetLinkedPlayersGroup::addWidgets)));
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        super.addTabs(tabBuilder);
+        tabBuilder.addTab("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedPlayersTab -> {
+            ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
+                @Override
+                public boolean isWidgetClickable(Widget widget) {
+                    return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
+                }
+            };
+            scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedPlayersText2, 0xFFFFFF)
+                    .setClickHandler(this::handleLinkedPlayersClick)
+                    .setMaxWidthLimit(1000));
+            linkedPlayersTab.addWidget(new AdvancedTextWidget(10, -20, this::addDisplayLinkedPlayersText, 0xFFFFFF));
+            linkedPlayersTab.addWidget(scrollWidget);
+            linkedPlayersTab.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+                    .setTooltipText("machine.universal.case_sensitive"));
+            linkedPlayersTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+                    .setTooltipText("machine.universal.spaces"));
+            linkedPlayersTab.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
+            linkedPlayersTab.addWidget(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
+                    .setTooltipText("machine.universal.toggle.clear")
+                    .setButtonTexture(BUTTON_CLEAR_GRID));
+            linkedPlayersTab.addWidget(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+                    .setTextLength(256)
+                    .setBackgroundText("machine.universal.search")
+                    .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
+        });
     }
 
     @Override
-    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
-        super.mainDisplayTab(widgetGroup, extended);
-        widgetGroup.apply(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.apply(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
+        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
                 .setTooltipText("machine.universal.tick.speed")
                 .setTooltipFormat(this::getTickSpeedFormat)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.apply(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
-        widgetGroup.apply(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
-        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
+        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
+        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
-    }
-
-    private AbstractWidgetGroup linkedPlayersTab(Function<Widget, WidgetGroup> widgetGroup) {
-        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
-            @Override
-            public boolean isWidgetClickable(Widget widget) {
-                return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-            }
-        };
-        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedPlayersText2, 0xFFFFFF)
-                .setClickHandler(this::handleLinkedPlayersClick)
-                .setMaxWidthLimit(1000));
-        widgetGroup.apply(new AdvancedTextWidget(10, -20, this::addDisplayLinkedPlayersText, 0xFFFFFF));
-        widgetGroup.apply(scrollWidget);
-        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
-                .setTooltipText("machine.universal.case_sensitive"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
-                .setTooltipText("machine.universal.spaces"));
-        widgetGroup.apply(new ImageWidget(7, 112, 162, 18, DISPLAY));
-        widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
-                .setTooltipText("machine.universal.toggle.clear")
-                .setButtonTexture(BUTTON_CLEAR_GRID));
-        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
-                .setTextLength(256)
-                .setBackgroundText("machine.universal.search")
-                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
     }
 
     private String getRename() {

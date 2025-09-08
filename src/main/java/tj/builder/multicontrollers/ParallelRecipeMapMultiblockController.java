@@ -14,7 +14,6 @@ import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -24,7 +23,6 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.common.blocks.BlockTurbineCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,14 +43,12 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.ParallelRecipeMap;
+import tj.builder.WidgetTabBuilder;
 import tj.capability.IParallelController;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.ParallelMultiblockRecipeLogic;
 import tj.gui.TJGuiTextures;
-import tj.gui.TJWidgetGroup;
 import tj.gui.widgets.impl.JEIRecipeTransferWidget;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
@@ -64,12 +60,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.common.blocks.BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
 
@@ -230,44 +226,39 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
-        super.mainDisplayTab(widgetGroup, extended);
-        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this::isDistinctBus, this::setDistinctBus)
-                .setTooltipText("machine.universal.toggle.distinct.mode"));
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        super.addTabs(tabBuilder);
+        tabBuilder.addTab("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(STEEL_GEARBOX), workableTab -> {
+            workableTab.addWidget(new TJCycleButtonWidget(172, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+                    .setTooltipFormat(this::getTooltipFormat)
+                    .setToggle(true)
+                    .setButtonTexture(TOGGLE_BUTTON_BACK)
+                    .setTooltipHoverString("machine.universal.batch.amount"));
+            workableTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeMapWorkable::isVoidingItems, this.recipeMapWorkable::setVoidItems)
+                    .setTooltipText("machine.universal.toggle.item_voiding"));
+            workableTab.addWidget(new ToggleButtonWidget(172, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
+                    .setTooltipText("machine.universal.toggle.fluid_voiding"));
+            workableTab.addWidget(new AdvancedTextWidget(10, -2, this::addWorkableDisplayText, 0xFFFFFF)
+                    .setMaxWidthLimit(180)
+                    .setClickHandler(this::handleWorkableDisplayClick));
+        });
+        tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
+            debugTab.addWidget(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
+                    .setTooltipText("tj.multiblock.parallel.recipe.clear"));
+            debugTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeMapWorkable::isVoidingItems, this.recipeMapWorkable::setVoidItems)
+                    .setTooltipText("machine.universal.toggle.item_voiding"));
+            debugTab.addWidget(new ToggleButtonWidget(172, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
+                    .setTooltipText("machine.universal.toggle.fluid_voiding"));
+            debugTab.addWidget(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
+                    .setMaxWidthLimit(180));
+        });
     }
 
     @Override
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
-        super.addNewTabs(tabs, extended);
-        TJWidgetGroup workableWidgetGroup = new TJWidgetGroup(), debugWidgetGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX), this.workableTab(workableWidgetGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), this.debugTab(debugWidgetGroup::addWidgets)));
-    }
-
-    private AbstractWidgetGroup workableTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new TJCycleButtonWidget(172, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
-                .setTooltipFormat(this::getTooltipFormat)
-                .setToggle(true)
-                .setButtonTexture(TOGGLE_BUTTON_BACK)
-                .setTooltipHoverString("machine.universal.batch.amount"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeMapWorkable::isVoidingItems, this.recipeMapWorkable::setVoidItems)
-                .setTooltipText("machine.universal.toggle.item_voiding"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
-                .setTooltipText("machine.universal.toggle.fluid_voiding"));
-        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addWorkableDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)
-                .setClickHandler(this::handleWorkableDisplayClick));
-    }
-
-    private AbstractWidgetGroup debugTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
-                .setTooltipText("tj.multiblock.parallel.recipe.clear"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeMapWorkable::isVoidingItems, this.recipeMapWorkable::setVoidItems)
-                .setTooltipText("machine.universal.toggle.item_voiding"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
-                .setTooltipText("machine.universal.toggle.fluid_voiding"));
-        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180));
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this::isDistinctBus, this::setDistinctBus)
+                .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 
     private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput, EntityPlayer player) {

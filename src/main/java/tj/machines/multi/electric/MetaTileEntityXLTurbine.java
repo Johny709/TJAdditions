@@ -1,9 +1,9 @@
 package tj.machines.multi.electric;
 
+import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
-import tj.gui.TJWidgetGroup;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
 import gregtech.api.GTValues;
@@ -11,9 +11,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -39,8 +37,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,8 +44,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
@@ -305,15 +299,10 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        super.addNewTabs(tabs);
-        TJWidgetGroup rotorWidgetGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), this.rotorTab(rotorWidgetGroup::addWidgets)));
-    }
-
-    private AbstractWidgetGroup rotorTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addRotorDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleRotorDisplayClick));
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        super.addTabs(tabBuilder);
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.addWidget(new AdvancedTextWidget(10, 18, this::addRotorDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180).setClickHandler(this::handleRotorDisplayClick)));
     }
 
     @Override

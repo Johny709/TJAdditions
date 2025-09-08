@@ -1,12 +1,11 @@
 package tj.machines.multi.electric;
 
+import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLHotCoolantTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
-import tj.gui.TJTabGroup;
-import tj.gui.TJWidgetGroup;
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
@@ -23,7 +22,6 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
-import gregtech.api.gui.widgets.tab.ItemTabInfo;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -32,7 +30,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.util.Position;
 import gregtech.api.util.XSTR;
 import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.block.state.IBlockState;
@@ -51,21 +48,18 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static gregicadditions.client.ClientHandler.MARAGING_STEEL_250_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance {
 
@@ -363,46 +357,34 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
         ModularUI.Builder builder = ModularUI.extendedBuilder();
+        WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+                .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
+                .setPosition(-10, 1);
+        this.addTabs(tabBuilder);
         builder.image(-10, 0, 195, 217, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
         builder.widget(new LabelWidget(0, 7, getMetaFullName(), 0xFFFFFF));
-
-        TJTabGroup tabGroup = new TJTabGroup(() -> new TJHorizontoalTabListRenderer(TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT, TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM), new Position(-10, 1));
-        List<Triple<String, ItemStack, AbstractWidgetGroup>> tabList = new ArrayList<>();
-        addNewTabs(tabList::add);
-        tabList.forEach(tabs -> tabGroup.addTab(new ItemTabInfo(tabs.getLeft(), tabs.getMiddle()), tabs.getRight()));
-        builder.widget(tabGroup);
+        builder.widget(tabBuilder.build());
         return builder;
     }
 
-    private void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs) {
-        TJWidgetGroup widgetDisplayGroup = new TJWidgetGroup(), widgetMaintenanceGroup = new TJWidgetGroup(), rotorWidgetGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.display", this.getStackForm(), mainDisplayTab(widgetDisplayGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), this.maintenanceTab(widgetMaintenanceGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), this.rotorTab(rotorWidgetGroup::addWidgets)));
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
+        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
+                maintenanceTab.addWidget(new AdvancedTextWidget(10, -2, textList ->
+                        MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems()), 0xFFFFFF)
+                        .setMaxWidthLimit(180)));
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.addWidget(new AdvancedTextWidget(10, 18, this::addRotorDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180).setClickHandler(this::handleRotorDisplayClick)));
     }
 
-    private AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
-        widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addDisplayText, 0xFFFFFF)
+    private void mainDisplayTab(WidgetGroup widgetGroup) {
+        widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
-        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        return widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
-    }
-
-    private AbstractWidgetGroup maintenanceTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addMaintenanceDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180));
-    }
-
-    private AbstractWidgetGroup rotorTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, 18, this::addRotorDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleRotorDisplayClick));
-    }
-
-    private void addMaintenanceDisplayText(List<ITextComponent> textList) {
-        MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, hasProblems());
     }
 
     public boolean isWorkingEnabled() {

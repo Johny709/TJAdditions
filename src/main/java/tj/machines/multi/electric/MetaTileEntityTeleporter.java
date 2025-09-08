@@ -3,13 +3,13 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IParallelController;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
 import tj.gui.TJGuiTextures;
-import tj.gui.TJWidgetGroup;
 import tj.gui.uifactory.IPlayerUI;
 import tj.gui.uifactory.PlayerHolder;
 import tj.gui.widgets.OnTextFieldWidget;
@@ -81,7 +81,6 @@ import org.apache.commons.lang3.tuple.Triple;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -313,41 +312,32 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
-    protected ModularUI.Builder createUITemplate(EntityPlayer player) {
-        return this.createUI(player, 18);
+    protected int getExtended() {
+        return 18;
     }
 
     @Override
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
-        super.addNewTabs(tabs, extended);
-        TJWidgetGroup widgetPosGroup = new TJWidgetGroup(), widgetQueueGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), this.blockPosTab(widgetPosGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), this.queueTab(widgetQueueGroup::addWidgets)));
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        super.addTabs(tabBuilder);
+        tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, this::addPosDisplayText, this::addPosDisplayText2, this::getSearchPrompt, this::setSearchPrompt, this::onClear));
+        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, this::addQueueDisplayText, this::addQueueDisplayText2, this::getQueuePrompt, this::setQueuePrompt, this::onClear2));
     }
 
     @Override
-    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
-        super.mainDisplayTab(widgetGroup, extended);
-        widgetGroup.apply(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.apply(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
+        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
                 .setTooltipText("machine.universal.tick.speed")
                 .setTooltipFormat(this::getTickSpeedFormat)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.apply(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
-        widgetGroup.apply(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
-        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
+        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
+        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
-    private AbstractWidgetGroup blockPosTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return this.addScrollWidgets(widgetGroup, this::addPosDisplayText, this::addPosDisplayText2, this::getSearchPrompt, this::setSearchPrompt, this::onClear);
-    }
-
-    private AbstractWidgetGroup queueTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return this.addScrollWidgets(widgetGroup, this::addQueueDisplayText, this::addQueueDisplayText2, this::getQueuePrompt, this::setQueuePrompt, this::onClear2);
-    }
-
-    private AbstractWidgetGroup addScrollWidgets(Function<Widget, WidgetGroup> widgetGroup, Consumer<List<ITextComponent>> displayText, Consumer<List<ITextComponent>> displayText2, Supplier<String> searchSupplier, Consumer<String> searchResponder, Consumer<Widget.ClickData> onClear) {
+    private void addScrollWidgets(WidgetGroup widgetGroup, Consumer<List<ITextComponent>> displayText, Consumer<List<ITextComponent>> displayText2, Supplier<String> searchSupplier, Consumer<String> searchResponder, Consumer<Widget.ClickData> onClear) {
         ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
             @Override
             public boolean isWidgetClickable(Widget widget) {
@@ -357,17 +347,17 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, displayText2, 0xFFFFFF)
                 .setClickHandler(this::handlePosDisplayClick)
                 .setMaxWidthLimit(1000));
-        widgetGroup.apply(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
-        widgetGroup.apply(scrollWidget);
-        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+        widgetGroup.addWidget(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
+        widgetGroup.addWidget(scrollWidget);
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
                 .setTooltipText("machine.universal.case_sensitive"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
                 .setTooltipText("machine.universal.spaces"));
-        widgetGroup.apply(new ImageWidget(7, 112, 162, 18, DISPLAY));
-        widgetGroup.apply(new TJClickButtonWidget(172, 112, 18, 18, "", onClear)
+        widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
+        widgetGroup.addWidget(new TJClickButtonWidget(172, 112, 18, 18, "", onClear)
                 .setTooltipText("machine.universal.toggle.clear")
                 .setButtonTexture(BUTTON_CLEAR_GRID));
-        return widgetGroup.apply(new TJTextFieldWidget(12, 117, 157, 18, false, searchSupplier, searchResponder)
+        widgetGroup.addWidget(new TJTextFieldWidget(12, 117, 157, 18, false, searchSupplier, searchResponder)
                 .setTextLength(256)
                 .setBackgroundText("machine.universal.search")
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));

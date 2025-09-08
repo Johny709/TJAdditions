@@ -11,8 +11,6 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -71,7 +69,6 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
@@ -305,9 +302,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup) {
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        return widgetGroup.apply(new TJCycleButtonWidget(172, 151, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+        widgetGroup.addWidget(new TJCycleButtonWidget(172, 151, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                 .setTooltipFormat(this::getTooltipFormat)
                 .setToggle(true)
                 .setButtonTexture(TOGGLE_BUTTON_BACK)

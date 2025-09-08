@@ -53,13 +53,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
+import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.gui.TJGuiTextures;
-import tj.gui.TJWidgetGroup;
 import tj.gui.widgets.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
 import tj.machines.TJMiner;
@@ -72,8 +70,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static gregicadditions.GAMaterials.Taranium;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -107,15 +103,33 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     public MetaTileEntityEliteLargeMiner(ResourceLocation metaTileEntityId, Type type) {
         super(metaTileEntityId);
         this.type = type;
-        blockFilter = new ExtendedItemFilter();
-        oreDictFilter = new OreDictionaryItemFilter();
+        this.blockFilter = new ExtendedItemFilter();
+        this.oreDictFilter = new OreDictionaryItemFilter();
+    }
+
+    @Override
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityEliteLargeMiner(this.metaTileEntityId, this.getType());
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        if (this.type != Type.CREATIVE) {
+            tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.type.chunk, this.type.chunk, this.type.fortuneString));
+
+            tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", this.type.drillingFluidConsumePerTick, I18n.format(DrillingFluid.getFluid(0).getUnlocalizedName())));
+        } else {
+            tooltip.add(I18n.format("gtadditions.machine.miner.multi.description2", this.type.chunk, this.type.chunk, this.type.fortuneString));
+
+            tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", this.type.drillingFluidConsumePerTick, I18n.format(Taranium.getFluid(0).getUnlocalizedName())));
+        }
     }
 
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
         resetTileAbilities();
-        if (isActive)
+        if (this.isActive)
             setActive(false);
     }
 
@@ -138,19 +152,18 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     public boolean drainEnergy() {
-        long energyDrain = GAValues.V[Math.max(GAValues.EV, GAUtility.getTierByVoltage(energyContainer.getInputVoltage()))];
+        long energyDrain = GAValues.V[Math.max(GAValues.EV, GAUtility.getTierByVoltage(this.energyContainer.getInputVoltage()))];
 
         FluidStack drillingFluid;
         if (this.type != Type.CREATIVE) {
             drillingFluid = DrillingFluid.getFluid(type.drillingFluidConsumePerTick);
-        }
-        else {
+        } else {
             drillingFluid = Taranium.getFluid(type.drillingFluidConsumePerTick);
         }
-        FluidStack canDrain = importFluidHandler.drain(drillingFluid, false);
-        if (energyContainer.getEnergyStored() >= energyDrain && canDrain != null && canDrain.amount == type.drillingFluidConsumePerTick) {
-            energyContainer.removeEnergy(energyContainer.getInputVoltage());
-            importFluidHandler.drain(drillingFluid, true);
+        FluidStack canDrain = this.importFluidHandler.drain(drillingFluid, false);
+        if (this.energyContainer.getEnergyStored() >= energyDrain && canDrain != null && canDrain.amount == type.drillingFluidConsumePerTick) {
+            this.energyContainer.removeEnergy(this.energyContainer.getInputVoltage());
+            this.importFluidHandler.drain(drillingFluid, true);
             return true;
         }
         return false;
@@ -158,64 +171,64 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
 
     @Override
     public Type getType() {
-        return type;
+        return this.type;
     }
 
     @Override
     public long getNbBlock() {
-        int tierDifference = GAUtility.getTierByVoltage(energyContainer.getInputVoltage()) - GAValues.MV;
+        int tierDifference = GAUtility.getTierByVoltage(this.energyContainer.getInputVoltage()) - GAValues.MV;
         return (long) Math.floor(Math.pow(2, tierDifference));
     }
 
     @Override
     protected void updateFormedValid() {
-        if (isWorkingEnabled) {
-            if (getNumProblems() < 6) {
-                if (getOffsetTimer() % (1 + getNumProblems()) == 0) {
-                    if (done || !drainEnergy()) {
-                        if (isActive)
-                            setActive(false);
+        if (this.isWorkingEnabled) {
+            if (this.getNumProblems() < 6) {
+                if (this.getOffsetTimer() % (1 + this.getNumProblems()) == 0) {
+                    if (this.done || !this.drainEnergy()) {
+                        if (this.isActive)
+                            this.setActive(false);
                         return;
                     }
 
-                    if (!isActive)
-                        setActive(true);
+                    if (!this.isActive)
+                        this.setActive(true);
 
-                    calculateMaintenance(1 + getNumProblems());
+                    this.calculateMaintenance(1 + this.getNumProblems());
                     WorldServer world = (WorldServer) this.getWorld();
                     Chunk chunkMiner = world.getChunk(getPos());
                     Chunk origin;
-                    if (chunks.isEmpty() && type.chunk / 2.0 > 1.0) {
-                        int tmp = Math.floorDiv(type.chunk, 2);
+                    if (this.chunks.isEmpty() && this.type.chunk / 2.0 > 1.0) {
+                        int tmp = Math.floorDiv(this.type.chunk, 2);
                         origin = world.getChunk(chunkMiner.x - tmp, chunkMiner.z - tmp);
-                        for (int i = 0; i < type.chunk; i++) {
-                            for (int j = 0; j < type.chunk; j++) {
-                                chunks.add(world.getChunk(origin.x + i, origin.z + j));
+                        for (int i = 0; i < this.type.chunk; i++) {
+                            for (int j = 0; j < this.type.chunk; j++) {
+                                this.chunks.add(world.getChunk(origin.x + i, origin.z + j));
                             }
                         }
-                    } else if (chunks.isEmpty() && type.chunk == 1) {
+                    } else if (this.chunks.isEmpty() && this.type.chunk == 1) {
                         origin = world.getChunk(chunkMiner.x, chunkMiner.z);
-                        chunks.add(origin);
+                        this.chunks.add(origin);
                     }
 
-                    if (currentChunk.intValue() == chunks.size()) {
-                        setActive(false);
+                    if (this.currentChunk.intValue() == this.chunks.size()) {
+                        this.setActive(false);
                         return;
                     }
 
-                    Chunk chunk = chunks.get(currentChunk.intValue());
+                    Chunk chunk = this.chunks.get(this.currentChunk.intValue());
 
-                    if (maxY.get() == Integer.MAX_VALUE) {
-                        maxY.set(getPos().getY());
+                    if (this.maxY.get() == Integer.MAX_VALUE) {
+                        this.maxY.set(this.getPos().getY());
                     }
-                    if (x.get() == Long.MAX_VALUE) {
-                        x.set(chunk.getPos().getXStart());
+                    if (this.x.get() == Long.MAX_VALUE) {
+                        this.x.set(chunk.getPos().getXStart());
                     }
-                    if (z.get() == Long.MAX_VALUE) {
-                        z.set(chunk.getPos().getZStart());
+                    if (this.z.get() == Long.MAX_VALUE) {
+                        this.z.set(chunk.getPos().getZStart());
                     }
-                    if (y.get() == Long.MAX_VALUE) {
-                        y.set(maxY.get());
+                    if (this.y.get() == Long.MAX_VALUE) {
+                        this.y.set(this.maxY.get());
                     }
                     List<BlockPos> blockPos = TJMiner.getBlockToMinePerChunk(this, x, y, z, chunk.getPos());
                     blockPos.forEach(blockPos1 -> {
@@ -223,24 +236,23 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                         IBlockState blockState = this.getWorld().getBlockState(blockPos1);
                         int meta = blockState.getBlock().getMetaFromState(blockState);
                         ItemStack stack = new ItemStack(blockState.getBlock(), 1, meta);
-                        if (isEnableFilter()) {
-                            boolean isFilterStack = oreDictFilter.matchItemStack(stack) != null || blockFilter.matchItemStack(stack) != null;
-                            if (isBlackListFilter() == isFilterStack)
+                        if (this.isEnableFilter()) {
+                            boolean isFilterStack = this.oreDictFilter.matchItemStack(stack) != null || this.blockFilter.matchItemStack(stack) != null;
+                            if (this.isBlackListFilter() == isFilterStack)
                                 return;
                         }
 
-                        if (!silktouch) {
+                        if (!this.silktouch) {
                             if (getType() != Type.DESTROYER) {
-                                GAUtility.applyHammerDrops(world.rand, blockState, itemStacks, type.fortune, null, this.energyContainer.getInputVoltage());
-                            }
-                            else {
-                                itemStacks.add(new ItemStack(blockState.getBlock().getItemDropped(blockState, world.rand, type.fortune), 1, meta));
+                                GAUtility.applyHammerDrops(world.rand, blockState, itemStacks, this.type.fortune, null, this.energyContainer.getInputVoltage());
+                            } else {
+                                itemStacks.add(new ItemStack(blockState.getBlock().getItemDropped(blockState, world.rand, this.type.fortune), 1, meta));
                             }
                         } else {
                             itemStacks.add(stack);
                         }
-                        if (addItemsToItemHandler(outputInventory, true, itemStacks)) {
-                            addItemsToItemHandler(outputInventory, false, itemStacks);
+                        if (addItemsToItemHandler(this.outputInventory, true, itemStacks)) {
+                            addItemsToItemHandler(this.outputInventory, false, itemStacks);
                             if (this.getType() != Type.DESTROYER) {
                                 world.setBlockState(blockPos1, Blocks.COBBLESTONE.getDefaultState());
                             } else {
@@ -249,38 +261,37 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                         }
                     });
 
-                    if (y.get() < minY.get()) {
-                        if (type != Type.CREATIVE) {
-                            currentChunk.incrementAndGet();
-                            if (currentChunk.get() >= chunks.size()) {
-                                if (canRestart) {
-                                    currentChunk.set(0);
-                                    chunks.clear();
-                                    x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
-                                    z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                                    y.set(maxY.get());
+                    if (this.y.get() < this.minY.get()) {
+                        if (this.type != Type.CREATIVE) {
+                            this.currentChunk.incrementAndGet();
+                            if (this.currentChunk.get() >= this.chunks.size()) {
+                                if (this.canRestart) {
+                                    this.currentChunk.set(0);
+                                    this.chunks.clear();
+                                    this.x.set(this.chunks.get(this.currentChunk.intValue()).getPos().getXStart());
+                                    this.z.set(this.chunks.get(this.currentChunk.intValue()).getPos().getZStart());
+                                    this.y.set(this.maxY.get());
                                 } else
-                                    done = true;
+                                    this.done = true;
                             } else {
-                                x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
-                                z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                                y.set(maxY.get());
+                                this.x.set(this.chunks.get(this.currentChunk.intValue()).getPos().getXStart());
+                                this.z.set(this.chunks.get(this.currentChunk.intValue()).getPos().getZStart());
+                                this.y.set(this.maxY.get());
                             }
                         } else {
-                            x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
-                            z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-                            y.set(maxY.get());
+                            this.x.set(this.chunks.get(this.currentChunk.intValue()).getPos().getXStart());
+                            this.z.set(this.chunks.get(this.currentChunk.intValue()).getPos().getZStart());
+                            this.y.set(maxY.get());
                         }
                     }
 
-                    if (!getWorld().isRemote && getOffsetTimer() % 5 == 0) {
-                        pushItemsIntoNearbyHandlers(getFrontFacing());
+                    if (!this.getWorld().isRemote && this.getOffsetTimer() % 5 == 0) {
+                        this.pushItemsIntoNearbyHandlers(getFrontFacing());
                     }
                 }
             }
-        } else
-        if (isActive)
-            setActive(false);
+        } else if (this.isActive)
+            this.setActive(false);
     }
 
     @Override
@@ -292,7 +303,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                 .aisle("#####", "#####", "CPPPQ", "#CSC#", "#####", "#####", "#####", "#####", "#####", "#####")
                 .aisle("F###F", "F###F", "PQQQP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
                 .setAmountAtLeast('L', 3)
-                .where('S', selfPredicate())
+                .where('S', this.selfPredicate())
                 .where('L', statePredicate(getCasingState()))
                 .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(getCasingState()))
@@ -322,80 +333,55 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        if (this.type != Type.CREATIVE) {
-            tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", type.chunk, type.chunk, type.fortuneString));
-
-            tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", type.drillingFluidConsumePerTick, I18n.format(DrillingFluid.getFluid(0).getUnlocalizedName())));
-        }
-        else {
-            tooltip.add(I18n.format("gtadditions.machine.miner.multi.description2", type.chunk, type.chunk, type.fortuneString));
-
-            tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", type.drillingFluidConsumePerTick, I18n.format(Taranium.getFluid(0).getUnlocalizedName())));
-        }
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        super.addTabs(tabBuilder);
+        tabBuilder.addTab("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab -> {
+            PopUpWidgetGroup slotsPopUp = new PopUpWidgetGroup(0, 7, 180, 90, null);
+            PopUpWidgetGroup oreDictPopUp = new PopUpWidgetGroup(9, 37, 179, 90, GuiTextures.BACKGROUND);
+            this.blockFilter.initUI(slotsPopUp::addWidget);
+            this.enableBlockPopUp = slotsPopUp::setEnabled;
+            this.enableBlockPopUp.apply(!this.oreDict);
+            this.oreDictFilter.initUI(oreDictPopUp::addWidget);
+            this.enableOreDictPopUp = oreDictPopUp::setEnabled;
+            this.enableOreDictPopUp.apply(this.oreDict);
+            filterTab.addWidget(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+                    .setTooltipText("machine.universal.toggle.filter"));
+            filterTab.addWidget(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
+            filterTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+                    .setTooltipText("cover.filter.blacklist"));
+            filterTab.addWidget(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
+                    .setTooltipText("cover.filter.ore_dictionary.open"));
+            filterTab.addWidget(slotsPopUp);
+            filterTab.addWidget(oreDictPopUp);
+        });
+        tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> settingsTab.addWidget(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180)
+                .setClickHandler(this::handleSettingDisplayText)));
     }
 
     @Override
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
-        super.addNewTabs(tabs, extended);
-        TJWidgetGroup widgetFilterGroup = new TJWidgetGroup(), widgetSettingsGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), this.filterTab(widgetFilterGroup::addWidgets)));
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), this.settingsTab(widgetSettingsGroup::addWidgets)));
-    }
-
-    @Override
-    protected AbstractWidgetGroup mainDisplayTab(Function<Widget, WidgetGroup> widgetGroup, int extended) {
-        super.mainDisplayTab(widgetGroup, extended);
-        return widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isDone, this::setDone)
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
-    }
-
-    private boolean isDone() {
-        return false;
     }
 
     private void setDone(boolean reset) {
         this.done = false;
         this.isWorkingEnabled = false;
-        if (isActive)
+        if (this.isActive)
             setActive(false);
-        if (!chunks.isEmpty()) {
-            currentChunk.set(0);
-            x.set(chunks.get(currentChunk.intValue()).getPos().getXStart());
-            z.set(chunks.get(currentChunk.intValue()).getPos().getZStart());
-            y.set(maxY.get());
-            chunks.clear();
+        if (!this.chunks.isEmpty()) {
+            this.currentChunk.set(0);
+            this.x.set(chunks.get(this.currentChunk.intValue()).getPos().getXStart());
+            this.z.set(chunks.get(this.currentChunk.intValue()).getPos().getZStart());
+            this.y.set(maxY.get());
+            this.chunks.clear();
         }
     }
 
-    protected AbstractWidgetGroup filterTab(Function<Widget, WidgetGroup> widgetGroup) {
-        PopUpWidgetGroup slotsPopUp = new PopUpWidgetGroup(0, 7, 180, 90, null);
-        PopUpWidgetGroup oreDictPopUp = new PopUpWidgetGroup(9, 37, 179, 90, GuiTextures.BACKGROUND);
-        blockFilter.initUI(slotsPopUp::addWidget);
-        enableBlockPopUp = slotsPopUp::setEnabled;
-        enableBlockPopUp.apply(!oreDict);
-        oreDictFilter.initUI(oreDictPopUp::addWidget);
-        enableOreDictPopUp = oreDictPopUp::setEnabled;
-        enableOreDictPopUp.apply(oreDict);
-        widgetGroup.apply(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
-                .setTooltipText("machine.universal.toggle.filter"));
-        widgetGroup.apply(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-        widgetGroup.apply(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
-                .setTooltipText("cover.filter.blacklist"));
-        widgetGroup.apply(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
-                .setTooltipText("cover.filter.ore_dictionary.open"));
-        widgetGroup.apply(slotsPopUp);
-        return widgetGroup.apply(oreDictPopUp);
-    }
-
-    protected AbstractWidgetGroup settingsTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)
-                .setClickHandler(this::handleSettingDisplayText));
-    }
-
     protected void addSettingsDisplayText(List<ITextComponent> textList) {
-        if (isActive)
+        if (this.isActive)
             textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.running"));
         textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.mining.level")
                 .appendText(" ")
@@ -409,26 +395,26 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     private void handleSettingDisplayText(String componentData, Widget.ClickData clickData) {
-        if (isActive) return;
+        if (this.isActive) return;
         int value = clickData.isCtrlClick ? 100
                 : clickData.isShiftClick ? 10
                 : 1;
         switch (componentData) {
             case "maxYIncrement":
-                maxY.set(MathHelper.clamp(maxY.get() + value, minY.get(), getPos().getY()));
+                this.maxY.set(MathHelper.clamp(this.maxY.get() + value, this.minY.get(), this.getPos().getY()));
                 return;
             case "maxYDecrement":
-                maxY.set(MathHelper.clamp(maxY.get() - value, minY.get(), getPos().getY()));
+                this.maxY.set(MathHelper.clamp(this.maxY.get() - value, this.minY.get(), this.getPos().getY()));
                 return;
             case "minYIncrement":
-                minY.set(MathHelper.clamp(minY.get() + value, 0, maxY.get()));
+                this.minY.set(MathHelper.clamp(this.minY.get() + value, 0, this.maxY.get()));
                 return;
             case "minYDecrement":
-                minY.set(MathHelper.clamp(minY.get() - value, 0, maxY.get()));
+                this.minY.set(MathHelper.clamp(this.minY.get() - value, 0, this.maxY.get()));
                 return;
             default:
-                maxY.set(getPos().getY());
-                minY.set(0);
+                this.maxY.set(getPos().getY());
+                this.minY.set(0);
         }
     }
 
@@ -437,7 +423,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     public boolean isEnableFilter() {
-        return enableFilter;
+        return this.enableFilter;
     }
 
     public void setBlackListFilter(boolean blackListFilter) {
@@ -445,7 +431,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     public boolean isBlackListFilter() {
-        return blackListFilter;
+        return this.blackListFilter;
     }
 
     private void setOreDict(boolean oreDict) {
@@ -455,48 +441,46 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     private boolean isOreDict() {
-        return oreDict;
+        return this.oreDict;
     }
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (this.isStructureFormed()) {
-            if(x.get() == Long.MAX_VALUE) {
-                textList.add(new TextComponentString(String.format("X: Not Active")));
-                textList.add(new TextComponentString(String.format("Y: Not Active")));
-                textList.add(new TextComponentString(String.format("Z: Not Active")));
+            if(this.x.get() == Long.MAX_VALUE) {
+                textList.add(new TextComponentString("X: Not Active"));
+                textList.add(new TextComponentString("Y: Not Active"));
+                textList.add(new TextComponentString("Z: Not Active"));
+            } else {
+                textList.add(new TextComponentString(String.format("X: %d", this.x.get())));
+                textList.add(new TextComponentString(String.format("Y: %d", this.y.get())));
+                textList.add(new TextComponentString(String.format("Z: %d", this.z.get())));
             }
-            else{
-                textList.add(new TextComponentString(String.format("X: %d", x.get())));
-                textList.add(new TextComponentString(String.format("Y: %d", y.get())));
-                textList.add(new TextComponentString(String.format("Z: %d", z.get())));
-            }
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.chunk", currentChunk.get()));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.nb_chunk", chunks.size()));
+            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.chunk", this.currentChunk.get()));
+            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.nb_chunk", this.chunks.size()));
             textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.block_per_tick", getNbBlock()));
             if (this.type != Type.CREATIVE) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", silktouch));
+                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", this.silktouch));
                 textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.mode"));
             }
             ITextComponent toggleContinous = new TextComponentTranslation("tj.multiblock.elite_large_miner.restart");
             toggleContinous.appendText(" ");
 
-            if (canRestart)
+            if (this.canRestart)
                 toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.true"), "true"));
-            else
-                toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.false"), "false"));
+            else toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.false"), "false"));
 
             textList.add(toggleContinous);
 
-            if (done)
+            if (this.done)
                 textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.done", getNbBlock()).setStyle(new Style().setColor(TextFormatting.GREEN)));
         }
     }
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        canRestart = !componentData.equals("true");
+        this.canRestart = !componentData.equals("true");
     }
 
     @Override
@@ -505,14 +489,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     @Override
-    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityEliteLargeMiner(metaTileEntityId, getType());
-    }
-
-    @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (this.type != Type.CREATIVE) {
-            this.silktouch = !silktouch;
+            this.silktouch = !this.silktouch;
             return true;
         }
         return false;
@@ -523,46 +502,46 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         super.writeToNBT(data);
         NBTTagList blockList = new NBTTagList();
         NBTTagList indexList = new NBTTagList();
-        blockFilter.writeToNBT(data);
+        this.blockFilter.writeToNBT(data);
         data.setTag("BlockList", blockList);
         data.setTag("IndexList", indexList);
-        data.setBoolean("EnableFilter", enableFilter);
-        data.setBoolean("BlackListFilter", blackListFilter);
-        data.setTag("xPos", new NBTTagLong(x.get()));
-        data.setTag("yPos", new NBTTagLong(y.get()));
-        data.setTag("zPos", new NBTTagLong(z.get()));
-        data.setTag("chunk", new NBTTagInt(currentChunk.get()));
-        data.setTag("done", new NBTTagInt(done ? 1 : 0));
-        data.setTag("silktouch", new NBTTagInt(silktouch ? 1 : 0));
-        data.setTag("restart", new NBTTagInt(canRestart ? 1 : 0));
-        data.setTag("working", new NBTTagInt(isWorkingEnabled ? 1 : 0));
-        data.setTag("minY", new NBTTagInt(minY.get()));
-        data.setTag("maxY", new NBTTagInt(maxY.get()));
+        data.setBoolean("EnableFilter", this.enableFilter);
+        data.setBoolean("BlackListFilter", this.blackListFilter);
+        data.setTag("xPos", new NBTTagLong(this.x.get()));
+        data.setTag("yPos", new NBTTagLong(this.y.get()));
+        data.setTag("zPos", new NBTTagLong(this.z.get()));
+        data.setTag("chunk", new NBTTagInt(this.currentChunk.get()));
+        data.setTag("done", new NBTTagInt(this.done ? 1 : 0));
+        data.setTag("silktouch", new NBTTagInt(this.silktouch ? 1 : 0));
+        data.setTag("restart", new NBTTagInt(this.canRestart ? 1 : 0));
+        data.setTag("working", new NBTTagInt(this.isWorkingEnabled ? 1 : 0));
+        data.setTag("minY", new NBTTagInt(this.minY.get()));
+        data.setTag("maxY", new NBTTagInt(this.maxY.get()));
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        blockFilter.readFromNBT(data);
-        blackListFilter = data.getBoolean("BlackListFilter");
-        enableFilter = data.getBoolean("EnableFilter");
-        x.set(data.getLong("xPos"));
-        y.set(data.getLong("yPos"));
-        z.set(data.getLong("zPos"));
-        currentChunk.set(data.getInteger("chunk"));
-        done = data.getInteger("done") != 0;
-        silktouch = data.getInteger("silktouch") != 0;
-        canRestart = data.getInteger("restart") != 0;
-        isWorkingEnabled = data.getInteger("working") != 0;
-        minY.set(data.getInteger("minY"));
-        maxY.set(data.getInteger("maxY"));
+        this.blockFilter.readFromNBT(data);
+        this.blackListFilter = data.getBoolean("BlackListFilter");
+        this.enableFilter = data.getBoolean("EnableFilter");
+        this.x.set(data.getLong("xPos"));
+        this.y.set(data.getLong("yPos"));
+        this.z.set(data.getLong("zPos"));
+        this.currentChunk.set(data.getInteger("chunk"));
+        this.done = data.getInteger("done") != 0;
+        this.silktouch = data.getInteger("silktouch") != 0;
+        this.canRestart = data.getInteger("restart") != 0;
+        this.isWorkingEnabled = data.getInteger("working") != 0;
+        this.minY.set(data.getInteger("minY"));
+        this.maxY.set(data.getInteger("maxY"));
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeBoolean(isActive);
+        buf.writeBoolean(this.isActive);
     }
 
     @Override
@@ -574,14 +553,14 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive);
+        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.isActive);
     }
 
     protected void setActive(boolean active) {
         this.isActive = active;
-        markDirty();
         if (!getWorld().isRemote) {
-            writeCustomData(1, buf -> buf.writeBoolean(active));
+            this.writeCustomData(1, buf -> buf.writeBoolean(active));
+            this.markDirty();
         }
     }
 
@@ -590,7 +569,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         super.receiveCustomData(dataId, buf);
         if (dataId == 1) {
             this.isActive = buf.readBoolean();
-            getHolder().scheduleChunkForRenderUpdate();
+            this.getHolder().scheduleChunkForRenderUpdate();
         }
     }
 }

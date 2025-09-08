@@ -11,10 +11,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.FluidStack;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
+import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.VoidMOreMinerWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
-import tj.gui.TJWidgetGroup;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -23,10 +23,7 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
-import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -47,16 +44,12 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static tj.textures.TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
 import static gregicadditions.GAMaterials.*;
@@ -87,18 +80,6 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.1"));
-        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.2"));
-        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.3"));
-        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.4"));
-        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.5"));
-        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.6"));
-        tooltip.add(I18n.format("tj.multiblock.void_more_miner.description"));
-    }
-
-    @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
@@ -111,15 +92,22 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addNewTabs(Consumer<Triple<String, ItemStack, AbstractWidgetGroup>> tabs, int extended) {
-        super.addNewTabs(tabs, extended);
-        TJWidgetGroup widgetFluidGroup = new TJWidgetGroup();
-        tabs.accept(new ImmutableTriple<>("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab(widgetFluidGroup::addWidgets)));
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.1"));
+        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.2"));
+        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.3"));
+        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.4"));
+        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.5"));
+        tooltip.add(I18n.format("gtadditions.multiblock.void_miner.description.6"));
+        tooltip.add(I18n.format("tj.multiblock.void_more_miner.description"));
     }
 
-    private AbstractWidgetGroup fluidsTab(Function<Widget, WidgetGroup> widgetGroup) {
-        return widgetGroup.apply(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180));
+    @Override
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        super.addTabs(tabBuilder);
+        tabBuilder.addTab("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab -> fluidsTab.addWidget(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
+                .setMaxWidthLimit(180)));
     }
 
     @Override
