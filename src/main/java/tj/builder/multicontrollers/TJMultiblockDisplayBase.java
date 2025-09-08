@@ -2,6 +2,7 @@ package tj.builder.multicontrollers;
 
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.IMaintenance;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMaintenanceHatch;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMufflerHatch;
@@ -193,7 +194,7 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
 
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
-        tabBuilder.addTab("tj.multiblock.tab.maintenance", this.getStackForm(), maintenanceTab ->
+        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
                 maintenanceTab.addWidget(new AdvancedTextWidget(10, -2 - this.getExtended(), textList -> {
             MultiblockDisplaysUtility.mufflerDisplay(textList, !this.hasMufflerHatch() || this.isMufflerFaceFree());
             MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems());

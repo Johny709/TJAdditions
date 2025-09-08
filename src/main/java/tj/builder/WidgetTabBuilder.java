@@ -9,8 +9,7 @@ import gregtech.api.util.Position;
 import net.minecraft.item.ItemStack;
 import tj.gui.TJTabGroup;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -18,7 +17,7 @@ public class WidgetTabBuilder {
 
     private Position position = Position.ORIGIN;
     private Supplier<TabListRenderer> tabListRenderer;
-    private final Map<ItemTabInfo, AbstractWidgetGroup> tabs = new HashMap<>();
+    private final LinkedHashMap<ItemTabInfo, AbstractWidgetGroup> tabs = new LinkedHashMap<>();
 
     public WidgetTabBuilder setTabListRenderer(Supplier<TabListRenderer> tabListRenderer) {
         this.tabListRenderer = tabListRenderer;
