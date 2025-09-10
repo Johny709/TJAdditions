@@ -113,7 +113,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("void_more_miner", new MultiblockInfoRecipeWrapper(new VoidMOreMinerInfo()))
                             .put("teleporter", new MultiblockInfoRecipeWrapper(new TeleporterInfo()))
                             .put("large_chisel_workbench", new MultiblockInfoRecipeWrapper(new LargeChiselWorkbenchInfo()))
-                            .put("large_enchanter", new MultiblockInfoRecipeWrapper(new LargeEnchanterInfo()));
+                            .put("large_enchanter", new MultiblockInfoRecipeWrapper(new LargeEnchanterInfo()))
+                            .put("mega_fusion", new MultiblockInfoRecipeWrapper(new MegaFusionInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;
