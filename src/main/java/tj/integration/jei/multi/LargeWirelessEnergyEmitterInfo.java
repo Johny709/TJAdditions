@@ -40,18 +40,18 @@ public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
         MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("~CCC~", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CCCCC", "CCFCC", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
-                .aisle("iCCCH", "SFIFM", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
+                .aisle("iCCCE", "SFIFM", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
                 .aisle("CCCCC", "CCFCC", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~CCC~", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', this.tileEntity.getCasingState(transferType))
                 .where('F', this.tileEntity.getFrameState(transferType))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
-                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
-                .where('H', this.transferType == INPUT ? MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV]
-                        : MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.UV], EnumFacing.EAST);
+                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST);
         return IntStream.range(1, 15)
-                .mapToObj(tier -> shapeInfo.where('I', this.getVoltageCasing(tier)).build())
+                .mapToObj(tier -> shapeInfo.where('I', this.getVoltageCasing(tier))
+                        .where('E', this.transferType == INPUT ? this.getEnergyHatch(tier, false) : this.getEnergyHatch(tier, true), EnumFacing.EAST)
+                        .build())
                 .collect(Collectors.toList());
     }
 

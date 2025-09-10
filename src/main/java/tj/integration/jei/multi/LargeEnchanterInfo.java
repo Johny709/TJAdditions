@@ -57,11 +57,12 @@ public class LargeEnchanterInfo extends TJMultiblockInfoPage {
                 .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
                 .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
                 .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EnumFacing.EAST);
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
         return Arrays.stream(EmitterCasing.CasingType.values())
                 .map(casingType -> shapeInfo.where('e', GAMetaBlocks.EMITTER_CASING.getState(casingType))
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glasses[Math.min(glasses.length - 1, casingType.ordinal())])).build())
+                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
+                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glasses[Math.min(glasses.length - 1, casingType.ordinal())]))
+                        .build())
                 .collect(Collectors.toList());
     }
 

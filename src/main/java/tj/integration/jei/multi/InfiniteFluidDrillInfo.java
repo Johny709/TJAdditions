@@ -44,11 +44,12 @@ public class InfiniteFluidDrillInfo extends TJMultiblockInfoPage {
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
                 .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
-                .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.MAX], EnumFacing.EAST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[2], EnumFacing.WEST);
         return Arrays.stream(MotorCasing.CasingType.values())
                 .map(casingType -> shapeInfo.where('m', GAMetaBlocks.MOTOR_CASING.getState(casingType))
-                        .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[casingType.ordinal()])).build())
+                        .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[casingType.ordinal()]))
+                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
+                        .build())
                 .collect(Collectors.toList());
     }
 

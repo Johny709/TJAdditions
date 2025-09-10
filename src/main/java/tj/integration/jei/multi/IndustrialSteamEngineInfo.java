@@ -40,12 +40,13 @@ public class IndustrialSteamEngineInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TUMBAGA))
-                .where('E', MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.MV], EnumFacing.EAST)
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MV], EnumFacing.WEST)
                 .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.EAST);
         return Arrays.stream(MotorCasing.CasingType.values())
                 .map(casingType -> shapeInfo.where('R', GAMetaBlocks.MOTOR_CASING.getState(casingType))
-                        .where('F', this.getVoltageCasing(casingType.getTier())).build())
+                        .where('F', this.getVoltageCasing(casingType.getTier()))
+                        .where('E', this.getEnergyHatch(casingType.getTier(), true), EnumFacing.EAST)
+                        .build())
                 .collect(Collectors.toList());
     }
 

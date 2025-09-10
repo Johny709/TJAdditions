@@ -31,17 +31,18 @@ public class LargeWorldAcceleratorInfo extends TJMultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
-                .aisle("#C#", "HEC", "#C#")
-                .aisle("IEC", "SFE", "MEC")
-                .aisle("#C#", "CEC", "#C#")
+                .aisle("#C#", "EeC", "#C#")
+                .aisle("IeC", "SFe", "MeC")
+                .aisle("#C#", "CeC", "#C#")
                 .where('S', TJMetaTileEntities.LARGE_WORLD_ACCELERATOR, EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
-                .where('H', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV], EnumFacing.WEST);
+                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST);
         return Arrays.stream(FieldGenCasing.CasingType.values())
                 .map(casingType -> shapeInfo.where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(casingType))
-                        .where('E', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[casingType.ordinal()])).build())
+                        .where('e', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[casingType.ordinal()]))
+                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.WEST)
+                        .build())
                 .collect(Collectors.toList());
     }
 

@@ -43,13 +43,14 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
                     .where('S', this.getController(), EnumFacing.WEST)
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where('P', this.largeMiner.getCasingState())
-                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[4], EnumFacing.EAST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.EAST)
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
                     .where('F', this.largeMiner.getFrameState())
                     .where('#', Blocks.AIR.getDefaultState());
             return Arrays.stream(MotorCasing.CasingType.values())
-                    .map(casingType -> shapeInfo.where('m', GAMetaBlocks.MOTOR_CASING.getState(casingType)).build())
+                    .map(casingType -> shapeInfo.where('m', GAMetaBlocks.MOTOR_CASING.getState(casingType))
+                            .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
+                            .build())
                     .collect(Collectors.toList());
         }
         MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()

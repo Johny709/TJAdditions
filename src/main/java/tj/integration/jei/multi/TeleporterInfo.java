@@ -39,11 +39,12 @@ public class TeleporterInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2))
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.LV], EnumFacing.WEST)
-                .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.LV], EnumFacing.EAST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
         return Arrays.stream(FieldGenCasing.CasingType.values())
                 .map(casingType -> shapeInfo.where('f', GAMetaBlocks.FIELD_GEN_CASING.getState(casingType))
-                        .where('F', this.getVoltageCasing(casingType.getTier())).build())
+                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
+                        .where('F', this.getVoltageCasing(casingType.getTier()))
+                        .build())
                 .collect(Collectors.toList());
     }
 

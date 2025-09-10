@@ -50,11 +50,12 @@ public class LargeGreenhouseInfo extends TJMultiblockInfoPage {
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
                 .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST);
+                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST);
         return Arrays.stream(PumpCasing.CasingType.values())
                 .map(casingType -> shapeInfo.where('P', GAMetaBlocks.PUMP_CASING.getState(casingType))
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glassType[Math.min(glassType.length - 1, casingType.ordinal())])).build())
+                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glassType[Math.min(glassType.length - 1, casingType.ordinal())]))
+                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
+                        .build())
                 .collect(Collectors.toList());
     }
 

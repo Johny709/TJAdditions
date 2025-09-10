@@ -32,7 +32,7 @@ public class LargeBatteryChargerInfo extends TJMultiblockInfoPage {
         MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("CCCCC", "~CCC~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("iCCCC", "ICCCC", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
-                .aisle("MCCCC", "SCCCH", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
+                .aisle("MCCCC", "SCCCE", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
                 .aisle("CCCCC", "OCCCC", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CCCCC", "~CCC~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.getController(), EnumFacing.WEST)
@@ -41,10 +41,11 @@ public class LargeBatteryChargerInfo extends TJMultiblockInfoPage {
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.UV], EnumFacing.WEST)
                 .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.UV], EnumFacing.WEST)
-                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST)
-                .where('H', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.UV], EnumFacing.EAST);
+                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST);
         return Arrays.stream(CellCasing.CellType.values())
-                .map(cellType -> shapeInfo.where('B', GAMetaBlocks.CELL_CASING.getState(cellType)).build())
+                .map(cellType -> shapeInfo.where('B', GAMetaBlocks.CELL_CASING.getState(cellType))
+                        .where('E', this.getEnergyHatch(cellType.getTier(), false), EnumFacing.EAST)
+                        .build())
                 .collect(Collectors.toList());
     }
 
