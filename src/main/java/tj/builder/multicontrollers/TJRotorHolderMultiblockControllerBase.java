@@ -104,7 +104,7 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     }
 
     protected void mainDisplayTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10, 18, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.addWidget(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));

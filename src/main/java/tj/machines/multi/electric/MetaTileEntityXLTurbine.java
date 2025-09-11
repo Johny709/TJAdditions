@@ -56,7 +56,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     public ItemHandlerList importItemHandler;
 
     private int pageIndex;
-    private final int pageSize = 6;
+    private final int pageSize = 10;
     private XLTurbineWorkableHandler xlTurbineWorkableHandler;
     private BooleanConsumer fastModeConsumer;
 
@@ -136,7 +136,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
                         : durability > 10 ? "§e" : "§c";
 
                 String rotorName = rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName();
-                String shortRotorName = rotorName.length() > 27 ? rotorName.substring(0, 27) + "..." : rotorName;
+                String shortRotorName = rotorName.length() > 26 ? rotorName.substring(0, 26) + "..." : rotorName;
                 textList.add(new TextComponentString("-")
                         .appendText(" ")
                         .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName)))
@@ -202,15 +202,14 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        if (this.isStructureFormed()) {
-            if (this.getOffsetTimer() % 20 == 0) {
-                for (MetaTileEntityRotorHolder rotorHolder : getAbilities(ABILITY_ROTOR_HOLDER)) {
-                    if (rotorHolder.hasRotorInInventory())
-                        continue;
-                    ItemStack rotorReplacementStack = this.checkAndConsumeItem();
-                    if (rotorReplacementStack != null) {
-                        rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
-                    }
+        if (this.isStructureFormed() && this.getOffsetTimer() % 20 == 0) {
+            for (MetaTileEntityRotorHolder rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
+                if (rotorHolder.hasRotorInInventory())
+                    continue;
+                ItemStack rotorReplacementStack = this.checkAndConsumeItem();
+                if (rotorReplacementStack != null) {
+                    rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
+                    this.markDirty();
                 }
             }
         }
@@ -301,7 +300,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
-        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.addWidget(new AdvancedTextWidget(10, 18, this::addRotorDisplayText, 0xFFFFFF)
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.addWidget(new AdvancedTextWidget(10, -2, this::addRotorDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleRotorDisplayClick)));
     }
 
@@ -313,6 +312,5 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.xlTurbineWorkableHandler.setWorkingEnabled(isWorking);
-        this.markDirty();
     }
 }
