@@ -544,6 +544,7 @@ metaitem.max_universal_circuit.name=Universal Circuit (MAX)
 metaitem.fluid.regulator.uhv.name=Fluid Regulator (UHV)
 metaitem.fluid.regulator.umv.name=Fluid Regulator (UMV)
 metaitem.fluid.regulator.max.name=Fluid Regulator (MAX)
+metaitem.turbine_upgrade.name=Turbine Upgrade +%s
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF

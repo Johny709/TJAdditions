@@ -1,5 +1,10 @@
 package tj.machines.multi.electric;
 
+import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.util.GTLog;
+import net.minecraft.item.Item;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLHotCoolantTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -48,6 +53,9 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import tj.gui.widgets.TJSlotWidget;
+import tj.items.TJMetaItems;
+import tj.items.behaviours.TurbineUpgradeBehaviour;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -58,17 +66,21 @@ import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static gregicadditions.client.ClientHandler.MARAGING_STEEL_250_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance {
 
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     public final MetaTileEntityHotCoolantTurbine.TurbineType turbineType;
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
 
     private int pageIndex;
     private final int pageSize = 10;
+    private int parallels = 12;
+    private boolean hasChanged;
     private XLHotCoolantTurbineWorkableHandler xlHotCoolantTurbineWorkableHandler;
     protected boolean doStructureCheck;
     private BooleanConsumer fastModeConsumer;
@@ -103,6 +115,32 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         this.xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, this.recipeMap, () -> this.energyContainer, () -> this.importFluidHandler);
         this.fastModeConsumer = xlHotCoolantTurbineWorkableHandler::setFastMode;
         return xlHotCoolantTurbineWorkableHandler;
+    }
+
+    @Override
+    protected IItemHandlerModifiable createImportItemHandler() {
+        return new ItemStackHandler() {
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (getWorld() != null && !getWorld().isRemote && !hasChanged) {
+                    hasChanged = true;
+                    ItemStack stack = this.getStackInSlot(slot);
+                    parallels = 12;
+                    for (MetaItem<?>.MetaValueItem turbineMetaItem : TJMetaItems.TURBINE_UPGRADES) {
+                        if (turbineMetaItem.isItemEqual(stack)) {
+                            GTLog.logger.info("Turbine Upgrade Installed");
+                            parallels += ((TurbineUpgradeBehaviour) turbineMetaItem.getAllStats().get(0)).getExtraParallels();
+                            break;
+                        }
+                    }
+                    writeCustomData(10, buf -> buf.writeInt(parallels));
+                    writeCustomData(11, buf -> buf.writeBoolean(hasChanged));
+                    invalidateStructure();
+                    structurePattern = createStructurePattern();
+                    markDirty();
+                }
+            }
+        };
     }
 
     @Override
@@ -227,6 +265,15 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
+    protected void checkStructurePattern() {
+        super.checkStructurePattern();
+        if (this.hasChanged) {
+            this.hasChanged = false;
+            this.writeCustomData(11, buf -> buf.writeBoolean(this.hasChanged));
+        }
+    }
+
+    @Override
     public void invalidateStructure() {
         super.invalidateStructure();
         this.exportFluidHandler = null;
@@ -281,30 +328,29 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return this.turbineType == null ? null :
-                FactoryBlockPattern.start()
-                        .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
-                        .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
-                        .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHSHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
-                        .where('S', this.selfPredicate())
-                        .where('#', isAirPredicate())
-                        .where('C', statePredicate(this.getCasingState()))
-                        .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(getAllowedAbilities())))
-                        .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
-                        .build();
+        return this.turbineType == null ? null : this.getStructurePattern();
     }
 
-    @Override
-    public MultiblockAbility[] getAllowedAbilities() {
-        return this.turbineType.hasOutputHatch ?
-                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH} :
-                new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private BlockPattern getStructurePattern() {
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
+                .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
+                .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
+                .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC");
+        for (int i = 0; i < (this.parallels / 4) - 2; i++) {
+            factoryPattern.aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC");
+            factoryPattern.aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC");
+            factoryPattern.aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC");
+        }
+        return factoryPattern
+                .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
+                .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
+                .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHSHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
+                .where('S', this.selfPredicate())
+                .where('#', isAirPredicate())
+                .where('C', statePredicate(this.getCasingState()))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
+                .build();
     }
 
     public IBlockState getCasingState() {
@@ -321,6 +367,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.writeToNBT(data);
         data.setByte("Maintenance", this.maintenance_problems);
         data.setInteger("ActiveTimer", this.timeActive);
+        data.setInteger("parallels", this.parallels);
         return data;
     }
 
@@ -329,6 +376,10 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.readFromNBT(data);
         this.maintenance_problems = data.getByte("Maintenance");
         this.timeActive = data.getInteger("ActiveTimer");
+        if (data.hasKey("parallels")) {
+            this.parallels = data.getInteger("parallels");
+            this.structurePattern = this.createStructurePattern();
+        }
     }
 
     @Override
@@ -336,6 +387,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.writeInitialSyncData(buf);
         buf.writeByte(this.maintenance_problems);
         buf.writeInt(this.timeActive);
+        buf.writeInt(this.parallels);
     }
 
     @Override
@@ -343,6 +395,8 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.receiveInitialSyncData(buf);
         this.maintenance_problems = buf.readByte();
         this.timeActive = buf.readInt();
+        this.parallels = buf.readInt();
+        this.structurePattern = this.createStructurePattern();
     }
 
     @Override
@@ -350,6 +404,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.receiveCustomData(dataId, buf);
         if (dataId == STORE_TAPED) {
             this.storedTaped = buf.readBoolean();
+        } else if (dataId == 10) {
+            this.parallels = buf.readInt();
+            this.structurePattern = this.createStructurePattern();
+        } else if (dataId == 11) {
+            this.hasChanged = buf.readBoolean();
         }
     }
 
@@ -384,6 +443,9 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .setTooltipText("machine.universal.toggle.run.mode"));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
+        widgetGroup.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191, true, true)
+                .setPutItemsPredicate(() -> !this.hasChanged)
+                .setTakeItemsPredicate(() -> !this.hasChanged));
     }
 
     public boolean isWorkingEnabled() {
@@ -479,5 +541,4 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         this.storedTaped = isTaped;
         this.writeCustomData(STORE_TAPED, buf -> buf.writeBoolean(isTaped));
     }
-
 }

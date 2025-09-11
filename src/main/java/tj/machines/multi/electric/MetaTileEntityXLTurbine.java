@@ -1,5 +1,13 @@
 package tj.machines.multi.electric;
 
+import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.util.GTLog;
+import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -37,6 +45,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import tj.gui.widgets.TJSlotWidget;
+import tj.items.TJMetaItems;
+import tj.items.behaviours.TurbineUpgradeBehaviour;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
 public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBase {
@@ -57,6 +69,8 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
 
     private int pageIndex;
     private final int pageSize = 10;
+    private int parallels = 12;
+    private boolean hasChanged;
     private XLTurbineWorkableHandler xlTurbineWorkableHandler;
     private BooleanConsumer fastModeConsumer;
 
@@ -76,6 +90,32 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
         this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, this.recipeMap, () -> this.energyContainer, () -> this.importFluidHandler);
         this.fastModeConsumer = this.xlTurbineWorkableHandler::setFastMode;
         return this.xlTurbineWorkableHandler;
+    }
+
+    @Override
+    protected IItemHandlerModifiable createImportItemHandler() {
+        return new ItemStackHandler() {
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (getWorld() != null && !getWorld().isRemote && !hasChanged) {
+                    hasChanged = true;
+                    ItemStack stack = this.getStackInSlot(slot);
+                    parallels = 12;
+                    for (MetaItem<?>.MetaValueItem turbineMetaItem : TJMetaItems.TURBINE_UPGRADES) {
+                        if (turbineMetaItem.isItemEqual(stack)) {
+                            GTLog.logger.info("Turbine Upgrade Installed");
+                            parallels += ((TurbineUpgradeBehaviour) turbineMetaItem.getAllStats().get(0)).getExtraParallels();
+                            break;
+                        }
+                    }
+                    writeCustomData(10, buf -> buf.writeInt(parallels));
+                    writeCustomData(11, buf -> buf.writeBoolean(hasChanged));
+                    invalidateStructure();
+                    structurePattern = createStructurePattern();
+                    markDirty();
+                }
+            }
+        };
     }
 
     @Override
@@ -193,6 +233,15 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
+    protected void checkStructurePattern() {
+        super.checkStructurePattern();
+        if (this.hasChanged) {
+            this.hasChanged = false;
+            this.writeCustomData(11, buf -> buf.writeBoolean(this.hasChanged));
+        }
+    }
+
+    @Override
     public void invalidateStructure() {
         super.invalidateStructure();
         this.exportFluidHandler = null;
@@ -253,23 +302,29 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return this.turbineType == null ? null :
-                FactoryBlockPattern.start()
-                        .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
-                        .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
-                        .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
-                        .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHSHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
-                        .where('S', this.selfPredicate())
-                        .where('#', isAirPredicate())
-                        .where('C', statePredicate(this.getCasingState()))
-                        .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                        .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
-                        .build();
+        return this.turbineType == null ? null : this.getStructurePattern();
+    }
+
+    private BlockPattern getStructurePattern() {
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
+                .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
+                .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
+                .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC");
+        for (int i = 0; i < (this.parallels / 4) - 2; i++) {
+            factoryPattern.aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC");
+            factoryPattern.aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC");
+            factoryPattern.aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC");
+        }
+        return factoryPattern
+                .aisle("CHHHHHC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CHHHHHC")
+                .aisle("CHHHHHC", "R#####R", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####R", "CHHHHHC")
+                .aisle("CCCCCCC", "CHHHHHC", "CHHHHHC", "CHHSHHC", "CHHHHHC", "CHHHHHC", "CCCCCCC")
+                .where('S', this.selfPredicate())
+                .where('#', isAirPredicate())
+                .where('C', statePredicate(this.getCasingState()))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
+                .build();
     }
 
     @Override
@@ -305,6 +360,14 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191, true, true)
+                .setTakeItemsPredicate(() -> !this.hasChanged)
+                .setPutItemsPredicate(() -> !this.hasChanged));
+    }
+
+    @Override
     public boolean isWorkingEnabled() {
         return this.xlTurbineWorkableHandler.isWorkingEnabled();
     }
@@ -312,5 +375,45 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.xlTurbineWorkableHandler.setWorkingEnabled(isWorking);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setInteger("parallels", this.parallels);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        if (data.hasKey("parallels")) {
+            this.parallels = data.getInteger("parallels");
+            this.structurePattern = this.createStructurePattern();
+        }
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeInt(this.parallels);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.parallels = buf.readInt();
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 10) {
+            this.parallels = buf.readInt();
+            this.structurePattern = this.createStructurePattern();
+        } else if (dataId == 11) {
+            this.hasChanged = buf.readBoolean();
+        }
     }
 }
