@@ -2,8 +2,8 @@ package tj.machines.multi.electric;
 
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.util.GTLog;
+import net.minecraft.item.Item;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLHotCoolantTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -55,6 +55,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.TJMetaItems;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
+import tj.items.handlers.TurbineUpgradeStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -118,28 +119,21 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler() {
-            @Override
-            protected void onContentsChanged(int slot) {
-                if (getWorld() != null && !getWorld().isRemote && !hasChanged) {
-                    hasChanged = true;
-                    ItemStack stack = this.getStackInSlot(slot);
-                    parallels = 12;
-                    for (MetaItem<?>.MetaValueItem turbineMetaItem : TJMetaItems.TURBINE_UPGRADES) {
-                        if (turbineMetaItem.isItemEqual(stack)) {
-                            GTLog.logger.info("Turbine Upgrade Installed");
-                            parallels += ((TurbineUpgradeBehaviour) turbineMetaItem.getAllStats().get(0)).getExtraParallels();
-                            break;
-                        }
+        return new TurbineUpgradeStackHandler(this)
+                .setOnContentsChanged((stack, insert) -> {
+                    if (this.getWorld() != null && !this.getWorld().isRemote && !this.hasChanged) {
+                        this.hasChanged = true;
+                        this.parallels = 12;
+                        Item item = stack.getItem();
+                        if (insert && item instanceof MetaItem<?>)
+                            this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();
+                        this.writeCustomData(10, buf -> buf.writeInt(this.parallels));
+                        this.writeCustomData(11, buf -> buf.writeBoolean(this.hasChanged));
+                        if (this.isStructureFormed())
+                            this.invalidateStructure();
+                        this.structurePattern = this.createStructurePattern();
                     }
-                    writeCustomData(10, buf -> buf.writeInt(parallels));
-                    writeCustomData(11, buf -> buf.writeBoolean(hasChanged));
-                    invalidateStructure();
-                    structurePattern = createStructurePattern();
-                    markDirty();
-                }
-            }
-        };
+                });
     }
 
     @Override
@@ -402,9 +396,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.receiveCustomData(dataId, buf);
         if (dataId == STORE_TAPED) {
             this.storedTaped = buf.readBoolean();
+            this.scheduleRenderUpdate();
         } else if (dataId == 10) {
             this.parallels = buf.readInt();
             this.structurePattern = this.createStructurePattern();
+            this.scheduleRenderUpdate();
         } else if (dataId == 11) {
             this.hasChanged = buf.readBoolean();
         }
