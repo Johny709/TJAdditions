@@ -1,7 +1,6 @@
 package tj.machines.multi.electric;
 
 import gregtech.api.items.metaitem.MetaItem;
-import gregtech.api.util.GTLog;
 import net.minecraft.item.Item;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
@@ -53,7 +52,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.widgets.TJSlotWidget;
-import tj.items.TJMetaItems;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.TurbineUpgradeStackHandler;
 
@@ -73,13 +71,14 @@ import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    public static final int BASE_PARALLEL = 12;
     public final MetaTileEntityHotCoolantTurbine.TurbineType turbineType;
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
 
     private int pageIndex;
     private final int pageSize = 10;
-    private int parallels = 12;
+    private int parallels = BASE_PARALLEL;
     private boolean hasChanged;
     private XLHotCoolantTurbineWorkableHandler xlHotCoolantTurbineWorkableHandler;
     protected boolean doStructureCheck;
@@ -123,7 +122,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .setOnContentsChanged((stack, insert) -> {
                     if (this.getWorld() != null && !this.getWorld().isRemote && !this.hasChanged) {
                         this.hasChanged = true;
-                        this.parallels = 12;
+                        this.parallels = BASE_PARALLEL;
                         Item item = stack.getItem();
                         if (insert && item instanceof MetaItem<?>)
                             this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();

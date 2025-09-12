@@ -181,19 +181,6 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         return true;
     }
 
-    @Override
-    public long getMaxVoltage() {
-        double totalEnergyOutput = 0;
-        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
-        for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
-            if (rotorHolder.hasRotorInInventory()) {
-                double rotorEfficiency = rotorHolder.getRotorEfficiency();
-                totalEnergyOutput += (BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency);
-            }
-        }
-        return MathHelper.ceil((totalEnergyOutput / rotorHolders.size() * this.fastModeMultiplier) / TURBINE_BONUS);
-    }
-
     protected boolean isReadyForRecipes() {
         int areReadyForRecipes = 0;
         int rotorHolderSize = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size();
@@ -230,6 +217,19 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     }
 
     @Override
+    public long getMaxVoltage() {
+        double totalEnergyOutput = 0;
+        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
+        for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
+            if (rotorHolder.hasRotorInInventory()) {
+                double rotorEfficiency = rotorHolder.getRotorEfficiency();
+                totalEnergyOutput += BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
+            }
+        }
+        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / MetaTileEntityXLTurbine.BASE_PARALLEL);
+    }
+
+    @Override
     public long getRecipeOutputVoltage() {
         double totalEnergyOutput = 0;
         for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
@@ -237,15 +237,15 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
                 double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += (BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
-                totalEnergyOutput /= 1.00 + 0.05 * this.extremeTurbine.getNumProblems();
             }
         }
+        totalEnergyOutput /= 1.00 + 0.05 * this.extremeTurbine.getNumProblems();
         return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier * TURBINE_BONUS);
     }
 
     @Override
     protected int calculateFuelAmount(HotCoolantRecipe currentRecipe) {
-        return (int) (super.calculateFuelAmount(currentRecipe) / (this.isFastMode ? 1 : 1.5F));
+        return (int) (super.calculateFuelAmount(currentRecipe) / (this.isFastMode ? 1 : TURBINE_BONUS));
     }
 
     @Override
