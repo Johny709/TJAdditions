@@ -419,11 +419,16 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         builder.image(-10, -20, 195, 237, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
         builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
+        builder.widget(tabBuilder.buildWidgetGroup());
         builder.widget(tabBuilder.build());
         return builder;
     }
 
     protected void addTabs(WidgetTabBuilder tabBuilder) {
+        tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191, true, true)
+                .setPutItemsPredicate(() -> !this.hasChanged)
+                .setTakeItemsPredicate(() -> !this.hasChanged)
+                .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
                 maintenanceTab.addWidget(new AdvancedTextWidget(10, -2, textList ->
@@ -440,9 +445,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .setTooltipText("machine.universal.toggle.run.mode"));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
-        widgetGroup.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191, true, true)
-                .setPutItemsPredicate(() -> !this.hasChanged)
-                .setTakeItemsPredicate(() -> !this.hasChanged));
     }
 
     public boolean isWorkingEnabled() {

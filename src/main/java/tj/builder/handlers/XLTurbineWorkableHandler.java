@@ -238,7 +238,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
                 totalEnergyOutput += BASE_EU_VOLTAGE + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
             }
         }
-        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / BASE_PARALLEL);
+        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / 16);
     }
 
     @Override

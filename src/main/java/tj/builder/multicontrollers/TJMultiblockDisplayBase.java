@@ -10,7 +10,6 @@ import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IControllable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
 import gregtech.api.multiblock.PatternMatchContext;
@@ -33,7 +32,6 @@ import tj.gui.TJHorizontoalTabListRenderer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
@@ -169,16 +167,14 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer player) {
         ModularUI.Builder builder = ModularUI.extendedBuilder();
-        WidgetGroup widgetGroup = new WidgetGroup();
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                 .setPosition(-10, 1 + this.getExtended());
         this.addTabs(tabBuilder);
         builder.image(-10, -20, 195, 237 + this.getExtended(), this.getExtended() == 0 ? NEW_MULTIBLOCK_DISPLAY : NEW_MULTIBLOCK_DISPLAY_EXTENDED);
         builder.bindPlayerInventory(player.inventory, GuiTextures.SLOT ,-3, 134 + this.getExtended());
-        widgetGroup.addWidget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
-        this.additionalWidgets(widgetGroup::addWidget);
-        builder.widget(widgetGroup);
+        builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
+        builder.widget(tabBuilder.buildWidgetGroup());
         builder.widget(tabBuilder.build());
         return builder;
     }
@@ -186,11 +182,6 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     protected int getExtended() {
         return 0;
     }
-
-    /**
-     * These widgets affect all tabs
-     */
-    protected void additionalWidgets(Consumer<Widget> widgetGroup) {}
 
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);

@@ -86,6 +86,7 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
         builder.image(-10, -20, 195, 237, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
         builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
+        builder.widget(tabBuilder.buildWidgetGroup());
         builder.widget(tabBuilder.build());
         return builder;
     }

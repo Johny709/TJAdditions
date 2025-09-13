@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
@@ -239,14 +238,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    protected void additionalWidgets(Consumer<Widget> widgetGroup) {
-        widgetGroup.accept(new JEIRecipeTransferWidget(0, 0, 100, 100)
-                .setRecipeConsumer(this::setRecipe));
-    }
-
-    @Override
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
+        tabBuilder.addWidget(new JEIRecipeTransferWidget(0, 0, 100, 100)
+                .setRecipeConsumer(this::setRecipe));
         tabBuilder.addTab("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(STEEL_GEARBOX), workableTab -> {
             workableTab.addWidget(new TJCycleButtonWidget(172, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                     .setTooltipFormat(this::getTooltipFormat)

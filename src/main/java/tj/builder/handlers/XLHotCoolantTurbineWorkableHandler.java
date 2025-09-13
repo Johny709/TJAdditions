@@ -228,7 +228,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
                 totalEnergyOutput += BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
             }
         }
-        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / BASE_PARALLEL);
+        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / 16);
     }
 
     @Override
