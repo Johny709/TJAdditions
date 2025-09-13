@@ -25,19 +25,21 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
-import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
 import tj.machines.multi.electric.MetaTileEntityXLTurbine;
 
 import java.util.List;
 import java.util.function.Supplier;
+
+import static gregtech.common.metatileentities.multi.electric.generator.RotorHolderMultiblockController.ABILITY_ROTOR_HOLDER;
+import static tj.machines.multi.electric.MetaTileEntityXLTurbine.BASE_PARALLEL;
 
 public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
 
     private static final float TURBINE_BONUS = 1.5f;
     private static final int CYCLE_LENGTH = 230;
     private static final int BASE_ROTOR_DAMAGE = 220;
-    private static final int BASE_EU_VOLTAGE = 512;
     private static final int BASE_EU_OUTPUT = 2048;
+    private static final int BASE_EU_VOLTAGE = 512;
 
     private int totalEnergyProduced;
     private int consumption;
@@ -168,7 +170,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
 
     @Override
     public boolean checkRecipe(FuelRecipe recipe) {
-        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
+        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
         if (++this.rotorCycleLength >= CYCLE_LENGTH) {
             for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
                 int baseRotorDamage = BASE_ROTOR_DAMAGE;
@@ -187,9 +189,9 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     @Override
     protected boolean isReadyForRecipes() {
         int areReadyForRecipes = 0;
-        int rotorHolderSize = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size();
+        int rotorHolderSize = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).size();
         for (int index = 0; index < rotorHolderSize; index++) {
-            MetaTileEntityRotorHolder rotorHolder = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).get(index);
+            MetaTileEntityRotorHolder rotorHolder = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).get(index);
             if (rotorHolder.isHasRotor())
                 areReadyForRecipes++;
         }
@@ -229,20 +231,20 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     @Override
     public long getMaxVoltage() {
         double totalEnergyOutput = 0;
-        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
+        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
         for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
             if (rotorHolder.hasRotorInInventory()) {
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
-                totalEnergyOutput += BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
+                totalEnergyOutput += BASE_EU_VOLTAGE + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
             }
         }
-        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / MetaTileEntityXLHotCoolantTurbine.BASE_PARALLEL);
+        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / BASE_PARALLEL);
     }
 
     @Override
     public long getRecipeOutputVoltage() {
         double totalEnergyOutput = 0;
-        for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
+        for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
             if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
                 double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();

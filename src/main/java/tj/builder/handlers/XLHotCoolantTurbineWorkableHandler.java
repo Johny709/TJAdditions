@@ -3,6 +3,7 @@ package tj.builder.handlers;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.impl.HotCoolantRecipeLogic;
+import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCoolant;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
 import gregicadditions.recipes.impl.nuclear.HotCoolantRecipe;
 import gregicadditions.recipes.impl.nuclear.HotCoolantRecipeMap;
@@ -14,7 +15,6 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.unification.material.type.FluidMaterial;
 import gregtech.common.ConfigHolder;
 import gregtech.common.MetaFluids;
-import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.MathHelper;
@@ -26,10 +26,12 @@ import tj.TJValues;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
-import tj.machines.multi.electric.MetaTileEntityXLTurbine;
 
 import java.util.List;
 import java.util.function.Supplier;
+
+import static gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine.ABILITY_ROTOR_HOLDER;
+import static tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine.BASE_PARALLEL;
 
 public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic implements IWorkable, IGeneratorInfo {
 
@@ -168,9 +170,9 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     @Override
     public boolean checkRecipe(HotCoolantRecipe recipe) {
-        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
+        List<MetaTileEntityRotorHolderForNuclearCoolant> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
         if (++this.rotorCycleLength >= CYCLE_LENGTH) {
-            for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
+            for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : rotorHolders) {
                 int damageToBeApplied = (int) Math.round((BASE_ROTOR_DAMAGE * rotorHolder.getRelativeRotorSpeed()) + 1) * this.rotorDamageMultiplier;
                 if (!rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                     return false;
@@ -183,9 +185,9 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     protected boolean isReadyForRecipes() {
         int areReadyForRecipes = 0;
-        int rotorHolderSize = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).size();
+        int rotorHolderSize = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).size();
         for (int index = 0; index < rotorHolderSize; index++) {
-            MetaTileEntityRotorHolder rotorHolder = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER).get(index);
+            MetaTileEntityRotorHolderForNuclearCoolant rotorHolder = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).get(index);
             if (rotorHolder.isHasRotor())
                 areReadyForRecipes++;
         }
@@ -219,20 +221,20 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     @Override
     public long getMaxVoltage() {
         double totalEnergyOutput = 0;
-        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER);
-        for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
+        List<MetaTileEntityRotorHolderForNuclearCoolant> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
+        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : rotorHolders) {
             if (rotorHolder.hasRotorInInventory()) {
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += BASE_EU_OUTPUT + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
             }
         }
-        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / MetaTileEntityXLTurbine.BASE_PARALLEL);
+        return MathHelper.ceil(totalEnergyOutput * this.fastModeMultiplier / BASE_PARALLEL);
     }
 
     @Override
     public long getRecipeOutputVoltage() {
         double totalEnergyOutput = 0;
-        for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(MetaTileEntityXLTurbine.ABILITY_ROTOR_HOLDER)) {
+        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
             if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory()) {
                 double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
                 double rotorEfficiency = rotorHolder.getRotorEfficiency();
