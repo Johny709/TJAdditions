@@ -39,10 +39,10 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
 
                 IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
-                nameInfo.text(TextStyleClass.INFO + "{*tj.multiblock.parallel.status*} " + (!isWorking ? "§e{*gregtech.multiblock.work_paused*}§r"
+                nameInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("tj.multiblock.parallel.status", (!isWorking ? "§e{*gregtech.multiblock.work_paused*}§r"
                         : hasProblems ? "§6{*machine.universal.has_problems*}§r"
                         : isActive ? "§a{*gregtech.multiblock.running*}§r"
-                        : "§7{*gregtech.multiblock.idling*}"));
+                        : "§7{*gregtech.multiblock.idling*}")));
 
                 IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 progressInfo.text(TextStyleClass.INFO + "{*gregtech.top.progress*} ");

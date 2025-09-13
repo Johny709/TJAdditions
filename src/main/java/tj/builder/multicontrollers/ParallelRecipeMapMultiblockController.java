@@ -407,9 +407,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                             : I18n.translateToLocal("machine.universal.running");
 
                     textList.add(new TextComponentString(": [§a" + recipeHandlerInstance + "§r] " + isRunning)
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.status")
-                                    .appendText(" ")
-                                    .appendSibling(new TextComponentString(isRunning))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.status", isRunning))
                                     .appendText("\n")
                                     .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.handler", recipeHandlerInstance)))
                                     .appendText("\n")
