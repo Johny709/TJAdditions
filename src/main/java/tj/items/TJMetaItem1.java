@@ -4,8 +4,13 @@ import gregicadditions.GAValues;
 import gregtech.api.items.materialitem.MaterialMetaItem;
 import gregtech.api.unification.ore.OrePrefix;
 import net.minecraft.item.ItemStack;
+import tj.TJValues;
 import tj.items.behaviours.*;
 
+import static gregicadditions.item.GAMetaItems.*;
+import static gregicadditions.item.GAMetaItems.ELECTRIC_MOTOR_MAX;
+import static gregtech.common.items.MetaItems.*;
+import static gregtech.common.items.MetaItems.ELECTRIC_MOTOR_UV;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
 
@@ -33,9 +38,8 @@ public class TJMetaItem1 extends MaterialMetaItem {
             ENDER_ITEM_COVERS[i] = addItem(enderCoverID++, "ender_item_cover_" + GAValues.VN[i + 3].toLowerCase()).addComponents(new EnderCoverBehaviour(EnderCoverBehaviour.EnderCoverType.ITEM, i + 3));
             ENDER_ENERGY_COVERS[i] = addItem(enderCoverID++, "ender_energy_cover_" + GAValues.VN[i + 3].toLowerCase()).addComponents(new EnderCoverBehaviour(EnderCoverBehaviour.EnderCoverType.ENERGY, i + 3));
         }
-        int[] turbineColor = {0x049C00, 0xFF8E00, 0x9900FF, 0x383838, 0xF2F2F2};
         for (int i = 0; i < TURBINE_UPGRADES.length; i++) {
-            TURBINE_UPGRADES[i] = addItem(1200 + i, "turbine_upgrade").addComponents(new TurbineUpgradeBehaviour(turbineColor[i], 4 + 4 * i)).setMaxStackSize(1);
+            TURBINE_UPGRADES[i] = addItem(1200 + i, "turbine_upgrade").addComponents(new TurbineUpgradeBehaviour(TJValues.VC[i + GAValues.UEV], 4 + 4 * i)).setMaxStackSize(1);
         }
     }
 

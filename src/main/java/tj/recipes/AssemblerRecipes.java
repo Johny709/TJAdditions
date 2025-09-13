@@ -36,9 +36,9 @@ import static gregtech.common.metatileentities.MetaTileEntities.*;
 
 public class AssemblerRecipes {
 
-    public static Material[][] materialTier = {{Steel, Aluminium, StainlessSteel, Titanium, TungstenSteel, RhodiumPlatedPalladium, IngotMaterial.MATERIAL_REGISTRY.getObject("star_metal_alloy"), Tritanium, Seaborgium, Bohrium, Adamantium, Vibranium, HeavyQuarkDegenerateMatter, Neutronium},
+    public final static Material[][] MATERIAL_TIER = {{Steel, Aluminium, StainlessSteel, Titanium, TungstenSteel, RhodiumPlatedPalladium, IngotMaterial.MATERIAL_REGISTRY.getObject("star_metal_alloy"), Tritanium, Seaborgium, Bohrium, Adamantium, Vibranium, HeavyQuarkDegenerateMatter, Neutronium},
                                                 {IngotMaterial.MATERIAL_REGISTRY.getObject("lv_superconductor"), MVSuperconductor, HVSuperconductor, EVSuperconductor, IVSuperconductor, LuVSuperconductor, ZPMSuperconductor, UVSuperconductor, UHVSuperconductor, UEVSuperconductor, UIVSuperconductor, UMVSuperconductor, UXVSuperconductor, MarkerMaterials.Tier.Superconductor}};
-    public static MetaTileEntityLargeBoiler[] boilerType = {LARGE_BRONZE_BOILER, LARGE_STEEL_BOILER, LARGE_TITANIUM_BOILER, LARGE_TUNGSTENSTEEL_BOILER};
+    public final static MetaTileEntityLargeBoiler[] BOILER_TYPE = {LARGE_BRONZE_BOILER, LARGE_STEEL_BOILER, LARGE_TITANIUM_BOILER, LARGE_TUNGSTENSTEEL_BOILER};
 
     public static void init() {
         MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
@@ -48,12 +48,12 @@ public class AssemblerRecipes {
         MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
         MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
 
-        for (int i = 0; i < boilerType.length; i++) {
+        for (int i = 0; i < BOILER_TYPE.length; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
-                    .inputs(boilerType[i].getStackForm(64))
-                    .inputs(boilerType[i].getStackForm(64))
-                    .inputs(boilerType[i].getStackForm(64))
-                    .inputs(boilerType[i].getStackForm(64))
+                    .inputs(BOILER_TYPE[i].getStackForm(64))
+                    .inputs(BOILER_TYPE[i].getStackForm(64))
+                    .inputs(BOILER_TYPE[i].getStackForm(64))
+                    .inputs(BOILER_TYPE[i].getStackForm(64))
                     .outputs(MEGA_BOILER[i].getStackForm(1))
                     .EUt(GAValues.VA[2 + i])
                     .duration(1200)
@@ -184,7 +184,7 @@ public class AssemblerRecipes {
             int tier = Math.min(GAValues.MAX, 3 + (3 * i));
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 3 ? ITEM_IMPORT_BUS[tier].getStackForm(64) : SUPER_ITEM_INPUT_BUS[i - 1].getStackForm())
-                    .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
+                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
                     .inputs(robotArms[tier - 1].getStackForm(4))
                     .outputs(SUPER_ITEM_INPUT_BUS[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
@@ -194,7 +194,7 @@ public class AssemblerRecipes {
 
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 3 ? ITEM_EXPORT_BUS[tier].getStackForm(64) : SUPER_ITEM_OUTPUT_BUS[i - 1].getStackForm())
-                    .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
+                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
                     .inputs(conveyors[tier - 1].getStackForm(4))
                     .outputs(SUPER_ITEM_OUTPUT_BUS[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
@@ -204,7 +204,7 @@ public class AssemblerRecipes {
 
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 2 ? INPUT_HATCH_MULTI.get(i).getStackForm(64) : i < 3 ? QUADRUPLE_QUADRUPLE_INPUT_HATCH.getStackForm(64) : SUPER_FLUID_INPUT_HATCH[i - 1].getStackForm())
-                    .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
+                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
                     .inputs(regulators[tier - 1].getStackForm(4))
                     .outputs(SUPER_FLUID_INPUT_HATCH[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
@@ -214,7 +214,7 @@ public class AssemblerRecipes {
 
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 2 ? OUTPUT_HATCH_MULTI.get(i).getStackForm(64) : i < 3 ? QUADRUPLE_QUADRUPLE_OUTPUT_HATCH.getStackForm(64) : SUPER_FLUID_OUTPUT_HATCH[i - 1].getStackForm())
-                    .input(OrePrefix.gear, materialTier[0][tier - 1], 16)
+                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
                     .inputs(pumps[tier - 1].getStackForm(4))
                     .outputs(SUPER_FLUID_OUTPUT_HATCH[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
@@ -224,12 +224,12 @@ public class AssemblerRecipes {
         }
 
 
-        for (int i = 0; i < materialTier[0].length; i++) {
+        for (int i = 0; i < MATERIAL_TIER[0].length; i++) {
 
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(ENERGY_INPUT_HATCH_128_AMPS.get(i + 1).getStackForm())
-                    .input(OrePrefix.wireGtHex, materialTier[1][i], 2)
-                    .input(OrePrefix.plate, materialTier[0][i], 6)
+                    .input(OrePrefix.wireGtHex, MATERIAL_TIER[1][i], 2)
+                    .input(OrePrefix.plate, MATERIAL_TIER[0][i], 6)
                     .outputs(ENERGY_INPUT_HATCH_256A[i].getStackForm())
                     .duration(600)
                     .EUt(GAValues.VA[i + 1])
@@ -237,8 +237,8 @@ public class AssemblerRecipes {
 
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(ENERGY_OUTPUT_HATCH_128_AMPS.get(i + 1).getStackForm())
-                    .input(OrePrefix.wireGtHex, materialTier[1][i], 2)
-                    .input(OrePrefix.plate, materialTier[0][i], 6)
+                    .input(OrePrefix.wireGtHex, MATERIAL_TIER[1][i], 2)
+                    .input(OrePrefix.plate, MATERIAL_TIER[0][i], 6)
                     .outputs(ENERGY_OUTPUT_HATCH_256A[i].getStackForm())
                     .duration(600)
                     .EUt(GAValues.VA[i + 1])
@@ -276,7 +276,7 @@ public class AssemblerRecipes {
                     .input(OrePrefix.plateDense, StainlessSteel)
                     .inputs(emitters[i + 2].getStackForm(2))
                     .inputs(sensors[i + 2].getStackForm(2))
-                    .input(OrePrefix.cableGtHex, materialTier[1][i + 2], 2)
+                    .input(OrePrefix.cableGtHex, MATERIAL_TIER[1][i + 2], 2)
                     .outputs(ENDER_ENERGY_COVERS[i].getStackForm())
                     .duration(600)
                     .EUt(GAValues.VA[i + 3])

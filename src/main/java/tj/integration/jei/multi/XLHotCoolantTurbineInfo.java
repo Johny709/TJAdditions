@@ -64,8 +64,8 @@ public class XLHotCoolantTurbineInfo extends MultiblockInfoPage {
                 shapeInfo.aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC");
                 shapeInfo.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
             }
-            shapeInfo.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "HCCCCCH", "CCCCCCC", "CCCCCCC", "CCCCCCC")
-                    .aisle("CCCCCCC", "R#####T", "CCCCCCC", "HCCCCCH", "CCCCCCC", "R#####T", "CCCCCCC")
+            shapeInfo.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
+                    .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
                     .aisle("CCCCCCC", "CCCCCCC", "CCCOCCC", "CCISJCC", "CCCMCCC", "CCCCCCC", "CCCCCCC")
                     .where('S', this.turbine, EnumFacing.WEST)
                     .where('C', this.turbine.turbineType.casingState)

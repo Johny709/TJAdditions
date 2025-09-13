@@ -8,6 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.List;
+
 public class TurbineUpgradeBehaviour implements IItemBehaviour, IItemColorProvider, IItemNameProvider {
 
     private final int color;
@@ -26,7 +28,12 @@ public class TurbineUpgradeBehaviour implements IItemBehaviour, IItemColorProvid
     @Override
     @SideOnly(Side.CLIENT)
     public String getItemStackDisplayName(ItemStack itemStack, String unlocalizedName) {
-        return I18n.format(unlocalizedName, this.extraParallels);
+        return I18n.format(unlocalizedName, this.extraParallels / 4);
+    }
+
+    @Override
+    public void addInformation(ItemStack itemStack, List<String> lines) {
+        lines.add(I18n.format("metaitem.turbine_upgrade.description", this.extraParallels));
     }
 
     public int getExtraParallels() {

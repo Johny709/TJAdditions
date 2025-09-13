@@ -41,7 +41,7 @@ import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
 import static tj.machines.TJMetaTileEntities.*;
-import static tj.recipes.AssemblerRecipes.materialTier;
+import static tj.recipes.AssemblerRecipes.MATERIAL_TIER;
 
 public class RecipeInit {
 
@@ -238,12 +238,12 @@ public class RecipeInit {
             int tier = 3 + (3 * i);
             MetaTileEntityQuantumTank superTank = superTanks[i];
             ModHandler.addShapedRecipe("steam_input_hatch." + GAValues.VN[tier], STEAM_INPUT_FLUID_HATCH[i].getStackForm(), "DPD", "DSD", "DPD",
-                    'D', new UnificationEntry(OrePrefix.plate, materialTier[0][tier -1]),
+                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
                     'S', superTank.getStackForm());
 
             ModHandler.addShapedRecipe("steam_output_hatch." + GAValues.VN[tier], STEAM_OUTPUT_FLUID_HATCH[i].getStackForm(), "DDD", "PSP", "DDD",
-                    'D', new UnificationEntry(OrePrefix.plate, materialTier[0][tier -1]),
+                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
                     'S', superTank.getStackForm());
         }
