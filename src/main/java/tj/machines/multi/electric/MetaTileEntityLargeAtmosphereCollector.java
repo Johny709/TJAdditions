@@ -10,6 +10,8 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
+import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.items.metaitem.stats.IMetaItemStats;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -22,10 +24,12 @@ import gregtech.api.render.Textures;
 import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -167,9 +171,10 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
                 for (MetaTileEntityRotorHolder rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
                     if (rotorHolder.hasRotorInInventory())
                         continue;
-                    ItemStack rotorReplacementStack = this.checkAndConsumeItem();
-                    if (rotorReplacementStack != null) {
-                        rotorHolder.getRotorInventory().setStackInSlot(0, rotorReplacementStack);
+                    ItemStack rotorStack = this.checkAndConsumeItem();
+                    if (rotorStack != null) {
+                        rotorHolder.getRotorInventory().setStackInSlot(0, rotorStack);
+                        rotorHolder.markDirty();
                     }
                 }
             }
@@ -179,20 +184,19 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     private ItemStack checkAndConsumeItem() {
         int getItemSlots = this.importItemHandler.getSlots();
         for (int slotIndex = 0; slotIndex < getItemSlots; slotIndex++) {
-            ItemStack item = this.importItemHandler.getStackInSlot(slotIndex);
-            boolean hugeRotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
-            boolean largeRotorStack = GAMetaItems.LARGE_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
-            boolean mediumRotorStack = GAMetaItems.MEDIUM_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
-            boolean smallRotorStack = GAMetaItems.SMALL_TURBINE_ROTOR.getStackForm().isItemEqualIgnoreDurability(item);
-
-            // check if slot has either small, medium, large, huge rotor. if not then skip to next slot
-            if(!hugeRotorStack && !largeRotorStack && !mediumRotorStack && !smallRotorStack)
-                continue;
-
-            ItemStack getItemFromSlot = item.getItem().getContainerItem(item);
-            item.setCount(0); // sets stacksize to 0. effectively voiding the item
-            this.importItemHandler.setStackInSlot(slotIndex, item);
-            return getItemFromSlot;
+            ItemStack stack = this.importItemHandler.getStackInSlot(slotIndex);
+            Item item = stack.getItem();
+            if (item instanceof MetaItem<?>) {
+                MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                if (metaItem != null) {
+                    List<IMetaItemStats> stats = metaItem.getAllStats();
+                    if (!stats.isEmpty() && stats.get(0) instanceof TurbineRotorBehavior) {
+                        this.importItemHandler.setStackInSlot(slotIndex, ItemStack.EMPTY);
+                        this.markDirty();
+                        return stack;
+                    }
+                }
+            }
         }
         return null;
     }
