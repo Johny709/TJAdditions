@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static gregtech.common.metatileentities.multi.electric.generator.RotorHolderMultiblockController.ABILITY_ROTOR_HOLDER;
-import static tj.machines.multi.electric.MetaTileEntityXLTurbine.BASE_PARALLEL;
 
 public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
 
@@ -47,6 +46,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     private int fastModeMultiplier = 1;
     private int rotorDamageMultiplier = 1;
     private boolean isFastMode;
+    private boolean fastMode;
     private int progress;
     private int maxProgress;
 
@@ -84,7 +84,8 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         }
 
         if (this.progress <= 0) {
-            this.toggleFastMode(isFastMode);
+            if (this.fastMode != this.isFastMode)
+                this.toggleFastMode(this.fastMode);
             if (this.extremeTurbine.getNumProblems() >= 6 || !this.isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
             this.progress = 1;
@@ -94,16 +95,19 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         }
     }
 
-    public void setFastMode(boolean isFastMode) {
-        this.isFastMode = isFastMode;
+    public void setFastMode(boolean fastMode) {
+        this.fastMode = fastMode;
         this.getMetaTileEntity().markDirty();
     }
 
     public boolean isFastMode() {
-        return this.isFastMode;
+        return this.fastMode;
     }
 
     private void toggleFastMode(boolean toggle) {
+        for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER))
+            rotorHolder.resetRotorSpeed();
+        this.isFastMode = toggle;
         if (toggle) {
             this.fastModeMultiplier = 3;
             this.rotorDamageMultiplier = 16;
@@ -274,6 +278,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         tagCompound.setInteger("FastModeMultiplier", this.fastModeMultiplier);
         tagCompound.setInteger("DamageMultiplier", this.rotorDamageMultiplier);
         tagCompound.setBoolean("IsFastMode", this.isFastMode);
+        tagCompound.setBoolean("FastMode", this.fastMode);
         tagCompound.setInteger("Consumption", this.consumption);
         tagCompound.setInteger("TotalEnergy", this.totalEnergyProduced);
         tagCompound.setInteger("Progress", this.progress);
@@ -290,6 +295,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         this.fastModeMultiplier = compound.getInteger("FastModeMultiplier");
         this.rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
         this.isFastMode = compound.getBoolean("IsFastMode");
+        this.fastMode = compound.getBoolean("FastMode");
         this.consumption = compound.getInteger("Consumption");
         this.fuelName = compound.getString("FuelName");
         this.totalEnergyProduced = compound.getInteger("TotalEnergy");

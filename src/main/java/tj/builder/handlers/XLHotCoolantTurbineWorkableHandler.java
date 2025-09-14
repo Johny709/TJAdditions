@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine.ABILITY_ROTOR_HOLDER;
-import static tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine.BASE_PARALLEL;
 
 public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic implements IWorkable, IGeneratorInfo {
 
@@ -46,6 +45,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     private int fastModeMultiplier = 1;
     private int rotorDamageMultiplier = 1;
     private boolean isFastMode;
+    private boolean fastMode;
     private int progress;
     private int maxProgress;
     private boolean active;
@@ -84,7 +84,8 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         }
 
         if (this.progress <= 0) {
-            this.toggleFastMode(this.isFastMode);
+            if (this.fastMode != this.isFastMode)
+                this.toggleFastMode(this.isFastMode);
             if (this.extremeTurbine.getNumProblems() >= 6 || !this.isReadyForRecipes() || !this.tryAcquireNewRecipe())
                 return;
             this.progress = 1;
@@ -94,16 +95,17 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         }
     }
 
-    public void setFastMode(boolean isFastMode) {
-        this.isFastMode = isFastMode;
+    public void setFastMode(boolean fastMode) {
+        this.fastMode = fastMode;
         this.getMetaTileEntity().markDirty();
     }
 
     public boolean isFastMode() {
-        return this.isFastMode;
+        return this.fastMode;
     }
 
     private void toggleFastMode(boolean toggle) {
+        this.isFastMode = toggle;
         if (toggle) {
             this.fastModeMultiplier = 3;
             this.rotorDamageMultiplier = 16;
@@ -282,6 +284,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         tagCompound.setInteger("FastModeMultiplier", this.fastModeMultiplier);
         tagCompound.setInteger("DamageMultiplier", this.rotorDamageMultiplier);
         tagCompound.setBoolean("IsFastMode", this.isFastMode);
+        tagCompound.setBoolean("FastMode", this.fastMode);
         tagCompound.setInteger("Consumption", this.consumption);
         tagCompound.setInteger("TotalEnergy", this.totalEnergyProduced);
         tagCompound.setInteger("Progress", this.progress);
@@ -299,6 +302,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         this.fastModeMultiplier = compound.getInteger("FastModeMultiplier");
         this.rotorDamageMultiplier = compound.getInteger("DamageMultiplier");
         this.isFastMode = compound.getBoolean("IsFastMode");
+        this.fastMode = compound.getBoolean("FastMode");
         this.consumption = compound.getInteger("Consumption");
         this.totalEnergyProduced = compound.getInteger("TotalEnergy");
         this.maxProgress = compound.getInteger("MaxProgress");
