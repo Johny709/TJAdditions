@@ -29,6 +29,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.TJHorizontoalTabListRenderer;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -183,6 +184,7 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         return 0;
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->

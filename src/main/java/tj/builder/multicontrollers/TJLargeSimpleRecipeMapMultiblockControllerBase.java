@@ -25,6 +25,7 @@ import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.impl.GhostCircuitWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +92,7 @@ public abstract class TJLargeSimpleRecipeMapMultiblockControllerBase extends Lar
         return builder;
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
