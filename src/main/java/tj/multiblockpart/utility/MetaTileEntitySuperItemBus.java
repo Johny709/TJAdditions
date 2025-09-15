@@ -109,9 +109,9 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
         widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * tier, this::addDisplayText, 0xFFFFFF));
         widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.UP_BUTTON, () -> false, this::onIncrement)
                 .setTooltipText("machine.universal.toggle.increment"));
-        widgetGroup.addWidget(new GhostCircuitWidget(this.ghostCircuitSlot, 169, 18 + 72 * tier));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 40 + 72 * tier, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, (reset) -> this.ticks = 5)
-                .setTooltipText("machine.universal.toggle.reset"));
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * tier, 18, 18, TJGuiTextures.DOWN_BUTTON, () -> false, this::onDecrement)
+                .setTooltipText("machine.universal.toggle.decrement"));
+        widgetGroup.addWidget(new GhostCircuitWidget(this.ghostCircuitSlot, 169, 40 + 72 * tier));
         for (int i = 0; i < bus.getSlots(); i++) {
             widgetGroup.addWidget(new SlotWidget(bus, i, 7 + 18 * (i % 10), 14 + 18 * (i / 10), true, !this.isExport)
                     .setBackgroundTexture(GuiTextures.SLOT));
