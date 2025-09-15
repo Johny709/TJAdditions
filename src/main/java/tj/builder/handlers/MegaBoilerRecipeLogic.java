@@ -40,6 +40,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
 
     private static final int CONSUMPTION_MULTIPLIER = 100;
     private static final int BOILING_TEMPERATURE = 100;
+    private static final double COAL_BURNTIME = 1600;
     private final DoubleSupplier heatEfficiency;
     private final DoubleSupplier fuelConsumptionMultiplier;
     private final IntSupplier baseSteamOutput;
@@ -70,9 +71,6 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
             fuelMaxBurnTime = this.findItemInputs();
         if (fuelMaxBurnTime > 0) {
             this.maxProgress = (int) (fuelMaxBurnTime * this.heatEfficiency.getAsDouble());
-            this.progress = 1;
-            if (!this.isActive)
-                this.setActive(true);
         } else return false;
         return true;
     }
@@ -106,6 +104,12 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
                 this.hasNoWater = true;
             }
         }
+    }
+
+    @Override
+    protected void sleepRecipe() {
+        super.sleepRecipe();
+        this.stopRecipe();
     }
 
     @Override
@@ -172,7 +176,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
     }
 
     private void getCarbonDioxideByproduct(int burnTime, int fuelAmount) {
-        double carbonBurnTime = 1600F / this.parallel.getAsInt();
+        double carbonBurnTime = COAL_BURNTIME / this.parallel.getAsInt();
         if (burnTime >= carbonBurnTime) {
             int amount = (int) (fuelAmount * Math.max(0.4, Math.random()));
             this.fluidOutput.add(CarbonDioxide.getFluid(amount));
@@ -204,7 +208,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
             if (availableParallels < 1)
                 break;
         }
-        double ashBurnTime = 1600F / this.parallel.getAsInt();
+        double ashBurnTime = COAL_BURNTIME / this.parallel.getAsInt();
         if (burnTime >= ashBurnTime) {
             int amount = (int) ((burnTime / ashBurnTime) * Math.max(0.4, Math.random()));
             this.itemOutput.add(new ItemStack(Item.getByNameOrId("gregtech:meta_item_1"), amount, 2110)); // dark ashes

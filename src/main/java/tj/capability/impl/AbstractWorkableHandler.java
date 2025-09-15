@@ -6,6 +6,7 @@ import gregtech.api.capability.IWorkable;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.function.BooleanConsumer;
+import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
@@ -14,6 +15,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.capability.IRecipeInfo;
 import tj.capability.TJCapabilities;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.function.*;
 
 /**
@@ -43,6 +45,9 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected int maxProgress;
     protected int lastInputIndex;
     protected int busCount;
+    protected int sleepTimer;
+    protected int sleepTime = 1;
+    protected int failCount;
 
     public AbstractWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -127,15 +132,33 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         this.activeConsumer = activeConsumer;
     }
 
+    /**
+     * Don't forget to set {@Link gregtech.api.metatileentity.MetaTileEntity#shouldUpdate(MTETrait trait) shouldUpdate} to return false for the MetaTileEntity using this workable handler.
+     */
     @Override
     public void update() {
+        if (!this.isWorking) {
+            this.stopRecipe();
+            return;
+        }
+
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
 
-        if (!this.isWorking || this.progress < 1 && !this.startRecipe()) {
-            this.stopRecipe();
-            this.wasActiveAndNeedsUpdate = true;
-            return;
+        if (this.progress < 1) {
+            if (this.sleepTimer > 0) {
+                this.sleepRecipe();
+                return;
+            }
+            boolean canStart = this.startRecipe();
+            if (canStart) {
+                this.progress = 1;
+                this.sleepTime = 1;
+                this.progressRecipe();
+                if (!this.isActive)
+                    this.setActive(true);
+            } else this.failRecipe();
+            this.wasActiveAndNeedsUpdate = !canStart;
         } else this.progressRecipe();
 
         if (this.progress > this.maxProgress) {
@@ -149,8 +172,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
                 if (!this.hasProblem)
                     this.setProblem(true);
             }
-        } else if (!this.isActive)
-            this.setActive(true);
+        }
     }
 
     /**
@@ -161,9 +183,29 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     }
 
     /**
-     * When recipe fails to start or gets interrupted
+     * For every tick the workable handler is on sleep timer
+     */
+    @OverridingMethodsMustInvokeSuper
+    protected void sleepRecipe() {
+        this.sleepTimer--;
+    }
+
+    /**
+     * For every tick the workable handler is stopped
      */
     protected void stopRecipe() {}
+
+    /**
+     * When recipe was unable to start. Recommended to invoke super method to utilize sleep timer for performance
+     */
+    @OverridingMethodsMustInvokeSuper
+    protected void failRecipe() {
+        if (this.failCount > 4) {
+            this.sleepTime = Math.min(this.sleepTime * 2, Math.min(ConfigHolder.maxSleepTime, 400));
+            this.sleepTimer = this.sleepTime;
+            this.failCount = 0;
+        } else this.failCount++;
+    }
 
     protected void progressRecipe() {
         if (this.importEnergy.get().getEnergyStored() >= this.energyPerTick) {

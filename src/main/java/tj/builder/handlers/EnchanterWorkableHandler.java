@@ -43,8 +43,6 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandl
                 this.findInputs(itemInputs, catalystSlotIndex, false);
                 this.importFluids.get().drain(fluid, true);
                 this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
-                this.wasActiveAndNeedsUpdate = false;
-                this.progress = 1;
                 canStart = true;
             }
         }

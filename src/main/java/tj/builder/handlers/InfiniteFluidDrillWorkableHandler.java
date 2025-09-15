@@ -76,10 +76,6 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
             this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
             this.fluidOutputsList.addAll(Arrays.asList(this.veinFluidStack));
             this.energyPerTick = this.maxVoltage.getAsLong();
-            this.wasActiveAndNeedsUpdate = false;
-            this.progress = 1;
-            if (!this.isActive)
-                this.setActive(true);
             return true;
         }
         return false;

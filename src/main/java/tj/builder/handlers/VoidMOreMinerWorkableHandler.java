@@ -112,11 +112,13 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
             }
         } else return false;
         this.energyPerTick = this.maxVoltage.getAsLong();
-        this.wasActiveAndNeedsUpdate = false;
-        this.progress = 1;
-        if (!this.isActive)
-            this.setActive(true);
         return true;
+    }
+
+    @Override
+    protected void sleepRecipe() {
+        super.sleepRecipe();
+        this.stopRecipe();
     }
 
     @Override

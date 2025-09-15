@@ -38,11 +38,7 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             compound.setInteger("BaseData", this.input.getMetadata());
             this.output.setTagCompound(compound);
             this.maxProgress = this.calculateOverclock(30, 200, 2.8F);
-            this.wasActiveAndNeedsUpdate = false;
-            this.progress = 1;
             canStart = true;
-            if (!this.isActive)
-                this.setActive(true);
         }
         if (++this.lastInputIndex == this.busCount)
             this.lastInputIndex = 0;
