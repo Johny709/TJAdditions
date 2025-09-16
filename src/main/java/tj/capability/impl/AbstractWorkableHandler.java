@@ -202,9 +202,9 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     protected void failRecipe() {
         if (this.failCount > 4) {
             this.sleepTime = Math.min(this.sleepTime * 2, Math.min(ConfigHolder.maxSleepTime, 400));
-            this.sleepTimer = this.sleepTime;
             this.failCount = 0;
         } else this.failCount++;
+        this.sleepTimer = this.sleepTime;
     }
 
     protected void progressRecipe() {
