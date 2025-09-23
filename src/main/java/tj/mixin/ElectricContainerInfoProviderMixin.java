@@ -1,31 +1,39 @@
 package tj.mixin;
 
-import gregtech.api.util.GTLog;
+import gregtech.api.capability.GregtechTileCapabilities;
+import gregtech.api.capability.IEnergyContainer;
 import gregtech.integration.theoneprobe.provider.ElectricContainerInfoProvider;
-import mcjty.theoneprobe.api.IProgressStyle;
+import mcjty.theoneprobe.api.ElementAlignment;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.TextStyleClass;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 @Mixin(value = ElectricContainerInfoProvider.class, remap = false)
 public abstract class ElectricContainerInfoProviderMixin {
 
-    @ModifyArgs(at = @At(value = "INVOKE", target = "Lmcjty/theoneprobe/api/IProbeInfo;progress(JJLmcjty/theoneprobe/api/IProgressStyle;)Lmcjty/theoneprobe/api/IProbeInfo;"),
-        method = "addProbeInfo(Lgregtech/api/capability/IEnergyContainer;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V")
-    private void setProgressStyle(Args args) {
-        GTLog.logger.info("Mixin progress bar");
-        long energyStored = args.get(0);
-        long maxStorage = args.get(1);
-        IProgressStyle style = args.get(2);
-        args.set(0, energyStored);
-        args.set(1, maxStorage);
-        args.set(2, style
-                .suffix("/" + maxStorage + " EU")
-                .borderColor(-1)
-                .backgroundColor(16777216)
-                .alternateFilledColor(0xFFEED000)
-                .filledColor(0xFFFFE000));
+    @Inject(method = "addProbeInfo(Lgregtech/api/capability/IEnergyContainer;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
+            at = @At("HEAD"), cancellable = true)
+    private void injectElectricContainer(IEnergyContainer capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing sideHit, CallbackInfo ci) {
+        long energyStored = capability.getEnergyStored();
+        long maxStorage = capability.getEnergyCapacity();
+        if (maxStorage > 0) {
+            IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
+            String additionalSpacing = tileEntity.hasCapability(GregtechTileCapabilities.CAPABILITY_WORKABLE, sideHit) ? "   " : "";
+            horizontalPane.text(TextStyleClass.INFO + "{*gregtech.top.energy_stored*} " + additionalSpacing);
+            horizontalPane.progress(energyStored, maxStorage, probeInfo.defaultProgressStyle()
+                    .width(105)
+                    .suffix("/" + maxStorage + " EU")
+                    .borderColor(-1)
+                    .backgroundColor(16777216)
+                    .alternateFilledColor(0xFFEED000)
+                    .filledColor(0xFFFFE000));
+        }
+        ci.cancel();
     }
 }
