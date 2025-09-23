@@ -6,8 +6,8 @@
 	"minVersion": "0.8",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
-		"ElectricContainerInfoProviderMixin",
-		"WorkableInfoProviderMixin"
+		"gregic_probe.ElectricContainerInfoProviderMixin",
+		"gregic_probe.WorkableInfoProviderMixin"
 	],
 	"server": [],
 	"client": []

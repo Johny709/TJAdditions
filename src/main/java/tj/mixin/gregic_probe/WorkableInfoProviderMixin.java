@@ -1,20 +1,27 @@
-package tj.mixin;
+package tj.mixin.gregic_probe;
 
 import gregtech.api.capability.IWorkable;
-import gregtech.integration.theoneprobe.provider.WorkableInfoProvider;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import vfyjxf.gregicprobe.config.GregicProbeConfig;
+import vfyjxf.gregicprobe.integration.gregtech.WorkableInforProvider;
+
+import java.text.DecimalFormat;
 
 
-@Mixin(value = WorkableInfoProvider.class, remap = false)
+@Mixin(value = WorkableInforProvider.class, remap = false)
 public abstract class WorkableInfoProviderMixin {
+
+    @Unique
+    private final DecimalFormat twoPlaceFormat = new DecimalFormat("#0.00");
 
     @Inject(method = "addProbeInfo(Lgregtech/api/capability/IWorkable;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
             at = @At("HEAD"), cancellable = true)
@@ -26,13 +33,13 @@ public abstract class WorkableInfoProviderMixin {
             IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             progressInfo.text(TextStyleClass.INFO + "{*gregtech.top.progress*} ");
             progressInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
-                    .width(105)
-                    .prefix((currentProgress / 20) + "s / " + (maxProgress / 20) + "s | ")
+                    .width(110)
+                    .prefix(this.twoPlaceFormat.format(currentProgress / 20) + "s / " + this.twoPlaceFormat.format(maxProgress / 20) + "s | ")
                     .suffix("%")
-                    .borderColor(-1)
-                    .backgroundColor(16777216)
-                    .filledColor(0xFF009BFF)
-                    .alternateFilledColor(0xFF000077));
+                    .borderColor(GregicProbeConfig.borderColorProgress)
+                    .backgroundColor(GregicProbeConfig.backgroundColorProgress)
+                    .filledColor(GregicProbeConfig.filledColorProgress)
+                    .alternateFilledColor(GregicProbeConfig.alternateFilledColorProgress));
         }
         ci.cancel();
     }
