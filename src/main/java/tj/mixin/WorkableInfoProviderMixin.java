@@ -31,7 +31,7 @@ public abstract class WorkableInfoProviderMixin {
                     .suffix("%")
                     .borderColor(-1)
                     .backgroundColor(16777216)
-                    .filledColor(0xFF000099)
+                    .filledColor(0xFF009BFF)
                     .alternateFilledColor(0xFF000077));
         }
         ci.cancel();
