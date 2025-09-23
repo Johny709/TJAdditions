@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import tj.TJConfig;
 import vfyjxf.gregicprobe.config.GregicProbeConfig;
 import vfyjxf.gregicprobe.integration.gregtech.WorkableInforProvider;
 
@@ -26,6 +27,7 @@ public abstract class WorkableInfoProviderMixin {
     @Inject(method = "addProbeInfo(Lgregtech/api/capability/IWorkable;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
             at = @At("HEAD"), cancellable = true)
     private void injectProgressInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing sideHit, CallbackInfo ci) {
+        if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
         float currentProgress = capability.getProgress();
         float maxProgress = capability.getMaxProgress();
         if (maxProgress > 0) {
