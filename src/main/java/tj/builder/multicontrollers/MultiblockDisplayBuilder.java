@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-;
 
 public class MultiblockDisplayBuilder {
 
@@ -60,11 +59,9 @@ public class MultiblockDisplayBuilder {
         if (tier > 0) {
             String color = TJValues.VCC[tier];
             this.textList.add(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                    .appendText(" ")
-                    .appendSibling(new TextComponentString(color + GAValues.V[tier] + "§r"))
-                    .appendText(" (")
+                    .appendText(" §7(")
                     .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText(")"));
+                    .appendText("§7)"));
         }
         return this;
     }
@@ -76,10 +73,10 @@ public class MultiblockDisplayBuilder {
             String color = TJValues.VCC[tier];
             this.textList.add(new TextComponentTranslation("tj.multiblock.max_energy_per_tick")
                     .appendText(" ")
-                    .appendSibling(new TextComponentString(color + maxVoltage + "§r"))
-                    .appendText(" (")
+                    .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r"))
+                    .appendText(" §7(")
                     .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText(")"));
+                    .appendText("§7)"));
         }
         return this;
     }

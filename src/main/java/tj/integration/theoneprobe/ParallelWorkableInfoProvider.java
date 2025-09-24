@@ -8,14 +8,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.capabilities.Capability;
+import tj.TJValues;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
 
 import java.text.DecimalFormat;
 
 public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultipleWorkable> {
-
-    private final DecimalFormat twoPlaceFormat = new DecimalFormat("#0.00");
 
     @Override
     protected Capability<IMultipleWorkable> getCapability() {
@@ -29,7 +28,7 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
         int size = capability.getSize();
 
         IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-        pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
+        pageInfo.text(TextStyleClass.INFO + "§b(" + (pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
             if (i < size) {
@@ -48,11 +47,12 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                         : isActive ? "§a{*gregtech.multiblock.running*}§r"
                         : "§7{*gregtech.multiblock.idling*}")));
 
+                String displayProgress = String.format("%ss / %ss | ", TJValues.thousandTwoPlaceFormat.format(currentProgress / 20), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20));
                 IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 progressInfo.text(TextStyleClass.INFO + "{*gregtech.top.progress*} ");
                 progressInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
-                        .width(110)
-                        .prefix(this.twoPlaceFormat.format(currentProgress / 20) + "s / " + this.twoPlaceFormat.format(maxProgress / 20) + "s | ")
+                        .width((int) (displayProgress.length() * 6.2))
+                        .prefix(displayProgress)
                         .suffix("%")
                         .borderColor(0x00000000)
                         .backgroundColor(0x00000000)

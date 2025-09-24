@@ -114,7 +114,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
                         int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
                         ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                        text.add(new TextComponentTranslation("tj.multiblock.fuel_amount", fuelAmount, fuelName));
+                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
 
                         text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.large_atmosphere_collector.air", this.airCollectorHandler.getProduction())));
 

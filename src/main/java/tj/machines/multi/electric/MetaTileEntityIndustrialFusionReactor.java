@@ -51,6 +51,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
+import tj.TJValues;
 import tj.blocks.BlockAbilityCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
@@ -335,8 +336,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                     .custom(text -> {
                         text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
                         if (this.recipe != null) {
-                            long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * parallelLayer;
-                            text.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", energyToStart)
+                            long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
+                            text.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
                                     .setStyle(new Style().setColor(heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
                         }
                         if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {

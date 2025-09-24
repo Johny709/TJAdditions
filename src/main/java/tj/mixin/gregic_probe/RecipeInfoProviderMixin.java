@@ -30,7 +30,7 @@ public abstract class RecipeInfoProviderMixin {
             IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
             int tier = GAUtility.getTierByVoltage(recipeEUt) + 1;
             horizontalPane.text(TextStyleClass.INFO + "{*gregicprobe:top.eut*} ");
-            horizontalPane.text(TextStyleClass.INFO + "§e" + recipeEUt + " §rEU/t §7(" + TJValues.VCC[tier] + GAValues.VN[tier] + "§r§7)");
+            horizontalPane.text(TextStyleClass.INFO + "§e" + TJValues.thousandFormat.format(recipeEUt) + " §rEU/t §7(" + TJValues.VCC[tier] + GAValues.VN[tier] + "§r§7)");
         }
         ci.cancel();
     }

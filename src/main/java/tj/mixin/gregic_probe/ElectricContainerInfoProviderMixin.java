@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.TJConfig;
+import tj.TJValues;
 import vfyjxf.gregicprobe.config.GregicProbeConfig;
 import vfyjxf.gregicprobe.integration.gregtech.EnergyInfoProvider;
 
@@ -26,12 +27,15 @@ public abstract class ElectricContainerInfoProviderMixin {
         long energyStored = capability.getEnergyStored();
         long maxStorage = capability.getEnergyCapacity();
         if (maxStorage > 0) {
+            int energyPercent = (int) Math.floor(energyStored / (maxStorage * 1.0) * 100);
+            String displayEnergy = String.format("%s/%s EU | ", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(maxStorage));
             IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
             String additionalSpacing = tileEntity.hasCapability(GregtechTileCapabilities.CAPABILITY_WORKABLE, sideHit) ? "   " : "";
             horizontalPane.text(TextStyleClass.INFO + "{*gregtech.top.energy_stored*} " + additionalSpacing);
-            horizontalPane.progress(energyStored, maxStorage, probeInfo.defaultProgressStyle()
-                    .width(110)
-                    .suffix("/" + maxStorage + " EU")
+            horizontalPane.progress(energyPercent, 100, probeInfo.defaultProgressStyle()
+                    .width((int) (displayEnergy.length() * 6.2))
+                    .prefix(displayEnergy)
+                    .suffix("%")
                     .borderColor(GregicProbeConfig.borderColorEnergy)
                     .backgroundColor(GregicProbeConfig.backgroundColorEnergy)
                     .alternateFilledColor(GregicProbeConfig.alternateFilledColorEnergy)

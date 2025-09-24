@@ -386,10 +386,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.mining.level")
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.reset.y"), "reset")));
-        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.maximum.y", maxY.get())
+        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.elite_large_miner.maximum.y", maxY.get()))
                 .appendSibling(withButton(new TextComponentString(" [+]"), "maxYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "maxYDecrement")));
-        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.minimum.y", minY.get())
+        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.elite_large_miner.minimum.y", minY.get()))
                 .appendSibling(withButton(new TextComponentString(" [+]"), "minYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "minYDecrement")));
     }
