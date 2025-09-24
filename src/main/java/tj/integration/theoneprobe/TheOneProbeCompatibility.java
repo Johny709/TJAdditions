@@ -7,7 +7,6 @@ public class TheOneProbeCompatibility {
 
     public static void registerCompatibility() {
         ITheOneProbe probe = TheOneProbe.theOneProbeImp;
-        probe.registerProvider(new IRecipeInfoProvider());
         probe.registerProvider(new ParallelControllerInfoProvider());
         probe.registerProvider(new ParallelWorkableInfoProvider());
         probe.registerProvider(new LinkedPosInfoProvider());

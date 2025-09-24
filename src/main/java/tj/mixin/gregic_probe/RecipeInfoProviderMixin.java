@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.TJConfig;
 import tj.TJValues;
+import tj.capability.impl.AbstractWorkableHandler;
 import vfyjxf.gregicprobe.integration.gregtech.RecipeInfoProvider;
 
 @Mixin(value = RecipeInfoProvider.class, remap = false)
@@ -24,8 +25,8 @@ public abstract class RecipeInfoProviderMixin {
             at = @At("HEAD"), cancellable = true)
     private void injectRecipeInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing, CallbackInfo ci) {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
-        int recipeEUt;
-        if (capability instanceof AbstractRecipeLogic && (recipeEUt = ((AbstractRecipeLogic) capability).getRecipeEUt()) > 0) {
+        long recipeEUt;
+        if ((capability instanceof AbstractRecipeLogic && (recipeEUt = ((AbstractRecipeLogic) capability).getRecipeEUt()) > 0) || (capability instanceof AbstractWorkableHandler && (recipeEUt = ((AbstractWorkableHandler<?, ?>) capability).getEUt()) > 0)) {
             IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
             int tier = GAUtility.getTierByVoltage(recipeEUt) + 1;
             horizontalPane.text(TextStyleClass.INFO + "{*gregicprobe:top.eut*} ");

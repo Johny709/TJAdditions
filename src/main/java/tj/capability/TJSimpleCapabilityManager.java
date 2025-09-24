@@ -5,7 +5,6 @@ import static gregtech.api.capability.SimpleCapabilityManager.registerCapability
 public class TJSimpleCapabilityManager {
 
     public static void init() {
-        registerCapabilityWithNoDefault(IRecipeInfo.class);
         registerCapabilityWithNoDefault(IMultiControllable.class);
         registerCapabilityWithNoDefault(IMultipleWorkable.class);
         registerCapabilityWithNoDefault(IParallelController.class);
