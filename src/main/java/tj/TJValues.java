@@ -11,7 +11,7 @@ import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 public class TJValues {
 
     public static final int[] VC = {0x6b5f55, 0x9b9b9b, 0xf78b2c, 0xffb900, 0x656565, 0xffffff, 0xffb0b0, 0xffe9e9, 0xc6ffad, 0xffc4f8, 0x2776ff, 0xf0ff00, 0x9500cd, 0xff6565, 0xfff7f7};
-    public static final String[] VCC = {"§0", "§7", "§c", "§6", "§8", "§f", "§d", "§b", "§2", "§9", "§1", "§e", "§5", "§4", "§f"};
+    public static final String[] VCC = {"§c", "§7", "§6", "§e", "§8", "§a", "§d", "§b", "§2", "§9", "§5", "§1§l", "§c§l§n", "§4§l§n", "§f§l§n"};
 
     public static final Material[] CIRCUIT_TIERS = {Primitive, Basic, Good, Advanced, Extreme, Elite, Master, Ultimate, Superconductor, Infinite, UEV, UIV, UMV, UXV, MAX};
 

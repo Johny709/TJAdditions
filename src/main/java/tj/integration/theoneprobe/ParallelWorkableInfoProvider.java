@@ -11,7 +11,11 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
 
+import java.text.DecimalFormat;
+
 public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultipleWorkable> {
+
+    private final DecimalFormat twoPlaceFormat = new DecimalFormat("#0.00");
 
     @Override
     protected Capability<IMultipleWorkable> getCapability() {
@@ -47,7 +51,8 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                 IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 progressInfo.text(TextStyleClass.INFO + "{*gregtech.top.progress*} ");
                 progressInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
-                        .prefix((currentProgress / 20) + "s / " + (maxProgress / 20) + "s | ")
+                        .width(110)
+                        .prefix(this.twoPlaceFormat.format(currentProgress / 20) + "s / " + this.twoPlaceFormat.format(maxProgress / 20) + "s | ")
                         .suffix("%")
                         .borderColor(0x00000000)
                         .backgroundColor(0x00000000)

@@ -7,6 +7,7 @@
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
 		"gregic_probe.ElectricContainerInfoProviderMixin",
+		"gregic_probe.RecipeInfoProviderMixin",
 		"gregic_probe.WorkableInfoProviderMixin"
 	],
 	"server": [],
