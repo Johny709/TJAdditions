@@ -125,6 +125,7 @@ tj.machine.enchanter_uiv.name=High-Tech Enchanter III
 tj.machine.enchanter_umv.name=High-Tech Enchanter IV
 tj.machine.enchanter_uxv.name=Ultimate Enchanter
 tj.machine.enchanter_max.name=Max Enchanter
+tj.machine.compressed_chest.name=Compressed Chest
 tj.machine.super_input_bus.hv.name=Super Input Bus (HV)
 tj.machine.super_output_bus.hv.name=Super Output Bus (HV)
 tj.machine.super_input_hatch.hv.name=Super Input Hatch (HV)
@@ -313,6 +314,8 @@ material.pahoehoe=Pahoehoe Lava
 material.draconium=Draconium
 material.awakened_draconium=Awakened Draconium
 material.chaotic=Choatic
+
+tj.machine.compressed_chest.description=Keeps the items stored inside when broken.
 
 tj.multiblock.default.description=A custom multiblock added by Technological Journey (TJ).
 tj.multiblock.heat_exchanger.description=The Heat Exchanger will cool down lava down into pahoehoe lava by transfuring heat to the water provided. As a byproduct, hot steam is created. This steam can be used in a turbine to generate energy.
