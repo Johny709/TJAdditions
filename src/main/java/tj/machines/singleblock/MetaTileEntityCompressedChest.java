@@ -9,6 +9,7 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.SortingButtonWidget;
 import gregtech.api.metatileentity.IFastRenderMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -36,6 +37,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
+import tj.gui.widgets.SlotScrollableWidget;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     private static final IndexedCuboid6 CHEST_COLLISION = new IndexedCuboid6(null, new Cuboid6(1 / 16.0, 1 / 16.0, 1 / 16.0, 15 / 16.0, 14 / 16.0, 15 / 16.0));
     private static final SolidMaterial NEUTRONIUM = Neutronium;
     private static final int ROW_SIZE = 27;
-    private static final int AMOUNT_OF_ROWS = 12;
+    private static final int AMOUNT_OF_ROWS = 20;
 
     private float lidAngle;
     private float prevLidAngle;
@@ -219,17 +221,17 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
                         Math.max(176, 14 + Math.min(27, ROW_SIZE) * 18),
                         18 + 18 * Math.min(12, AMOUNT_OF_ROWS) + 94)
                 .label(5, 5, getMetaFullName());
+        SlotScrollableWidget scrollableListWidget = new SlotScrollableWidget(7, 18, 18 + ROW_SIZE * 18,  18 * Math.min(7, AMOUNT_OF_ROWS) + 94, ROW_SIZE);
         builder.widget(new SortingButtonWidget(111, 4, 60, 10, "gregtech.gui.sort",
                 (info) -> sortInventorySlotContents(this.importItems)));
 
-        for (int y = 0; y < AMOUNT_OF_ROWS; y++) {
-            for (int x = 0; x < ROW_SIZE; x++) {
-                int index = y * ROW_SIZE + x;
-                builder.slot(this.importItems, index, 7 + x * 18, 18 + y * 18, GuiTextures.SLOT);
-            }
+        for (int i = 0; i < this.importItems.getSlots(); i++) {
+            scrollableListWidget.addWidget(new SlotWidget(this.importItems, i, 18 * (i % ROW_SIZE), 18 * (i / ROW_SIZE), true, true)
+                    .setBackgroundTexture(GuiTextures.SLOT));
         }
         int startX = (Math.max(176, 14 + ROW_SIZE * 18) - 162) / 2;
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT, startX, 18 + 18 * AMOUNT_OF_ROWS + 12);
+        builder.widget(scrollableListWidget);
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT, startX, 18 + 18 * Math.min(12, AMOUNT_OF_ROWS) + 12);
         if (!getWorld().isRemote) {
             builder.bindOpenListener(() -> onContainerOpen(entityPlayer));
             builder.bindCloseListener(() -> onContainerClose(entityPlayer));
