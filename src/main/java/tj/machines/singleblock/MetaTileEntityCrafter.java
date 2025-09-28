@@ -7,52 +7,44 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.render.Textures;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.builder.handlers.ArchitectWorkbenchWorkableHandler;
+import tj.builder.handlers.CrafterRecipeLogic;
 import tj.textures.TJTextures;
-import tj.util.EnumFacingHelper;
 
 import static gregtech.api.gui.GuiTextures.*;
+import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
+//TODO WIP
+public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
 
-public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEntity {
+    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
 
-    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this);
-
-    public MetaTileEntityArchitectWorkbench(ResourceLocation metaTileEntityId, int tier) {
+    public MetaTileEntityCrafter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.initializeInventory();
-        this.workableHandler.initialize(1);
-        this.workableHandler.setImportItems(this::getImportItems);
-        this.workableHandler.setExportItems(this::getExportItems);
-        this.workableHandler.setImportEnergy(() -> this.energyContainer);
-        this.workableHandler.setMaxVoltage(this::getMaxVoltage);
-        this.workableHandler.setParallel(() -> 1);
     }
 
     @Override
-    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityArchitectWorkbench(this.metaTileEntityId, this.getTier());
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder metaTileEntityHolder) {
+        return new MetaTileEntityCrafter(this.metaTileEntityId, this.getTier());
     }
 
     @Override
     public void update() {
         super.update();
-        if (!this.getWorld().isRemote) {
-            this.workableHandler.update();
-        }
+        if (!this.getWorld().isRemote)
+            this.recipeLogic.update();
     }
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(2);
+        return new ItemStackHandler(9);
     }
 
     @Override
@@ -63,7 +55,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
-                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)
@@ -73,13 +65,13 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
-                        .setPredicate(this.workableHandler::hasNotEnoughEnergy))
+                        .setPredicate(this.recipeLogic::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
                 .build(this.getHolder(), player);
     }
@@ -88,14 +80,6 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
-        TJTextures.CHISEL_ARCHITECTURE.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
-        TJTextures.HAMMER.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
-        TJTextures.SAW_BLADE.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
-        Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
-        if (this.isAutoOutputItems())
-            Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
-        if (this.isAutoOutputFluids())
-            Textures.FLUID_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
     }
 }

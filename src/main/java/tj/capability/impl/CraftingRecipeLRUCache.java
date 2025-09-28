@@ -2,19 +2,21 @@ package tj.capability.impl;
 
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.util.GTUtility;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.builder.RecipeUtility;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
-public class ParallelRecipeLRUCache {
+public class CraftingRecipeLRUCache {
 
     private final int capacity;
     private long cacheHit;
     private long cacheMiss;
-    private final LinkedList<Recipe> recipeList = new LinkedList<>();
+    private final LinkedList<IRecipe> recipeList = new LinkedList<>();
 
-    public ParallelRecipeLRUCache(int capacity) {
+    public CraftingRecipeLRUCache(int capacity) {
         this.capacity = capacity;
     }
 
@@ -36,35 +38,18 @@ public class ParallelRecipeLRUCache {
         return this.cacheMiss;
     }
 
-    public void put(Recipe recipe) {
+    public void put(IRecipe recipe) {
         if (this.recipeList.size() >= this.capacity) {
             this.recipeList.removeLast();
         }
         this.recipeList.addFirst(recipe);
     }
 
-    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids) {
-        for (Recipe recipe : this.recipeList) {
+    public IRecipe get(IItemHandlerModifiable importInventory) {
+        for (IRecipe recipe : this.recipeList) {
             if (recipe == null)
                 continue;
-            if (recipe.matches(false, importInventory, importFluids)) {
-                this.recipeList.remove(recipe);
-                this.recipeList.addFirst(recipe);
-                this.cacheHit++;
-                return recipe;
-            }
-        }
-        this.cacheMiss++;
-        return null;
-    }
-
-    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids, int i, Recipe[] occupiedRecipes) {
-        for (Recipe recipe : recipeList) {
-            if (recipe == null)
-                continue;
-            if (recipe.matches(false, importInventory, importFluids)) {
-                if (Arrays.asList(occupiedRecipes).contains(recipe) && recipe != occupiedRecipes[i])
-                    continue;
+            if (RecipeUtility.craftingRecipeMatches(GTUtility.itemHandlerToList(importInventory), recipe.getIngredients()).getLeft()) {
                 this.recipeList.remove(recipe);
                 this.recipeList.addFirst(recipe);
                 this.cacheHit++;

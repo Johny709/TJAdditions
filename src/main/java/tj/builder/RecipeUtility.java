@@ -3,6 +3,8 @@ package tj.builder;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -11,6 +13,38 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RecipeUtility {
+
+    public static Pair<Boolean, Integer[]> craftingRecipeMatches(List<ItemStack> itemStackContainer, NonNullList<Ingredient> ingredients) {
+        Integer[] itemAmountInSlot = new Integer[itemStackContainer.size()];
+
+        for (int i = 0; i < itemAmountInSlot.length; i++) {
+            ItemStack itemInSlot = itemStackContainer.get(i);
+            itemAmountInSlot[i] = itemInSlot.isEmpty() ? 0 : itemInSlot.getCount();
+        }
+
+        for (Ingredient ingredient : ingredients) {
+            int ingredientAmount = ingredient.getMatchingStacks()[0].getCount();
+            boolean isNotConsumed = false;
+            if (ingredientAmount == 0) {
+                ingredientAmount = 1;
+                isNotConsumed = true;
+            }
+            for (int i = 0; i < itemStackContainer.size(); i++) {
+                ItemStack inputStack = itemStackContainer.get(i);
+                if (inputStack.isEmpty() || !ingredient.apply(inputStack))
+                    continue;
+                int itemAmountToConsume = Math.min(itemAmountInSlot[i], ingredientAmount);
+                ingredientAmount -= itemAmountToConsume;
+                if (!isNotConsumed) itemAmountInSlot[i] -= itemAmountToConsume;
+                if (ingredientAmount == 0) break;
+            }
+            if (ingredientAmount > 0)
+                return Pair.of(false, itemAmountInSlot);
+        }
+
+        return Pair.of(true, itemAmountInSlot);
+    }
+
     public static boolean recipeMatches(Recipe recipe, List<ItemStack> inputs, List<ItemStack> outputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutputs) {
         Pair<Boolean, Integer[]> inputItems = matchesInputItems(inputs, recipe.getInputs());
         if (!inputItems.getKey()) {
