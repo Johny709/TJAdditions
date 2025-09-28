@@ -287,6 +287,18 @@ public class RecipeInit {
                 'C', new UnificationEntry(OrePrefix.circuit, Superconductor),
                 'D', GATileEntities.CENTRAL_MONITOR.getStackForm());
 
+        ModHandler.addShapedRecipe("compressed_chest", COMPRESSED_CHEST.getStackForm(), "OCO", "PKP", "OCO",
+                'O', new UnificationEntry(OrePrefix.block, Obsidian),
+                'C', new ItemStack(Item.getByNameOrId("actuallyadditions:block_giant_chest_large")),
+                'K', new ItemStack(Item.getByNameOrId("actuallyadditions:item_crate_keeper")),
+                'P', CraftingComponent.PISTON.getIngredient(2));
+
+        ModHandler.addShapedRecipe("compressed_crate", COMPRESSED_CRATE.getStackForm(), "OPO", "CKC", "OPO",
+                'O', new UnificationEntry(OrePrefix.block, Obsidian),
+                'C', new ItemStack(Item.getByNameOrId("actuallyadditions:block_giant_chest_large")),
+                'K', new ItemStack(Item.getByNameOrId("actuallyadditions:item_crate_keeper")),
+                'P', CraftingComponent.PISTON.getIngredient(2));
+
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
             ModHandler.addShapelessRecipe(GAValues.VN[i].toLowerCase() + "_universal_circuit", UNIVERSAL_CIRCUITS[i].getStackForm(), new UnificationEntry(OrePrefix.circuit, CIRCUIT_TIERS[i]));
 

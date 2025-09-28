@@ -98,7 +98,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeEnchanter LARGE_ENCHANTER;
     public static MetaTileEntityMegaFusion MEGA_FUSION;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
-    public static MetaTileEntityCompressedChest COMPRESSED_CRATE;
+    public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -220,6 +220,7 @@ public class TJMetaTileEntities {
         for (int i = 0, tier = 1; i < ENCHANTER.length; i++, tier++) // occupies ID range 5337 - 5350
             ENCHANTER[i] = GregTechAPI.registerMetaTileEntity(enchanterID++, new MetaTileEntityEnchanter(TJId("enchanter_" + GAValues.VN[tier]), tier));
         COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5406, new MetaTileEntityCompressedChest(TJId("compressed_chest")));
+        COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5407, new MetaTileEntityCompressedCrate(TJId("compressed_crate")));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));

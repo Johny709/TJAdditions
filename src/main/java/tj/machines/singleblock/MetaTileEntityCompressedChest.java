@@ -16,7 +16,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.render.Textures;
-import gregtech.api.unification.material.type.SolidMaterial;
+import gregtech.api.unification.material.type.DustMaterial;
 import gregtech.api.util.GTUtility;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
@@ -43,16 +43,16 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import static gregicadditions.GAMaterials.Neutronium;
+import static gregtech.api.unification.material.Materials.Obsidian;
 import static gregtech.api.util.GTUtility.convertOpaqueRGBA_CLtoRGB;
+
 
 public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFastRenderMetaTileEntity {
 
     private static final IndexedCuboid6 CHEST_COLLISION = new IndexedCuboid6(null, new Cuboid6(1 / 16.0, 1 / 16.0, 1 / 16.0, 15 / 16.0, 14 / 16.0, 15 / 16.0));
-    private static final SolidMaterial NEUTRONIUM = Neutronium;
+    private static final DustMaterial OBSIDIAN = Obsidian;
     private static final int ROW_SIZE = 27;
-    private static final int AMOUNT_OF_ROWS = 20;
+    private static final int AMOUNT_OF_ROWS = 27;
 
     private float lidAngle;
     private float prevLidAngle;
@@ -61,6 +61,7 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     public MetaTileEntityCompressedChest(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
         this.initializeInventory();
+        this.itemInventory = this.importItems;
     }
 
     @Override
@@ -73,6 +74,8 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.machine.compressed_chest.description"));
+        tooltip.add(I18n.format("machine.universal.stack", 64));
+        tooltip.add(I18n.format("machine.universal.slots", ROW_SIZE * AMOUNT_OF_ROWS));
     }
 
     @Override
@@ -83,14 +86,14 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     @Override
     public void update() {
         super.update();
-        BlockPos blockPos = getPos();
+        BlockPos blockPos = this.getPos();
         this.prevLidAngle = this.lidAngle;
 
-        if (!getWorld().isRemote && this.numPlayersUsing != 0 && getOffsetTimer() % 200 == 0) {
-            int lastPlayersUsing = numPlayersUsing;
+        if (!this.getWorld().isRemote && this.numPlayersUsing != 0 && this.getOffsetTimer() % 200 == 0) {
+            int lastPlayersUsing = this.numPlayersUsing;
             this.numPlayersUsing = GTUtility.findPlayersUsing(this, 5.0).size();
-            if (lastPlayersUsing != numPlayersUsing) {
-                updateNumPlayersUsing();
+            if (lastPlayersUsing != this.numPlayersUsing) {
+                this.updateNumPlayersUsing();
             }
         }
 
@@ -98,10 +101,10 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
             double soundX = blockPos.getX() + 0.5;
             double soundZ = blockPos.getZ() + 0.5;
             double soundY = blockPos.getY() + 0.5;
-            getWorld().playSound(null, soundX, soundY, soundZ, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, getWorld().rand.nextFloat() * 0.1F + 0.9F);
+            this.getWorld().playSound(null, soundX, soundY, soundZ, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, getWorld().rand.nextFloat() * 0.1F + 0.9F);
         }
 
-        if ((numPlayersUsing == 0 && this.lidAngle > 0.0F) || (this.numPlayersUsing > 0 && this.lidAngle < 1.0F)) {
+        if ((this.numPlayersUsing == 0 && this.lidAngle > 0.0F) || (this.numPlayersUsing > 0 && this.lidAngle < 1.0F)) {
             float previousValue = this.lidAngle;
 
             if (this.numPlayersUsing > 0) {
@@ -113,30 +116,13 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
                 double soundX = blockPos.getX() + 0.5;
                 double soundZ = blockPos.getZ() + 0.5;
                 double soundY = blockPos.getY() + 0.5;
-                getWorld().playSound(null, soundX, soundY, soundZ, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, getWorld().rand.nextFloat() * 0.1F + 0.9F);
+                this.getWorld().playSound(null, soundX, soundY, soundZ, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, getWorld().rand.nextFloat() * 0.1F + 0.9F);
             }
-        }
-    }
-
-    private void onContainerOpen(EntityPlayer player) {
-        if (!player.isSpectator()) {
-            if (this.numPlayersUsing < 0) {
-                this.numPlayersUsing = 0;
-            }
-            ++this.numPlayersUsing;
-            updateNumPlayersUsing();
-        }
-    }
-
-    private void onContainerClose(EntityPlayer player) {
-        if (!player.isSpectator()) {
-            --this.numPlayersUsing;
-            updateNumPlayersUsing();
         }
     }
 
     private void updateNumPlayersUsing() {
-        writeCustomData(100, buffer -> buffer.writeVarInt(numPlayersUsing));
+        this.writeCustomData(100, buffer -> buffer.writeVarInt(numPlayersUsing));
     }
 
     @Override
@@ -145,13 +131,15 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     @Override
     public void writeItemStackData(NBTTagCompound itemStack) {
         super.writeItemStackData(itemStack);
-        itemStack.setTag("Data", this.writeToNBT(new NBTTagCompound()));
+        NBTTagCompound compound = new NBTTagCompound();
+        GTUtility.writeItems(this.importItems, "Inventory", compound);
+        itemStack.setTag("Data", compound);
     }
 
     @Override
     public void initFromItemStackData(NBTTagCompound itemStack) {
         super.initFromItemStackData(itemStack);
-        this.readFromNBT(itemStack.getCompoundTag("Data"));
+        GTUtility.readItems(this.importItems, "Inventory", itemStack.getCompoundTag("Data"));
     }
 
     @Override
@@ -166,7 +154,7 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
 
     @Override
     public String getHarvestTool() {
-        return ModHandler.isMaterialWood(NEUTRONIUM) ? "axe" : "pickaxe";
+        return ModHandler.isMaterialWood(OBSIDIAN) ? "axe" : "pickaxe";
     }
 
     @Override
@@ -177,11 +165,11 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     @Override
     @SideOnly(Side.CLIENT)
     public Pair<TextureAtlasSprite, Integer> getParticleTexture() {
-        if(ModHandler.isMaterialWood(NEUTRONIUM)) {
+        if (ModHandler.isMaterialWood(OBSIDIAN)) {
             return Pair.of(Textures.WOODEN_CHEST.getParticleTexture(), getPaintingColor());
         } else {
             int color = ColourRGBA.multiply(
-                    GTUtility.convertRGBtoOpaqueRGBA_CL(NEUTRONIUM.materialRGB),
+                    GTUtility.convertRGBtoOpaqueRGBA_CL(OBSIDIAN.materialRGB),
                     GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColor())
             );
             color = convertOpaqueRGBA_CLtoRGB(color);
@@ -196,23 +184,23 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     @Override
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntityFast(CCRenderState renderState, Matrix4 translation, float partialTicks) {
-        float angle = prevLidAngle + (lidAngle - prevLidAngle) * partialTicks;
+        float angle = this.prevLidAngle + (this.lidAngle - this.prevLidAngle) * partialTicks;
         angle = 1.0f - (1.0f - angle) * (1.0f - angle) * (1.0f - angle);
         float resultLidAngle = angle * 90.0f;
-        if (ModHandler.isMaterialWood(NEUTRONIUM)) {
+        if (ModHandler.isMaterialWood(OBSIDIAN)) {
             ColourMultiplier multiplier = new ColourMultiplier(GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColorForRendering()));
-            Textures.WOODEN_CHEST.render(renderState, translation, new IVertexOperation[]{multiplier}, getFrontFacing(), resultLidAngle);
+            Textures.WOODEN_CHEST.render(renderState, translation, new IVertexOperation[]{multiplier}, this.getFrontFacing(), resultLidAngle);
         } else {
             ColourMultiplier multiplier = new ColourMultiplier(ColourRGBA.multiply(
-                    GTUtility.convertRGBtoOpaqueRGBA_CL(NEUTRONIUM.materialRGB),
+                    GTUtility.convertRGBtoOpaqueRGBA_CL(OBSIDIAN.materialRGB),
                     GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColorForRendering())));
-            Textures.METAL_CHEST.render(renderState, translation, new IVertexOperation[]{multiplier}, getFrontFacing(), resultLidAngle);
+            Textures.METAL_CHEST.render(renderState, translation, new IVertexOperation[]{multiplier}, this.getFrontFacing(), resultLidAngle);
         }
     }
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return new AxisAlignedBB(getPos().add(-1, 0, -1), getPos().add(2, 2, 2));
+        return new AxisAlignedBB(this.getPos().add(-1, 0, -1), this.getPos().add(2, 2, 2));
     }
 
     @Override
@@ -220,7 +208,7 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
         ModularUI.Builder builder = ModularUI.builder(GuiTextures.BACKGROUND,
                         Math.max(176, 14 + Math.min(27, ROW_SIZE) * 18),
                         18 + 18 * Math.min(12, AMOUNT_OF_ROWS) + 94)
-                .label(5, 5, getMetaFullName());
+                .label(5, 5, this.getMetaFullName());
         SlotScrollableWidget scrollableListWidget = new SlotScrollableWidget(7, 18, 18 + ROW_SIZE * 18,  18 * Math.min(7, AMOUNT_OF_ROWS) + 94, ROW_SIZE);
         builder.widget(new SortingButtonWidget(111, 4, 60, 10, "gregtech.gui.sort",
                 (info) -> sortInventorySlotContents(this.importItems)));
@@ -232,14 +220,31 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
         int startX = (Math.max(176, 14 + ROW_SIZE * 18) - 162) / 2;
         builder.widget(scrollableListWidget);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT, startX, 18 + 18 * Math.min(12, AMOUNT_OF_ROWS) + 12);
-        if (!getWorld().isRemote) {
+        if (!this.getWorld().isRemote) {
             builder.bindOpenListener(() -> onContainerOpen(entityPlayer));
             builder.bindCloseListener(() -> onContainerClose(entityPlayer));
         }
-        return builder.build(getHolder(), entityPlayer);
+        return builder.build(this.getHolder(), entityPlayer);
     }
 
-    private static void sortInventorySlotContents(IItemHandlerModifiable inventory) {
+    private void onContainerOpen(EntityPlayer player) {
+        if (!player.isSpectator()) {
+            if (this.numPlayersUsing < 0) {
+                this.numPlayersUsing = 0;
+            }
+            ++this.numPlayersUsing;
+            this.updateNumPlayersUsing();
+        }
+    }
+
+    private void onContainerClose(EntityPlayer player) {
+        if (!player.isSpectator()) {
+            --this.numPlayersUsing;
+            this.updateNumPlayersUsing();
+        }
+    }
+
+    public static void sortInventorySlotContents(IItemHandlerModifiable inventory) {
         //stack item stacks with equal items and compounds
         for (int i = 0; i < inventory.getSlots(); i++) {
             for (int j = i + 1; j < inventory.getSlots(); j++) {
