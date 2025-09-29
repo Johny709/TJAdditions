@@ -16,7 +16,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.render.Textures;
-import gregtech.api.unification.material.type.DustMaterial;
+import gregtech.api.unification.material.type.Material;
 import gregtech.api.util.GTUtility;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
@@ -38,6 +38,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.SlotScrollableWidget;
+import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -50,23 +51,26 @@ import static gregtech.api.util.GTUtility.convertOpaqueRGBA_CLtoRGB;
 public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFastRenderMetaTileEntity {
 
     private static final IndexedCuboid6 CHEST_COLLISION = new IndexedCuboid6(null, new Cuboid6(1 / 16.0, 1 / 16.0, 1 / 16.0, 15 / 16.0, 14 / 16.0, 15 / 16.0));
-    private static final DustMaterial OBSIDIAN = Obsidian;
     private static final int ROW_SIZE = 27;
     private static final int AMOUNT_OF_ROWS = 27;
 
+    private final boolean isInfinite;
+    private final Material material;
     private float lidAngle;
     private float prevLidAngle;
     private int numPlayersUsing;
 
-    public MetaTileEntityCompressedChest(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityCompressedChest(ResourceLocation metaTileEntityId, boolean isInfinite) {
         super(metaTileEntityId);
+        this.isInfinite = isInfinite;
+        this.material = this.isInfinite ? Material.MATERIAL_REGISTRY.getObject("chaosalloy") : Obsidian;
         this.initializeInventory();
         this.itemInventory = this.importItems;
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityCompressedChest(this.metaTileEntityId);
+        return new MetaTileEntityCompressedChest(this.metaTileEntityId, this.isInfinite);
     }
 
     @Override
@@ -74,13 +78,13 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.machine.compressed_chest.description"));
-        tooltip.add(I18n.format("machine.universal.stack", 64));
+        tooltip.add(I18n.format("machine.universal.stack", this.isInfinite ? Integer.MAX_VALUE : 64));
         tooltip.add(I18n.format("machine.universal.slots", ROW_SIZE * AMOUNT_OF_ROWS));
     }
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(ROW_SIZE * AMOUNT_OF_ROWS);
+        return this.isInfinite ? new LargeItemStackHandler(ROW_SIZE * AMOUNT_OF_ROWS, Integer.MAX_VALUE) : new ItemStackHandler(ROW_SIZE * AMOUNT_OF_ROWS);
     }
 
     @Override
@@ -154,7 +158,7 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
 
     @Override
     public String getHarvestTool() {
-        return ModHandler.isMaterialWood(OBSIDIAN) ? "axe" : "pickaxe";
+        return ModHandler.isMaterialWood(this.material) ? "axe" : "pickaxe";
     }
 
     @Override
@@ -165,11 +169,11 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     @Override
     @SideOnly(Side.CLIENT)
     public Pair<TextureAtlasSprite, Integer> getParticleTexture() {
-        if (ModHandler.isMaterialWood(OBSIDIAN)) {
+        if (ModHandler.isMaterialWood(this.material)) {
             return Pair.of(Textures.WOODEN_CHEST.getParticleTexture(), getPaintingColor());
         } else {
             int color = ColourRGBA.multiply(
-                    GTUtility.convertRGBtoOpaqueRGBA_CL(OBSIDIAN.materialRGB),
+                    GTUtility.convertRGBtoOpaqueRGBA_CL(this.material.materialRGB),
                     GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColor())
             );
             color = convertOpaqueRGBA_CLtoRGB(color);
@@ -187,12 +191,12 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
         float angle = this.prevLidAngle + (this.lidAngle - this.prevLidAngle) * partialTicks;
         angle = 1.0f - (1.0f - angle) * (1.0f - angle) * (1.0f - angle);
         float resultLidAngle = angle * 90.0f;
-        if (ModHandler.isMaterialWood(OBSIDIAN)) {
+        if (ModHandler.isMaterialWood(this.material)) {
             ColourMultiplier multiplier = new ColourMultiplier(GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColorForRendering()));
             Textures.WOODEN_CHEST.render(renderState, translation, new IVertexOperation[]{multiplier}, this.getFrontFacing(), resultLidAngle);
         } else {
             ColourMultiplier multiplier = new ColourMultiplier(ColourRGBA.multiply(
-                    GTUtility.convertRGBtoOpaqueRGBA_CL(OBSIDIAN.materialRGB),
+                    GTUtility.convertRGBtoOpaqueRGBA_CL(this.material.materialRGB),
                     GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColorForRendering())));
             Textures.METAL_CHEST.render(renderState, translation, new IVertexOperation[]{multiplier}, this.getFrontFacing(), resultLidAngle);
         }
@@ -221,8 +225,8 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
         builder.widget(scrollableListWidget);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT, startX, 18 + 18 * Math.min(12, AMOUNT_OF_ROWS) + 12);
         if (!this.getWorld().isRemote) {
-            builder.bindOpenListener(() -> onContainerOpen(entityPlayer));
-            builder.bindCloseListener(() -> onContainerClose(entityPlayer));
+            builder.bindOpenListener(() -> this.onContainerOpen(entityPlayer));
+            builder.bindCloseListener(() -> this.onContainerClose(entityPlayer));
         }
         return builder.build(this.getHolder(), entityPlayer);
     }

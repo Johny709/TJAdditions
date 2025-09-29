@@ -1,5 +1,8 @@
 package tj.recipes;
 
+import gregtech.api.metatileentity.MetaTileEntity;
+import net.minecraft.item.Item;
+import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockAbilityCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.TJMetaBlocks;
@@ -302,5 +305,22 @@ public class AssemblerRecipes {
                 .duration(1200)
                 .EUt(GAValues.VA[9])
                 .buildAndRegister();
+
+        MetaTileEntity[] chest = new MetaTileEntity[]{COMPRESSED_CHEST, COMPRESSED_CRATE, INFINITY_CHEST, INFINITY_CRATE};
+        for (int i = 0; i < 2; i++) {
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .inputs(super_chest[3].getStackForm(64))
+                    .inputs(new ItemStack(Item.getByNameOrId("nae2:material"), 64, 4))
+                    .inputs(chest[i].getStackForm(27))
+                    .input(OrePrefix.circuit, UIV, 4)
+                    .inputs(CONVEYOR_MODULE_UEV.getStackForm(4))
+                    .inputs(ELECTRIC_PISTON_UEV.getStackForm(4))
+                    .inputs(ROBOT_ARM_UEV.getStackForm(4))
+                    .fluidInputs(FluidRegistry.getFluidStack("degenerate_rhenium_plasma", 64000))
+                    .outputs(chest[i + 2].getStackForm())
+                    .duration(1200)
+                    .EUt(GAValues.VA[10])
+                    .buildAndRegister();
+        }
     }
 }

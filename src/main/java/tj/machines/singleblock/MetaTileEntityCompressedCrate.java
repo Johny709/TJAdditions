@@ -12,7 +12,7 @@ import gregtech.api.gui.widgets.SortingButtonWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.recipes.ModHandler;
-import gregtech.api.unification.material.type.DustMaterial;
+import gregtech.api.unification.material.type.Material;
 import gregtech.api.util.GTUtility;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
@@ -29,6 +29,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.SlotScrollableWidget;
+import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -40,17 +41,20 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
 
     private static final int ROW_SIZE = 27;
     private static final int AMOUNT_OF_ROWS = 27;
-    private static final DustMaterial OBSIDIAN = Obsidian;
+    private final boolean isInfinite;
+    private final Material material;
 
-    public MetaTileEntityCompressedCrate(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityCompressedCrate(ResourceLocation metaTileEntityId, boolean isInfinite) {
         super(metaTileEntityId);
+        this.isInfinite = isInfinite;
+        this.material = this.isInfinite ? Material.MATERIAL_REGISTRY.getObject("chaosalloy") : Obsidian;
         this.initializeInventory();
         this.itemInventory = this.importItems;
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityCompressedCrate(this.metaTileEntityId);
+        return new MetaTileEntityCompressedCrate(this.metaTileEntityId, this.isInfinite);
     }
 
     @Override
@@ -58,13 +62,13 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.machine.compressed_chest.description"));
-        tooltip.add(I18n.format("machine.universal.stack", 64));
+        tooltip.add(I18n.format("machine.universal.stack",  this.isInfinite ? Integer.MAX_VALUE : 64));
         tooltip.add(I18n.format("machine.universal.slots", ROW_SIZE * AMOUNT_OF_ROWS));
     }
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(ROW_SIZE * AMOUNT_OF_ROWS);
+        return this.isInfinite ? new LargeItemStackHandler(ROW_SIZE * AMOUNT_OF_ROWS, Integer.MAX_VALUE) : new ItemStackHandler(ROW_SIZE * AMOUNT_OF_ROWS);
     }
 
     @Override
@@ -96,7 +100,7 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
 
     @Override
     public String getHarvestTool() {
-        return OBSIDIAN.toString().contains("wood") ? "axe" : "pickaxe";
+        return this.material.toString().contains("wood") ? "axe" : "pickaxe";
     }
 
     @Override
@@ -107,11 +111,11 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
     @Override
     @SideOnly(Side.CLIENT)
     public Pair<TextureAtlasSprite, Integer> getParticleTexture() {
-        if (ModHandler.isMaterialWood(OBSIDIAN)) {
+        if (ModHandler.isMaterialWood(material)) {
             return Pair.of(ClientHandler.WOODEN_CRATE.getParticleTexture(), getPaintingColor());
         } else {
             int color = ColourRGBA.multiply(
-                    GTUtility.convertRGBtoOpaqueRGBA_CL(OBSIDIAN.materialRGB),
+                    GTUtility.convertRGBtoOpaqueRGBA_CL(this.material.materialRGB),
                     GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColor()));
             color = GTUtility.convertOpaqueRGBA_CLtoRGB(color);
             return Pair.of(ClientHandler.METAL_CRATE.getParticleTexture(), color);
@@ -121,10 +125,10 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
     @Override
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
-        if (OBSIDIAN.toString().contains("wood")) {
+        if (this.material.toString().contains("wood")) {
             ClientHandler.WOODEN_CRATE.render(renderState, translation, GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColorForRendering()), pipeline);
         } else {
-            int baseColor = ColourRGBA.multiply(GTUtility.convertRGBtoOpaqueRGBA_CL(OBSIDIAN.materialRGB), GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColorForRendering()));
+            int baseColor = ColourRGBA.multiply(GTUtility.convertRGBtoOpaqueRGBA_CL(this.material.materialRGB), GTUtility.convertRGBtoOpaqueRGBA_CL(getPaintingColorForRendering()));
             ClientHandler.METAL_CRATE.render(renderState, translation, baseColor, pipeline);
         }
     }

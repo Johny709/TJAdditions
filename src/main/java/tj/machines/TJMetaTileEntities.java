@@ -99,6 +99,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntityMegaFusion MEGA_FUSION;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
+    public static MetaTileEntityCompressedChest INFINITY_CHEST;
+    public static MetaTileEntityCompressedCrate INFINITY_CRATE;
     public static final GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static final GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
     public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
@@ -222,8 +224,10 @@ public class TJMetaTileEntities {
             ENCHANTER[i] = GregTechAPI.registerMetaTileEntity(enchanterID++, new MetaTileEntityEnchanter(TJId("enchanter_" + GAValues.VN[tier]), tier));
         for (int i = 0, tier = 1; i < CRAFTER.length; i++, tier++) // occupies ID range 5351 - 5364
             CRAFTER[i] = GregTechAPI.registerMetaTileEntity(crafterID++, new MetaTileEntityCrafter(TJId("crafter_" + GAValues.VN[tier]), tier));
-        COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5406, new MetaTileEntityCompressedChest(TJId("compressed_chest")));
-        COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5407, new MetaTileEntityCompressedCrate(TJId("compressed_crate")));
+        COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5406, new MetaTileEntityCompressedChest(TJId("compressed_chest"), false));
+        COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5407, new MetaTileEntityCompressedCrate(TJId("compressed_crate"), false));
+        INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5408, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
+        INFINITY_CRATE = GregTechAPI.registerMetaTileEntity(5409, new MetaTileEntityCompressedCrate(TJId("infinity_crate"), true));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
