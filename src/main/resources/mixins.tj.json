@@ -1,16 +1,17 @@
 {
-	"package": "tj.mixin",
-	"required": true,
-	"refmap": "mixins.tj.refmap.json",
-	"target": "@env(DEFAULT)",
-	"minVersion": "0.8",
-	"compatibilityLevel": "JAVA_8",
-	"mixins": [
-		"gregic_probe.ElectricContainerInfoProviderMixin",
-		"gregic_probe.FuelableInfoProviderMixin",
-		"gregic_probe.RecipeInfoProviderMixin",
-		"gregic_probe.WorkableInfoProviderMixin"
-	],
-	"server": [],
-	"client": []
+  "package": "tj.mixin",
+  "required": true,
+  "refmap": "mixins.tj.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "gregic_probe.ElectricContainerInfoProviderMixin",
+    "gregic_probe.FuelableInfoProviderMixin",
+    "gregic_probe.RecipeInfoProviderMixin",
+    "gregic_probe.WorkableInfoProviderMixin",
+    "gregicality.MetaTileEntityMufflerHatchMixin"
+  ],
+  "server": [],
+  "client": []
 }

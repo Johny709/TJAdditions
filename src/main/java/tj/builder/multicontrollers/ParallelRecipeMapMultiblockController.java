@@ -222,6 +222,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return this.isDistinctBus;
     }
 
+    @Override
+    public boolean isActive() {
+        return this.recipeMapWorkable.isActive();
+    }
+
     public void setDistinctBus(Boolean isDistinctBus) {
         this.isDistinctBus = isDistinctBus;
         this.markDirty();
@@ -605,8 +610,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         this.markDirty();
         if (useOptimizedRecipeLookUp) {
             playerIn.sendMessage(new TextComponentString("Using optimized recipe lookup, might fail to detects some of the recipes"));
-        }
-        else {
+        } else {
             playerIn.sendMessage(new TextComponentString("Using unoptimized recipe lookup, can detects all of the recipes but with poor performance"));
         }
         return true;

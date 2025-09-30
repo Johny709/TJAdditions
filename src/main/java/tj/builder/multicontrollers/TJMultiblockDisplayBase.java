@@ -22,11 +22,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.WidgetTabBuilder;
+import tj.capability.IMuffler;
 import tj.gui.TJHorizontoalTabListRenderer;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -40,7 +44,7 @@ import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
-public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase implements IControllable, IMaintenance {
+public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase implements IControllable, IMaintenance, IMuffler {
 
     private final List<ItemStack> recoveryItems = new ArrayList<ItemStack>() {{
         add(OreDictUnifier.get(OrePrefix.dustTiny, Materials.Ash));
@@ -247,6 +251,13 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         this.recoveryItems.addAll(Arrays.asList(recoveryItems));
     }
 
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void runMufflerEffect(float xPos, float yPos, float zPos, float xSpd, float ySpd, float zSpd) {
+        this.getWorld().spawnParticle(EnumParticleTypes.SMOKE_LARGE, xPos, yPos, zPos, xSpd, ySpd, zSpd);
+    }
+
+    @Override
     public boolean isActive() {
         return this.isStructureFormed();
     }
