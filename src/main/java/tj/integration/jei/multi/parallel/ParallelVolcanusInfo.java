@@ -6,13 +6,13 @@ import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockBoilerCasing;
-import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -38,7 +38,7 @@ public class ParallelVolcanusInfo extends MultiblockInfoPage {
         for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
             for (int layer = 0; layer < shapeInfo; layer++) {
-                String muffler = layer == 0 ? "CCCCC" : "CCPCC";
+                String muffler = layer == 0 ? "CCmCC" : "CCPCC";
                 builder.aisle("CCCCC", "CCCCC", muffler, "CCCCC", "CCCCC");
                 builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
                 builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
@@ -54,6 +54,7 @@ public class ParallelVolcanusInfo extends MultiblockInfoPage {
                     .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[1], WEST)
                     .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                    .where('m', GATileEntities.MUFFLER_HATCH[0], EnumFacing.UP)
                     .build());
         }
         return shapeInfos;

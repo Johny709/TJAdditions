@@ -52,6 +52,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -102,8 +103,9 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
         boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
         int maintenanceCount = abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size();
+        int mufflerCount = abilities.getOrDefault(MUFFLER_HATCH, Collections.emptyList()).size();
 
-        return maintenanceCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput);
+        return maintenanceCount == 1 && mufflerCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput);
     }
 
     @Override
@@ -231,7 +233,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
                 .where('l', statePredicate(GTUtility.getAllPropertyValues(this.boilerType.fireboxState, BlockFireboxCasing.ACTIVE)))
                 .where('P', statePredicate(this.boilerType.pipeState))
                 .where('X', state -> this.fireboxStatePredicate(GTUtility.getAllPropertyValues(this.boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
-                        .or(abilityPartPredicate(IMPORT_FLUIDS, IMPORT_ITEMS, MAINTENANCE_HATCH, EXPORT_ITEMS)).test(state))
+                        .or(abilityPartPredicate(IMPORT_FLUIDS, IMPORT_ITEMS, MAINTENANCE_HATCH, EXPORT_ITEMS, MUFFLER_HATCH)).test(state))
                 .where('C', statePredicate(this.boilerType.casingState).or(abilityPartPredicate(OUTPUT_ABILITIES)))
                 .build();
     }
@@ -249,6 +251,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.hasProblem(), this.boilerRecipeLogic.isWorkingEnabled());
@@ -289,6 +292,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
 
     public int getParallel() {
         return this.parallel;
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.boilerRecipeLogic.isActive();
     }
 
     @Override

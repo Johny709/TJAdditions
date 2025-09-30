@@ -13,6 +13,7 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -38,7 +39,7 @@ public class ParallelAlloyBlastSmelterInfo extends MultiblockInfoPage {
         for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
             for (int layer = 0; layer < shapeInfo; layer++) {
-                String mufflerMM = layer == 0 ? "CCCCCCC" : "CCCPCCC";
+                String mufflerMM = layer == 0 ? "CCCmCCC" : "CCCPCCC";
                 builder.aisle("~CCCCC~", "CCCCCCC", "CCCCCCC", mufflerMM, "CCCCCCC", "CCCCCCC", "~CCCCC~");
                 builder.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
                 builder.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
@@ -54,6 +55,7 @@ public class ParallelAlloyBlastSmelterInfo extends MultiblockInfoPage {
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
                     .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
                     .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                    .where('m', GATileEntities.MUFFLER_HATCH[0], EnumFacing.UP)
                     .build());
         }
         return shapeInfos;

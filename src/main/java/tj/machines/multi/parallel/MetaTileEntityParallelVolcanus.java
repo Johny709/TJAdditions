@@ -97,7 +97,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             if (layer % 4 == 0) {
-                String muffler = layer == 0 ? "XXXXX" : "XXPXX";
+                String muffler = layer == 0 ? "XXMXX" : "XXPXX";
                 factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
                 factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
                 factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
