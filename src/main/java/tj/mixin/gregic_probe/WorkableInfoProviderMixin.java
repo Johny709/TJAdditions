@@ -21,7 +21,7 @@ public abstract class WorkableInfoProviderMixin {
 
     @Inject(method = "addProbeInfo(Lgregtech/api/capability/IWorkable;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
             at = @At("HEAD"), cancellable = true)
-    private void injectProgressInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing sideHit, CallbackInfo ci) {
+    private void injectAddProbeInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing sideHit, CallbackInfo ci) {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
         double currentProgress = capability.getProgress();
         double maxProgress = capability.getMaxProgress();

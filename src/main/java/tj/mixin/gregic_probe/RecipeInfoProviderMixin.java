@@ -23,7 +23,7 @@ public abstract class RecipeInfoProviderMixin {
 
     @Inject(method = "addProbeInfo(Lgregtech/api/capability/IWorkable;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
             at = @At("HEAD"), cancellable = true)
-    private void injectRecipeInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing, CallbackInfo ci) {
+    private void injectAddProbeInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing, CallbackInfo ci) {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
         long recipeEUt;
         if ((capability instanceof AbstractRecipeLogic && (recipeEUt = ((AbstractRecipeLogic) capability).getRecipeEUt()) > 0) || (capability instanceof AbstractWorkableHandler && (recipeEUt = ((AbstractWorkableHandler<?, ?>) capability).getEUt()) > 0)) {

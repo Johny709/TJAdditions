@@ -7,10 +7,13 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "gregic_probe.ElectricContainerInfoProviderMixin",
-    "gregic_probe.FuelableInfoProviderMixin",
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",
-    "gregicality.MetaTileEntityMufflerHatchMixin"
+    "gregicality.GATransformerProviderMixin",
+    "gregicality.MetaTileEntityMufflerHatchMixin",
+    "gregicality.QubitContainerInfoProviderMixin",
+    "gregtech.FuelableInfoProviderMixin",
+    "gregtech.TransformerInfoProviderMixin"
   ],
   "server": [],
   "client": []

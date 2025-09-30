@@ -22,7 +22,7 @@ public abstract class ElectricContainerInfoProviderMixin {
 
     @Inject(method = "addProbeInfo(Lgregtech/api/capability/IEnergyContainer;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
             at = @At("HEAD"), cancellable = true)
-    private void injectElectricContainer(IEnergyContainer capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing sideHit, CallbackInfo ci) {
+    private void injectAddProbeInfo(IEnergyContainer capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing sideHit, CallbackInfo ci) {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
         long energyStored = capability.getEnergyStored();
         long maxStorage = capability.getEnergyCapacity();
