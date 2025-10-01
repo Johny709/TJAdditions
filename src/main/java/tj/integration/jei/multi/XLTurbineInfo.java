@@ -53,7 +53,7 @@ public class XLTurbineInfo extends MultiblockInfoPage {
         ((MetaTileEntityRotorHolder) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
         ((MetaTileEntityRotorHolder) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 7; i++) {
             GAMultiblockShapeInfo.Builder shapeInfo = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                     .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCECCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
                     .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
