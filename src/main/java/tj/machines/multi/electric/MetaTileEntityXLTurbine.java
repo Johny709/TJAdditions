@@ -1,7 +1,6 @@
 package tj.machines.multi.electric;
 
 import gregtech.api.gui.GuiTextures;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IMetaItemStats;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
@@ -348,7 +347,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
-        tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191, true, true)
+        tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191)
                 .setTakeItemsPredicate(() -> !this.hasChanged)
                 .setPutItemsPredicate(() -> !this.hasChanged)
                 .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));

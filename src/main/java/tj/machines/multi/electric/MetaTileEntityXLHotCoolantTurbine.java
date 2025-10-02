@@ -425,7 +425,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     protected void addTabs(WidgetTabBuilder tabBuilder) {
-        tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191, true, true)
+        tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191)
                 .setPutItemsPredicate(() -> !this.hasChanged)
                 .setTakeItemsPredicate(() -> !this.hasChanged)
                 .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));

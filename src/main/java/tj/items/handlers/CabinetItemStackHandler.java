@@ -1,7 +1,7 @@
 package tj.items.handlers;
 
-import gregtech.api.util.GTLog;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nonnull;
 import java.util.function.IntConsumer;
@@ -39,7 +39,6 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
             else if (!this.allowedItemName.equals(itemName))
                 return stack;
         ItemStack stack1 = super.insertItem(slot, stack, simulate);
-        GTLog.logger.info(simulate);
         if (!simulate && slot == this.getSlots() - 1)
             this.onSizeChanged.accept(this.getSlots() + 1);
         return stack1;
@@ -49,7 +48,6 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         ItemStack stack = super.extractItem(slot, amount, simulate);
-        GTLog.logger.info(simulate);
         if (!simulate && slot > 26 && slot == this.getSlots() - 1)
             this.onSizeChanged.accept(this.getSlots() - 1);
         if (!simulate && this.areSlotsEmpty())
@@ -63,5 +61,20 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
                 return false;
         }
         return true;
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound nbt = super.serializeNBT();
+        if (this.allowedItemName != null)
+            nbt.setString("ItemName", this.allowedItemName);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt) {
+        super.deserializeNBT(nbt);
+        if (nbt.hasKey("ItemName"))
+            this.allowedItemName = nbt.getString("ItemName");
     }
 }

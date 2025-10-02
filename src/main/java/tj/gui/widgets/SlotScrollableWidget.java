@@ -16,16 +16,19 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SlotScrollableWidget extends AbstractWidgetGroup {
+public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidgetGroup {
 
     protected static final int SLOT_HEIGHT = 18;
+    private final int rowLength;
     protected int totalListHeight;
     protected int scrollOffset;
     protected int scrollPaneWidth = 10;
     protected int lastMouseX;
     protected int lastMouseY;
     protected boolean draggedOnScrollBar;
-    private final int rowLength;
+
+    @SideOnly(Side.CLIENT)
+    private int timer;
 
     public SlotScrollableWidget(int x, int y, int width, int height, int rowLength) {
         super(new Position(x, y), new Size(width, height));
@@ -200,6 +203,21 @@ public class SlotScrollableWidget extends AbstractWidgetGroup {
 
     @Override
     @SideOnly(Side.CLIENT)
+    public void readUpdateInfo(int id, PacketBuffer buffer) {
+        if (id == 1) {
+            int widgetIndex = buffer.readVarInt();
+            int widgetUpdateId = buffer.readVarInt();
+            Widget widget = this.widgets.get(Math.min(this.widgets.size() - 1, widgetIndex));
+            widget.readUpdateInfo(widgetUpdateId, buffer);
+        } else if (id == 2) {
+            int time = buffer.readInt();
+            if (this.timer > 0)
+                this.timer--;
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
         this.draggedOnScrollBar = false;
         if (this.isPositionInsideScissor(mouseX, mouseY)) {
@@ -222,5 +240,23 @@ public class SlotScrollableWidget extends AbstractWidgetGroup {
         return super.getPhantomTargets(ingredient).stream()
                 .filter(it -> this.isBoxInsideScissor(it.getArea()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        this.writeUpdateInfo(2, buffer -> buffer.writeInt(1));
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public int getTimer() {
+        return this.timer;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void setTimer(int timer) {
+        this.timer = timer;
     }
 }

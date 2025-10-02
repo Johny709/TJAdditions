@@ -41,6 +41,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     private static final IndexedCuboid6 COLLISION_BOX = new IndexedCuboid6(null, new Cuboid6(3 / 16.0, 0 / 16.0, 3 / 16.0, 13 / 16.0, 14 / 16.0, 13 / 16.0));
     private final Set<EntityPlayer> guiUsers = new HashSet<>();
+    private boolean resetUIs;
     private float doorAngle = 0.0f;
     private float prevDoorAngle = 0.0f;
 
@@ -59,6 +60,15 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
     protected IItemHandlerModifiable createImportItemHandler() {
         return new CabinetItemStackHandler(27, 64)
                 .setSizeChangeListener(this::resizeInventory);
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        if (!this.getWorld().isRemote && this.resetUIs) {
+            this.resetUIs = false;
+            this.guiUsers.forEach(player -> MetaTileEntityUIFactory.INSTANCE.openUI(this.getHolder(), (EntityPlayerMP) player));
+        }
     }
 
     @Override
@@ -92,7 +102,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         if (!this.getWorld().isRemote) {
             this.writeCustomData(10, buf -> buf.writeInt(size));
             this.markDirty();
-            this.guiUsers.forEach(player -> MetaTileEntityUIFactory.INSTANCE.openUI(this.getHolder(), (EntityPlayerMP) player));
+            this.resetUIs = true;
         }
     }
 
@@ -100,7 +110,8 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
     protected ModularUI createUI(EntityPlayer player) {
         SlotScrollableWidget slotScrollableWidget = new SlotScrollableWidget(7, 14, 180, 72, 9);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
-            slotScrollableWidget.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9), true, true)
+            slotScrollableWidget.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
+                    .setWidgetGroup(slotScrollableWidget)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 176)

@@ -146,4 +146,34 @@ public class ItemStackHelper {
         }
         return stack;
     }
+
+    /**
+     * Tries to extract from container inventory or item handler
+     * @param itemHandler container inventory
+     * @param stack the ItemStack to extract
+     * @param amount the amount of items to extract and will be added to ItemStack count
+     * @param simulate test to see if the item can be extracted without actually inserting the item for real.
+     * @return The ItemStack extracted
+     */
+    public static ItemStack extractFromItemHandler(IItemHandler itemHandler, @Nonnull ItemStack stack, int amount, boolean simulate) {
+        if (itemHandler == null || stack.isEmpty())
+            return stack;
+
+        stack = simulate ? stack.copy() : stack;
+        int count = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            if (slotStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(slotStack, stack)) {
+                int extracted = Math.min(slotStack.getCount(), amount);
+                count += extracted;
+                amount -= extracted;
+                if (!simulate)
+                    itemHandler.extractItem(i, extracted, false);
+                if (amount < 1)
+                    break;
+            }
+        }
+        stack.grow(count);
+        return stack;
+    }
 }
