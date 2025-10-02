@@ -50,8 +50,7 @@ public class LargeItemStackHandler extends ItemStackHandler {
                 this.onContentsChanged(slot);
             }
             return existing;
-        }
-        else {
+        } else {
             if (!simulate) {
                 this.stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
                 this.onContentsChanged(slot);

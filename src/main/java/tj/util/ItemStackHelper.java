@@ -80,6 +80,46 @@ public class ItemStackHelper {
     }
 
     /**
+     * Tries to extract ItemStack from player inventory.
+     * @param inventory player inventory
+     * @param stack the ItemStack to extract
+     * @param amount amount to extract
+     * @param mainInventory if you should extract from main inventory
+     * @param armor if you should extract from armor slots
+     * @param offHand if you should extract from off-Hand slot
+     * @return ItemStack that was extracted. returns empty if ItemStack wasn't able to extract at all.
+     */
+    public static ItemStack extractFromPlayerInventory(InventoryPlayer inventory, ItemStack stack, int amount, boolean mainInventory, boolean armor, boolean offHand) {
+        if (inventory == null || stack.isEmpty())
+            return ItemStack.EMPTY;
+        ItemStack newStack = stack.copy();
+        int count = 0;
+        if (mainInventory)
+            count += extractFromAvailableSlots(inventory.mainInventory, stack, amount);
+        if (armor)
+            count += extractFromAvailableSlots(inventory.armorInventory, stack, amount);
+        if (offHand)
+            count += extractFromAvailableSlots(inventory.offHandInventory, stack, amount);
+        newStack.setCount(count);
+        return newStack;
+    }
+
+    private static int extractFromAvailableSlots(NonNullList<ItemStack> stackList, ItemStack stack, int amount) {
+        int count = 0;
+        for (ItemStack inventoryStack : stackList) {
+            if (!inventoryStack.isEmpty() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack)) {
+                int extracted = Math.min(inventoryStack.getCount(), amount);
+                inventoryStack.shrink(extracted);
+                count += extracted;
+                amount -= extracted;
+            }
+            if (amount < 1)
+                break;
+        }
+        return count;
+    }
+
+    /**
      * Tries to insert into container inventory or item handler
      * @param itemHandler container inventory
      * @param stack the ItemStack to insert

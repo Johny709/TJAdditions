@@ -135,15 +135,13 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
     @Override
     public void writeItemStackData(NBTTagCompound itemStack) {
         super.writeItemStackData(itemStack);
-        NBTTagCompound compound = new NBTTagCompound();
-        GTUtility.writeItems(this.importItems, "Inventory", compound);
-        itemStack.setTag("Data", compound);
+        itemStack.setTag("Inventory", ((ItemStackHandler) this.importItems).serializeNBT());
     }
 
     @Override
     public void initFromItemStackData(NBTTagCompound itemStack) {
         super.initFromItemStackData(itemStack);
-        GTUtility.readItems(this.importItems, "Inventory", itemStack.getCompoundTag("Data"));
+        ((ItemStackHandler) this.importItems).deserializeNBT(itemStack.getCompoundTag("Inventory"));
     }
 
     @Override

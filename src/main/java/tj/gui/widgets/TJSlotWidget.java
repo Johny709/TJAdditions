@@ -28,11 +28,11 @@ public class TJSlotWidget extends SlotWidget {
 
     @Override
     public boolean canPutStack(ItemStack stack) {
-        return this.putItemsPredicate.getAsBoolean() && super.canPutStack(stack);
+        return this.putItemsPredicate != null ? this.putItemsPredicate.getAsBoolean() && super.canPutStack(stack) : super.canPutStack(stack);
     }
 
     @Override
     public boolean canTakeStack(EntityPlayer player) {
-        return this.takeItemsPredicate.getAsBoolean() && super.canTakeStack(player);
+        return this.takeItemsPredicate != null ? this.takeItemsPredicate.getAsBoolean() && super.canTakeStack(player) : super.canTakeStack(player);
     }
 }

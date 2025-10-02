@@ -67,7 +67,7 @@ public class SlotScrollableWidget extends AbstractWidgetGroup {
             Widget widget = this.widgets.get(i);
             Position childPosition = new Position(position.x, currentPosY);
             widget.setParentPosition(childPosition);
-            if ((i + 1) % this.rowLength == 0) {
+            if (i % this.rowLength == 0) {
                 totalListHeight += widget.getSize().getHeight();
             }
             final Size size = getSize();
