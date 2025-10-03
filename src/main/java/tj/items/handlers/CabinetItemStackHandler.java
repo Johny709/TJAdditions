@@ -10,6 +10,7 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
 
     private String allowedItemName;
     private IntConsumer onSizeChanged;
+    private boolean itemLocked;
 
     public CabinetItemStackHandler(int size, int capacity) {
         super(size, capacity);
@@ -25,8 +26,17 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
         return this;
     }
 
+    public CabinetItemStackHandler setItemLocked(boolean itemLocked) {
+        this.itemLocked = itemLocked;
+        return this;
+    }
+
     public String getAllowedItemName() {
-        return allowedItemName;
+        return this.allowedItemName;
+    }
+
+    public boolean isItemLocked() {
+        return this.itemLocked;
     }
 
     @Nonnull
@@ -50,9 +60,14 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
         ItemStack stack = super.extractItem(slot, amount, simulate);
         if (!simulate && slot > 26 && slot == this.getSlots() - 1)
             this.onSizeChanged.accept(this.getSlots() - 1);
-        if (!simulate && this.areSlotsEmpty())
+        if (!simulate && !this.itemLocked && this.areSlotsEmpty())
             this.allowedItemName = null;
         return stack;
+    }
+
+    public void clear() {
+        if (this.areSlotsEmpty())
+            this.allowedItemName = null;
     }
 
     private boolean areSlotsEmpty() {
@@ -66,6 +81,7 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound nbt = super.serializeNBT();
+        nbt.setBoolean("ItemLocked", this.itemLocked);
         if (this.allowedItemName != null)
             nbt.setString("ItemName", this.allowedItemName);
         return nbt;
@@ -74,6 +90,7 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
         super.deserializeNBT(nbt);
+        this.itemLocked = nbt.getBoolean("ItemLocked");
         if (nbt.hasKey("ItemName"))
             this.allowedItemName = nbt.getString("ItemName");
     }

@@ -9,7 +9,10 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.GTValues;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.IFastRenderMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -24,6 +27,12 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -32,6 +41,7 @@ import tj.gui.widgets.SlotScrollableWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +64,14 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityFilingCabinet(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.description"));
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.filing_cabinet.description", 27));
+        tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.stack", 64));
     }
 
     @Override
@@ -89,12 +107,14 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
     private void resizeInventory(int size) {
         NonNullList<ItemStack> transferStackList = NonNullList.create();
         String name = ((CabinetItemStackHandler) this.importItems).getAllowedItemName();
+        boolean locked = ((CabinetItemStackHandler) this.importItems).isItemLocked();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             transferStackList.add(this.importItems.getStackInSlot(i));
         }
         this.itemInventory = this.importItems = new CabinetItemStackHandler(size, 64)
                 .setSizeChangeListener(this::resizeInventory)
-                .setAllowedItemByName(name);
+                .setAllowedItemByName(name)
+                .setItemLocked(locked);
         int minSize = Math.min(size, transferStackList.size());
         for (int i = 0; i < minSize ; i++) {
             this.importItems.setStackInSlot(i, transferStackList.get(i));
@@ -108,19 +128,42 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        SlotScrollableWidget slotScrollableWidget = new SlotScrollableWidget(7, 14, 180, 72, 9);
+        SlotScrollableWidget slotScrollableWidget = new SlotScrollableWidget(7, 34, 180, 72, 9);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             slotScrollableWidget.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
                     .setWidgetGroup(slotScrollableWidget)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.builder(GuiTextures.BACKGROUND, 176, 176)
+        return ModularUI.builder(GuiTextures.BACKGROUND, 176, 196)
                 .bindOpenListener(() -> this.guiUsers.add(player))
                 .bindCloseListener(() -> this.guiUsers.remove(player))
-                .widget(new LabelWidget(7, 5, getMetaFullName()))
+                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
+                .widget(new ImageWidget(7, 14, 126, 18, GuiTextures.DISPLAY))
+                .widget(new AdvancedTextWidget(10, 19, this::addDisplayText, 0xFFFFFF))
+                .widget(new ToggleButtonWidget(133, 14, 18, 18, GuiTextures.BUTTON_CLEAR_GRID, () -> false, this::onClear)
+                        .setTooltipText("machine.universal.toggle.clear"))
+                .widget(new ToggleButtonWidget(151, 14, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemLocked(), this::setLocked)
+                        .setTooltipText("tj.machine.filing_cabinet.toggle"))
                 .widget(slotScrollableWidget)
-                .bindPlayerInventory(player.inventory, 94)
+                .bindPlayerInventory(player.inventory, 114)
                 .build(this.getHolder(), player);
+    }
+
+    private void addDisplayText(List<ITextComponent> textList) {
+        String itemName = ((CabinetItemStackHandler) this.importItems).getAllowedItemName();
+        itemName = itemName != null ? itemName : I18n.translateToLocal("gregtech.fluid.empty");
+        textList.add(new TextComponentString(itemName)
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(itemName)))));
+    }
+
+    private void setLocked(boolean locked) {
+        ((CabinetItemStackHandler) this.importItems).setItemLocked(locked);
+        this.markDirty();
+    }
+
+    private void onClear(boolean onClear) {
+        ((CabinetItemStackHandler) this.importItems).clear();
+        this.markDirty();
     }
 
     @Override

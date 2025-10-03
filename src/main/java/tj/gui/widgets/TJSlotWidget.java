@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-public class TJSlotWidget extends Widget implements IItemSlotHandler {
+public class TJSlotWidget extends Widget {
 
     private final IItemHandler itemHandler;
     private final int slotIndex;
@@ -138,8 +138,7 @@ public class TJSlotWidget extends Widget implements IItemSlotHandler {
             this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.itemHandler.getStackInSlot(this.slotIndex)));
     }
 
-    @Override
-    public ItemStack insertStack(int slot, ItemStack stack, boolean simulate) {
+    private ItemStack insertStack(int slot, ItemStack stack, boolean simulate) {
         ItemStack inventoryStack = this.itemHandler.getStackInSlot(slot);
         if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
             return this.itemHandler.insertItem(slot, stack, simulate);
