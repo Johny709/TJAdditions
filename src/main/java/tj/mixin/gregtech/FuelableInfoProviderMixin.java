@@ -18,7 +18,7 @@ public abstract class FuelableInfoProviderMixin {
     private IProbeInfo redirectAddProbeInfo(IProbeInfo probeInfo, String s) {
         if (TJConfig.machines.theOneProbeInfoProviderOverrides) {
             String[] info = s.split(" ");
-            probeInfo.text(String.format("\n%s §b%s", info[0], TJValues.thousandFormat.format(Integer.parseInt(info[1]))));
+            probeInfo.text(String.format("\n%s §b%s", info[0], TJValues.thousandTwoPlaceFormat.format(Integer.parseInt(info[1]))));
         } else probeInfo.text(s);
         return probeInfo;
     }
@@ -28,7 +28,7 @@ public abstract class FuelableInfoProviderMixin {
     private IProbeInfo redirectAddProbeInfo2(IProbeInfo probeInfo, String s) {
         if (TJConfig.machines.theOneProbeInfoProviderOverrides) {
             String[] info = s.split(" ");
-            probeInfo.text(String.format("\n%s §b%s §r%s", info[0], TJValues.thousandFormat.format(Long.parseLong(info[1])), info[2]));
+            probeInfo.text(String.format("\n%s §b%s §r%s", info[0], TJValues.thousandTwoPlaceFormat.format(Long.parseLong(info[1])), info[2]));
         } else probeInfo.text(s);
         return probeInfo;
     }
