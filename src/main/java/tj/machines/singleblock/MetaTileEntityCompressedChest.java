@@ -37,7 +37,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
-import tj.gui.widgets.SlotScrollableWidget;
+import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
@@ -211,7 +211,7 @@ public class MetaTileEntityCompressedChest extends MetaTileEntity implements IFa
                         Math.max(176, 14 + Math.min(27, ROW_SIZE) * 18),
                         18 + 18 * Math.min(12, AMOUNT_OF_ROWS) + 94)
                 .label(5, 5, this.getMetaFullName());
-        SlotScrollableWidget scrollableListWidget = new SlotScrollableWidget(7, 18, 18 + ROW_SIZE * 18,  18 * Math.min(7, AMOUNT_OF_ROWS) + 94, ROW_SIZE);
+        SlotScrollableWidgetGroup scrollableListWidget = new SlotScrollableWidgetGroup(7, 18, 18 + ROW_SIZE * 18,  18 * Math.min(7, AMOUNT_OF_ROWS) + 94, ROW_SIZE);
         builder.widget(new SortingButtonWidget(111, 4, 60, 10, "gregtech.gui.sort",
                 (info) -> sortInventorySlotContents(this.importItems)));
 

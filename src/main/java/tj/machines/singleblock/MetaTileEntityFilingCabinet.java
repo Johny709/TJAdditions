@@ -9,10 +9,7 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.GTValues;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.ImageWidget;
-import gregtech.api.gui.widgets.LabelWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.IFastRenderMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -37,7 +34,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.gui.widgets.SlotScrollableWidget;
+import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
 
@@ -116,7 +113,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                 .setAllowedItemByName(name)
                 .setItemLocked(locked);
         int minSize = Math.min(size, transferStackList.size());
-        for (int i = 0; i < minSize ; i++) {
+        for (int i = 0; i < minSize; i++) {
             this.importItems.setStackInSlot(i, transferStackList.get(i));
         }
         if (!this.getWorld().isRemote) {
@@ -128,24 +125,26 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        SlotScrollableWidget slotScrollableWidget = new SlotScrollableWidget(7, 34, 180, 72, 9);
+        SlotScrollableWidgetGroup slotScrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 35, 180, 72, 9)
+                .setItemHandler(this.importItems);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
-            slotScrollableWidget.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
-                    .setWidgetGroup(slotScrollableWidget)
+            slotScrollableWidgetGroup.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
+                    .setWidgetGroup(slotScrollableWidgetGroup)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.builder(GuiTextures.BACKGROUND, 176, 196)
+        return ModularUI.builder(GuiTextures.BACKGROUND, 176, 197)
                 .bindOpenListener(() -> this.guiUsers.add(player))
                 .bindCloseListener(() -> this.guiUsers.remove(player))
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
-                .widget(new ImageWidget(7, 14, 126, 18, GuiTextures.DISPLAY))
-                .widget(new AdvancedTextWidget(10, 19, this::addDisplayText, 0xFFFFFF))
-                .widget(new ToggleButtonWidget(133, 14, 18, 18, GuiTextures.BUTTON_CLEAR_GRID, () -> false, this::onClear)
+                .widget(new ImageWidget(7, 15, 126, 18, GuiTextures.DISPLAY))
+                .widget(new AdvancedTextWidget(10, 20, this::addDisplayText, 0xFFFFFF))
+                .widget(new ToggleButtonWidget(133, 15, 18, 18, GuiTextures.BUTTON_CLEAR_GRID, () -> false, this::onClear)
                         .setTooltipText("machine.universal.toggle.clear"))
-                .widget(new ToggleButtonWidget(151, 14, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemLocked(), this::setLocked)
+                .widget(new ToggleButtonWidget(151, 15, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemLocked(), this::setLocked)
                         .setTooltipText("tj.machine.filing_cabinet.toggle"))
-                .widget(slotScrollableWidget)
-                .bindPlayerInventory(player.inventory, 114)
+                .widget(new SortingButtonWidget(109, 4, 60, 10, "gregtech.gui.sort", (info) -> MetaTileEntityCompressedChest.sortInventorySlotContents(this.importItems)))
+                .widget(slotScrollableWidgetGroup)
+                .bindPlayerInventory(player.inventory, 115)
                 .build(this.getHolder(), player);
     }
 
@@ -158,11 +157,13 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     private void setLocked(boolean locked) {
         ((CabinetItemStackHandler) this.importItems).setItemLocked(locked);
+        this.writeCustomData(11, buf -> buf.writeBoolean(locked));
         this.markDirty();
     }
 
     private void onClear(boolean onClear) {
-        ((CabinetItemStackHandler) this.importItems).clear();
+        ((CabinetItemStackHandler) this.importItems).clear(onClear);
+        this.writeCustomData(12, buf -> buf.writeBoolean(onClear));
         this.markDirty();
     }
 
@@ -226,6 +227,11 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         super.receiveCustomData(dataId, buf);
         if (dataId == 10)
             this.resizeInventory(buf.readInt());
+        else if (dataId == 11)
+            ((CabinetItemStackHandler) this.importItems).setItemLocked(buf.readBoolean());
+        else if (dataId == 12)
+            ((CabinetItemStackHandler) this.importItems).clear(buf.readBoolean());
+
     }
 
     @Override

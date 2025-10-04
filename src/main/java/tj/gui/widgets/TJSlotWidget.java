@@ -3,6 +3,7 @@ package tj.gui.widgets;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import net.minecraft.client.resources.I18n;
@@ -21,14 +22,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-public class TJSlotWidget extends Widget {
+public class TJSlotWidget extends Widget implements ISlotHandler {
 
     private final IItemHandler itemHandler;
     private final int slotIndex;
     private BooleanSupplier takeItemsPredicate;
     private BooleanSupplier putItemsPredicate;
     private TextureArea[] backgroundTexture;
-    private IWidgetGroup widgetGroup;
+    private ISlotGroup widgetGroup;
+    private boolean simulating;
+
+    @SideOnly(Side.CLIENT)
+    private int simulatedAmount;
 
     @SideOnly(Side.CLIENT)
     private boolean isDragging;
@@ -42,7 +47,7 @@ public class TJSlotWidget extends Widget {
         this.slotIndex = slotIndex;
     }
 
-    public TJSlotWidget setWidgetGroup(IWidgetGroup widgetGroup) {
+    public TJSlotWidget setWidgetGroup(ISlotGroup widgetGroup) {
         this.widgetGroup = widgetGroup;
         return this;
     }
@@ -89,7 +94,7 @@ public class TJSlotWidget extends Widget {
             if (!stack.isEmpty()) {
                 drawItemStack(stack, stackX, stackY, null);
             }
-            if (this.isMouseOverElement(mouseX, mouseY))
+            if (this.simulating || this.isMouseOverElement(mouseX, mouseY))
                 drawSelectionOverlay(stackX, stackY, 16, 16);
         }
     }
@@ -108,7 +113,15 @@ public class TJSlotWidget extends Widget {
                     buffer.writeBoolean(isShiftKeyPressed);
                     buffer.writeInt(button);
                 });
-            } else this.writeClientAction(3, buffer -> buffer.writeInt(64 - this.gui.entityPlayer.inventory.getItemStack().getCount()));
+            } else {
+                this.writeClientAction(3, buffer -> buffer.writeInt(64 - this.gui.entityPlayer.inventory.getItemStack().getCount()));
+                return false;
+            }
+            if (button == 0 && this.widgetGroup != null && !this.gui.entityPlayer.inventory.getItemStack().isEmpty())
+                this.widgetGroup.addSlotToDrag(this, () -> {
+                    this.simulating = true;
+                    this.writeClientAction(4, buffer -> buffer.writeBoolean(this.simulating));
+                });
         }
         return false;
     }
@@ -119,6 +132,11 @@ public class TJSlotWidget extends Widget {
         if (this.isDragging && this.isMouseOverElement(mouseX, mouseY)) {
             if (!this.slotModified) {
                 this.slotModified = true;
+                if (button == 0 && this.widgetGroup != null)
+                    this.widgetGroup.addSlotToDrag(this, () -> {
+                        this.simulating = true;
+                        this.writeClientAction(4, buffer -> buffer.writeBoolean(this.simulating));
+                    });
                 this.writeClientAction(2, buffer -> buffer.writeInt(button));
             }
         } else this.slotModified = false;
@@ -134,21 +152,30 @@ public class TJSlotWidget extends Widget {
 
     @Override
     public void detectAndSendChanges() {
-        if (this.itemHandler != null)
+        if (!this.simulating && this.itemHandler != null)
             this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.itemHandler.getStackInSlot(this.slotIndex)));
     }
 
-    private ItemStack insertStack(int slot, ItemStack stack, boolean simulate) {
-        ItemStack inventoryStack = this.itemHandler.getStackInSlot(slot);
+    @Override
+    public ItemStack insert(ItemStack stack, boolean simulate) {
+        ItemStack inventoryStack = this.itemHandler.getStackInSlot(this.slotIndex);
         if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
-            return this.itemHandler.insertItem(slot, stack, simulate);
+            return this.itemHandler.insertItem(this.slotIndex, stack, simulate);
         else return stack;
     }
 
-    private void insertStackAmount(int slot, ItemStack stack, int amount) {
+    @Override
+    public ItemStack extract(int amount, ItemStack stack, boolean simulate) {
+        ItemStack inventoryStack = this.itemHandler.getStackInSlot(this.slotIndex);
+        if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
+            return this.itemHandler.extractItem(this.slotIndex, amount, simulate);
+        return ItemStack.EMPTY;
+    }
+
+    private void insertAmount(ItemStack stack, int amount) {
         ItemStack oneStack = stack.copy();
         oneStack.setCount(amount);
-        stack.shrink(amount - this.insertStack(slot, oneStack, false).getCount());
+        stack.shrink(amount - this.insert(oneStack, false).getCount());
     }
 
     @Override
@@ -170,8 +197,9 @@ public class TJSlotWidget extends Widget {
                         if (this.widgetGroup != null)
                             this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
                     } else return;
-                else if (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean())
-                    newStack = this.insertStack(this.slotIndex, handStack, false);
+                else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()))
+                    // if this slot was not added to a slot group then let this slot handle the stack insertion
+                    newStack = this.insert(handStack, false);
                 else return;
             } else if (button == 1) {
                 if (handStack.isEmpty()) {
@@ -181,11 +209,11 @@ public class TJSlotWidget extends Widget {
                     } else return;
                 } else {
                     if (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()) {
-                        this.insertStackAmount(this.slotIndex, handStack, 1);
+                        this.insertAmount(handStack, 1);
                     } else return;
                 }
             } else if (button == 2) {
-                if (player.isCreative()) {
+                if (handStack.isEmpty() && player.isCreative()) {
                     newStack = this.itemHandler.getStackInSlot(this.slotIndex).copy();
                     newStack.setCount(64);
                 }
@@ -193,10 +221,13 @@ public class TJSlotWidget extends Widget {
         } else if (id == 2) {
             int button = buffer.readInt();
             if (button == 1)
-                this.insertStackAmount(this.slotIndex, newStack, 1);
+                this.insertAmount(newStack, 1);
         } else if (id == 3) {
             int amount = buffer.readInt();
             newStack = ItemStackHelper.extractFromItemHandler(this.itemHandler, newStack, amount, false);
+        } else if (id == 4) {
+            this.simulating = buffer.readBoolean();
+            return;
         }
         final ItemStack finalStack = newStack;
         player.inventory.setItemStack(finalStack);
@@ -212,18 +243,42 @@ public class TJSlotWidget extends Widget {
                 if (this.itemHandler instanceof IItemHandlerModifiable)
                     ((IItemHandlerModifiable) this.itemHandler).setStackInSlot(this.slotIndex, stack);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                GTLog.logger.error(e);
             }
         } else if (id == 2) {
             try {
-                ItemStack stack = buffer.readItemStack();
-                this.gui.entityPlayer.inventory.setItemStack(stack);
+                this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                GTLog.logger.error(e);
             }
         } else if (id == 3) {
             if (this.widgetGroup != null)
                 this.widgetGroup.setTimer(buffer.readInt());
         }
+    }
+
+    @Override
+    public int index() {
+        return this.slotIndex;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void onRemove() {
+        this.simulatedAmount = 0;
+        this.simulating = false;
+        this.writeClientAction(4, buffer -> buffer.writeBoolean(this.simulating));
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void setSimulatedAmount(int amount) {
+        this.simulatedAmount = amount;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public int getSimulatedAmount() {
+        return this.simulatedAmount;
     }
 }

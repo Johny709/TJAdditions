@@ -65,7 +65,7 @@ public class CabinetItemStackHandler extends LargeItemStackHandler {
         return stack;
     }
 
-    public void clear() {
+    public void clear(boolean clear) {
         if (this.areSlotsEmpty())
             this.allowedItemName = null;
     }

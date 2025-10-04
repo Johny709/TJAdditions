@@ -3,20 +3,28 @@ package tj.gui.widgets;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
 import mezz.jei.api.gui.IGhostIngredientHandler;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import org.lwjgl.input.Keyboard;
+import tj.util.ItemStackHelper;
 
 import java.awt.*;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidgetGroup {
+public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements ISlotGroup {
 
     protected static final int SLOT_HEIGHT = 18;
     private final int rowLength;
@@ -26,13 +34,28 @@ public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidget
     protected int lastMouseX;
     protected int lastMouseY;
     protected boolean draggedOnScrollBar;
+    protected IItemHandler itemHandler;
+
+    @SideOnly(Side.CLIENT)
+    private final Map<ISlotHandler, ItemStack> dragWidgets = new HashMap<>();
+
+    @SideOnly(Side.CLIENT)
+    private boolean canAddWidgets = true;
+
+    @SideOnly(Side.CLIENT)
+    private ItemStack dragStack;
 
     @SideOnly(Side.CLIENT)
     private int timer;
 
-    public SlotScrollableWidget(int x, int y, int width, int height, int rowLength) {
+    public SlotScrollableWidgetGroup(int x, int y, int width, int height, int rowLength) {
         super(new Position(x, y), new Size(width, height));
         this.rowLength = rowLength;
+    }
+
+    public SlotScrollableWidgetGroup setItemHandler(IItemHandler itemHandler) {
+        this.itemHandler = itemHandler;
+        return this;
     }
 
     @Override
@@ -150,14 +173,6 @@ public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidget
     }
 
     @Override
-    public void handleClientAction(int id, PacketBuffer buffer) {
-        super.handleClientAction(id, buffer);
-        if (id == 2) {
-            this.addScrollOffset(buffer.readInt());
-        }
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (this.isMouseOverElement(mouseX, mouseY, true)) {
@@ -175,11 +190,15 @@ public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidget
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         this.lastMouseX = mouseX;
         this.lastMouseY = mouseY;
+        boolean isShiftKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
         if (this.isOnScrollPane(mouseX, mouseY)) {
             this.draggedOnScrollBar = true;
         }
         if (this.isPositionInsideScissor(mouseX, mouseY)) {
+            this.dragStack = this.gui.entityPlayer.inventory.getItemStack().copy();
             return super.mouseClicked(mouseX, mouseY, button);
+        } else if (isShiftKeyPressed && this.itemHandler != null) {
+            this.writeClientAction(4, buffer -> buffer.writeBoolean(false));
         }
         return false;
     }
@@ -203,6 +222,30 @@ public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidget
 
     @Override
     @SideOnly(Side.CLIENT)
+    public boolean mouseReleased(int mouseX, int mouseY, int button) {
+        this.draggedOnScrollBar = false;
+        if (!this.dragWidgets.isEmpty()) {
+            this.writeClientAction(5, buffer -> {
+                buffer.writeItemStack(this.dragStack);
+                buffer.writeInt(this.dragWidgets.size());
+                this.dragWidgets.forEach((slot, stack) -> {
+                    buffer.writeInt(slot.index());
+                    buffer.writeItemStack(this.dragStack);
+                    slot.onRemove();
+                });
+            });
+            this.dragWidgets.clear();
+            this.canAddWidgets = true;
+        }
+        if (this.isPositionInsideScissor(mouseX, mouseY)) {
+            return super.mouseReleased(mouseX, mouseY, button);
+        }
+        return false;
+    }
+
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         if (id == 1) {
             int widgetIndex = buffer.readVarInt();
@@ -211,19 +254,53 @@ public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidget
             widget.readUpdateInfo(widgetUpdateId, buffer);
         } else if (id == 2) {
             int time = buffer.readInt();
-            if (this.timer > 0)
+            if (this.timer > 0 && time == 1)
                 this.timer--;
+        } else if (id == 3) {
+            try {
+                this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
+            } catch (IOException e) {
+                GTLog.logger.error(e);
+            }
         }
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean mouseReleased(int mouseX, int mouseY, int button) {
-        this.draggedOnScrollBar = false;
-        if (this.isPositionInsideScissor(mouseX, mouseY)) {
-            return super.mouseReleased(mouseX, mouseY, button);
+    public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
+        if (id == 2) {
+            this.addScrollOffset(buffer.readInt());
+        } else if (id == 3) {
+            try {
+                this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
+            } catch (IOException e) {
+                GTLog.logger.error(e);
+            }
+        } else if (id == 4) {
+            ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
+            final ItemStack finalStack = ItemStackHelper.insertIntoItemHandler(this.itemHandler, stack, buffer.readBoolean());
+            this.gui.entityPlayer.inventory.setItemStack(finalStack);
+            this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(finalStack));
+        } else if (id == 5) {
+            try {
+                ItemStack heldStack = buffer.readItemStack();
+                int size = buffer.readInt();
+                int remainder = heldStack.getCount() % size;
+                int amountPerSlot = (heldStack.getCount() - remainder) / size;
+                for (int i = 0; i < size; i++) {
+                    int index = buffer.readInt();
+                    ItemStack stack = buffer.readItemStack();
+                    stack.setCount(amountPerSlot);
+                    stack = this.itemHandler.insertItem(index, stack, false);
+                    remainder += stack.getCount();
+                }
+                heldStack.setCount(remainder);
+                this.gui.entityPlayer.inventory.setItemStack(heldStack);
+                this.writeClientAction(3, buffer1 -> buffer1.writeItemStack(heldStack));
+            } catch (IOException e) {
+                GTLog.logger.error(e);
+            }
         }
-        return false;
     }
 
     @Override
@@ -246,6 +323,34 @@ public class SlotScrollableWidget extends AbstractWidgetGroup implements IWidget
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
         this.writeUpdateInfo(2, buffer -> buffer.writeInt(1));
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addSlotToDrag(ISlotHandler widget, Runnable callback) {
+        if (this.canAddWidgets && !this.dragWidgets.containsKey(widget)) {
+            ItemStack heldStack = this.dragStack.copy();
+            this.dragWidgets.put(widget, this.dragStack.copy());
+            callback.run();
+            int size = this.dragWidgets.size();
+            int remainder = heldStack.getCount() % size;
+            int amountPerSlot = (heldStack.getCount() - remainder) / size;
+            for (Map.Entry<ISlotHandler, ItemStack> dragWidgets : this.dragWidgets.entrySet()) {
+                ISlotHandler slot = dragWidgets.getKey();
+                ItemStack stack = dragWidgets.getValue();
+                slot.extract(slot.getSimulatedAmount(), stack, false);
+                stack.setCount(amountPerSlot);
+                int count = stack.getCount();
+                stack = slot.insert(stack, false);
+                slot.setSimulatedAmount(stack.getCount() == 0 ? amountPerSlot : count - stack.getCount());
+                remainder += stack.getCount();
+            }
+            heldStack.setCount(remainder);
+            if (amountPerSlot < 2 && heldStack.getCount() < 1)
+                this.canAddWidgets = false;
+            this.gui.entityPlayer.inventory.setItemStack(heldStack);
+            this.writeClientAction(3, buffer -> buffer.writeItemStack(heldStack));
+        }
     }
 
     @Override
