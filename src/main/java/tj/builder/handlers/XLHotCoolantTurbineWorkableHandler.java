@@ -355,7 +355,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         int seconds = this.maxProgress / 20;
         String amount = String.valueOf(seconds);
         String s = seconds < 2 ? "second" : "seconds";
-        return ArrayUtils.toArray("machine.universal.consumption", "§b ", "suffix", "machine.universal.liters.short",  "§r ", this.fuelName, " ", "every", "§6 ", amount, "§r ", s);
+        return ArrayUtils.toArray("machine.universal.consumption", "§b ", "suffix", "machine.universal.liters.short",  "§r§7(§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
     }
 
     @Override
@@ -364,6 +364,6 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         String voltage = GAValues.VN[tier];
         String color = TJValues.VCC[tier];
         return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
-                " ", "§r(§6", color, voltage, "§r)");
+                " ", "§r§7(§6", color, voltage, "§7)");
     }
 }

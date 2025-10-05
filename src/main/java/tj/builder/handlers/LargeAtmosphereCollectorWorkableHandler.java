@@ -321,7 +321,7 @@ public class LargeAtmosphereCollectorWorkableHandler extends FuelRecipeLogic imp
         int seconds = this.maxProgress / 20;
         String amount = String.valueOf(seconds);
         String s = seconds < 2 ? "second" : "seconds";
-        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r ", this.fuelName, " ", "every", "§6 ", amount, "§r ", s);
+        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r§7(§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
     }
 
     @Override

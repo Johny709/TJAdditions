@@ -3,6 +3,8 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.GhostCircuitWidget;
@@ -55,6 +57,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
         int size = this.getTier() < GAValues.UMV ? 1024
@@ -139,6 +142,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         if (this.isExport) {

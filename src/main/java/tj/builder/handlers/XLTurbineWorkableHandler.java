@@ -349,7 +349,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         String amount = String.valueOf(seconds);
         String s = seconds < 2 ? "second" : "seconds";
         String color = this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? "§7 " : "§b ";
-        return ArrayUtils.toArray("machine.universal.consumption", color, "suffix", "machine.universal.liters.short",  "§r ", this.fuelName, " ", "every", "§6 ", amount, "§r ", s);
+        return ArrayUtils.toArray("machine.universal.consumption", color, "suffix", "machine.universal.liters.short",  "§r§7(§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
     }
 
     @Override
@@ -358,7 +358,7 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
         String voltage = GAValues.VN[tier];
         String color = TJValues.VCC[tier];
         return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
-                " ", "§r(§6", color, voltage, "§r)");
+                " ", "§7(§6", color, voltage, "§7)");
     }
 }
 

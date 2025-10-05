@@ -3,6 +3,8 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.TJGuiTextures;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
@@ -55,6 +57,7 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         int tier = getTier() / 3;
         int slots = Math.min(16, (tier + 1) * (tier + 1));
@@ -162,6 +165,7 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         if (isExport) {
