@@ -70,7 +70,7 @@ public class ItemStackHelper {
                 newStack.setCount(shrink);
                 stackList.set(i, newStack);
                 stack.shrink(shrink);
-            } else if (inventoryStack.isItemEqual(stack)) {
+            } else if (inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack)) {
                 int reminder = inventoryStack.getMaxStackSize() - inventoryStack.getCount();
                 int shrink = Math.min(reminder, stack.getCount());
                 inventoryStack.grow(shrink);
