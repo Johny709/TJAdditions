@@ -273,7 +273,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
-        this.exportFluidHandler = null;
+        this.importFluidHandler = new FluidTankList(true, Collections.emptyList());
         this.importItemHandler = new ItemHandlerList(Collections.emptyList());
     }
 

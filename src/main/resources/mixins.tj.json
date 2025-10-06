@@ -10,6 +10,7 @@
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",
     "gregicality.GATransformerProviderMixin",
+    "gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin",
     "gregicality.MetaTileEntityMufflerHatchMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregtech.FuelableInfoProviderMixin",

@@ -26,6 +26,7 @@ import tj.TJValues;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
+import tj.mixin.gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -105,6 +106,10 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     }
 
     private void toggleFastMode(boolean toggle) {
+        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
+            ((IMetaTileEntityRotorHolderForNuclearCoolantMixin) rotorHolder).setCurrentRotorSpeed(0);
+            rotorHolder.markDirty();
+        }
         this.isFastMode = toggle;
         if (toggle) {
             this.fastModeMultiplier = 3;
