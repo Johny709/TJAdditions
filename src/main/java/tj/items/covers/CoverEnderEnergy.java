@@ -113,15 +113,8 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
     }
 
     @Override
-    protected void onAddEntry(Widget.ClickData clickData) {
-        this.getMap().putIfAbsent(this.text, new BasicEnergyHandler(this.capacity));
-    }
-
-    @Override
-    protected void onClear(Widget.ClickData clickData) {
-        if (this.getMap().containsKey(this.text)) {
-            this.getMap().put(this.text, new BasicEnergyHandler(this.capacity));
-        }
+    protected BasicEnergyHandler createHandler() {
+        return new BasicEnergyHandler(this.capacity);
     }
 
     @Override

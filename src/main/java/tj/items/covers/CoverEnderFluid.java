@@ -88,15 +88,8 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     @Override
-    protected void onAddEntry(Widget.ClickData clickData) {
-        this.getMap().putIfAbsent(this.text, new FluidTank(this.capacity));
-    }
-
-    @Override
-    protected void onClear(Widget.ClickData clickData) {
-        if (this.getMap().containsKey(this.text)) {
-            this.getMap().put(this.text, new FluidTank(this.capacity));
-        }
+    protected FluidTank createHandler() {
+        return new FluidTank(this.capacity);
     }
 
     @Override
@@ -104,7 +97,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
         FluidStack fluid = value.getFluid();
         boolean empty = fluid == null;
         String name = !empty ? fluid.getUnlocalizedName() : I18n.translateToLocal("metaitem.fluid_cell.empty");
-        int capacity = !empty ? value.getCapacity() : 0;
+        int capacity = value.getCapacity();
         int amount = !empty ? fluid.amount : 0;
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
                 .appendText("§b ")

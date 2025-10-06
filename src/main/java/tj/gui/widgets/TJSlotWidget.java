@@ -21,11 +21,13 @@ import tj.util.ItemStackHelper;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 public class TJSlotWidget extends Widget implements ISlotHandler {
 
     private final IItemHandler itemHandler;
     private final int slotIndex;
+    private Supplier<IItemHandler> itemHandlerSupplier;
     private BooleanSupplier takeItemsPredicate;
     private BooleanSupplier putItemsPredicate;
     private TextureArea[] backgroundTexture;
@@ -45,6 +47,11 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
         super(new Position(x, y), new Size(18, 18));
         this.itemHandler = itemHandler;
         this.slotIndex = slotIndex;
+    }
+
+    public TJSlotWidget setItemHandlerSupplier(Supplier<IItemHandler> itemHandlerSupplier) {
+        this.itemHandlerSupplier = itemHandlerSupplier;
+        return this;
     }
 
     public TJSlotWidget setWidgetGroup(ISlotGroup widgetGroup) {
@@ -67,11 +74,15 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
         return this;
     }
 
+    private IItemHandler getItemHandler() {
+        return this.itemHandlerSupplier != null ? this.itemHandlerSupplier.get() : this.itemHandler;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         ItemStack stack;
-        if (this.isMouseOverElement(mouseX, mouseY) && this.itemHandler != null && !(stack = this.itemHandler.getStackInSlot(this.slotIndex)).isEmpty()) {
+        if (this.isMouseOverElement(mouseX, mouseY) && this.getItemHandler() != null && !(stack = this.getItemHandler().getStackInSlot(this.slotIndex)).isEmpty()) {
             List<String> tooltip = getItemToolTip(stack);
             String itemStoredText = I18n.format("gregtech.item_list.item_stored", stack.getCount());
             tooltip.add(TextFormatting.GRAY + itemStoredText);
@@ -89,8 +100,8 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
             for (TextureArea textureArea : this.backgroundTexture) {
                 textureArea.draw(pos.getX(), pos.getY(), 18, 18);
             }
-        if (this.itemHandler != null) {
-            ItemStack stack = this.itemHandler.getStackInSlot(this.slotIndex);
+        if (this.getItemHandler() != null) {
+            ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
             if (!stack.isEmpty()) {
                 drawItemStack(stack, stackX, stackY, null);
             }
@@ -152,23 +163,27 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
 
     @Override
     public void detectAndSendChanges() {
-        if (!this.simulating && this.itemHandler != null)
-            this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.itemHandler.getStackInSlot(this.slotIndex)));
+        if (!this.simulating && this.getItemHandler() != null)
+            this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.getItemHandler().getStackInSlot(this.slotIndex)));
     }
 
     @Override
     public ItemStack insert(ItemStack stack, boolean simulate) {
-        ItemStack inventoryStack = this.itemHandler.getStackInSlot(this.slotIndex);
+        if (this.getItemHandler() == null || this.getItemHandler().getSlots() <= this.slotIndex)
+            return stack;
+        ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
         if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
-            return this.itemHandler.insertItem(this.slotIndex, stack, simulate);
+            return this.getItemHandler().insertItem(this.slotIndex, stack, simulate);
         else return stack;
     }
 
     @Override
     public ItemStack extract(int amount, ItemStack stack, boolean simulate) {
-        ItemStack inventoryStack = this.itemHandler.getStackInSlot(this.slotIndex);
+        if (this.getItemHandler() == null || this.getItemHandler().getSlots() <= this.slotIndex)
+            return ItemStack.EMPTY;
+        ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
         if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
-            return this.itemHandler.extractItem(this.slotIndex, amount, simulate);
+            return this.getItemHandler().extractItem(this.slotIndex, amount, simulate);
         return ItemStack.EMPTY;
     }
 
@@ -189,9 +204,9 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
             int button = buffer.readInt();
             if (button == 0) {
                 if (handStack.isEmpty())
-                    if (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean()) {
+                    if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
                         int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
-                        newStack = this.itemHandler.extractItem(this.slotIndex, amount, false);
+                        newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
                         if (isShiftKeyPressed)
                             newStack = ItemStackHelper.insertInMainInventory(player.inventory, newStack);
                         if (this.widgetGroup != null)
@@ -203,9 +218,9 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
                 else return;
             } else if (button == 1) {
                 if (handStack.isEmpty()) {
-                    if (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean()) {
-                        ItemStack stack = this.itemHandler.getStackInSlot(this.slotIndex);
-                        newStack = this.itemHandler.extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
+                    if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
+                        ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
+                        newStack = this.getItemHandler().extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
                     } else return;
                 } else {
                     if (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()) {
@@ -213,8 +228,8 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
                     } else return;
                 }
             } else if (button == 2) {
-                if (handStack.isEmpty() && player.isCreative()) {
-                    newStack = this.itemHandler.getStackInSlot(this.slotIndex).copy();
+                if (this.getItemHandler() != null && handStack.isEmpty() && player.isCreative()) {
+                    newStack = this.getItemHandler().getStackInSlot(this.slotIndex).copy();
                     newStack.setCount(64);
                 }
             }
@@ -224,7 +239,8 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
                 this.insertAmount(newStack, 1);
         } else if (id == 3) {
             int amount = buffer.readInt();
-            newStack = ItemStackHelper.extractFromItemHandler(this.itemHandler, newStack, amount, false);
+            if (this.getItemHandler() != null)
+                newStack = ItemStackHelper.extractFromItemHandler(this.getItemHandler(), newStack, amount, false);
         } else if (id == 4) {
             this.simulating = buffer.readBoolean();
             return;
@@ -240,8 +256,8 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
         if (id == 1) {
             try {
                 ItemStack stack = buffer.readItemStack();
-                if (this.itemHandler instanceof IItemHandlerModifiable)
-                    ((IItemHandlerModifiable) this.itemHandler).setStackInSlot(this.slotIndex, stack);
+                if (this.getItemHandler() instanceof IItemHandlerModifiable)
+                    ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.slotIndex, stack);
             } catch (IOException e) {
                 GTLog.logger.error(e);
             }

@@ -102,18 +102,26 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     protected abstract void addWidgets(Consumer<Widget> widget);
 
-    protected abstract void onAddEntry(Widget.ClickData clickData);
+    protected abstract V createHandler();
 
-    protected abstract void onClear(Widget.ClickData clickData);
+    protected void onAddEntry(Widget.ClickData clickData) {
+        this.getMap().putIfAbsent((K) this.text, this.createHandler());
+    }
+
+    protected void onClear(Widget.ClickData clickData) {
+        if (this.getMap().containsKey((K) this.text)) {
+            this.getMap().put((K) this.text, this.createHandler());
+        }
+    }
 
     private String getRename() {
         return this.renamePrompt;
     }
 
     private void setRename(String name) {
-        V value = getMap().get(this.renamePrompt);
-        getMap().remove(this.renamePrompt);
-        getMap().put((K) name, value);
+        V value = this.getMap().get((K) this.renamePrompt);
+        this.getMap().remove((K) this.renamePrompt);
+        this.handler = this.getMap().put((K) name, value);
     }
 
     private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
@@ -238,6 +246,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     private void setTextID(String text) {
         this.text = text;
+        this.handler = this.getMap().get((K) this.text);
         this.markAsDirty();
     }
 
@@ -342,8 +351,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.isCaseSensitive = data.getBoolean("CaseSensitive");
         this.hasSpaces = data.getBoolean("HasSpaces");
         this.transferRate = data.getInteger("TransferRate");
-        this.text = data.hasKey("Text") ? data.getString("Text") : "";
-
+        if (data.hasKey("Text")) {
+            this.text = data.getString("Text");
+            this.handler = this.getMap().get((K) this.text);
+        }
     }
 
     @Override
