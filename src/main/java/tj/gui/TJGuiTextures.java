@@ -23,6 +23,7 @@ public class TJGuiTextures {
     public static final TextureArea SPACES_BUTTON = TextureArea.fullImage("textures/gui/widget/spaces_toggle.png");
     public static final TextureArea ITEM_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/item_void_button_toggle.png");
     public static final TextureArea FLUID_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle.png");
+    public static final TextureArea CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
 
     public static final TextureArea SUN_BRONZE = TextureArea.fullImage("textures/gui/steam/bronze/boiler_sun_active.png");
     public static final TextureArea SUN_STEEL = TextureArea.fullImage("textures/gui/steam/steel/boiler_sun_active.png");

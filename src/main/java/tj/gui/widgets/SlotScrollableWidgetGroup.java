@@ -15,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import org.lwjgl.input.Keyboard;
+import tj.mixin.gregtech.IAbstractWidgetGroupMixin;
 import tj.util.ItemStackHelper;
 
 import java.awt.*;
@@ -56,6 +57,13 @@ public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements IS
     public SlotScrollableWidgetGroup setItemHandler(IItemHandler itemHandler) {
         this.itemHandler = itemHandler;
         return this;
+    }
+
+    public void clearWidgets() {
+        if (((IAbstractWidgetGroupMixin) this).getInit()) {
+            this.clearAllWidgets();
+            ((IAbstractWidgetGroupMixin) this).setInit(false);
+        }
     }
 
     @Override
@@ -195,7 +203,6 @@ public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements IS
             this.draggedOnScrollBar = true;
         }
         if (this.isPositionInsideScissor(mouseX, mouseY)) {
-            this.dragStack = this.gui.entityPlayer.inventory.getItemStack().copy();
             return super.mouseClicked(mouseX, mouseY, button);
         } else if (isShiftKeyPressed && this.itemHandler != null) {
             this.writeClientAction(4, buffer -> buffer.writeBoolean(false));
@@ -296,7 +303,7 @@ public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements IS
                 }
                 heldStack.setCount(remainder);
                 this.gui.entityPlayer.inventory.setItemStack(heldStack);
-                this.writeClientAction(3, buffer1 -> buffer1.writeItemStack(heldStack));
+                this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(heldStack));
             } catch (IOException e) {
                 GTLog.logger.error(e);
             }
@@ -329,6 +336,8 @@ public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements IS
     @SideOnly(Side.CLIENT)
     public void addSlotToDrag(ISlotHandler widget, Runnable callback) {
         if (this.canAddWidgets && !this.dragWidgets.containsKey(widget)) {
+            if (this.dragWidgets.isEmpty())
+                this.dragStack = this.gui.entityPlayer.inventory.getItemStack().copy();
             ItemStack heldStack = this.dragStack.copy();
             this.dragWidgets.put(widget, this.dragStack.copy());
             callback.run();
@@ -342,7 +351,7 @@ public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements IS
                 stack.setCount(amountPerSlot);
                 int count = stack.getCount();
                 stack = slot.insert(stack, false);
-                slot.setSimulatedAmount(stack.getCount() == 0 ? amountPerSlot : count - stack.getCount());
+                slot.setSimulatedAmount(stack.isEmpty() ? amountPerSlot : count - stack.getCount());
                 remainder += stack.getCount();
             }
             heldStack.setCount(remainder);

@@ -299,6 +299,14 @@ public class RecipeInit {
                 'K', new ItemStack(Item.getByNameOrId("actuallyadditions:item_crate_keeper")),
                 'P', CraftingComponent.PISTON.getIngredient(2));
 
+        for (int i = 0; i < 2; i++) {
+            ModHandler.addShapedRecipe("filing_cabinet." + i, FILING_CABINET.getStackForm(), "NCN", "PSP", "NCN",
+                    'N', new UnificationEntry(OrePrefix.plateDense, StainlessSteel),
+                    'C', CraftingComponent.CIRCUIT.getIngredient(3),
+                    'P', CraftingComponent.PISTON.getIngredient(3),
+                    'S', i == 0 ? COMPRESSED_CHEST.getStackForm() : COMPRESSED_CRATE.getStackForm());
+        }
+
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
             ModHandler.addShapelessRecipe(GAValues.VN[i].toLowerCase() + "_universal_circuit", UNIVERSAL_CIRCUITS[i].getStackForm(), new UnificationEntry(OrePrefix.circuit, CIRCUIT_TIERS[i]));
 

@@ -216,8 +216,8 @@ tj.machine.machine_controller.automatic.not=Manual
 tj.machine.machine_controller.automatic.description=When set to automatic, Workable ID will be automatically assigned when multiblock forms
 tj.machine.machine_controller.automatic.tooltip=Turns Workable Instances ON/OFF. Mainly used by True Parallel Multiblocks.
 
-tj.machine.filing_cabinet.toggle.enabled=Automatically unlock when all slots are empty. §cDisabled
-tj.machine.filing_cabinet.toggle.disabled=Automatically unlock when all slots are empty. §aEnabled
+tj.machine.filing_cabinet.toggle.enabled=Automatically unlock when all slots are empty. §aEnabled
+tj.machine.filing_cabinet.toggle.disabled=Automatically unlock when all slots are empty. §cDisabled
 
 tj.machine.accelerator_anchor_point.description=Can be linked to Large World Accelerators to accelerate random tick around this block. Apply Redstone signal to stop acceleration.
 
@@ -337,7 +337,7 @@ material.awakened_draconium=Awakened Draconium
 material.chaotic=Choatic
 
 tj.machine.compressed_chest.description=Keeps the items stored inside when broken.
-tj.machine.filing_cabinet.description=Starts initially at §6%,d§7 slots, slot count increase gradually when getting full.
+tj.machine.filing_cabinet.description=Starts initially at §6%,d§7 slots, slot count increase gradually when getting full. Can only store one set of items.
 
 tj.multiblock.default.description=A custom multiblock added by Technological Journey (TJ).
 tj.multiblock.heat_exchanger.description=The Heat Exchanger will cool down lava down into pahoehoe lava by transfuring heat to the water provided. As a byproduct, hot steam is created. This steam can be used in a turbine to generate energy.

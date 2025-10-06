@@ -34,20 +34,21 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFastRenderMetaTileEntity {
 
     private static final IndexedCuboid6 COLLISION_BOX = new IndexedCuboid6(null, new Cuboid6(3 / 16.0, 0 / 16.0, 3 / 16.0, 13 / 16.0, 14 / 16.0, 13 / 16.0));
-    private final Set<EntityPlayer> guiUsers = new HashSet<>();
+    private static final int SLOT_LIMIT = 8192;
+    private final Map<EntityPlayer, SlotScrollableWidgetGroup> guiUsers = new ConcurrentHashMap<>();
     private boolean resetUIs;
     private float doorAngle = 0.0f;
     private float prevDoorAngle = 0.0f;
@@ -69,6 +70,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.description"));
         tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.filing_cabinet.description", 27));
         tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.stack", 64));
+        tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.slots", SLOT_LIMIT));
     }
 
     @Override
@@ -82,7 +84,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         super.update();
         if (!this.getWorld().isRemote && this.resetUIs) {
             this.resetUIs = false;
-            this.guiUsers.forEach(player -> MetaTileEntityUIFactory.INSTANCE.openUI(this.getHolder(), (EntityPlayerMP) player));
+            this.guiUsers.forEach((player, scrollableWidgetGroup) -> MetaTileEntityUIFactory.INSTANCE.openUI(this.getHolder(), (EntityPlayerMP) player));
         }
     }
 
@@ -102,16 +104,18 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
     }
 
     private void resizeInventory(int size) {
+        if (size > SLOT_LIMIT)
+            return;
         NonNullList<ItemStack> transferStackList = NonNullList.create();
         String name = ((CabinetItemStackHandler) this.importItems).getAllowedItemName();
-        boolean locked = ((CabinetItemStackHandler) this.importItems).isItemLocked();
+        boolean locked = ((CabinetItemStackHandler) this.importItems).isItemUnlocked();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             transferStackList.add(this.importItems.getStackInSlot(i));
         }
         this.itemInventory = this.importItems = new CabinetItemStackHandler(size, 64)
                 .setSizeChangeListener(this::resizeInventory)
                 .setAllowedItemByName(name)
-                .setItemLocked(locked);
+                .setItemUnlocked(locked);
         int minSize = Math.min(size, transferStackList.size());
         for (int i = 0; i < minSize; i++) {
             this.importItems.setStackInSlot(i, transferStackList.get(i));
@@ -125,22 +129,23 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        SlotScrollableWidgetGroup slotScrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 35, 180, 72, 9)
-                .setItemHandler(this.importItems);
+        SlotScrollableWidgetGroup slotScrollableWidgetGroup = this.guiUsers.getOrDefault(player, new SlotScrollableWidgetGroup(7, 35, 180, 72, 9));
+        slotScrollableWidgetGroup.setItemHandler(this.importItems);
+        slotScrollableWidgetGroup.clearWidgets();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             slotScrollableWidgetGroup.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
                     .setWidgetGroup(slotScrollableWidgetGroup)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 197)
-                .bindOpenListener(() -> this.guiUsers.add(player))
+                .bindOpenListener(() -> this.guiUsers.put(player, slotScrollableWidgetGroup))
                 .bindCloseListener(() -> this.guiUsers.remove(player))
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new ImageWidget(7, 15, 126, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(10, 20, this::addDisplayText, 0xFFFFFF))
-                .widget(new ToggleButtonWidget(133, 15, 18, 18, GuiTextures.BUTTON_CLEAR_GRID, () -> false, this::onClear)
+                .widget(new ToggleButtonWidget(133, 15, 18, 18, TJGuiTextures.CLEAR_GRID_BUTTON, () -> false, this::onClear)
                         .setTooltipText("machine.universal.toggle.clear"))
-                .widget(new ToggleButtonWidget(151, 15, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemLocked(), this::setLocked)
+                .widget(new ToggleButtonWidget(151, 15, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemUnlocked(), this::setLocked)
                         .setTooltipText("tj.machine.filing_cabinet.toggle"))
                 .widget(new SortingButtonWidget(109, 4, 60, 10, "gregtech.gui.sort", (info) -> MetaTileEntityCompressedChest.sortInventorySlotContents(this.importItems)))
                 .widget(slotScrollableWidgetGroup)
@@ -156,7 +161,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
     }
 
     private void setLocked(boolean locked) {
-        ((CabinetItemStackHandler) this.importItems).setItemLocked(locked);
+        ((CabinetItemStackHandler) this.importItems).setItemUnlocked(locked);
         this.writeCustomData(11, buf -> buf.writeBoolean(locked));
         this.markDirty();
     }
@@ -228,7 +233,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         if (dataId == 10)
             this.resizeInventory(buf.readInt());
         else if (dataId == 11)
-            ((CabinetItemStackHandler) this.importItems).setItemLocked(buf.readBoolean());
+            ((CabinetItemStackHandler) this.importItems).setItemUnlocked(buf.readBoolean());
         else if (dataId == 12)
             ((CabinetItemStackHandler) this.importItems).clear(buf.readBoolean());
 
