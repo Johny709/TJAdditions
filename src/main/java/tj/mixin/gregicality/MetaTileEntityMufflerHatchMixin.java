@@ -33,9 +33,19 @@ public abstract class MetaTileEntityMufflerHatchMixin {
         ci.cancel();
     }
 
-    @Inject(method = "pollutionParticles", at = @At(value = "INVOKE", target = "Lgregicadditions/machines/multi/multiblockpart/MetaTileEntityMufflerHatch;getController()Lgregtech/api/metatileentity/multiblock/MultiblockControllerBase;"),
+    @Inject(method = "pollutionParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/EnumFacing;getYOffset()I", ordinal = 2),
             cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void injectPollutionParticles(CallbackInfo ci, BlockPos pos, EnumFacing facing, float xPos, float yPos, float zPos, float ySpd, float xSpd, float zSpd) {
+    private void injectPollutionParticles(CallbackInfo ci, BlockPos pos, EnumFacing facing, float xPos, float yPos, float zPos, float ySpd) {
+        float xSpd;
+        float zSpd;
+        if (facing.getYOffset() == -1) {
+            float temp = XSTR_RAND.nextFloat() * 2 * (float) Math.PI;
+            xSpd = (float) Math.sin(temp) * 0.1F;
+            zSpd = (float) Math.cos(temp) * 0.1F;
+        } else {
+            xSpd = facing.getXOffset() * (0.1F + 0.2F * XSTR_RAND.nextFloat());
+            zSpd = facing.getZOffset() * (0.1F + 0.2F * XSTR_RAND.nextFloat());
+        }
         MetaTileEntityMufflerHatch mufflerHatch = (MetaTileEntityMufflerHatch)(Object)this;
         MultiblockControllerBase controllerBase = mufflerHatch.getController();
         if (controllerBase instanceof GARecipeMapMultiblockController)
