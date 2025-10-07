@@ -4,6 +4,8 @@ import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IMetaItemStats;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLHotCoolantTurbineWorkableHandler;
@@ -81,7 +83,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     private int pageIndex;
     private final int pageSize = 10;
     private int parallels = BASE_PARALLEL;
-    private boolean hasChanged;
     private XLHotCoolantTurbineWorkableHandler xlHotCoolantTurbineWorkableHandler;
     protected boolean doStructureCheck;
     private BooleanConsumer fastModeConsumer;
@@ -121,15 +122,24 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
         return new TurbineUpgradeStackHandler(this)
+                .setItemStackPredicate(stack -> {
+                    Item item = stack.getItem();
+                    if (item instanceof MetaItem<?>) {
+                        MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                        if (metaItem != null) {
+                            List<IMetaItemStats> stats = metaItem.getAllStats();
+                            return !stats.isEmpty() && stats.get(0) instanceof TurbineUpgradeBehaviour;
+                        }
+                    }
+                    return false;
+                })
                 .setOnContentsChanged((stack, insert) -> {
                     if (this.getWorld() != null && !this.getWorld().isRemote) {
-                        this.hasChanged = true;
                         this.parallels = BASE_PARALLEL;
                         Item item = stack.getItem();
                         if (insert && item instanceof MetaItem<?>)
                             this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();
                         this.writeCustomData(10, buf -> buf.writeInt(this.parallels));
-                        this.writeCustomData(11, buf -> buf.writeBoolean(this.hasChanged));
                         if (this.isStructureFormed())
                             this.invalidateStructure();
                         this.structurePattern = this.createStructurePattern();
@@ -138,6 +148,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
@@ -258,15 +269,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 maintenanceHatch.setTaped(true);
                 this.storeTaped(false);
             }
-        }
-    }
-
-    @Override
-    protected void checkStructurePattern() {
-        super.checkStructurePattern();
-        if (this.hasChanged) {
-            this.hasChanged = false;
-            this.writeCustomData(11, buf -> buf.writeBoolean(this.hasChanged));
         }
     }
 
@@ -404,8 +406,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             this.parallels = buf.readInt();
             this.structurePattern = this.createStructurePattern();
             this.scheduleRenderUpdate();
-        } else if (dataId == 11) {
-            this.hasChanged = buf.readBoolean();
         }
     }
 
@@ -426,8 +426,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191)
-                .setPutItemsPredicate(() -> !this.hasChanged)
-                .setTakeItemsPredicate(() -> !this.hasChanged)
                 .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->

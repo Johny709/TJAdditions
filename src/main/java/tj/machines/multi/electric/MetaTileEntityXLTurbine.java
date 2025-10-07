@@ -7,6 +7,8 @@ import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLTurbineWorkableHandler;
@@ -68,7 +70,6 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     private int pageIndex;
     private final int pageSize = 10;
     private int parallels = BASE_PARALLEL;
-    private boolean hasChanged;
     private XLTurbineWorkableHandler xlTurbineWorkableHandler;
     private BooleanConsumer fastModeConsumer;
 
@@ -93,15 +94,24 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
         return new TurbineUpgradeStackHandler(this)
+                .setItemStackPredicate(stack -> {
+                    Item item = stack.getItem();
+                    if (item instanceof MetaItem<?>) {
+                        MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                        if (metaItem != null) {
+                            List<IMetaItemStats> stats = metaItem.getAllStats();
+                            return !stats.isEmpty() && stats.get(0) instanceof TurbineUpgradeBehaviour;
+                        }
+                    }
+                    return false;
+                })
                 .setOnContentsChanged((stack, insert) -> {
-                    if (this.getWorld() != null && !this.getWorld().isRemote && !this.hasChanged) {
-                        this.hasChanged = true;
+                    if (this.getWorld() != null && !this.getWorld().isRemote) {
                         this.parallels = BASE_PARALLEL;
                         Item item = stack.getItem();
                         if (insert && item instanceof MetaItem<?>)
                             this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();
                         this.writeCustomData(10, buf -> buf.writeInt(this.parallels));
-                        this.writeCustomData(11, buf -> buf.writeBoolean(this.hasChanged));
                         if (this.isStructureFormed())
                             this.invalidateStructure();
                         this.structurePattern = this.createStructurePattern();
@@ -110,6 +120,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
@@ -227,15 +238,6 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
-    protected void checkStructurePattern() {
-        super.checkStructurePattern();
-        if (this.hasChanged) {
-            this.hasChanged = false;
-            this.writeCustomData(11, buf -> buf.writeBoolean(this.hasChanged));
-        }
-    }
-
-    @Override
     public void invalidateStructure() {
         super.invalidateStructure();
         this.exportFluidHandler = null;
@@ -348,8 +350,6 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
         tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191)
-                .setTakeItemsPredicate(() -> !this.hasChanged)
-                .setPutItemsPredicate(() -> !this.hasChanged)
                 .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
         tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.addWidget(new AdvancedTextWidget(10, -2, this::addRotorDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleRotorDisplayClick)));
@@ -400,9 +400,6 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
         if (dataId == 10) {
             this.parallels = buf.readInt();
             this.structurePattern = this.createStructurePattern();
-            this.scheduleRenderUpdate();
-        } else if (dataId == 11) {
-            this.hasChanged = buf.readBoolean();
             this.scheduleRenderUpdate();
         }
     }
