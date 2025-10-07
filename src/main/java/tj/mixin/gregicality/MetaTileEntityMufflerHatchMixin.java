@@ -33,7 +33,7 @@ public abstract class MetaTileEntityMufflerHatchMixin {
         ci.cancel();
     }
 
-    @Inject(method = "pollutionParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/EnumFacing;getYOffset()I", ordinal = 2),
+    @Inject(method = "pollutionParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/EnumFacing;getYOffset()I", ordinal = 2, remap = true),
             cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injectPollutionParticles(CallbackInfo ci, BlockPos pos, EnumFacing facing, float xPos, float yPos, float zPos, float ySpd) {
         float xSpd;

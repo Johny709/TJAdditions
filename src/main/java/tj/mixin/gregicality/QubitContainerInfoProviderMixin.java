@@ -16,7 +16,7 @@ import tj.TJConfig;
 import tj.TJValues;
 
 @Mixin(value = QubitContainerInfoProvider.class, remap = false)
-public class QubitContainerInfoProviderMixin {
+public abstract class QubitContainerInfoProviderMixin {
 
     @Inject(method = "addProbeInfo(Lgregicadditions/capabilities/IQubitContainer;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
             at = @At("HEAD"), cancellable = true)

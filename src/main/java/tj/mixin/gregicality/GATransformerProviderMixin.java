@@ -19,7 +19,7 @@ import tj.TJConfig;
 import tj.TJValues;
 
 @Mixin(value = GATransformerProvider.class, remap = false)
-public class GATransformerProviderMixin {
+public abstract class GATransformerProviderMixin {
 
     @Inject(method = "addProbeInfo(Lgregtech/api/capability/IEnergyContainer;Lmcjty/theoneprobe/api/IProbeInfo;Lnet/minecraft/tileentity/TileEntity;Lnet/minecraft/util/EnumFacing;)V",
             at = @At(value = "INVOKE", target = "Lgregicadditions/machines/energy/GAMetaTileEntityTransformer;isInverted()Z"),
