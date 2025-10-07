@@ -7,10 +7,8 @@ import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCo
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
 import gregicadditions.recipes.impl.nuclear.HotCoolantRecipe;
 import gregicadditions.recipes.impl.nuclear.HotCoolantRecipeMap;
-import gregtech.api.capability.GregtechTileCapabilities;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.IWorkable;
+import gregtech.api.capability.*;
+import gregtech.api.capability.impl.FluidFuelInfo;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.unification.material.type.FluidMaterial;
 import gregtech.common.ConfigHolder;
@@ -28,12 +26,15 @@ import tj.capability.TJCapabilities;
 import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
 import tj.mixin.gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
 import static gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine.ABILITY_ROTOR_HOLDER;
 
-public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic implements IWorkable, IGeneratorInfo {
+public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic implements IWorkable, IGeneratorInfo, IFuelable {
 
     private static final float TURBINE_BONUS = 1.5f;
     private static final int CYCLE_LENGTH = 230;
@@ -270,8 +271,10 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
-        if (dataId == 10)
+        if (dataId == 10) {
             this.active = buf.readBoolean();
+            this.extremeTurbine.scheduleRenderUpdate();
+        }
     }
 
     private void setActive(boolean active) {
@@ -333,6 +336,8 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
             return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
         if (capability == TJCapabilities.CAPABILITY_GENERATOR)
             return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
+        if (capability == GregtechCapabilities.CAPABILITY_FUELABLE)
+            return GregtechCapabilities.CAPABILITY_FUELABLE.cast(this);
         return super.getCapability(capability);
     }
 
@@ -375,5 +380,58 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         String color = TJValues.VCC[tier];
         return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
                 " ", "§r§7(§6", color, voltage, "§7)");
+    }
+
+    // Similar to tryAcquire but with no side effects
+    private HotCoolantRecipe findRecipe(FluidStack fluidStack) {
+        HotCoolantRecipe currentRecipe;
+        if (previousRecipe != null && previousRecipe.matches(getMaxVoltage(), fluidStack)) {
+            currentRecipe = previousRecipe;
+        } else {
+            currentRecipe = recipeMap.findRecipe(getMaxVoltage(), fluidStack);
+        }
+        if (currentRecipe != null && checkRecipe(currentRecipe))
+            return currentRecipe;
+        return null;
+    }
+
+    @Override
+    public Collection<IFuelInfo> getFuels() {
+        if (!isReadyForRecipes())
+            return Collections.emptySet();
+        final IMultipleTankHandler fluidTanks = this.fluidTank.get();
+        if (fluidTanks == null)
+            return Collections.emptySet();
+
+        final LinkedHashMap<String, IFuelInfo> fuels = new LinkedHashMap<>();
+        // Fuel capacity is all tanks
+        int fuelCapacity = 0;
+        for (IFluidTank fluidTank : fluidTanks) {
+            fuelCapacity += fluidTank.getCapacity();
+        }
+
+        for (IFluidTank fluidTank : fluidTanks) {
+            final FluidStack tankContents = fluidTank.drain(Integer.MAX_VALUE, false);
+            if (tankContents == null || tankContents.amount <= 0)
+                continue;
+            int fuelRemaining = tankContents.amount;
+            HotCoolantRecipe recipe = findRecipe(tankContents);
+            if (recipe == null)
+                continue;
+            int amountPerRecipe = calculateFuelAmount(recipe);
+            int duration = calculateRecipeDuration(recipe);
+            long fuelBurnTime = (duration * fuelRemaining) / amountPerRecipe;
+
+            FluidFuelInfo fuelInfo = (FluidFuelInfo) fuels.get(tankContents.getUnlocalizedName());
+            if (fuelInfo == null) {
+                fuelInfo = new FluidFuelInfo(tankContents, fuelRemaining, fuelCapacity, amountPerRecipe, fuelBurnTime);
+                fuels.put(tankContents.getUnlocalizedName(), fuelInfo);
+            }
+            else {
+                fuelInfo.addFuelRemaining(fuelRemaining);
+                fuelInfo.addFuelBurnTime(fuelBurnTime);
+            }
+        }
+        return fuels.values();
     }
 }
