@@ -122,7 +122,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     protected IItemHandlerModifiable createImportItemHandler() {
         return new TurbineUpgradeStackHandler(this)
                 .setOnContentsChanged((stack, insert) -> {
-                    if (this.getWorld() != null && !this.getWorld().isRemote && !this.hasChanged) {
+                    if (this.getWorld() != null && !this.getWorld().isRemote) {
                         this.hasChanged = true;
                         this.parallels = BASE_PARALLEL;
                         Item item = stack.getItem();
@@ -278,7 +278,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     public boolean isActive() {
-        return this.isTurbineFaceFree() && this.workableHandler.isActive() && this.workableHandler.isWorkingEnabled();
+        return this.isTurbineFaceFree() && this.xlHotCoolantTurbineWorkableHandler.isActive() && this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled();
     }
 
     @Override

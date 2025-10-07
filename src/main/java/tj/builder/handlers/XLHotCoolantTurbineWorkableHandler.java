@@ -283,6 +283,11 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     }
 
     @Override
+    public boolean isActive() {
+        return this.active;
+    }
+
+    @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tagCompound = super.serializeNBT();
         tagCompound.setInteger("CycleLength", this.rotorCycleLength);
