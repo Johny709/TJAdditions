@@ -7,23 +7,36 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.util.DummyContainer;
+import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.CrafterRecipeLogic;
+import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
+import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.gui.TJGuiTextures.*;
 
 //TODO WIP
 public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
 
     private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
+    private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
+    private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
+    private final ItemStackHandler encodingInventory = new ItemStackHandler(9);
+    private final ItemStackHandler resultInventory = new ItemStackHandler(1);
+    private IRecipe currentRecipe;
 
     public MetaTileEntityCrafter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
@@ -44,7 +57,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(9);
+        return new ItemStackHandler(18);
     }
 
     @Override
@@ -54,26 +67,60 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        return ModularUI.defaultBuilder()
-                .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
-                .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
-                        .setBackgroundTexture(SLOT, BOXED_OVERLAY))
-                .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)
-                        .setBackgroundTexture(SLOT, MOLD_OVERLAY))
-                .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new LabelWidget(7, 5, getMetaFullName()))
-                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
+        WidgetGroup inventorySlotGroup = new WidgetGroup(new Position(7, 72)), craftingSlotGroup = new WidgetGroup(new Position(7, 14)), encodingSlotGroup = new WidgetGroup(new Position(115, 14));
+        for (int i = 0; i < this.importItems.getSlots(); i++) {
+            inventorySlotGroup.addWidget(new SlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9), true, true)
+                    .setBackgroundTexture(SLOT));
+        }
+        for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
+            int finalI = i;
+            craftingSlotGroup.addWidget(new PhantomSlotWidget(this.craftingInventory, i, 18 * (i % 3), 18 * (i / 3))
+                    .setBackgroundTexture(SLOT)
+                    .setChangeListener(() -> this.setCraftingResult(finalI, this.craftingInventory.getStackInSlot(finalI))));
+        }
+        for (int i = 0; i < this.encodingInventory.getSlots(); i++) {
+            encodingSlotGroup.addWidget(new SlotDisplayWidget(this.encodingInventory, i, 18 * (i % 3), 18 * (i / 3)));
+        }
+        return ModularUI.builder(BACKGROUND, 176, 216)
+                .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
+                .widget(new ImageWidget(75, 28, 26, 26, SLOT))
+                .widget(new ImageWidget(115, 14, 54, 54, DARKENED_SLOT))
+                .widget(new SlotDisplayWidget(this.resultInventory, 0, 79, 32))
+                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 25, 112)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
+                .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new ToggleButtonWidget(151, 112, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
+                .widget(new ToggleButtonWidget(7, 112, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
-                .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
+                .widget(new ImageWidget(79, 62, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.recipeLogic::hasNotEnoughEnergy))
-                .bindPlayerInventory(player.inventory)
+                .widget(new ClickButtonWidget(62, 14, 8, 8, "", (clickData) -> {
+                    this.clearCraftingResult();
+                    this.setCraftingResult(0, ItemStack.EMPTY);
+                }).setButtonTexture(BUTTON_CLEAR_GRID))
+                .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
+                .widget(craftingSlotGroup)
+                .widget(inventorySlotGroup)
+                .widget(encodingSlotGroup)
+                .bindPlayerInventory(player.inventory, 134)
                 .build(this.getHolder(), player);
+    }
+
+    private void clearCraftingResult() {
+        for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
+            this.craftingInventory.setStackInSlot(i, ItemStack.EMPTY);
+            this.inventoryCrafting.setInventorySlotContents(i, ItemStack.EMPTY);
+        }
+    }
+
+    private void setCraftingResult(int index, ItemStack stack) {
+        this.craftingInventory.setStackInSlot(index, stack);
+        this.inventoryCrafting.setInventorySlotContents(index, stack);
+        this.currentRecipe = CraftingManager.findMatchingRecipe(this.inventoryCrafting, this.getWorld());
+        this.resultInventory.setStackInSlot(0, this.currentRecipe != null ? this.currentRecipe.getRecipeOutput() : ItemStack.EMPTY);
     }
 
     @Override

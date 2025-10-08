@@ -86,7 +86,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
-                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 22, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)

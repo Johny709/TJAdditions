@@ -11,6 +11,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.widgets.IGTRecipeTransferHandler;
 import tj.util.QuintConsumer;
 
@@ -65,6 +67,7 @@ public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransfer
 
 
     @Override
+    @SideOnly(Side.CLIENT)
     public String transferRecipe(ModularUIContainer container, Map<Integer, IGuiIngredient<ItemStack>> itemIngredients, Map<Integer, IGuiIngredient<FluidStack>> fluidIngredients, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
         if (!doTransfer) {
             return null;

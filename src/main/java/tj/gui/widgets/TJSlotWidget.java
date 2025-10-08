@@ -74,7 +74,7 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
         return this;
     }
 
-    private IItemHandler getItemHandler() {
+    protected IItemHandler getItemHandler() {
         return this.itemHandlerSupplier != null ? this.itemHandlerSupplier.get() : this.itemHandler;
     }
 
