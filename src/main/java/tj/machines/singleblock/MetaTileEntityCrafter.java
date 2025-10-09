@@ -14,32 +14,45 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.CrafterRecipeLogic;
+import tj.builder.handlers.IRecipeMapProvider;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.*;
 
 //TODO WIP
-public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
+public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implements IRecipeMapProvider {
 
     private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
     private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
     private final ItemStackHandler encodingInventory = new ItemStackHandler(9);
     private final ItemStackHandler resultInventory = new ItemStackHandler(1);
+    private final Map<Integer, IRecipe> recipeMap = new HashMap<>();
     private IRecipe currentRecipe;
 
     public MetaTileEntityCrafter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+        this.recipeLogic.setImportItems(this::getImportItems);
+        this.recipeLogic.setExportItems(this::getExportItems);
+        this.recipeLogic.setImportEnergy(() -> this.energyContainer);
+        this.recipeLogic.setMaxVoltage(this::getMaxVoltage);
+        this.recipeLogic.setParallel(() -> 1);
+        this.recipeLogic.initialize(1);
         this.initializeInventory();
     }
 
@@ -79,14 +92,30 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
                     .setChangeListener(() -> this.setCraftingResult(finalI, this.craftingInventory.getStackInSlot(finalI))));
         }
         for (int i = 0; i < this.encodingInventory.getSlots(); i++) {
-            encodingSlotGroup.addWidget(new SlotDisplayWidget(this.encodingInventory, i, 18 * (i % 3), 18 * (i / 3)));
+            encodingSlotGroup.addWidget(new SlotDisplayWidget(this.encodingInventory, i, 18 * (i % 3), 18 * (i / 3))
+                    .onPressedConsumer((button, slot, stack) -> {
+                        if (button == 0) {
+                            this.clearCraftingResult();
+                            IRecipe recipe = this.recipeMap.get(slot);
+                            for (int j = 0; j < recipe.getIngredients().size(); j++) {
+                                ItemStack stack1 = recipe.getIngredients().get(j).getMatchingStacks()[0];
+                                this.setCraftingResult(j, stack1);
+                            }
+                        } else if (button == 1) {
+                            this.encodingInventory.extractItem(slot, Integer.MAX_VALUE, false);
+                            this.recipeMap.remove(slot);
+                            this.recipeLogic.clearCache();
+                            this.markDirty();
+                        }
+                    }));
         }
         return ModularUI.builder(BACKGROUND, 176, 216)
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new ImageWidget(75, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(115, 14, 54, 54, DARKENED_SLOT))
-                .widget(new SlotDisplayWidget(this.resultInventory, 0, 79, 32))
+                .widget(new SlotDisplayWidget(this.resultInventory, 0, 79, 32)
+                        .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 25, 112)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
@@ -109,6 +138,18 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
                 .build(this.getHolder(), player);
     }
 
+    private void addRecipe(IRecipe recipe) {
+        if (recipe != null)
+            for (int i = 0; i < 9; i++) {
+                if (!this.recipeMap.containsKey(i)) {
+                    this.encodingInventory.setStackInSlot(i, recipe.getRecipeOutput());
+                    this.recipeMap.put(i, recipe);
+                    this.markDirty();
+                    return;
+                }
+            }
+    }
+
     private void clearCraftingResult() {
         for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
             this.craftingInventory.setStackInSlot(i, ItemStack.EMPTY);
@@ -121,6 +162,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
         this.inventoryCrafting.setInventorySlotContents(index, stack);
         this.currentRecipe = CraftingManager.findMatchingRecipe(this.inventoryCrafting, this.getWorld());
         this.resultInventory.setStackInSlot(0, this.currentRecipe != null ? this.currentRecipe.getRecipeOutput() : ItemStack.EMPTY);
+        this.markDirty();
     }
 
     @Override
@@ -128,5 +170,36 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity {
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        NBTTagList recipeList = new NBTTagList();
+        for (Map.Entry<Integer, IRecipe> recipeEntry : this.recipeMap.entrySet()) {
+            NBTTagCompound recipeNBT = new NBTTagCompound();
+            recipeNBT.setInteger("index", recipeEntry.getKey());
+            recipeNBT.setString("id", recipeEntry.getValue().getRegistryName().toString());
+            recipeList.appendTag(recipeNBT);
+        }
+        data.setTag("recipeList", recipeList);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        NBTTagList recipeList = data.getTagList("recipeList", 10);
+        for (int i = 0; i < recipeList.tagCount(); i++) {
+            int index = recipeList.getCompoundTagAt(i).getInteger("index");
+            IRecipe recipe = CraftingManager.getRecipe(new ResourceLocation(recipeList.getCompoundTagAt(i).getString("id")));
+            this.recipeMap.put(index, recipe);
+            this.encodingInventory.setStackInSlot(index, recipe.getRecipeOutput());
+        }
+    }
+
+    @Override
+    public Map<Integer, IRecipe> getRecipeMap() {
+        return this.recipeMap;
     }
 }

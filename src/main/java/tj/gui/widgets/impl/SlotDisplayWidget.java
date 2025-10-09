@@ -6,6 +6,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import org.apache.logging.log4j.util.TriConsumer;
 import tj.gui.widgets.TJSlotWidget;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.function.BiConsumer;
 
 public class SlotDisplayWidget extends TJSlotWidget {
 
-    private BiConsumer<Integer, ItemStack> onPressed;
+    private TriConsumer<Integer, Integer, ItemStack> onPressed;
 
     public SlotDisplayWidget(IItemHandler itemHandler, int slotIndex, int x, int y) {
         super(itemHandler, slotIndex, x, y);
@@ -21,7 +22,7 @@ public class SlotDisplayWidget extends TJSlotWidget {
         this.setPutItemsPredicate(() -> false);
     }
 
-    public SlotDisplayWidget onPressedConsumer(BiConsumer<Integer, ItemStack> onPressed) {
+    public SlotDisplayWidget onPressedConsumer(TriConsumer<Integer, Integer, ItemStack> onPressed) {
         this.onPressed = onPressed;
         return this;
     }
@@ -32,6 +33,7 @@ public class SlotDisplayWidget extends TJSlotWidget {
         if (this.isMouseOverElement(mouseX, mouseY))
             this.writeClientAction(1, buffer -> {
                 buffer.writeInt(button);
+                buffer.writeInt(this.index());
                 buffer.writeItemStack(this.getItemHandler().getStackInSlot(this.index()));
             });
         return false;
@@ -47,10 +49,11 @@ public class SlotDisplayWidget extends TJSlotWidget {
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
             try {
+                int button = buffer.readInt();
                 int index = buffer.readInt();
                 ItemStack stack = buffer.readItemStack();
                 if (this.onPressed != null)
-                    this.onPressed.accept(index, stack);
+                    this.onPressed.accept(button, index, stack);
             } catch (IOException e) {
                 GTLog.logger.error(e);
             }

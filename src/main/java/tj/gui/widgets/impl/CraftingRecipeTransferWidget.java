@@ -7,8 +7,6 @@ import gregtech.api.gui.impl.ModularUIContainer;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import mezz.jei.api.gui.IGuiIngredient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -17,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -32,11 +31,15 @@ public class CraftingRecipeTransferWidget extends Widget implements IRecipeTrans
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
+            Map<Integer, ItemStack> itemStackMap = new HashMap<>();
+            for (int i = 0; i < 9; i++)
+                itemStackMap.put(i, ItemStack.EMPTY);
             try {
                 int size = buffer.readVarInt();
-                for (int i = 0; i < size; i++) {
-                    this.itemStackBiConsumer.accept(buffer.readVarInt(), buffer.readItemStack());
-                }
+                for (int i = 0; i < size; i++)
+                    itemStackMap.put(buffer.readVarInt(), buffer.readItemStack());
+                for (Map.Entry<Integer, ItemStack> itemStackEntry : itemStackMap.entrySet())
+                    this.itemStackBiConsumer.accept(itemStackEntry.getKey(), itemStackEntry.getValue());
             } catch (IOException e) {
                 GTLog.logger.error(e);
             }

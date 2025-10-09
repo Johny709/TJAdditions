@@ -1,13 +1,14 @@
 package tj.capability.impl;
 
-import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.recipes.Recipe;
 import gregtech.api.util.GTUtility;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import org.apache.commons.lang3.tuple.Pair;
 import tj.builder.RecipeUtility;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class CraftingRecipeLRUCache {
 
@@ -49,7 +50,17 @@ public class CraftingRecipeLRUCache {
         for (IRecipe recipe : this.recipeList) {
             if (recipe == null)
                 continue;
-            if (RecipeUtility.craftingRecipeMatches(GTUtility.itemHandlerToList(importInventory), recipe.getIngredients()).getLeft()) {
+            List<ItemStack> inputs = GTUtility.itemHandlerToList(importInventory);
+            Pair<Boolean, int[]> matchingRecipe = RecipeUtility.craftingRecipeMatches(inputs, recipe.getIngredients());
+            if (matchingRecipe.getLeft()) {
+                int[] itemAmountInSlot = matchingRecipe.getValue();
+                for (int i = 0; i < itemAmountInSlot.length; i++) {
+                    ItemStack itemInSlot = inputs.get(i);
+                    int itemAmount = itemAmountInSlot[i];
+                    if (itemInSlot.isEmpty() || itemInSlot.getCount() == itemAmount)
+                        continue;
+                    itemInSlot.setCount(itemAmountInSlot[i]);
+                }
                 this.recipeList.remove(recipe);
                 this.recipeList.addFirst(recipe);
                 this.cacheHit++;

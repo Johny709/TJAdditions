@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 public class RecipeUtility {
 
-    public static Pair<Boolean, Integer[]> craftingRecipeMatches(List<ItemStack> itemStackContainer, NonNullList<Ingredient> ingredients) {
-        Integer[] itemAmountInSlot = new Integer[itemStackContainer.size()];
+    public static Pair<Boolean, int[]> craftingRecipeMatches(List<ItemStack> itemStackContainer, NonNullList<Ingredient> ingredients) {
+        int[] itemAmountInSlot = new int[itemStackContainer.size()];
 
         for (int i = 0; i < itemAmountInSlot.length; i++) {
             ItemStack itemInSlot = itemStackContainer.get(i);
