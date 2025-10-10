@@ -4,6 +4,7 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.util.GTUtility;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,6 +17,7 @@ import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.capability.impl.CraftingRecipeLRUCache;
+import tj.multiblockpart.TJMultiblockAbility;
 import tj.util.ItemStackHelper;
 
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ import java.util.Map;
 public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IItemFluidHandlerInfo {
 
     private final CraftingRecipeLRUCache previousRecipe = new CraftingRecipeLRUCache(10);
-    private final List<Map<Integer, IRecipe>> recipeList = new ArrayList<>();
+    private final List<Int2ObjectMap<IRecipe>> recipeList = new ArrayList<>();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
 
@@ -38,8 +40,11 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
     @Override
     public void initialize(int busCount) {
         super.initialize(busCount);
+        this.recipeList.clear();
         if (this.metaTileEntity instanceof MultiblockControllerBase) {
-            System.out.println("multiblock");
+            List<IRecipeMapProvider> crafters = ((MultiblockControllerBase) this.metaTileEntity).getAbilities(TJMultiblockAbility.CRAFTER);
+            for (IRecipeMapProvider provider : crafters)
+                this.recipeList.add(provider.getRecipeMap());
         } else if (this.metaTileEntity instanceof IRecipeMapProvider) {
             this.recipeList.add(((IRecipeMapProvider) this.metaTileEntity).getRecipeMap());
         }

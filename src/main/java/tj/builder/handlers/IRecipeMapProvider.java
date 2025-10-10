@@ -1,10 +1,12 @@
 package tj.builder.handlers;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.item.crafting.IRecipe;
 
-import java.util.Map;
 
 public interface IRecipeMapProvider {
 
-    Map<Integer, IRecipe> getRecipeMap();
+    Int2ObjectMap<IRecipe> getRecipeMap();
+
+    default void clearRecipeCache() {}
 }
