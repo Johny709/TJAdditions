@@ -72,8 +72,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                                 this.setCraftingResult(j, stack1);
                             }
                         } else if (button == 1) {
-                            this.encodingInventory.extractItem(slot, Integer.MAX_VALUE, false);
-                            this.recipeMap.remove(slot);
+                            this.removeRecipe(slot);
                             if (this.clearRecipeCache != null)
                                 this.clearRecipeCache.run();
                             this.markDirty();
@@ -98,7 +97,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     }
 
     private void addRecipe(IRecipe recipe) {
-        if (recipe != null)
+        if (recipe != null) {
             for (int i = 0; i < 9; i++) {
                 if (!this.recipeMap.containsKey(i)) {
                     this.encodingInventory.setStackInSlot(i, recipe.getRecipeOutput());
@@ -107,6 +106,22 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                     return;
                 }
             }
+        }
+    }
+
+    private void removeRecipe(int slot) {
+        this.recipeMap.remove(slot);
+        Int2ObjectMap<IRecipe> recipeMap = new Int2ObjectArrayMap<>();
+        int i = 0;
+        for (int j = 0; j < this.encodingInventory.getSlots(); j++)
+            this.encodingInventory.setStackInSlot(j, ItemStack.EMPTY);
+        for (Map.Entry<Integer, IRecipe> recipeEntry : this.recipeMap.entrySet()) {
+            recipeMap.put(i, recipeEntry.getValue());
+            this.encodingInventory.setStackInSlot(i++, recipeEntry.getValue().getRecipeOutput().copy());
+        }
+        this.recipeMap.clear();
+        this.recipeMap.putAll(recipeMap);
+        this.markDirty();
     }
 
     private void clearCraftingResult() {

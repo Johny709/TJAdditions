@@ -35,7 +35,7 @@ import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.*;
 
-//TODO WIP
+
 public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implements IRecipeMapProvider {
 
     private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
@@ -103,10 +103,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                                 this.setCraftingResult(j, stack1);
                             }
                         } else if (button == 1) {
-                            this.encodingInventory.setStackInSlot(slot, ItemStack.EMPTY);
-                            this.recipeMap.remove(slot);
-                            this.recipeLogic.clearCache();
-                            this.markDirty();
+                            this.removeRecipe(slot);
                         }
                     }));
         }
@@ -140,7 +137,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     }
 
     private void addRecipe(IRecipe recipe) {
-        if (recipe != null)
+        if (recipe != null) {
             for (int i = 0; i < 9; i++) {
                 if (!this.recipeMap.containsKey(i)) {
                     this.encodingInventory.setStackInSlot(i, recipe.getRecipeOutput().copy());
@@ -149,6 +146,23 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                     return;
                 }
             }
+        }
+    }
+
+    private void removeRecipe(int slot) {
+        this.recipeMap.remove(slot);
+        Int2ObjectMap<IRecipe> recipeMap = new Int2ObjectArrayMap<>();
+        int i = 0;
+        for (int j = 0; j < this.encodingInventory.getSlots(); j++)
+            this.encodingInventory.setStackInSlot(j, ItemStack.EMPTY);
+        for (Map.Entry<Integer, IRecipe> recipeEntry : this.recipeMap.entrySet()) {
+            recipeMap.put(i, recipeEntry.getValue());
+            this.encodingInventory.setStackInSlot(i++, recipeEntry.getValue().getRecipeOutput().copy());
+        }
+        this.recipeMap.clear();
+        this.recipeMap.putAll(recipeMap);
+        this.recipeLogic.clearCache();
+        this.markDirty();
     }
 
     private void clearCraftingResult() {
