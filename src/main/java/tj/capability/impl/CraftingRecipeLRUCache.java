@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.RecipeUtility;
 
 import java.util.LinkedList;
@@ -46,14 +47,14 @@ public class CraftingRecipeLRUCache {
         this.recipeList.addFirst(recipe);
     }
 
-    public IRecipe get(IItemHandlerModifiable importInventory) {
+    public Pair<IRecipe, Integer> get(IItemHandlerModifiable importInventory, int parallel) {
         for (IRecipe recipe : this.recipeList) {
             if (recipe == null)
                 continue;
             List<ItemStack> inputs = GTUtility.itemHandlerToList(importInventory);
-            Pair<Boolean, int[]> matchingRecipe = RecipeUtility.craftingRecipeMatches(inputs, recipe.getIngredients());
+            Triple<Boolean, int[], Integer> matchingRecipe = RecipeUtility.craftingRecipeMatches(inputs, recipe.getIngredients(), parallel);
             if (matchingRecipe.getLeft()) {
-                int[] itemAmountInSlot = matchingRecipe.getValue();
+                int[] itemAmountInSlot = matchingRecipe.getMiddle();
                 for (int i = 0; i < itemAmountInSlot.length; i++) {
                     ItemStack itemInSlot = inputs.get(i);
                     int itemAmount = itemAmountInSlot[i];
@@ -64,7 +65,7 @@ public class CraftingRecipeLRUCache {
                 this.recipeList.remove(recipe);
                 this.recipeList.addFirst(recipe);
                 this.cacheHit++;
-                return recipe;
+                return Pair.of(recipe, matchingRecipe.getRight());
             }
         }
         this.cacheMiss++;

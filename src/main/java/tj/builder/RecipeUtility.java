@@ -7,6 +7,7 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class RecipeUtility {
 
-    public static Pair<Boolean, int[]> craftingRecipeMatches(List<ItemStack> itemStackContainer, NonNullList<Ingredient> ingredients) {
+    public static Triple<Boolean, int[], Integer> craftingRecipeMatches(List<ItemStack> itemStackContainer, NonNullList<Ingredient> ingredients, int parallel) {
         int[] itemAmountInSlot = new int[itemStackContainer.size()];
 
         for (int i = 0; i < itemAmountInSlot.length; i++) {
@@ -22,27 +23,30 @@ public class RecipeUtility {
             itemAmountInSlot[i] = itemInSlot.isEmpty() ? 0 : itemInSlot.getCount();
         }
 
-        for (Ingredient ingredient : ingredients) {
-            int ingredientAmount = ingredient.getMatchingStacks()[0].getCount();
-            boolean isNotConsumed = false;
-            if (ingredientAmount == 0) {
-                ingredientAmount = 1;
-                isNotConsumed = true;
+        for (int i = parallel; i > 0; i /= 2, parallel = i) {
+            for (int j = 0; j < ingredients.size(); j++) {
+                Ingredient ingredient = ingredients.get(j);
+                int ingredientAmount = ingredient.getMatchingStacks()[0].getCount() * i;
+                boolean isNotConsumed = false;
+                if (ingredientAmount == 0) {
+                    ingredientAmount = 1;
+                    isNotConsumed = true;
+                }
+                for (int k = 0; k < itemStackContainer.size(); k++) {
+                    ItemStack inputStack = itemStackContainer.get(k);
+                    if (inputStack.isEmpty() || !ingredient.apply(inputStack))
+                        continue;
+                    int itemAmountToConsume = Math.min(itemAmountInSlot[k], ingredientAmount);
+                    ingredientAmount -= itemAmountToConsume;
+                    if (!isNotConsumed) itemAmountInSlot[k] -= itemAmountToConsume;
+                    if (ingredientAmount == 0) break;
+                }
+                if (ingredientAmount > 0)
+                    return Triple.of(false, itemAmountInSlot, i);
             }
-            for (int i = 0; i < itemStackContainer.size(); i++) {
-                ItemStack inputStack = itemStackContainer.get(i);
-                if (inputStack.isEmpty() || !ingredient.apply(inputStack))
-                    continue;
-                int itemAmountToConsume = Math.min(itemAmountInSlot[i], ingredientAmount);
-                ingredientAmount -= itemAmountToConsume;
-                if (!isNotConsumed) itemAmountInSlot[i] -= itemAmountToConsume;
-                if (ingredientAmount == 0) break;
-            }
-            if (ingredientAmount > 0)
-                return Pair.of(false, itemAmountInSlot);
         }
 
-        return Pair.of(true, itemAmountInSlot);
+        return Triple.of(true, itemAmountInSlot, parallel);
     }
 
     public static boolean recipeMatches(Recipe recipe, List<ItemStack> inputs, List<ItemStack> outputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutputs) {

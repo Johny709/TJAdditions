@@ -5,6 +5,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.item.components.ConveyorCasing;
+import gregicadditions.item.components.RobotArmCasing;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.ItemHandlerList;
@@ -30,6 +32,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJConfig;
 import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -64,6 +67,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
         this.recipeLogic.setImportItems(() -> this.importItemInventory);
         this.recipeLogic.setExportItems(() -> this.exportItemInventory);
         this.recipeLogic.setImportEnergy(() -> this.energyContainer);
+        this.recipeLogic.setInputBus((index) -> this.getAbilities(IMPORT_ITEMS).get(index));
         this.recipeLogic.setMaxVoltage(() -> this.maxVoltage);
         this.recipeLogic.setParallel(() -> this.parallel);
     }
@@ -111,6 +115,11 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
         this.exportItemInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
         this.energyContainer = new EnergyContainerList(this.getAbilities(MultiblockAbility.INPUT_ENERGY));
         this.recipeLogic.initialize(this.getAbilities(IMPORT_ITEMS).size());
+        int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        int min = Math.min(conveyor, robotArm);
+        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.parallel = TJConfig.largeCrafter.stack * min;
     }
 
     @Override

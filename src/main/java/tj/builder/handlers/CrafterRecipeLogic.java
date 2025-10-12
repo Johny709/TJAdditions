@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.RecipeUtility;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
@@ -55,9 +56,12 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
     }
 
     private boolean trySearchForRecipe(IItemHandlerModifiable importItems) {
-        IRecipe currentRecipe = this.previousRecipe.get(importItems);
+        int parallel = this.parallel.getAsInt();
+        Pair<IRecipe, Integer> currentRecipe = this.previousRecipe.get(importItems, parallel);
         if (currentRecipe != null) {
-            this.itemOutputs.add(currentRecipe.getRecipeOutput().copy());
+            ItemStack output = currentRecipe.getLeft().getRecipeOutput().copy();
+            output.setCount(currentRecipe.getRight());
+            this.itemOutputs.add(output);
             return true;
         } else {
             for (int i = 0; i < this.recipeList.size(); i++) {
@@ -67,9 +71,9 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
                     if (recipe == null)
                         continue;
                     List<ItemStack> inputs = GTUtility.itemHandlerToList(importItems);
-                    Pair<Boolean, int[]> matchingRecipe = RecipeUtility.craftingRecipeMatches(inputs, recipe.getIngredients());
+                    Triple<Boolean, int[], Integer> matchingRecipe = RecipeUtility.craftingRecipeMatches(inputs, recipe.getIngredients(), parallel);
                     if (matchingRecipe.getLeft()) {
-                        int[] itemAmountInSlot = matchingRecipe.getValue();
+                        int[] itemAmountInSlot = matchingRecipe.getMiddle();
                         for (int k = 0; k < itemAmountInSlot.length; k++) {
                             ItemStack itemInSlot = inputs.get(k);
                             int itemAmount = itemAmountInSlot[k];
@@ -77,15 +81,13 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
                                 continue;
                             itemInSlot.setCount(itemAmountInSlot[k]);
                         }
-                        currentRecipe = recipe;
-                        break;
+                        ItemStack output = recipe.getRecipeOutput().copy();
+                        output.setCount(matchingRecipe.getRight());
+                        this.itemOutputs.add(output);
+                        this.previousRecipe.put(recipe);
+                        return true;
                     }
                 }
-            }
-            if (currentRecipe != null) {
-                this.previousRecipe.put(currentRecipe);
-                this.itemOutputs.add(currentRecipe.getRecipeOutput().copy());
-                return true;
             }
         }
         return false;
