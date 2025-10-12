@@ -5,9 +5,11 @@ import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
@@ -35,10 +37,14 @@ public class LargeCrafterInfo extends TJMultiblockInfoPage {
                 .aisle("CCCCC", "G#c#G", "GR#RG", "F#c#F", "~CCC~")
                 .aisle("CCCCC", "G#c#G", "GR#RG", "F#c#F", "~CCC~")
                 .aisle("CCCCC", "G#c#G", "GR#RG", "F#c#F", "~CCC~")
-                .aisle("CCCCC", "FCMCF", "FCSCF", "FCCCF", "~CCC~")
+                .aisle("CCCCC", "FIMOF", "FCSCF", "FCHCF", "~CCC~")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
-                .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState());
+                .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], EnumFacing.WEST)
+                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[1], EnumFacing.WEST)
+                .where('H', TJMetaTileEntities.CRAFTER_HATCHES[0], EnumFacing.WEST);
         return Arrays.stream(ConveyorCasing.CasingType.values())
                 .map(casingType -> shapeInfo.where('c', GAMetaBlocks.CONVEYOR_CASING.getState(casingType))
                         .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[casingType.ordinal()]))

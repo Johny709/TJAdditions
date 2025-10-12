@@ -51,10 +51,11 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
+import static tj.multiblockpart.TJMultiblockAbility.CRAFTER;
 
 public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implements IRecipeMapProvider {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, CRAFTER};
     private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
     private IItemHandlerModifiable importItemInventory;
     private IItemHandlerModifiable exportItemInventory;
@@ -81,6 +82,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
         return maintenanceCount == 1 &&
+                abilities.containsKey(CRAFTER) &&
                 abilities.containsKey(IMPORT_ITEMS) &&
                 abilities.containsKey(EXPORT_ITEMS) &&
                 abilities.containsKey(INPUT_ENERGY);
