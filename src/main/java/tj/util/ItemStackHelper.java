@@ -2,6 +2,7 @@ package tj.util;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
@@ -152,7 +153,7 @@ public class ItemStackHelper {
      * @param itemHandler container inventory
      * @param stack the ItemStack to extract
      * @param amount the amount of items to extract and will be added to ItemStack count
-     * @param simulate test to see if the item can be extracted without actually inserting the item for real.
+     * @param simulate test to see if the item can be extracted without actually extracting the item for real.
      * @return The ItemStack extracted
      */
     public static ItemStack extractFromItemHandler(IItemHandler itemHandler, @Nonnull ItemStack stack, int amount, boolean simulate) {
@@ -175,5 +176,33 @@ public class ItemStackHelper {
         }
         stack.grow(count);
         return stack;
+    }
+
+    /**
+     * Tries to extract from container inventory or item handler with ingredients
+     * @param itemHandler container inventory
+     * @param ingredient the ItemStack to extract
+     * @param amount the amount of items to extract and will be added to ItemStack count
+     * @param simulate test to see if the item can be extracted without actually extracting the item for real.
+     * @return The amount extracted
+     */
+    public static int extractFromItemHandlerByIngredient(IItemHandler itemHandler, @Nonnull Ingredient ingredient, int amount, boolean simulate) {
+        if (itemHandler == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            if (ingredient.apply(slotStack)) {
+                int extracted = Math.min(slotStack.getCount(), amount);
+                count += extracted;
+                amount -= extracted;
+                if (!simulate)
+                    itemHandler.extractItem(i, extracted, false);
+                if (amount < 1)
+                    break;
+            }
+        }
+        return count;
     }
 }

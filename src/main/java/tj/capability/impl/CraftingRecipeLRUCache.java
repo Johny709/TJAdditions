@@ -1,22 +1,22 @@
 package tj.capability.impl;
 
-import gregtech.api.util.GTUtility;
+import gregtech.api.recipes.CountableIngredient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import tj.builder.RecipeUtility;
+import tj.util.ItemStackHelper;
 
 import java.util.LinkedList;
-import java.util.List;
+
 
 public class CraftingRecipeLRUCache {
 
     private final int capacity;
     private long cacheHit;
     private long cacheMiss;
-    private final LinkedList<IRecipe> recipeList = new LinkedList<>();
+    private final LinkedList<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeList = new LinkedList<>();
 
     public CraftingRecipeLRUCache(int capacity) {
         this.capacity = capacity;
@@ -40,33 +40,28 @@ public class CraftingRecipeLRUCache {
         return this.cacheMiss;
     }
 
-    public void put(IRecipe recipe) {
+    public void put(Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe) {
         if (this.recipeList.size() >= this.capacity) {
             this.recipeList.removeLast();
         }
         this.recipeList.addFirst(recipe);
     }
 
-    public Pair<IRecipe, Integer> get(IItemHandlerModifiable importInventory, int parallel) {
-        for (IRecipe recipe : this.recipeList) {
+    public Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> get(IItemHandlerModifiable importItems) {
+        recipe:
+        for (Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe : this.recipeList) {
             if (recipe == null)
                 continue;
-            List<ItemStack> inputs = GTUtility.itemHandlerToList(importInventory);
-            Triple<Boolean, int[], Integer> matchingRecipe = RecipeUtility.craftingRecipeMatches(inputs, recipe.getIngredients(), parallel);
-            if (matchingRecipe.getLeft()) {
-                int[] itemAmountInSlot = matchingRecipe.getMiddle();
-                for (int i = 0; i < itemAmountInSlot.length; i++) {
-                    ItemStack itemInSlot = inputs.get(i);
-                    int itemAmount = itemAmountInSlot[i];
-                    if (itemInSlot.isEmpty() || itemInSlot.getCount() == itemAmount)
-                        continue;
-                    itemInSlot.setCount(itemAmountInSlot[i]);
-                }
-                this.recipeList.remove(recipe);
-                this.recipeList.addFirst(recipe);
-                this.cacheHit++;
-                return Pair.of(recipe, matchingRecipe.getRight());
+            for (CountableIngredient ingredient : recipe.getMiddle()) {
+                int size = ingredient.getCount();
+                int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
+                if (extracted < size)
+                    continue recipe;
             }
+            this.recipeList.remove(recipe);
+            this.recipeList.addFirst(recipe);
+            this.cacheHit++;
+            return recipe;
         }
         this.cacheMiss++;
         return null;

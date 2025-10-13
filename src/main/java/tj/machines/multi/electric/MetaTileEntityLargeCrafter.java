@@ -19,19 +19,25 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import org.apache.commons.lang3.tuple.Triple;
 import tj.TJConfig;
 import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
@@ -39,6 +45,7 @@ import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.textures.TJTextures;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +84,15 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityLargeCrafter(this.metaTileEntityId);
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack));
+        tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
+    }
+
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
@@ -171,7 +187,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     }
 
     @Override
-    public Int2ObjectMap<IRecipe> getRecipeMap() {
+    public Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> getRecipeMap() {
         return null;
     }
 

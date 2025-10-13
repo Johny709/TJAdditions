@@ -3,17 +3,17 @@ package tj.builder.handlers;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.api.util.GTUtility;
+import gregtech.api.recipes.CountableIngredient;
+import gregtech.api.util.GTLog;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-import tj.builder.RecipeUtility;
+import org.apache.commons.lang3.tuple.Triple;;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
@@ -26,11 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 
-//TODO WIP
 public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IItemFluidHandlerInfo {
 
     private final CraftingRecipeLRUCache previousRecipe = new CraftingRecipeLRUCache(10);
-    private final List<Int2ObjectMap<IRecipe>> recipeList = new ArrayList<>();
+    private final List<Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>>> recipeList = new ArrayList<>();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
 
@@ -56,39 +55,48 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
     }
 
     private boolean trySearchForRecipe(IItemHandlerModifiable importItems) {
-        int parallel = this.parallel.getAsInt();
-        Pair<IRecipe, Integer> currentRecipe = this.previousRecipe.get(importItems, parallel);
-        if (currentRecipe != null) {
-            ItemStack output = currentRecipe.getLeft().getRecipeOutput().copy();
-            output.setCount(currentRecipe.getRight());
-            this.itemOutputs.add(output);
-            return true;
-        } else {
+        int parallels = this.parallel.getAsInt();
+        Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> currentRecipe = this.previousRecipe.get(importItems);
+        if (currentRecipe == null) {
+            recipeList:
             for (int i = 0; i < this.recipeList.size(); i++) {
-                Map<Integer, IRecipe> recipeMap = this.recipeList.get(i);
+                Map<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = this.recipeList.get(i);
+                recipe:
                 for (int j = 0; j < recipeMap.size(); j++) {
-                    IRecipe recipe = recipeMap.get(j);
+                    Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe = recipeMap.get(j);
                     if (recipe == null)
                         continue;
-                    List<ItemStack> inputs = GTUtility.itemHandlerToList(importItems);
-                    Triple<Boolean, int[], Integer> matchingRecipe = RecipeUtility.craftingRecipeMatches(inputs, recipe.getIngredients(), parallel);
-                    if (matchingRecipe.getLeft()) {
-                        int[] itemAmountInSlot = matchingRecipe.getMiddle();
-                        for (int k = 0; k < itemAmountInSlot.length; k++) {
-                            ItemStack itemInSlot = inputs.get(k);
-                            int itemAmount = itemAmountInSlot[k];
-                            if (itemInSlot.isEmpty() || itemInSlot.getCount() == itemAmount)
-                                continue;
-                            itemInSlot.setCount(itemAmountInSlot[k]);
-                        }
-                        ItemStack output = recipe.getRecipeOutput().copy();
-                        output.setCount(matchingRecipe.getRight());
-                        this.itemOutputs.add(output);
-                        this.previousRecipe.put(recipe);
-                        return true;
+                    List<CountableIngredient> countableIngredients = recipe.getMiddle();
+                    for (int k = 0; k < countableIngredients.size(); k++) {
+                        CountableIngredient ingredient = countableIngredients.get(k);
+                        int size = ingredient.getCount();
+                        int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
+                        GTLog.logger.info(size);
+                        GTLog.logger.info(extracted < size);
+                        if (extracted < size)
+                            continue recipe;
                     }
+                    currentRecipe = recipe;
+                    break recipeList;
                 }
             }
+        }
+        if (currentRecipe != null) {
+            int amountToExtract = parallels;
+            for (CountableIngredient ingredient : currentRecipe.getMiddle()) {
+                int size = ingredient.getCount();
+                int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), parallels * size, true);
+                amountToExtract = Math.min(amountToExtract, extracted / size);
+            }
+            for (CountableIngredient ingredient : currentRecipe.getMiddle()) {
+                int size = ingredient.getCount();
+                ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), amountToExtract * size, false);
+            }
+            ItemStack output = currentRecipe.getLeft().getRecipeOutput().copy();
+            output.setCount(output.getCount() * amountToExtract);
+            this.itemOutputs.add(output);
+            this.previousRecipe.put(currentRecipe);
+            return true;
         }
         return false;
     }

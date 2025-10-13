@@ -7,7 +7,6 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,38 +14,42 @@ import java.util.stream.Collectors;
 
 public class RecipeUtility {
 
-    public static Triple<Boolean, int[], Integer> craftingRecipeMatches(List<ItemStack> itemStackContainer, NonNullList<Ingredient> ingredients, int parallel) {
-        int[] itemAmountInSlot = new int[itemStackContainer.size()];
-
-        for (int i = 0; i < itemAmountInSlot.length; i++) {
-            ItemStack itemInSlot = itemStackContainer.get(i);
-            itemAmountInSlot[i] = itemInSlot.isEmpty() ? 0 : itemInSlot.getCount();
-        }
-
-        for (int i = parallel; i > 0; i /= 2, parallel = i) {
-            for (int j = 0; j < ingredients.size(); j++) {
-                Ingredient ingredient = ingredients.get(j);
-                int ingredientAmount = ingredient.getMatchingStacks()[0].getCount() * i;
-                boolean isNotConsumed = false;
-                if (ingredientAmount == 0) {
-                    ingredientAmount = 1;
-                    isNotConsumed = true;
+    public static NonNullList<CountableIngredient> mergeIngredients(NonNullList<Ingredient> ingredients) {
+        NonNullList<CountableIngredient> countableIngredients = NonNullList.create();
+        NonNullList<Ingredient> tmpIngredients = NonNullList.create();
+        tmpIngredients.addAll(ingredients);
+        for (int i = 0; i < ingredients.size(); i++) {
+            List<Ingredient> toRemove = new ArrayList<>();
+            Ingredient ingredient = ingredients.get(i);
+            int matches = 0;
+            for (int j = 0; j < tmpIngredients.size(); j++) {
+                Ingredient tmpIngredient = tmpIngredients.get(j);
+                if (matchingStacksMatches(ingredient, tmpIngredient)) {
+                    toRemove.add(tmpIngredient);
+                    matches++;
                 }
-                for (int k = 0; k < itemStackContainer.size(); k++) {
-                    ItemStack inputStack = itemStackContainer.get(k);
-                    if (inputStack.isEmpty() || !ingredient.apply(inputStack))
-                        continue;
-                    int itemAmountToConsume = Math.min(itemAmountInSlot[k], ingredientAmount);
-                    ingredientAmount -= itemAmountToConsume;
-                    if (!isNotConsumed) itemAmountInSlot[k] -= itemAmountToConsume;
-                    if (ingredientAmount == 0) break;
-                }
-                if (ingredientAmount > 0)
-                    return Triple.of(false, itemAmountInSlot, i);
             }
+            for (int j = 0; j < toRemove.size(); j++) {
+                tmpIngredients.remove(toRemove.get(j));
+            }
+            if (matches > 0)
+                countableIngredients.add(new CountableIngredient(ingredient, matches));
         }
+        return countableIngredients;
+    }
 
-        return Triple.of(true, itemAmountInSlot, parallel);
+    private static boolean matchingStacksMatches(Ingredient ingredient, Ingredient other) {
+        ItemStack[] matchingStacks = ingredient.matchingStacks;
+        ItemStack[] otherMatchingStacks = other.matchingStacks;
+        try {
+            for (int i = 0; i < matchingStacks.length; i++) {
+                if (!matchingStacks[i].isItemEqual(otherMatchingStacks[i]))
+                    return false;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+        return true;
     }
 
     public static boolean recipeMatches(Recipe recipe, List<ItemStack> inputs, List<ItemStack> outputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutputs) {
@@ -71,7 +74,7 @@ public class RecipeUtility {
         return outputFluids.getKey();
     }
 
-    private static Pair<Boolean, Integer[]> matchesInputItems(List<ItemStack> itemStackContainer, List<CountableIngredient> countableIngredients) {
+    private static Pair<Boolean, Integer[]> matchesInputItems(List<ItemStack> itemStackContainer, List<CountableIngredient> TJCountableIngredients) {
         Integer[] itemAmountInSlot = new Integer[itemStackContainer.size()];
 
         for (int i = 0; i < itemAmountInSlot.length; i++) {
@@ -79,7 +82,7 @@ public class RecipeUtility {
             itemAmountInSlot[i] = itemInSlot.isEmpty() ? 0 : itemInSlot.getCount();
         }
 
-        for (CountableIngredient ingredient : countableIngredients) {
+        for (CountableIngredient ingredient : TJCountableIngredients) {
             int ingredientAmount = ingredient.getCount();
             boolean isNotConsumed = false;
             if (ingredientAmount == 0) {
