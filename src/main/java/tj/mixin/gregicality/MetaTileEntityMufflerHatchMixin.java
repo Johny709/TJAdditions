@@ -5,6 +5,8 @@ import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMufflerHatch;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,6 +21,7 @@ import static gregicadditions.capabilities.impl.GARecipeMapMultiblockController.
 public abstract class MetaTileEntityMufflerHatchMixin {
 
     @Shadow
+    @SideOnly(Side.CLIENT)
     public abstract void pollutionParticles();
 
     @Inject(method = "update", at = @At(value = "INVOKE", target = "Lgregicadditions/machines/multi/multiblockpart/MetaTileEntityMufflerHatch;getController()Lgregtech/api/metatileentity/multiblock/MultiblockControllerBase;"), cancellable = true)

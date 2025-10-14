@@ -11,11 +11,12 @@
     "gregic_probe.WorkableInfoProviderMixin",
     "gregicality.GATransformerProviderMixin",
     "gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin",
+    "gregicality.MetaTileEntityMufflerHatchMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregtech.FuelableInfoProviderMixin",
     "gregtech.IAbstractWidgetGroupMixin",
     "gregtech.TransformerInfoProviderMixin"
   ],
   "server": [],
-  "client": ["gregicality.MetaTileEntityMufflerHatchMixin"]
+  "client": []
 }
