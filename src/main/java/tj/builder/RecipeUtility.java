@@ -39,8 +39,8 @@ public class RecipeUtility {
     }
 
     private static boolean matchingStacksMatches(Ingredient ingredient, Ingredient other) {
-        ItemStack[] matchingStacks = ingredient.matchingStacks;
-        ItemStack[] otherMatchingStacks = other.matchingStacks;
+        ItemStack[] matchingStacks = ingredient.getMatchingStacks();
+        ItemStack[] otherMatchingStacks = other.getMatchingStacks();
         try {
             for (int i = 0; i < matchingStacks.length; i++) {
                 if (!matchingStacks[i].isItemEqual(otherMatchingStacks[i]))
