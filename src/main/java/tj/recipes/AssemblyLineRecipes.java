@@ -1058,7 +1058,7 @@ public class AssemblyLineRecipes {
                 .inputs(new ItemStack(Item.getByNameOrId("appliedenergistics2:molecular_assembler"), 16))
                 .inputs(new ItemStack(Item.getByNameOrId("enderio:block_crafter"), 16))
                 .inputs(ELECTRIC_PISTON_LUV.getStackForm(8))
-                .inputs(ELECTRIC_PISTON_LUV.getStackForm(8))
+                .inputs(CONVEYOR_MODULE_LUV.getStackForm(8))
                 .inputs(ROBOT_ARM_LUV.getStackForm(8))
                 .inputs(SENSOR_LUV.getStackForm(8))
                 .inputs(EMITTER_LUV.getStackForm(8))

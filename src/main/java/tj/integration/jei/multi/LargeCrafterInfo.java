@@ -1,6 +1,7 @@
 package tj.integration.jei.multi;
 
 import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.unification.material.Materials.Steel;
+import static gregtech.api.unification.material.Materials.Osmiridium;
 
 public class LargeCrafterInfo extends TJMultiblockInfoPage {
 
@@ -42,8 +43,8 @@ public class LargeCrafterInfo extends TJMultiblockInfoPage {
                 .aisle("CCCCC", "G#c#G", "GR#RG", "F#c#F", "~CCC~")
                 .aisle("CCCCC", "FIMOF", "FCSCF", "FCHCF", "~CCC~")
                 .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
-                .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
+                .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER))
+                .where('F', MetaBlocks.FRAMES.get(Osmiridium).getDefaultState())
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], EnumFacing.WEST)
                 .where('O', MetaTileEntities.ITEM_EXPORT_BUS[1], EnumFacing.WEST)

@@ -5,6 +5,9 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
 import gregtech.api.capability.IEnergyContainer;
@@ -22,8 +25,6 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.Textures;
-import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -63,7 +64,7 @@ import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblo
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.unification.material.Materials.Steel;
+import static gregtech.api.unification.material.Materials.Osmiridium;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 import static tj.multiblockpart.TJMultiblockAbility.CRAFTER;
 
@@ -187,7 +188,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(Osmiridium).getDefaultState()))
                 .where('G', glassPredicate())
                 .where('C', conveyorPredicate())
                 .where('R', robotArmPredicate())
@@ -197,12 +198,12 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     }
 
     private IBlockState getCasingState() {
-        return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID);
+        return GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER);
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return Textures.SOLID_STEEL_CASING;
+        return ClientHandler.LARGE_ASSEMBLER;
     }
 
     @Override
