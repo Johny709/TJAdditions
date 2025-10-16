@@ -32,9 +32,11 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
+import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -50,13 +52,16 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
     private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
-    private final ItemStackHandler encodingInventory = new ItemStackHandler(9);
+    private final ItemStackHandler encodingInventory;
     private final ItemStackHandler resultInventory = new ItemStackHandler(1);
     private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectArrayMap<>();
+    private final int encodingSlots;
     private IRecipe currentRecipe;
 
     public MetaTileEntityCrafter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+        this.encodingSlots = 6 + (tier * 3);
+        this.encodingInventory = new ItemStackHandler(this.encodingSlots);
         this.recipeLogic.setImportItems(this::getImportItems);
         this.recipeLogic.setExportItems(this::getExportItems);
         this.recipeLogic.setImportEnergy(() -> this.energyContainer);
@@ -76,6 +81,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
+        tooltip.add(I18n.format("tj.multiblock.large_crafter.slots", this.encodingSlots));
     }
 
     @Override
@@ -97,7 +103,8 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        WidgetGroup inventorySlotGroup = new WidgetGroup(new Position(7, 72)), craftingSlotGroup = new WidgetGroup(new Position(7, 14)), encodingSlotGroup = new WidgetGroup(new Position(115, 14));
+        WidgetGroup inventorySlotGroup = new WidgetGroup(new Position(7, 72)), craftingSlotGroup = new WidgetGroup(new Position(7, 14));
+        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             inventorySlotGroup.addWidget(new SlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9), true, true)
                     .setBackgroundTexture(SLOT));
@@ -109,10 +116,9 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                     .setChangeListener(() -> this.setCraftingResult(finalI, this.craftingInventory.getStackInSlot(finalI))));
         }
         for (int i = 0; i < this.encodingInventory.getSlots(); i++) {
-            encodingSlotGroup.addWidget(new SlotDisplayWidget(this.encodingInventory, i, 18 * (i % 3), 18 * (i / 3))
+            scrollableWidgetGroup.addWidget(new SlotDisplayWidget(this.encodingInventory, i, 18 * (i % 3), 18 * (i / 3))
                     .onPressedConsumer((button, slot, stack) -> {
                         if (button == 0) {
-                            this.clearCraftingResult();
                             this.clearCraftingResult();
                             NonNullList<ItemStack> itemStacks = this.recipeMap.get(slot).getRight();
                             for (int j = 0; j < itemStacks.size(); j++) {
@@ -126,9 +132,9 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         return ModularUI.builder(BACKGROUND, 176, 216)
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
-                .widget(new ImageWidget(75, 28, 26, 26, SLOT))
-                .widget(new ImageWidget(115, 14, 54, 54, DARKENED_SLOT))
-                .widget(new SlotDisplayWidget(this.resultInventory, 0, 79, 32)
+                .widget(new ImageWidget(72, 28, 26, 26, SLOT))
+                .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
+                .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
                         .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 25, 112)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
@@ -147,14 +153,14 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(craftingSlotGroup)
                 .widget(inventorySlotGroup)
-                .widget(encodingSlotGroup)
+                .widget(scrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 134)
                 .build(this.getHolder(), player);
     }
 
     private void addRecipe(IRecipe recipe) {
         if (recipe != null) {
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < this.encodingSlots; i++) {
                 if (!this.recipeMap.containsKey(i)) {
                     this.encodingInventory.setStackInSlot(i, recipe.getRecipeOutput());
                     NonNullList<ItemStack> itemStacks = NonNullList.create();
@@ -204,6 +210,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
+        TJTextures.CRAFTER.renderSided(EnumFacingHelper.getTopFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
     }
 
     @Override
@@ -237,7 +244,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 NonNullList<ItemStack> itemStacks = NonNullList.create();
                 NBTTagList patternNBT = recipeList.getCompoundTagAt(i).getTagList("craftingPattern", 10);
                 for (int j = 0; j < patternNBT.tagCount(); j++) {
-                    itemStacks.add(new ItemStack(patternNBT.getCompoundTagAt(i)));
+                    itemStacks.add(new ItemStack(patternNBT.getCompoundTagAt(j)));
                 }
                 this.recipeMap.put(index, new ImmutableTriple<>(recipe, RecipeUtility.mergeIngredients(recipe.getIngredients()), itemStacks));
                 this.encodingInventory.setStackInSlot(index, recipe.getRecipeOutput());

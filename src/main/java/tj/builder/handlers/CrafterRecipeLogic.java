@@ -4,7 +4,6 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.recipes.CountableIngredient;
-import gregtech.api.util.GTLog;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -71,8 +70,6 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
                         CountableIngredient ingredient = countableIngredients.get(k);
                         int size = ingredient.getCount();
                         int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
-                        GTLog.logger.info(size);
-                        GTLog.logger.info(extracted < size);
                         if (extracted < size)
                             continue recipe;
                     }

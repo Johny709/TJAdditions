@@ -44,6 +44,7 @@ import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -184,6 +185,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
+        TJTextures.CRAFTER.renderSided(EnumFacingHelper.getTopFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
     }
 
     @Override

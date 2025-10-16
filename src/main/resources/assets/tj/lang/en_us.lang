@@ -83,6 +83,7 @@ tj.machine.void_more_miner.name=Void MOre Miner (VMOM)
 tj.machine.teleporter.name=Teleporter
 tj.machine.large_chisel_workbench.name=Large Chisel Workbench (LCW)
 tj.machine.large_enchanter.name=Large Enchanter (LE)
+tj.machine.large_crafter.name=Large Crafter (LC)
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II
@@ -209,6 +210,20 @@ tj.machine.energy_output_256_uiv.name=Energy Output Hatch 256 Amps (UIV)
 tj.machine.energy_output_256_umv.name=Energy Output Hatch 256 Amps (UMV)
 tj.machine.energy_output_256_uxv.name=Energy Output Hatch 256 Amps (UXV)
 tj.machine.energy_output_256_max.name=Energy Output Hatch 256 Amps (MAX)
+tj.machine.crafter_hatch.lv.name=Crafter Hatch (LV)
+tj.machine.crafter_hatch.mv.name=Crafter Hatch (MV)
+tj.machine.crafter_hatch.hv.name=Crafter Hatch (HV)
+tj.machine.crafter_hatch.ev.name=Crafter Hatch (EV)
+tj.machine.crafter_hatch.iv.name=Crafter Hatch (IV)
+tj.machine.crafter_hatch.luv.name=Crafter Hatch (LuV)
+tj.machine.crafter_hatch.zpm.name=Crafter Hatch (ZPM)
+tj.machine.crafter_hatch.uv.name=Crafter Hatch (UV)
+tj.machine.crafter_hatch.uhv.name=Crafter Hatch (UHV)
+tj.machine.crafter_hatch.uev.name=Crafter Hatch (UEV)
+tj.machine.crafter_hatch.uiv.name=Crafter Hatch (UIV)
+tj.machine.crafter_hatch.umv.name=Crafter Hatch (UMV)
+tj.machine.crafter_hatch.uxv.name=Crafter Hatch (UXV)
+tj.machine.crafter_hatch.max.name=Crafter Hatch (MAX)
 
 tj.machine.machine_controller.index=Workable ID: §e%d§7
 tj.machine.machine_controller.automatic=Automatic
@@ -308,6 +323,7 @@ tj.multiblock.elite_large_miner.mining.level=Set Mining Level |
 tj.multiblock.elite_large_miner.reset.y=[Reset]
 
 tj.mulitblock.greenhouse.treemode=[Tree Mode]
+tj.multiblock.large_crafter.slots=Amount of slots for encoding recipes: §b%d
 tj.multiblock.drilling_rig.voltage=Requires §d%s§7 voltage or higher. Overclocks up to §d%s§7.
 tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%,dL§7 Drilling Mud and outputs §c%,dL§7 Used Drilling Mud per second.
 
@@ -393,7 +409,7 @@ tj.multiblock.void_more_miner.description=Tier and Heats is determined by Compon
 tj.multiblock.teleporter.description=Use linking device to create new positions or waypoints. Consumes 1M EU base for teleportation and 1000 EU for every block away from Teleporter or from another dimension's X:0, Y:0, Z:0, coordinates. The World must be loaded for interdimensional teleport. Energy hatch tier can be below or equal to components' tier.
 tj.multiblock.large_chisel_workbench.description=Automates the chiseling of blocks. Input Integrated Circuits to determine chisel index. Add more circuits to get chisel index above 32.
 tj.multiblock.large_enchanter.description=An Electric Anvil.
-tj.multiblock.large_crafter.description=Automates crafting table recipes.
+tj.multiblock.large_crafter.description=Automates crafting table recipes. §eWarning: things non-consumable in crafting table recipes will get consumed here for now.
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7

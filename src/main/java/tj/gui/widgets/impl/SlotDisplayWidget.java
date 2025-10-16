@@ -10,7 +10,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 import tj.gui.widgets.TJSlotWidget;
 
 import java.io.IOException;
-import java.util.function.BiConsumer;
+
 
 public class SlotDisplayWidget extends TJSlotWidget {
 

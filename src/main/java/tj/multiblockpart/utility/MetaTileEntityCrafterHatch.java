@@ -1,5 +1,8 @@
 package tj.multiblockpart.utility;
 
+import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.vec.Matrix4;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
@@ -13,6 +16,7 @@ import gregtech.api.util.DummyContainer;
 import gregtech.api.util.Position;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -22,15 +26,21 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
+import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.multiblockpart.TJMultiblockAbility;
+import tj.textures.TJTextures;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -42,14 +52,17 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
 
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
     private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
-    private final ItemStackHandler encodingInventory = new ItemStackHandler(9);
+    private final ItemStackHandler encodingInventory;
     private final ItemStackHandler resultInventory = new ItemStackHandler(1);
     private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectArrayMap<>();
+    private final int encodingSlots;
     private Runnable clearRecipeCache;
     private IRecipe currentRecipe;
 
     public MetaTileEntityCrafterHatch(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+        this.encodingSlots = 6 + (tier * 3);
+        this.encodingInventory = new ItemStackHandler(this.encodingSlots);
     }
 
     @Override
@@ -58,8 +71,16 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("tj.multiblock.large_crafter.slots", this.encodingSlots));
+    }
+
+    @Override
     protected ModularUI createUI(EntityPlayer player) {
-        WidgetGroup craftingSlotGroup = new WidgetGroup(new Position(7, 14)), encodingSlotGroup = new WidgetGroup(new Position(115, 14));
+        WidgetGroup craftingSlotGroup = new WidgetGroup(new Position(7, 14));
+        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
         for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
             int finalI = i;
             craftingSlotGroup.addWidget(new PhantomSlotWidget(this.craftingInventory, i, 18 * (i % 3), 18 * (i / 3))
@@ -67,7 +88,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                     .setChangeListener(() -> this.setCraftingResult(finalI, this.craftingInventory.getStackInSlot(finalI))));
         }
         for (int i = 0; i < this.encodingInventory.getSlots(); i++) {
-            encodingSlotGroup.addWidget(new SlotDisplayWidget(this.encodingInventory, i, 18 * (i % 3), 18 * (i / 3))
+            scrollableWidgetGroup.addWidget(new SlotDisplayWidget(this.encodingInventory, i, 18 * (i % 3), 18 * (i / 3))
                     .onPressedConsumer((button, slot, stack) -> {
                         if (button == 0) {
                             this.clearCraftingResult();
@@ -85,9 +106,9 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
         }
         return ModularUI.builder(BACKGROUND, 176, 180)
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
-                .widget(new ImageWidget(75, 28, 26, 26, SLOT))
-                .widget(new ImageWidget(115, 14, 54, 54, DARKENED_SLOT))
-                .widget(new SlotDisplayWidget(this.resultInventory, 0, 79, 32)
+                .widget(new ImageWidget(72, 28, 26, 26, SLOT))
+                .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
+                .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
                         .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
                 .widget(new ClickButtonWidget(62, 14, 8, 8, "", (clickData) -> {
                     this.clearCraftingResult();
@@ -95,14 +116,14 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                 }).setButtonTexture(BUTTON_CLEAR_GRID))
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(craftingSlotGroup)
-                .widget(encodingSlotGroup)
+                .widget(scrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 98)
                 .build(this.getHolder(), player);
     }
 
     private void addRecipe(IRecipe recipe) {
         if (recipe != null) {
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < this.encodingSlots; i++) {
                 if (!this.recipeMap.containsKey(i)) {
                     this.encodingInventory.setStackInSlot(i, recipe.getRecipeOutput());
                     NonNullList<ItemStack> itemStacks = NonNullList.create();
@@ -148,6 +169,13 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        TJTextures.CRAFTER.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
+    }
+
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         NBTTagList recipeList = new NBTTagList();
@@ -178,7 +206,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                 NonNullList<ItemStack> itemStacks = NonNullList.create();
                 NBTTagList patternNBT = recipeList.getCompoundTagAt(i).getTagList("craftingPattern", 10);
                 for (int j = 0; j < patternNBT.tagCount(); j++) {
-                    itemStacks.add(new ItemStack(patternNBT.getCompoundTagAt(i)));
+                    itemStacks.add(new ItemStack(patternNBT.getCompoundTagAt(j)));
                 }
                 this.recipeMap.put(index, new ImmutableTriple<>(recipe, RecipeUtility.mergeIngredients(recipe.getIngredients()), itemStacks));
                 this.encodingInventory.setStackInSlot(index, recipe.getRecipeOutput());
