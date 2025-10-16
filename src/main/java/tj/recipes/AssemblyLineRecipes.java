@@ -1045,6 +1045,28 @@ public class AssemblyLineRecipes {
                 .duration(600)
                 .buildAndRegister();
 
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(4608))
+                .fluidInputs(Lubricant.getFluid(16000))
+                .input(OrePrefix.screw, Naquadah, 64)
+                .input(OrePrefix.screw, HSSS, 64)
+                .input(OrePrefix.plate, RhodiumPlatedPalladium, 48)
+                .input(OrePrefix.plate, Staballoy, 48)
+                .input(OrePrefix.circuit, Ultimate, 24)
+                .input(OrePrefix.gear, Inconel625, 16)
+                .input(OrePrefix.gear, HastelloyN, 16)
+                .inputs(new ItemStack(Item.getByNameOrId("appliedenergistics2:molecular_assembler"), 16))
+                .inputs(new ItemStack(Item.getByNameOrId("enderio:block_crafter"), 16))
+                .inputs(ELECTRIC_PISTON_LUV.getStackForm(8))
+                .inputs(ELECTRIC_PISTON_LUV.getStackForm(8))
+                .inputs(ROBOT_ARM_LUV.getStackForm(8))
+                .inputs(SENSOR_LUV.getStackForm(8))
+                .inputs(EMITTER_LUV.getStackForm(8))
+                .outputs(LARGE_CRAFTER.getStackForm())
+                .EUt(GAValues.VA[6])
+                .duration(2000)
+                .buildAndRegister();
+
         List<ItemStack> turbineUpgrade = new ArrayList<>();
         for (int i = 0; i < TURBINE_UPGRADES.length; i++) {
             if (i > 0)

@@ -104,7 +104,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                         }
                     }));
         }
-        return ModularUI.builder(BACKGROUND, 176, 180)
+        return ModularUI.builder(BACKGROUND, 176, 156)
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
@@ -117,7 +117,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(craftingSlotGroup)
                 .widget(scrollableWidgetGroup)
-                .bindPlayerInventory(player.inventory, 98)
+                .bindPlayerInventory(player.inventory, 74)
                 .build(this.getHolder(), player);
     }
 

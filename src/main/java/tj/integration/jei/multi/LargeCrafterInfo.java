@@ -12,6 +12,9 @@ import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
@@ -57,6 +60,8 @@ public class LargeCrafterInfo extends TJMultiblockInfoPage {
     @Override
     protected void generateBlockTooltips() {
         super.generateBlockTooltips();
+        this.addBlockTooltip(MetaBlocks.METAL_CASING.getItemVariant(BlockMetalCasing.MetalCasingType.STEEL_SOLID), new TextComponentTranslation("gregtech.multiblock.preview.limit", 25)
+                .setStyle(new Style().setColor(TextFormatting.RED)));
         Arrays.stream(GATransparentCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.TRANSPARENT_CASING.getItemVariant(casingType), COMPONENT_TIER_ANY_TOOLTIP));
         Arrays.stream(ConveyorCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.CONVEYOR_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
         Arrays.stream(RobotArmCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.ROBOT_ARM_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));

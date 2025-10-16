@@ -28,7 +28,7 @@ import java.util.Map;
 public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IItemFluidHandlerInfo {
 
     private final CraftingRecipeLRUCache previousRecipe = new CraftingRecipeLRUCache(10);
-    private final List<Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>>> recipeList = new ArrayList<>();
+    private final List<Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>>> recipeMapList = new ArrayList<>();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
 
@@ -39,13 +39,13 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
     @Override
     public void initialize(int busCount) {
         super.initialize(busCount);
-        this.recipeList.clear();
+        this.recipeMapList.clear();
         if (this.metaTileEntity instanceof MultiblockControllerBase) {
             List<IRecipeMapProvider> crafters = ((MultiblockControllerBase) this.metaTileEntity).getAbilities(TJMultiblockAbility.CRAFTER);
             for (IRecipeMapProvider provider : crafters)
-                this.recipeList.add(provider.getRecipeMap());
+                this.recipeMapList.add(provider.getRecipeMap());
         } else if (this.metaTileEntity instanceof IRecipeMapProvider) {
-            this.recipeList.add(((IRecipeMapProvider) this.metaTileEntity).getRecipeMap());
+            this.recipeMapList.add(((IRecipeMapProvider) this.metaTileEntity).getRecipeMap());
         }
     }
 
@@ -53,14 +53,18 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
         this.previousRecipe.clear();
     }
 
+    public CraftingRecipeLRUCache getPreviousRecipe() {
+        return this.previousRecipe;
+    }
+
     private boolean trySearchForRecipe(IItemHandlerModifiable importItems) {
         int parallels = this.parallel.getAsInt();
         Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> currentRecipe = this.previousRecipe.get(importItems);
         if (currentRecipe == null) {
-            recipeList:
-            for (int i = 0; i < this.recipeList.size(); i++) {
-                Map<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = this.recipeList.get(i);
-                recipe:
+            recipeMapList:
+            for (int i = 0; i < this.recipeMapList.size(); i++) {
+                Map<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = this.recipeMapList.get(i);
+                recipeMap:
                 for (int j = 0; j < recipeMap.size(); j++) {
                     Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe = recipeMap.get(j);
                     if (recipe == null)
@@ -71,21 +75,21 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
                         int size = ingredient.getCount();
                         int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
                         if (extracted < size)
-                            continue recipe;
+                            continue recipeMap;
                     }
                     currentRecipe = recipe;
-                    break recipeList;
+                    break recipeMapList;
                 }
             }
         }
         if (currentRecipe != null) {
             int amountToExtract = parallels;
-            for (CountableIngredient ingredient : currentRecipe.getMiddle()) {
+            for (CountableIngredient ingredient : currentRecipe.getMiddle()) { // calculate and simulate parallels
                 int size = ingredient.getCount();
                 int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), parallels * size, true);
                 amountToExtract = Math.min(amountToExtract, extracted / size);
             }
-            for (CountableIngredient ingredient : currentRecipe.getMiddle()) {
+            for (CountableIngredient ingredient : currentRecipe.getMiddle()) { // consume recipe inputs
                 int size = ingredient.getCount();
                 ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), amountToExtract * size, false);
             }

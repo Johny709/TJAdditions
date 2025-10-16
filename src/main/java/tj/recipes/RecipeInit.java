@@ -307,6 +307,20 @@ public class RecipeInit {
                     'S', i == 0 ? COMPRESSED_CHEST.getStackForm() : COMPRESSED_CRATE.getStackForm());
         }
 
+        for (int i = 0, tier = 1; i < CRAFTER.length; i++, tier++) {
+            ItemStack craftingTable = new ItemStack(Blocks.CRAFTING_TABLE);
+            ModHandler.addShapedRecipe("crafter_" + GAValues.VN[tier], CRAFTER[i].getStackForm(), "CTC", "RSR", "EWE",
+                    'C', GACraftingComponents.CONVEYOR.getIngredient(tier),
+                    'T', craftingTable,
+                    'R', GACraftingComponents.ROBOT_ARM.getIngredient(tier),
+                    'S', tier > 8 ? GACraftingComponents.HULL.getIngredient(tier) : GACraftingComponents.WORSE_HULL.getIngredient(tier + i),
+                    'E', GACraftingComponents.CIRCUIT.getIngredient(tier),
+                    'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier));
+            ModHandler.addShapedRecipe("crafter_hatch_" + GAValues.VN[tier], CRAFTER_HATCHES[i].getStackForm(), " T ", " S ", "   ",
+                    'T', craftingTable,
+                    'S', CRAFTER[i].getStackForm());
+        }
+
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
             ModHandler.addShapelessRecipe(GAValues.VN[i].toLowerCase() + "_universal_circuit", UNIVERSAL_CIRCUITS[i].getStackForm(), new UnificationEntry(OrePrefix.circuit, CIRCUIT_TIERS[i]));
 
