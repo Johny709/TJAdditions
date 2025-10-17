@@ -32,7 +32,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
         this.workableHandler.initialize(1);
         this.workableHandler.setImportItems(this::getImportItems);
         this.workableHandler.setExportItems(this::getExportItems);
-        this.workableHandler.setImportEnergy(() -> this.energyContainer);
+        this.workableHandler.setImportEnergy(this::getEnergyContainer);
         this.workableHandler.setMaxVoltage(this::getMaxVoltage);
         this.workableHandler.setParallel(() -> 1);
     }

@@ -3,16 +3,12 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.GAValues;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -20,9 +16,6 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.ChiselWorkbenchWorkableHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.SLOT;
@@ -36,9 +29,9 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
         super(metaTileEntityId, tier);
         this.initializeInventory();
         this.workableHandler.initialize(1);
-        this.workableHandler.setImportItems(() -> this.importItems);
-        this.workableHandler.setExportItems(() -> this.exportItems);
-        this.workableHandler.setImportEnergy(() -> this.energyContainer);
+        this.workableHandler.setImportItems(this::getImportItems);
+        this.workableHandler.setExportItems(this::getExportItems);
+        this.workableHandler.setImportEnergy(this::getEnergyContainer);
         this.workableHandler.setMaxVoltage(this::getMaxVoltage);
         this.workableHandler.setParallel(() -> 1);
     }

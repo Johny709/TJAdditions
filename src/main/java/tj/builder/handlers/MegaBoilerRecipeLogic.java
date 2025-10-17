@@ -76,7 +76,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
     }
 
     @Override
-    protected void progressRecipe() {
+    protected void progressRecipe(int progress) {
         this.progress++;
         if (this.metaTileEntity.getOffsetTimer() % 20 == 0) {
             double outputMultiplier = this.currentTemperature / (this.maxHeat() * 1.0) * this.getThrottleMultiplier() * this.getThrottleEfficiency();

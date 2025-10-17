@@ -152,12 +152,12 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
             if (canStart) {
                 this.progress = 1;
                 this.sleepTime = 1;
-                this.progressRecipe();
+                this.progressRecipe(this.progress);
                 if (!this.isActive)
                     this.setActive(true);
             } else this.failRecipe();
             this.wasActiveAndNeedsUpdate = !canStart;
-        } else this.progressRecipe();
+        } else this.progressRecipe(this.progress);
 
         if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
@@ -205,7 +205,7 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
         this.sleepTimer = this.sleepTime;
     }
 
-    protected void progressRecipe() {
+    protected void progressRecipe(int progress) {
         if (this.importEnergy.get().getEnergyStored() >= this.energyPerTick) {
             this.importEnergy.get().removeEnergy(this.energyPerTick);
             this.progress++;

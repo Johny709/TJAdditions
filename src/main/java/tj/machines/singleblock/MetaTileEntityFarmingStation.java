@@ -3,7 +3,6 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -13,13 +12,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidTank;
-import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.builder.handlers.EnchanterWorkableHandler;
+import tj.builder.handlers.FarmingStationWorkableHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -31,34 +28,30 @@ import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 
-public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
+public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
 
-    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
-    private final IFluidTank tank;
+    private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
 
-    public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
+    public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
-        this.tank = new FluidTank(64000);
-        this.workableHandler.initialize(1);
+        int range = (9 + (2 * tier)) * (9 + (2 * tier));
+        this.workableHandler.initialize(range);
         this.workableHandler.setImportItems(this::getImportItems);
         this.workableHandler.setExportItems(this::getExportItems);
-        this.workableHandler.setImportFluids(this::getImportFluids);
         this.workableHandler.setImportEnergy(this::getEnergyContainer);
         this.workableHandler.setMaxVoltage(this::getMaxVoltage);
-        this.workableHandler.setTier(this::getTier);
-        this.workableHandler.setParallel(() -> 1);
-        this.initializeInventory();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityEnchanter(this.metaTileEntityId, this.getTier());
+        return new MetaTileEntityFarmingStation(this.metaTileEntityId, this.getTier());
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("tj.multiblock.large_enchanter.level.max", this.getTier()));
+        tooltip.add(I18n.format("machine.universal.linked.entity.radius", (9 + (2 * this.getTier())), (9 + (2 * this.getTier()))));
     }
 
     @Override
@@ -79,11 +72,6 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     }
 
     @Override
-    protected FluidTankList createImportFluidHandler() {
-        return new FluidTankList(true, this.tank);
-    }
-
-    @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
@@ -95,8 +83,6 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setBackgroundTexture(SLOT))
                 .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
                         .setBackgroundTexture(SLOT))
-                .widget(new TankWidget(this.tank, 16, 22, 18, 18)
-                        .setBackgroundTexture(FLUID_SLOT))
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
@@ -104,7 +90,6 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
@@ -115,10 +100,11 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
-        TJTextures.ENCHANTED_BOOK.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
-        TJTextures.ENCHANTED_BOOK.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
-        TJTextures.ENCHANTED_BOOK.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
-        TJTextures.ENCHANTING_TABLE.renderSided(EnumFacingHelper.getTopFacingFrom(this.frontFacing), renderState, translation, pipeline);
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, EnumFacingHelper.getTopFacingFrom(this.getFrontFacing()), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
+    }
+
+    @Override
+    public long getMaxVoltage() {
+        return 32;
     }
 }

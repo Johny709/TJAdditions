@@ -64,11 +64,10 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         this.encodingInventory = new ItemStackHandler(this.encodingSlots);
         this.recipeLogic.setImportItems(this::getImportItems);
         this.recipeLogic.setExportItems(this::getExportItems);
-        this.recipeLogic.setImportEnergy(() -> this.energyContainer);
+        this.recipeLogic.setImportEnergy(this::getEnergyContainer);
         this.recipeLogic.setMaxVoltage(this::getMaxVoltage);
         this.recipeLogic.setParallel(() -> 1);
         this.recipeLogic.initialize(1);
-        this.initializeInventory();
     }
 
     @Override

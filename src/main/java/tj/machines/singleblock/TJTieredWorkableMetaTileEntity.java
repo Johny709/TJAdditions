@@ -6,6 +6,7 @@ import gregicadditions.machines.overrides.GATieredMetaTileEntity;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IActiveOutputSide;
 import gregtech.api.capability.IElectricItem;
+import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.ICoverable;
@@ -226,6 +227,10 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
     @Override
     public boolean isAllowInputFromOutputSide() {
         return this.allowInputFromOutputSide;
+    }
+
+    public IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
     }
 
     public long getMaxVoltage() {

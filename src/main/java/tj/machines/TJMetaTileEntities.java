@@ -113,6 +113,7 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityChiselWorkbench[] CHISEL_WORKBENCH = new MetaTileEntityChiselWorkbench[14];
     public static final MetaTileEntityEnchanter[] ENCHANTER = new MetaTileEntityEnchanter[14];
     public static final MetaTileEntityCrafter[] CRAFTER = new MetaTileEntityCrafter[14];
+    public static final MetaTileEntityFarmingStation[] FARMING_STATION = new MetaTileEntityFarmingStation[14];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
@@ -218,15 +219,16 @@ public class TJMetaTileEntities {
         FLUID_BOILER[0] = GregTechAPI.registerMetaTileEntity(5306, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_bronze"), BRONZE));
         FLUID_BOILER[1] = GregTechAPI.registerMetaTileEntity(5307, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_steel"), STEEL));
         FLUID_BOILER[2] = GregTechAPI.registerMetaTileEntity(5308, new MetaTileEntityFluidBoiler(TJId("fluid_boiler_lv"), LV));
-        int architectID = 5309, chiselID = 5323, enchanterID = 5337, crafterID = 5351;
         for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++)  // occupies ID range 5309 - 5322
-            ARCHITECT_WORKBENCH[i] = GregTechAPI.registerMetaTileEntity(architectID++, new MetaTileEntityArchitectWorkbench(TJId("architect_workbench_" + GAValues.VN[tier]), tier));
-        for (int i = 0, tier = 1; i < CHISEL_WORKBENCH.length; i++, tier++) // occupies ID range 5322 - 5336
-            CHISEL_WORKBENCH[i] = GregTechAPI.registerMetaTileEntity(chiselID++, new MetaTileEntityChiselWorkbench(TJId("chisel_workbench_" + GAValues.VN[tier]), tier));
+            ARCHITECT_WORKBENCH[i] = GregTechAPI.registerMetaTileEntity(5309 + i, new MetaTileEntityArchitectWorkbench(TJId("architect_workbench_" + GAValues.VN[tier]), tier));
+        for (int i = 0, tier = 1; i < CHISEL_WORKBENCH.length; i++, tier++) // occupies ID range 5323 - 5336
+            CHISEL_WORKBENCH[i] = GregTechAPI.registerMetaTileEntity(5323 + i, new MetaTileEntityChiselWorkbench(TJId("chisel_workbench_" + GAValues.VN[tier]), tier));
         for (int i = 0, tier = 1; i < ENCHANTER.length; i++, tier++) // occupies ID range 5337 - 5350
-            ENCHANTER[i] = GregTechAPI.registerMetaTileEntity(enchanterID++, new MetaTileEntityEnchanter(TJId("enchanter_" + GAValues.VN[tier]), tier));
+            ENCHANTER[i] = GregTechAPI.registerMetaTileEntity(5337 + i, new MetaTileEntityEnchanter(TJId("enchanter_" + GAValues.VN[tier]), tier));
         for (int i = 0, tier = 1; i < CRAFTER.length; i++, tier++) // occupies ID range 5351 - 5364
-            CRAFTER[i] = GregTechAPI.registerMetaTileEntity(crafterID++, new MetaTileEntityCrafter(TJId("crafter_" + GAValues.VN[tier]), tier));
+            CRAFTER[i] = GregTechAPI.registerMetaTileEntity(5351 + i, new MetaTileEntityCrafter(TJId("crafter_" + GAValues.VN[tier]), tier));
+        for (int i = 0, tier = 1; i < FARMING_STATION.length; i++, tier++) // occupies ID range 5365 - 5378
+            FARMING_STATION[i] = GregTechAPI.registerMetaTileEntity(5365 + i, new MetaTileEntityFarmingStation(TJId("farming_station_" + GAValues.VN[tier]), tier));
         COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5406, new MetaTileEntityCompressedChest(TJId("compressed_chest"), false));
         COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5407, new MetaTileEntityCompressedCrate(TJId("compressed_crate"), false));
         INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5408, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
