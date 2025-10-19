@@ -158,17 +158,17 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
 
         @Override
         public int getEUtPercentage() {
-            return getRecipeMapIndex() == 0 ? super.getEUtPercentage() : TJConfig.largeGreenhouse.eutPercentage;
+            return getRecipeMapIndex() == 0 ? super.getEUtPercentage() : TJConfig.largeGreenhouse.eutPercentageTree;
         }
 
         @Override
         public int getDurationPercentage() {
-            return getRecipeMapIndex() == 0 ? super.getDurationPercentage() : TJConfig.largeGreenhouse.durationPercentage;
+            return getRecipeMapIndex() == 0 ? super.getDurationPercentage() : TJConfig.largeGreenhouse.durationPercentageTree;
         }
 
         @Override
         public int getChancePercentage() {
-            return getRecipeMapIndex() == 0 ? super.getChancePercentage() : TJConfig.largeGreenhouse.chancePercentage;
+            return getRecipeMapIndex() == 0 ? super.getChancePercentage() : TJConfig.largeGreenhouse.chancePercentageTree;
         }
 
         @Override
