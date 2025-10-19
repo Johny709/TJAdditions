@@ -57,7 +57,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
-import tj.items.handlers.TurbineUpgradeStackHandler;
+import tj.items.handlers.FilteredItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -121,8 +121,8 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new TurbineUpgradeStackHandler(this)
-                .setItemStackPredicate(stack -> {
+        return new FilteredItemStackHandler(this)
+                .setItemStackPredicate((slot, stack) -> {
                     Item item = stack.getItem();
                     if (item instanceof MetaItem<?>) {
                         MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);

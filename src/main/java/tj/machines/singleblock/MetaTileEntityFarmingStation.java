@@ -3,13 +3,22 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
+import gregtech.api.items.toolitem.ToolMetaItem;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.util.Position;
+import gregtech.common.tools.ToolAxe;
+import gregtech.common.tools.ToolHoe;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemAxe;
+import net.minecraft.item.ItemHoe;
+import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -17,6 +26,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.FarmingStationWorkableHandler;
+import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.TJSlotWidget;
+import tj.items.handlers.FilteredItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -31,6 +43,15 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
 
     private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
+    private final FilteredItemStackHandler toolInventory = new FilteredItemStackHandler(this, 3)
+            .setItemStackPredicate((slot, stack) -> {
+                switch (slot) {
+                    case 0: return stack.getItem() instanceof ItemHoe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolHoe);
+                    case 1: return stack.getItem() instanceof ItemAxe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolAxe);
+                    case 2: return stack.getItem() instanceof ItemShears;
+                }
+                return false;
+            });
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
@@ -63,36 +84,46 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(2);
+        return new ItemStackHandler(6);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(2);
+        return new ItemStackHandler(9);
     }
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        return ModularUI.defaultBuilder()
+        WidgetGroup widgetGroup = new WidgetGroup(new Position(10, 22));
+        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
+        for (int i = 0; i < this.importItems.getSlots(); i++) {
+            widgetGroup.addWidget(new SlotWidget(this.importItems, i, 18 * (i % 2), 18 * (i / 2), true, true)
+                    .setBackgroundTexture(SLOT));
+        }
+        for (int i = 0; i < this.exportItems.getSlots(); i++) {
+            scrollableWidgetGroup.addWidget(new SlotWidget(this.exportItems, i, 18 * (i % 3), 18 * (i / 3), true, false)
+                    .setBackgroundTexture(SLOT));
+        }
+        return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
-                .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
-                        .setBackgroundTexture(SLOT, BOXED_OVERLAY))
-                .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)
+                .widget(new TJSlotWidget(this.toolInventory, 0, 52, 22)
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
-                .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
-                        .setBackgroundTexture(SLOT))
+                .widget(new TJSlotWidget(this.toolInventory, 1, 52, 40)
+                        .setBackgroundTexture(SLOT, BOXED_OVERLAY))
+                .widget(new TJSlotWidget(this.toolInventory, 2, 52, 58)
+                        .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
-                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
+                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(151, 78, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
+                .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
-                .bindPlayerInventory(player.inventory)
+                .widget(widgetGroup)
+                .widget(scrollableWidgetGroup)
+                .bindPlayerInventory(player.inventory, 100)
                 .build(this.getHolder(), player);
     }
 
@@ -106,5 +137,19 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @Override
     public long getMaxVoltage() {
         return 32;
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setTag("toolInventory", this.toolInventory.serializeNBT());
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        if (data.hasKey("toolInventory"))
+            this.toolInventory.deserializeNBT(data.getCompoundTag("toolInventory"));
     }
 }

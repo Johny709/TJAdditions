@@ -6,25 +6,32 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
-public class TurbineUpgradeStackHandler extends ItemStackHandler {
+/**
+ * Recommended to use TJSlotWidget for player interacting with this.
+ */
+public class FilteredItemStackHandler extends ItemStackHandler {
 
     private BiConsumer<ItemStack, Boolean> onContentsChanged;
-    private Predicate<ItemStack> itemStackPredicate;
+    private BiPredicate<Integer, ItemStack> itemStackPredicate;
     private final MetaTileEntity tileEntity;
 
-    public TurbineUpgradeStackHandler(MetaTileEntity tileEntity) {
-        super();
+    public FilteredItemStackHandler(MetaTileEntity tileEntity) {
+        this(tileEntity, 1);
+    }
+
+    public FilteredItemStackHandler(MetaTileEntity tileEntity, int slots) {
+        super(slots);
         this.tileEntity = tileEntity;
     }
 
-    public TurbineUpgradeStackHandler setOnContentsChanged(BiConsumer<ItemStack, Boolean> onContentsChanged) {
+    public FilteredItemStackHandler setOnContentsChanged(BiConsumer<ItemStack, Boolean> onContentsChanged) {
         this.onContentsChanged = onContentsChanged;
         return this;
     }
 
-    public TurbineUpgradeStackHandler setItemStackPredicate(Predicate<ItemStack> itemStackPredicate) {
+    public FilteredItemStackHandler setItemStackPredicate(BiPredicate<Integer, ItemStack> itemStackPredicate) {
         this.itemStackPredicate = itemStackPredicate;
         return this;
     }
@@ -32,12 +39,13 @@ public class TurbineUpgradeStackHandler extends ItemStackHandler {
     @Override
     @Nonnull
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-        if (this.itemStackPredicate != null && !this.itemStackPredicate.test(stack))
+        if (this.itemStackPredicate != null && !this.itemStackPredicate.test(slot, stack))
             return stack;
         ItemStack upgradeStack = stack.copy();
         stack = super.insertItem(slot, stack, simulate);
         if (!simulate) {
-            this.onContentsChanged.accept(upgradeStack, true);
+            if (this.onContentsChanged != null)
+                this.onContentsChanged.accept(upgradeStack, true);
             this.tileEntity.markDirty();
         }
         return stack;
@@ -49,7 +57,8 @@ public class TurbineUpgradeStackHandler extends ItemStackHandler {
         ItemStack upgradeStack = this.getStackInSlot(slot).copy();
         ItemStack stack = super.extractItem(slot, amount, simulate);
         if (!simulate) {
-            this.onContentsChanged.accept(upgradeStack, false);
+            if (this.onContentsChanged != null)
+                this.onContentsChanged.accept(upgradeStack, false);
             this.tileEntity.markDirty();
         }
         return stack;
