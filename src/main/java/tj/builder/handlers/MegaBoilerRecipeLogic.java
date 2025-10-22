@@ -19,7 +19,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IGeneratorInfo;
@@ -36,7 +35,7 @@ import static gregtech.api.unification.material.Materials.*;
 import static tj.capability.TJCapabilities.*;
 import static tj.capability.TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING;
 
-public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler, IMultipleTankHandler> implements IFuelable, IHeatInfo, IGeneratorInfo, IItemFluidHandlerInfo {
+public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<MegaBoilerRecipeLogic> implements IFuelable, IHeatInfo, IGeneratorInfo, IItemFluidHandlerInfo {
 
     private static final int CONSUMPTION_MULTIPLIER = 100;
     private static final int BOILING_TEMPERATURE = 100;
@@ -134,8 +133,8 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
 
     private int findFluidInputs() {
         FluidStack fuelStack = null;
-        for (int i = 0; i < this.importFluids.get().getTanks(); i++) {
-            IFluidTank tank = this.importFluids.get().getTankAt(i);
+        for (int i = 0; i < ((IMultipleTankHandler) this.importFluids.get()).getTanks(); i++) {
+            IFluidTank tank = ((IMultipleTankHandler) this.importFluids.get()).getTankAt(i);
             FluidStack stack = tank.getFluid();
             if (stack == null || ModHandler.isWater(stack))
                 continue;
@@ -272,8 +271,8 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IItemHandler,
         final LinkedHashMap<Object, IFuelInfo> fuels = new LinkedHashMap<>();
         int fluidCapacity = 0; // fluid capacity is all non water tanks
         FluidStack fluidFuelStack = null;
-        for (int i = 0; i < this.importFluids.get().getTanks(); i++) {
-            IFluidTank tank = this.importFluids.get().getTankAt(i);
+        for (int i = 0; i < ((IMultipleTankHandler) this.importFluids.get()).getTanks(); i++) {
+            IFluidTank tank = ((IMultipleTankHandler) this.importFluids.get()).getTankAt(i);
             FluidStack stack = tank.getFluid();
             if (stack == null || ModHandler.isWater(stack))
                 continue;

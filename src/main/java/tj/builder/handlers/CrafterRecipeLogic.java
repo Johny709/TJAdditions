@@ -1,6 +1,5 @@
 package tj.builder.handlers;
 
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.recipes.CountableIngredient;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IItemFluidHandlerInfo {
+public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLogic> implements IItemFluidHandlerInfo {
 
     private final CraftingRecipeLRUCache previousRecipe = new CraftingRecipeLRUCache(10);
     private final List<Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>>> recipeMapList = new ArrayList<>();
@@ -37,7 +36,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
     }
 
     @Override
-    public void initialize(int busCount) {
+    public CrafterRecipeLogic initialize(int busCount) {
         super.initialize(busCount);
         this.recipeMapList.clear();
         if (this.metaTileEntity instanceof MultiblockControllerBase) {
@@ -47,6 +46,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IItemHandlerModi
         } else if (this.metaTileEntity instanceof IRecipeMapProvider) {
             this.recipeMapList.add(((IRecipeMapProvider) this.metaTileEntity).getRecipeMap());
         }
+        return this;
     }
 
     public void clearCache() {

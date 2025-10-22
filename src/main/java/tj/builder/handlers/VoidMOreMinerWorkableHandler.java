@@ -2,14 +2,12 @@ package tj.builder.handlers;
 
 import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.GTValues;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IHeatInfo;
 import tj.capability.IItemFluidHandlerInfo;
@@ -26,7 +24,7 @@ import static gregicadditions.GAMaterials.*;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
 
-public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IHeatInfo, IItemFluidHandlerInfo {
+public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<VoidMOreMinerWorkableHandler> implements IHeatInfo, IItemFluidHandlerInfo {
 
     private static final int CONSUME_START = 100;
     private boolean overheat;
@@ -42,7 +40,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
     }
 
     @Override
-    public void initialize(int tier) {
+    public VoidMOreMinerWorkableHandler initialize(int tier) {
         super.initialize(tier);
         int startTier = tier - GTValues.ZPM;
         int multiplier = (startTier + 2) * 100;
@@ -50,6 +48,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IItemH
         int multiplier3 = startTier > 2 ? (int) Math.pow(2.8, startTier - 2) : 1;
         this.maxTemperature = multiplier * ((long) multiplier2 * multiplier3);
         this.maxProgress = 20;
+        return this;
     }
 
     @Override

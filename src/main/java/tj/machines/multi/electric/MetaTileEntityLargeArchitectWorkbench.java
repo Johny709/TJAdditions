@@ -64,12 +64,12 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
 
     public MetaTileEntityLargeArchitectWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItems(() -> this.itemInputs);
-        this.workableHandler.setExportItems(() -> this.itemOutputs);
-        this.workableHandler.setImportEnergy(() -> this.energyInput);
-        this.workableHandler.setInputBus(this::getInputBus);
-        this.workableHandler.setMaxVoltage(() -> this.maxVoltage);
-        this.workableHandler.setParallel(() -> this.parallel);
+        this.workableHandler.setImportItems(() -> this.itemInputs)
+                .setExportItems(() -> this.itemOutputs)
+                .setImportEnergy(() -> this.energyInput)
+                .setInputBus(this::getInputBus)
+                .setMaxVoltage(() -> this.maxVoltage)
+                .setParallel(() -> this.parallel);
     }
 
     @Override

@@ -5,7 +5,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IItemFluidHandlerInfo;
@@ -17,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidTank> implements IItemFluidHandlerInfo {
+public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<ArchitectWorkbenchWorkableHandler> implements IItemFluidHandlerInfo {
 
     private ItemStack catalyst;
     private ItemStack input;

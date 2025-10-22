@@ -26,7 +26,7 @@ public abstract class RecipeInfoProviderMixin {
     private void injectAddProbeInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing, CallbackInfo ci) {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
         long recipeEUt;
-        if ((capability instanceof AbstractRecipeLogic && (recipeEUt = ((AbstractRecipeLogic) capability).getRecipeEUt()) > 0) || (capability instanceof AbstractWorkableHandler && (recipeEUt = ((AbstractWorkableHandler<?, ?>) capability).getEUt()) > 0)) {
+        if ((capability instanceof AbstractRecipeLogic && (recipeEUt = ((AbstractRecipeLogic) capability).getRecipeEUt()) > 0) || (capability instanceof AbstractWorkableHandler && (recipeEUt = ((AbstractWorkableHandler<?>) capability).getEUt()) > 0)) {
             IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
             int tier = GAUtility.getTierByVoltage(recipeEUt) + 1;
             horizontalPane.text(TextStyleClass.INFO + "{*gregicprobe:top.eut*} ");

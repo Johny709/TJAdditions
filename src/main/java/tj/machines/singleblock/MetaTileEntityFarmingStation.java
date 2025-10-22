@@ -56,11 +56,12 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         int range = (9 + (2 * tier)) * (9 + (2 * tier));
-        this.workableHandler.initialize(range);
-        this.workableHandler.setImportItems(this::getImportItems);
-        this.workableHandler.setExportItems(this::getExportItems);
-        this.workableHandler.setImportEnergy(this::getEnergyContainer);
-        this.workableHandler.setMaxVoltage(this::getMaxVoltage);
+        this.workableHandler.initialize(range)
+                .setToolInventory(() -> this.toolInventory)
+                .setImportItems(this::getImportItems)
+                .setExportItems(this::getExportItems)
+                .setImportEnergy(this::getEnergyContainer)
+                .setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -149,7 +150,9 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        if (data.hasKey("toolInventory"))
+        if (data.hasKey("toolInventory")) {
             this.toolInventory.deserializeNBT(data.getCompoundTag("toolInventory"));
+            this.workableHandler.onContentsChanged(this.toolInventory);
+        }
     }
 }

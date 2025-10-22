@@ -1,6 +1,5 @@
 package tj.builder.handlers;
 
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class EnchanterWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IItemFluidHandlerInfo {
+public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterWorkableHandler> implements IItemFluidHandlerInfo {
 
     private ItemStack catalyst;
     private int outputIndex;

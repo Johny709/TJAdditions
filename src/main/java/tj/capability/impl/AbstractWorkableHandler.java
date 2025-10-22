@@ -12,23 +12,20 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.function.*;
 
-/**
- *
- * @param <I> type of item handler impl
- * @param <F> type of fluid tank impl
- */
-public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements IWorkable {
 
-    protected Supplier<I> importItems;
-    protected Supplier<I> exportItems;
-    protected Supplier<F> importFluids;
-    protected Supplier<F> exportFluids;
+public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<R>> extends MTETrait implements IWorkable {
+
+    protected Supplier<IItemHandlerModifiable> importItems;
+    protected Supplier<IItemHandlerModifiable> exportItems;
+    protected Supplier<IFluidHandler> importFluids;
+    protected Supplier<IFluidHandler> exportFluids;
     protected Supplier<IEnergyContainer> importEnergy;
-    protected IntFunction<I> inputBus;
+    protected IntFunction<IItemHandlerModifiable> inputBus;
     protected LongSupplier maxVoltage;
     protected IntSupplier tier;
     protected IntSupplier parallel;
@@ -55,79 +52,90 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
      * this should be called to initialize some stuff before this workable handler starts running!
      * @param busCount amount of item input buses
      */
-    public void initialize(int busCount) {
+    public R initialize(int busCount) {
         this.lastInputIndex = 0;
         this.busCount = busCount;
+        return (R) this;
     }
 
     /**
      * @param importItems Item input supplier
      */
-    public void setImportItems(Supplier<I> importItems) {
+    public R setImportItems(Supplier<IItemHandlerModifiable> importItems) {
         this.importItems = importItems;
+        return (R) this;
     }
 
     /**
      * @param exportItems Item output supplier
      */
-    public void setExportItems(Supplier<I> exportItems) {
+    public R setExportItems(Supplier<IItemHandlerModifiable> exportItems) {
         this.exportItems = exportItems;
+        return (R) this;
     }
 
     /**
      * @param importFluids Fluid input supplier
      */
-    public void setImportFluids(Supplier<F> importFluids) {
+    public R setImportFluids(Supplier<IFluidHandler> importFluids) {
         this.importFluids = importFluids;
+        return (R) this;
     }
 
     /**
      * @param exportFluids Fluid output supplier
      */
-    public void setExportFluids(Supplier<F> exportFluids) {
+    public R setExportFluids(Supplier<IFluidHandler> exportFluids) {
         this.exportFluids = exportFluids;
+        return (R) this;
     }
 
     /**
      * @param importEnergy Energy Input supplier
      */
-    public void setImportEnergy(Supplier<IEnergyContainer> importEnergy) {
+    public R setImportEnergy(Supplier<IEnergyContainer> importEnergy) {
         this.importEnergy = importEnergy;
+        return (R) this;
     }
 
     /**
      * @param inputBus For Input bus distinct mode
      */
-    public void setInputBus(IntFunction<I> inputBus) {
+    public R setInputBus(IntFunction<IItemHandlerModifiable> inputBus) {
         this.inputBus = inputBus;
+        return (R) this;
     }
 
     /**
      * @param maxVoltage Voltage long supplier
      */
-    public void setMaxVoltage(LongSupplier maxVoltage) {
+    public R setMaxVoltage(LongSupplier maxVoltage) {
         this.maxVoltage = maxVoltage;
+        return (R) this;
     }
 
     /**
      * @param tier tier int supplier
      */
-    public void setTier(IntSupplier tier) {
+    public R setTier(IntSupplier tier) {
         this.tier = tier;
+        return (R) this;
     }
 
     /**
      * @param parallel amount of parallels int supplier
      */
-    public void setParallel(IntSupplier parallel) {
+    public R setParallel(IntSupplier parallel) {
         this.parallel = parallel;
+        return (R) this;
     }
 
     /**
      * @param activeConsumer isActive boolean consumer
      */
-    public void setActive(BooleanConsumer activeConsumer) {
+    public R setActive(BooleanConsumer activeConsumer) {
         this.activeConsumer = activeConsumer;
+        return (R) this;
     }
 
     /**
@@ -232,19 +240,13 @@ public abstract class AbstractWorkableHandler<I, F> extends MTETrait implements 
     }
 
     public boolean hasEnoughFluid(FluidStack fluid, int amount) {
-        if (this.importFluids.get() instanceof IFluidHandler) {
-            FluidStack fluidStack = ((IFluidHandler) this.importFluids.get()).drain(fluid, false);
-            return fluidStack != null && fluidStack.amount == amount || amount == 0;
-        }
-        return false;
+        FluidStack fluidStack = this.importFluids.get().drain(fluid, false);
+        return fluidStack != null && fluidStack.amount == amount || amount == 0;
     }
 
     public boolean canOutputFluid(FluidStack fluid, int amount) {
-        if (this.exportFluids.get() instanceof IFluidHandler) {
-            int fluidStack = ((IFluidHandler) this.exportFluids.get()).fill(fluid, false);
-            return fluidStack == amount || amount == 0;
-        }
-        return false;
+        int fluidStack = this.exportFluids.get().fill(fluid, false);
+        return fluidStack == amount || amount == 0;
     }
 
     @Override

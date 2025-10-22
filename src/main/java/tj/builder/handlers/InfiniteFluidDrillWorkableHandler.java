@@ -2,7 +2,6 @@ package tj.builder.handlers;
 
 import gregicadditions.GAValues;
 import gregicadditions.worldgen.PumpjackHandler;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -11,7 +10,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
@@ -25,7 +23,7 @@ import static gregicadditions.GAMaterials.DrillingMud;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
 
 
-public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IMultipleTankHandler> implements IItemFluidHandlerInfo {
+public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<InfiniteFluidDrillWorkableHandler> implements IItemFluidHandlerInfo {
 
     private Fluid veinFluid;
     private FluidStack[] veinFluidStack;
@@ -40,7 +38,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
     }
 
     @Override
-    public void initialize(int tier) {
+    public InfiniteFluidDrillWorkableHandler initialize(int tier) {
         super.initialize(tier);
         this.drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
 
@@ -49,7 +47,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         this.veinFluid = PumpjackHandler.getFluid(world, world.getChunk(this.metaTileEntity.getPos()).x, world.getChunk(pos).z);
         this.maxProgress = 20;
 
-        if (this.veinFluid == null) return;
+        if (this.veinFluid == null) return this;
         long totalAmount = (long) (Math.pow(4, (tier - GAValues.EV)) * 4000);
         long totalAmount2 = totalAmount;
         int size = 0;
@@ -64,6 +62,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
             this.veinFluidStack[i] = new FluidStack(this.veinFluid, this.outputVeinFluidAmount[i]);
             totalAmount2 -= Integer.MAX_VALUE;
         }
+        return this;
     }
 
     @Override

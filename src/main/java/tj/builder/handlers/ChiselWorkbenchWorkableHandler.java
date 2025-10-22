@@ -4,7 +4,6 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import team.chisel.api.carving.CarvingUtils;
 import team.chisel.api.carving.ICarvingGroup;
@@ -18,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IItemHandlerModifiable, IFluidHandler> implements IItemFluidHandlerInfo {
+public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<ChiselWorkbenchWorkableHandler> implements IItemFluidHandlerInfo {
 
     private int circuitNumber;
     private ItemStack input;

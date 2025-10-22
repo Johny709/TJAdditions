@@ -28,12 +28,12 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
     public MetaTileEntityChiselWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.initializeInventory();
-        this.workableHandler.initialize(1);
-        this.workableHandler.setImportItems(this::getImportItems);
-        this.workableHandler.setExportItems(this::getExportItems);
-        this.workableHandler.setImportEnergy(this::getEnergyContainer);
-        this.workableHandler.setMaxVoltage(this::getMaxVoltage);
-        this.workableHandler.setParallel(() -> 1);
+        this.workableHandler.initialize(1)
+                .setImportItems(this::getImportItems)
+                .setExportItems(this::getExportItems)
+                .setImportEnergy(this::getEnergyContainer)
+                .setMaxVoltage(this::getMaxVoltage)
+                .setParallel(() -> 1);
     }
 
     @Override

@@ -73,14 +73,14 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
 
     public MetaTileEntityLargeEnchanter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItems(() -> this.itemInputs);
-        this.workableHandler.setExportItems(() -> this.itemOutputs);
-        this.workableHandler.setImportFluids(() -> this.fluidInputs);
-        this.workableHandler.setImportEnergy(() -> this.energyInput);
-        this.workableHandler.setInputBus(this::getInputBus);
-        this.workableHandler.setMaxVoltage(() -> this.maxVoltage);
-        this.workableHandler.setTier(() -> this.tier);
-        this.workableHandler.setParallel(() -> parallel);
+        this.workableHandler.setImportItems(() -> this.itemInputs)
+                .setExportItems(() -> this.itemOutputs)
+                .setImportFluids(() -> this.fluidInputs)
+                .setImportEnergy(() -> this.energyInput)
+                .setInputBus(this::getInputBus)
+                .setMaxVoltage(() -> this.maxVoltage)
+                .setTier(() -> this.tier)
+                .setParallel(() -> parallel);
     }
 
     @Override

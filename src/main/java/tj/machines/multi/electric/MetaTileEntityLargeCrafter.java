@@ -80,12 +80,12 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
 
     public MetaTileEntityLargeCrafter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.recipeLogic.setImportItems(() -> this.importItemInventory);
-        this.recipeLogic.setExportItems(() -> this.exportItemInventory);
-        this.recipeLogic.setImportEnergy(() -> this.energyContainer);
-        this.recipeLogic.setInputBus((index) -> this.getAbilities(IMPORT_ITEMS).get(index));
-        this.recipeLogic.setMaxVoltage(() -> this.maxVoltage);
-        this.recipeLogic.setParallel(() -> this.parallel);
+        this.recipeLogic.setImportItems(() -> this.importItemInventory)
+                .setExportItems(() -> this.exportItemInventory)
+                .setImportEnergy(() -> this.energyContainer)
+                .setInputBus((index) -> this.getAbilities(IMPORT_ITEMS).get(index))
+                .setMaxVoltage(() -> this.maxVoltage)
+                .setParallel(() -> this.parallel);
     }
 
     @Override

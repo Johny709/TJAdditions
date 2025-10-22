@@ -67,11 +67,11 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
 
     public MetaTileEntityVoidMOreMiner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.minerRecipeLogic.setExportItems(() -> this.outputInventory);
-        this.minerRecipeLogic.setImportFluids(() -> this.importFluidHandler);
-        this.minerRecipeLogic.setExportFluids(() -> this.exportFluidHandler);
-        this.minerRecipeLogic.setImportEnergy(() -> this.energyContainer);
-        this.minerRecipeLogic.setMaxVoltage(() -> this.maxVoltage);
+        this.minerRecipeLogic.setExportItems(() -> this.outputInventory)
+                .setImportFluids(() -> this.importFluidHandler)
+                .setExportFluids(() -> this.exportFluidHandler)
+                .setImportEnergy(() -> this.energyContainer)
+                .setMaxVoltage(() -> this.maxVoltage);
     }
 
     @Override

@@ -65,10 +65,10 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     public MetaTileEntityInfiniteFluidDrill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.fluidDrillWorkableHandler.setImportFluids(() -> this.inputFluid);
-        this.fluidDrillWorkableHandler.setExportFluids(() -> this.outputFluid);
-        this.fluidDrillWorkableHandler.setImportEnergy(() -> this.energyContainer);
-        this.fluidDrillWorkableHandler.setMaxVoltage(() -> this.maxVoltage);
+        this.fluidDrillWorkableHandler.setImportFluids(() -> this.inputFluid)
+                .setExportFluids(() -> this.outputFluid)
+                .setImportEnergy(() -> this.energyContainer)
+                .setMaxVoltage(() -> this.maxVoltage);
     }
 
     @Override
