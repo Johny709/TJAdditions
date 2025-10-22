@@ -9,15 +9,14 @@ import gregtech.api.gui.widgets.*;
 import gregtech.api.items.toolitem.ToolMetaItem;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.unification.OreDictUnifier;
+import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.Position;
 import gregtech.common.tools.ToolAxe;
 import gregtech.common.tools.ToolHoe;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemHoe;
-import net.minecraft.item.ItemShears;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -35,6 +34,7 @@ import tj.util.EnumFacingHelper;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregicadditions.GAMaterials.OrganicFertilizer;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
@@ -52,16 +52,20 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 }
                 return false;
             });
+    private final FilteredItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 1)
+            .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         int range = (9 + (2 * tier)) * (9 + (2 * tier));
-        this.workableHandler.initialize(range)
-                .setToolInventory(() -> this.toolInventory)
-                .setImportItems(this::getImportItems)
+        this.workableHandler.setImportItems(this::getImportItems)
                 .setExportItems(this::getExportItems)
+                .setToolInventory(() -> this.toolInventory)
+                .setFertilizerInventory(() -> this.fertilizerInventory)
                 .setImportEnergy(this::getEnergyContainer)
-                .setMaxVoltage(this::getMaxVoltage);
+                .setMaxVoltage(this::getMaxVoltage)
+                .setTier(this::getTier)
+                .initialize(range);
     }
 
     @Override
@@ -73,7 +77,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("machine.universal.linked.entity.radius", (9 + (2 * this.getTier())), (9 + (2 * this.getTier()))));
+        tooltip.add(I18n.format("machine.universal.linked.entity.radius", (9 + (2 * this.getTier())) / 2, (9 + (2 * this.getTier())) / 2));
     }
 
     @Override
@@ -113,6 +117,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new TJSlotWidget(this.toolInventory, 2, 52, 58)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
+                .widget(new TJSlotWidget(this.fertilizerInventory, 0, 52, 78)
+                        .setBackgroundTexture(SLOT))
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
@@ -136,23 +142,19 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     }
 
     @Override
-    public long getMaxVoltage() {
-        return 32;
-    }
-
-    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setTag("toolInventory", this.toolInventory.serializeNBT());
+        data.setTag("fertilizerInventory", this.fertilizerInventory.serializeNBT());
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        if (data.hasKey("toolInventory")) {
+        if (data.hasKey("toolInventory"))
             this.toolInventory.deserializeNBT(data.getCompoundTag("toolInventory"));
-            this.workableHandler.onContentsChanged(this.toolInventory);
-        }
+        if (data.hasKey("fertilizerInventory"))
+            this.fertilizerInventory.deserializeNBT(data.getCompoundTag("fertilizerInventory"));
     }
 }
