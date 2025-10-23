@@ -4,6 +4,10 @@ package tj;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
 import tj.items.TJMetaItems;
+import tj.items.item.TJItems;
+import tj.items.item.UnbreakableAxe;
+import tj.items.item.UnbreakableHoe;
+import tj.items.item.UnbreakableShears;
 import tj.recipes.LateRecipes;
 import tj.recipes.RecipeInit;
 import tj.util.EnderWorldData;
@@ -46,6 +50,7 @@ public class CommonProxy {
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         IForgeRegistry<Item> registry = event.getRegistry();
+        TJItems.init(registry);
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(ABILITY_CASING, VariantItemBlock::new));
