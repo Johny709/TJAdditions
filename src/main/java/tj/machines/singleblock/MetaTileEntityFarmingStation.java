@@ -14,12 +14,14 @@ import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.Position;
 import gregtech.common.tools.ToolAxe;
 import gregtech.common.tools.ToolHoe;
+import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -52,7 +54,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 }
                 return false;
             });
-    private final FilteredItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 1)
+    private final FilteredItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 2)
             .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
@@ -66,6 +68,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 .setMaxVoltage(this::getMaxVoltage)
                 .setTier(this::getTier)
                 .initialize(range);
+        this.initializeInventory();
     }
 
     @Override
@@ -89,12 +92,13 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(6);
+        return new FilteredItemStackHandler(this, 6)
+                .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(9);
+        return new ItemStackHandler(6 + (3 * this.getTier()));
     }
 
     @Override
@@ -102,7 +106,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         WidgetGroup widgetGroup = new WidgetGroup(new Position(10, 22));
         SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
-            widgetGroup.addWidget(new SlotWidget(this.importItems, i, 18 * (i % 2), 18 * (i / 2), true, true)
+            widgetGroup.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 2), 18 * (i / 2))
                     .setBackgroundTexture(SLOT));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
@@ -118,6 +122,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 .widget(new TJSlotWidget(this.toolInventory, 2, 52, 58)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new TJSlotWidget(this.fertilizerInventory, 0, 52, 78)
+                        .setBackgroundTexture(SLOT))
+                .widget(new TJSlotWidget(this.fertilizerInventory, 1, 34, 78)
                         .setBackgroundTexture(SLOT))
                 .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
