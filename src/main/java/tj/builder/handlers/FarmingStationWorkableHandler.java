@@ -272,12 +272,12 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
          */
         private void harvestBlock(BlockPos.MutableBlockPos pos) {
             ItemStack toolStack;
-            int count = 1;
-            double chance = 100;
-            boolean harvestable = false;
             World world = metaTileEntity.getWorld();
             IBlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
+            boolean harvestable = false;
+            double chance = 100;
+            int count = 1;
             if (block instanceof BlockGregLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
                 if (state.getValue(BlockGregLog.NATURAL))
                     this.addItemDrop(RUBBER_REFERENCE.getItem(), 1 + world.rand.nextInt(2), RUBBER_REFERENCE.getMetadata());
@@ -286,10 +286,17 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             } else if (block instanceof BlockLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
                 toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
                 harvestable = true;
-            } else if (block instanceof IShearable && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
+            } else if (block instanceof IShearable) {
+                IItemHandlerModifiable tool = toolInventory.get();
+                if (!(toolStack = tool.getStackInSlot(2)).isEmpty()) {
+                    this.addBlockDrop(block, 1, block.damageDropped(state));
+                    harvestable = true;
+                    chance = 0;
+                } else if (!(toolStack = tool.getStackInSlot(1)).isEmpty()) {
+                    harvestable = true;
+                    chance = 5;
+                }
                 toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
-                harvestable = true;
-                chance = 5;
             } else if (block instanceof BlockCrops) {
                 BlockCrops crops = (BlockCrops)block;
                 if (crops.isMaxAge(state) && !(toolStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
@@ -301,8 +308,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                 }
             }
             if (harvestable) {
-                Item item = block.getItemDropped(state, world.rand, 0);
-                if (item != Items.AIR && chance >= Math.random() * 100) {
+                if (chance >= Math.random() * 100) {
+                    Item item = block.getItemDropped(state, world.rand, 0);
                     this.addItemDrop(item, count, block.damageDropped(state));
                 }
                 world.destroyBlock(pos, false);
@@ -326,12 +333,28 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         }
 
         private void addItemDrop(Item item, int count, int meta) {
+            if (item == Items.AIR)
+                return;
             String key = item.getRegistryName().toString() + ":" + meta;
             ItemStack stack = itemType.get(key);
             if (stack != null)
                 stack.grow(count);
             else {
                 ItemStack itemStack = new ItemStack(item, count, meta);
+                itemType.put(key, itemStack);
+                itemOutputs.add(itemStack);
+            }
+        }
+
+        private void addBlockDrop(Block block, int count, int meta) {
+            if (block == Blocks.AIR)
+                return;
+            String key = block.getRegistryName().toString() + ":" + meta;
+            ItemStack stack = itemType.get(key);
+            if (stack != null)
+                stack.grow(count);
+            else {
+                ItemStack itemStack = new ItemStack(block, count, meta);
                 itemType.put(key, itemStack);
                 itemOutputs.add(itemStack);
             }
