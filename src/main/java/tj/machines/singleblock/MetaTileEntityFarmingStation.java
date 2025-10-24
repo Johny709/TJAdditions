@@ -3,6 +3,7 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
@@ -34,6 +35,7 @@ import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 
 import static gregicadditions.GAMaterials.OrganicFertilizer;
@@ -45,6 +47,10 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
 
     private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
+    private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6)
+            .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
+    private final FilteredItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 2)
+            .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
     private final FilteredItemStackHandler toolInventory = new FilteredItemStackHandler(this, 3)
             .setItemStackPredicate((slot, stack) -> {
                 switch (slot) {
@@ -54,8 +60,6 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 }
                 return false;
             });
-    private final FilteredItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 2)
-            .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
@@ -92,8 +96,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new FilteredItemStackHandler(this, 6)
-                .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
+        return this.seedInventory != null ? new ItemHandlerList(Arrays.asList(this.seedInventory, this.toolInventory, this.fertilizerInventory)) : super.createImportItemHandler();
     }
 
     @Override
@@ -105,8 +108,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     protected ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(10, 22));
         SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
-        for (int i = 0; i < this.importItems.getSlots(); i++) {
-            widgetGroup.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 2), 18 * (i / 2))
+        for (int i = 0; i < this.seedInventory.getSlots(); i++) {
+            widgetGroup.addWidget(new TJSlotWidget(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
                     .setBackgroundTexture(SLOT));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
