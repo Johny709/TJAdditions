@@ -23,6 +23,8 @@ import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.IShearable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
@@ -227,6 +229,17 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                     }
                 }
             } else this.harvestBlock(this.posHarvester);
+            this.posHarvester.setPos(this.posHarvester.getX(), this.posHarvester.getY() - 1, this.posHarvester.getZ());
+            state = world.getBlockState(this.posHarvester);
+            block = state.getBlock();
+            if (block instanceof BlockFarmland && state.getValue(BlockFarmland.MOISTURE) < 7) {
+                IFluidHandler tank = importFluids.get();
+                FluidStack drain = tank.drain(100, false);
+                if (drain != null && drain.amount == 100) {
+                    tank.drain(100, true);
+                    world.setBlockState(this.posHarvester, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, 7));
+                }
+            }
         }
 
         private boolean canPlantSaplings(BlockPos.MutableBlockPos pos) {
@@ -241,6 +254,13 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             pos.setPos(pos.getX(), pos.getY() - 1, pos.getZ());
             World world = metaTileEntity.getWorld();
             IBlockState state = world.getBlockState(pos);
+            Block block = state.getBlock();
+            ItemStack toolStack;
+            if ((block instanceof BlockDirt || block instanceof BlockGrass) && !(toolStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
+                toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
+                world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, 7));
+                state = world.getBlockState(pos);
+            }
             boolean canPlantSeed = state.getBlock().canSustainPlant(state, world, pos, EnumFacing.UP, plantable);
             pos.setPos(pos.getX(), pos.getY() + 1, pos.getZ());
             return canPlantSeed;

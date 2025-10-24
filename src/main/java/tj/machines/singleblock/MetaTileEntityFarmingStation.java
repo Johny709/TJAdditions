@@ -3,6 +3,8 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.impl.FilteredFluidHandler;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -10,6 +12,7 @@ import gregtech.api.gui.widgets.*;
 import gregtech.api.items.toolitem.ToolMetaItem;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.recipes.ModHandler;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.Position;
@@ -23,6 +26,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -60,12 +64,14 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 }
                 return false;
             });
+    private final IFluidTank waterTank = new FilteredFluidHandler(64000).setFillPredicate(ModHandler::isWater);
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         int range = (9 + (2 * tier)) * (9 + (2 * tier));
         this.workableHandler.setImportItems(this::getImportItems)
                 .setExportItems(this::getExportItems)
+                .setImportFluids(this::getImportFluids)
                 .setToolInventory(() -> this.toolInventory)
                 .setFertilizerInventory(() -> this.fertilizerInventory)
                 .setImportEnergy(this::getEnergyContainer)
@@ -105,6 +111,11 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     }
 
     @Override
+    protected FluidTankList createImportFluidHandler() {
+        return this.waterTank != null ? new FluidTankList(true, this.waterTank) : super.createImportFluidHandler();
+    }
+
+    @Override
     protected ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(10, 22));
         SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
@@ -128,9 +139,11 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setBackgroundTexture(SLOT))
                 .widget(new TJSlotWidget(this.fertilizerInventory, 1, 34, 78)
                         .setBackgroundTexture(SLOT))
-                .widget(new LabelWidget(7, 5, getMetaFullName()))
+                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
+                .widget(new TankWidget(this.waterTank, 106, 78, 18, 18)
+                        .setBackgroundTexture(FLUID_SLOT))
                 .widget(new ToggleButtonWidget(151, 78, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
