@@ -10,7 +10,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -301,9 +303,10 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                 BlockCrops crops = (BlockCrops)block;
                 if (crops.isMaxAge(state) && !(toolStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
                     toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
+                    int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, toolStack);
                     IBlockState state1 = crops.withAge(0);
-                    this.addItemDrop(crops.getItemDropped(state1, world.rand, 0), 1 + world.rand.nextInt(2), crops.getMetaFromState(state1));
-                    count += world.rand.nextInt(3);
+                    this.addItemDrop(crops.getItemDropped(state1, world.rand, 0), 1 + world.rand.nextInt(2 + fortune), crops.getMetaFromState(state1));
+                    count += world.rand.nextInt(3 + fortune);
                     harvestable = true;
                 }
             }
