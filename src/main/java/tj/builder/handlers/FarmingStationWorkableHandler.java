@@ -1,6 +1,8 @@
 package tj.builder.handlers;
 
 import gregtech.api.GTValues;
+import gregtech.api.capability.GregtechCapabilities;
+import gregtech.api.capability.IElectricItem;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.blocks.wood.BlockGregLog;
 import gregtech.common.items.MetaItems;
@@ -9,7 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,9 +23,12 @@ import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.IShearable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
@@ -278,24 +282,21 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             double chance = 100;
             int count = 1;
             if (block instanceof BlockGregLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
-                if (state.getValue(BlockGregLog.NATURAL))
+                harvestable = this.damageTool(toolStack, (WorldServer) world);
+                if (harvestable && state.getValue(BlockGregLog.NATURAL))
                     this.addItemDrop(RUBBER_REFERENCE.getItem(), 1 + world.rand.nextInt(2), RUBBER_REFERENCE.getMetadata());
-                toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
-                harvestable = true;
             } else if (block instanceof BlockLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
-                toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
-                harvestable = true;
+                harvestable = this.damageTool(toolStack, (WorldServer) world);
             } else if (block instanceof IShearable) {
                 IItemHandlerModifiable tool = toolInventory.get();
-                if (!(toolStack = tool.getStackInSlot(2)).isEmpty()) {
-                    this.addBlockDrop(block, 1, block.damageDropped(state));
+                if (!(toolStack = tool.getStackInSlot(2)).isEmpty() && this.damageTool(toolStack, (WorldServer) world)) {
+                    this.addItemDrop(block, 1, block.damageDropped(state));
                     harvestable = true;
                     chance = 0;
-                } else if (!(toolStack = tool.getStackInSlot(1)).isEmpty()) {
+                } else if (!(toolStack = tool.getStackInSlot(1)).isEmpty() && this.damageTool(toolStack, (WorldServer) world)) {
                     harvestable = true;
                     chance = 5;
                 } else return;
-                toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
             } else if (block instanceof BlockCrops) {
                 BlockCrops crops = (BlockCrops)block;
                 if (crops.isMaxAge(state) && !(toolStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
@@ -331,32 +332,30 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             return pos.getX() > mtePos.getX() - radius && pos.getX() < mtePos.getX() + radius && pos.getZ() > mtePos.getZ() - radius && pos.getZ() < mtePos.getZ() + radius;
         }
 
-        private void addItemDrop(Item item, int count, int meta) {
-            if (item == Items.AIR)
-                return;
-            String key = item.getRegistryName().toString() + ":" + meta;
+        private <T extends IForgeRegistryEntry<T>> void addItemDrop(T type, int count, int meta) {
+            String key = type.getRegistryName().toString() + ":" + meta;
             ItemStack stack = itemType.get(key);
-            if (stack != null)
+            if (stack != null) {
                 stack.grow(count);
-            else {
-                ItemStack itemStack = new ItemStack(item, count, meta);
+            } else {
+                ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
                 itemType.put(key, itemStack);
                 itemOutputs.add(itemStack);
             }
         }
 
-        private void addBlockDrop(Block block, int count, int meta) {
-            if (block == Blocks.AIR)
-                return;
-            String key = block.getRegistryName().toString() + ":" + meta;
-            ItemStack stack = itemType.get(key);
-            if (stack != null)
-                stack.grow(count);
-            else {
-                ItemStack itemStack = new ItemStack(block, count, meta);
-                itemType.put(key, itemStack);
-                itemOutputs.add(itemStack);
+        private boolean damageTool(ItemStack stack, WorldServer world) {
+            if (stack.getItem().getMaxDamage() > 0) {
+                stack.damageItem(1, FakePlayerFactory.getMinecraft(world));
+                return true;
             }
+            IElectricItem eu = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+            if (eu != null)
+                return eu.discharge(32, Integer.MAX_VALUE, true, false, false) == 32;
+            IEnergyStorage rf = stack.getCapability(CapabilityEnergy.ENERGY, null);
+            if (rf != null)
+                return rf.extractEnergy(128, false) == 128;
+            return false;
         }
     }
 }

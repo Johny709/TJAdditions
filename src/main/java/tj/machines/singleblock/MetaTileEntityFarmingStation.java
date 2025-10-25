@@ -19,11 +19,11 @@ import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.Position;
 import gregtech.common.tools.ToolAxe;
 import gregtech.common.tools.ToolHoe;
+import gregtech.common.tools.ToolSaw;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
@@ -52,15 +52,15 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
 
     private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
-    private final LargeItemStackHandler seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
+    private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
-    private final LargeItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 2, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
+    private final IItemHandlerModifiable fertilizerInventory = new FilteredItemStackHandler(this, 2, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
-    private final LargeItemStackHandler toolInventory = new FilteredItemStackHandler(this, 3)
+    private final IItemHandlerModifiable toolInventory = new FilteredItemStackHandler(this, 3)
             .setItemStackPredicate((slot, stack) -> {
                 switch (slot) {
                     case 0: return stack.getItem() instanceof ItemHoe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolHoe);
-                    case 1: return stack.getItem() instanceof ItemAxe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolAxe);
+                    case 1: return stack.getItem().getToolClasses(stack).contains("axe") || (stack.getItem() instanceof ToolMetaItem<?> && (((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolAxe || ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolSaw));
                     case 2: return stack.getItem() instanceof ItemShears;
                 }
                 return false;
@@ -162,22 +162,5 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, EnumFacingHelper.getTopFacingFrom(this.getFrontFacing()), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
-    }
-
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setTag("toolInventory", this.toolInventory.serializeNBT());
-        data.setTag("fertilizerInventory", this.fertilizerInventory.serializeNBT());
-        return data;
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        if (data.hasKey("toolInventory"))
-            this.toolInventory.deserializeNBT(data.getCompoundTag("toolInventory"));
-        if (data.hasKey("fertilizerInventory"))
-            this.fertilizerInventory.deserializeNBT(data.getCompoundTag("fertilizerInventory"));
     }
 }
