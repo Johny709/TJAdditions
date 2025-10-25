@@ -3,6 +3,7 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FilteredFluidHandler;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
@@ -30,11 +31,11 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.FarmingStationWorkableHandler;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
+import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -51,11 +52,11 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
 
     private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
-    private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6)
+    private final LargeItemStackHandler seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
-    private final FilteredItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 2)
+    private final LargeItemStackHandler fertilizerInventory = new FilteredItemStackHandler(this, 2, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
-    private final FilteredItemStackHandler toolInventory = new FilteredItemStackHandler(this, 3)
+    private final LargeItemStackHandler toolInventory = new FilteredItemStackHandler(this, 3)
             .setItemStackPredicate((slot, stack) -> {
                 switch (slot) {
                     case 0: return stack.getItem() instanceof ItemHoe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolHoe);
@@ -64,7 +65,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 }
                 return false;
             });
-    private final IFluidTank waterTank = new FilteredFluidHandler(64000).setFillPredicate(ModHandler::isWater);
+    private final IFluidTank waterTank = new FilteredFluidHandler(this.getTier() >= GTValues.ZPM ? 256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
@@ -107,7 +108,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(6 + (3 * this.getTier()));
+        return new LargeItemStackHandler(6 + (3 * this.getTier()), this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64);
     }
 
     @Override
@@ -142,7 +143,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new TankWidget(this.waterTank, 106, 78, 18, 18)
+                .widget(new TankWidget(this.waterTank, 105, 78, 18, 18)
                         .setBackgroundTexture(FLUID_SLOT))
                 .widget(new ToggleButtonWidget(151, 78, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))

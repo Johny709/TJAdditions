@@ -11,7 +11,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -213,7 +212,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                         itemState = itemBlock.getStateFromMeta(stack.getMetadata());
                         break;
                     } else if (stack.getItem() instanceof IPlantable) {
-                        IPlantable plantable = ((ItemSeeds) stack.getItem());
+                        IPlantable plantable = ((IPlantable) stack.getItem());
                         if (!this.canPlantSeeds(this.posHarvester, plantable))
                             return;
                         itemState = plantable.getPlant(world, this.posHarvester);
@@ -295,7 +294,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                 } else if (!(toolStack = tool.getStackInSlot(1)).isEmpty()) {
                     harvestable = true;
                     chance = 5;
-                }
+                } else return;
                 toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
             } else if (block instanceof BlockCrops) {
                 BlockCrops crops = (BlockCrops)block;

@@ -10,8 +10,8 @@ public class LargeItemStackHandler extends ItemStackHandler {
 
     private final int capacity;
 
-    public LargeItemStackHandler(int size, int capacity) {
-        super(size);
+    public LargeItemStackHandler(int slots, int capacity) {
+        super(slots);
         this.capacity = capacity;
     }
 

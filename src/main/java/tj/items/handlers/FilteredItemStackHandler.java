@@ -2,7 +2,6 @@ package tj.items.handlers;
 
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -11,18 +10,22 @@ import java.util.function.BiPredicate;
 /**
  * Recommended to use TJSlotWidget for player interacting with this.
  */
-public class FilteredItemStackHandler extends ItemStackHandler {
+public class FilteredItemStackHandler extends LargeItemStackHandler {
 
     private BiConsumer<ItemStack, Boolean> onContentsChanged;
     private BiPredicate<Integer, ItemStack> itemStackPredicate;
     private final MetaTileEntity tileEntity;
 
     public FilteredItemStackHandler(MetaTileEntity tileEntity) {
-        this(tileEntity, 1);
+        this(tileEntity, 1, 64);
     }
 
     public FilteredItemStackHandler(MetaTileEntity tileEntity, int slots) {
-        super(slots);
+        this(tileEntity, slots, 64);
+    }
+
+    public FilteredItemStackHandler(MetaTileEntity tileEntity, int slots, int capacity) {
+        super(slots, capacity);
         this.tileEntity = tileEntity;
     }
 
