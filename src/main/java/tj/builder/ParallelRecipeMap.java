@@ -8,6 +8,10 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.map.MapFluidIngredient;
 import gregtech.api.recipes.map.MapItemStackIngredient;
 import gregtech.api.util.GTUtility;
+import it.unimi.dsi.fastutil.objects.Object2ByteMap;
+import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
@@ -24,9 +28,9 @@ public final class ParallelRecipeMap {
     private final int minFluidInputs, maxFluidInputs;
     private final int minFluidOutputs, maxFluidOutputs;
     private final Collection<Recipe> recipeList;
-    private final Map<MapFluidIngredient, Collection<Recipe>> recipeFluidMap;
-    private final Map<MapItemStackIngredient, Collection<Recipe>> recipeItemMap;
-    private final Map<Recipe, Byte> recipeIngredientCountMap = new HashMap<>();
+    private final Object2ObjectMap<MapFluidIngredient, Collection<Recipe>> recipeFluidMap = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<MapItemStackIngredient, Collection<Recipe>> recipeItemMap = new Object2ObjectOpenHashMap<>();
+    private final Object2ByteMap<Recipe> recipeIngredientCountMap = new Object2ByteOpenHashMap<>();
     private final RecipeMap<?> recipeMap;
 
     public ParallelRecipeMap(RecipeMap<?> recipeMap) {
@@ -42,35 +46,32 @@ public final class ParallelRecipeMap {
         this.maxFluidOutputs = recipeMap.getMaxFluidOutputs();
 
         this.recipeList = Collections.unmodifiableCollection(recipeMap.getRecipeList());
-        Map<MapFluidIngredient, Collection<Recipe>> recipeFluidMapInit = new HashMap<>();
-        Map<MapItemStackIngredient, Collection<Recipe>> recipeItemMapInit = new HashMap<>();
         this.recipeList.forEach(recipe -> {
 
             HashSet<MapFluidIngredient> uniqueFluidIngredients = new HashSet<>();
-            for (FluidStack fluid : recipe.getFluidInputs()) {
+            for (int i = 0; i < recipe.getFluidInputs().size(); i++) {
+                FluidStack fluid = recipe.getFluidInputs().get(i);
                 MapFluidIngredient fluidIngredient = new MapFluidIngredient(fluid);
                 uniqueFluidIngredients.add(fluidIngredient);
-                recipeFluidMapInit.computeIfAbsent(fluidIngredient, k -> new HashSet<>(1)).add(recipe);
+                this.recipeFluidMap.computeIfAbsent(fluidIngredient, k -> new HashSet<>(1)).add(recipe);
             }
 
             HashSet<MapItemStackIngredient> uniqueItemIngredients = new HashSet<>();
-            for (CountableIngredient item : recipe.getInputs()) {
+            for (int i = 0; i < recipe.getInputs().size(); i++) {
+                CountableIngredient item = recipe.getInputs().get(i);
                 Ingredient ingredient = item.getIngredient();
                 ItemStack[] itemStacks = ingredient.getMatchingStacks();
                 if (itemStacks.length == 0) continue;
                 uniqueItemIngredients.add(new MapItemStackIngredient(itemStacks[0].copy()));
-                for (ItemStack itemStack : itemStacks) {
-                    ItemStack newItemStack = itemStack.copy();
-                    recipeItemMapInit.computeIfAbsent(new MapItemStackIngredient(newItemStack), k -> new HashSet<>(1)).add(recipe);
+                for (int j = 0; j < itemStacks.length; j++) {
+                    ItemStack newItemStack = itemStacks[j].copy();
+                    this.recipeItemMap.computeIfAbsent(new MapItemStackIngredient(newItemStack), k -> new HashSet<>(1)).add(recipe);
                 }
             }
             byte uniqueIngredients = 0;
             uniqueIngredients += (byte) (uniqueFluidIngredients.size() + uniqueItemIngredients.size());
-            recipeIngredientCountMap.put(recipe, uniqueIngredients);
+            this.recipeIngredientCountMap.put(recipe, uniqueIngredients);
         });
-
-        this.recipeFluidMap = Collections.unmodifiableMap(recipeFluidMapInit);
-        this.recipeItemMap = Collections.unmodifiableMap(recipeItemMapInit);
     }
 
     public RecipeMap<?> getRecipeMap() {
@@ -177,7 +178,7 @@ public final class ParallelRecipeMap {
             uniqueFluids.add(new MapFluidIngredient(fluid));
         }
 
-        HashMap<Recipe, Byte> recipeLeftoverIngredients = new HashMap<>();
+        Object2ByteMap<Recipe> recipeLeftoverIngredients = new Object2ByteOpenHashMap<>();
         for (MapItemStackIngredient item : uniqueItems) {
             boolean hasRecipes = recipeItemMap.containsKey(item);
             if (!hasRecipes) continue;

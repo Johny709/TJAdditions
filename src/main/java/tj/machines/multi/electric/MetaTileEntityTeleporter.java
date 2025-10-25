@@ -3,6 +3,8 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
@@ -115,7 +117,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private boolean hasSpaces;
     private int searchResults;
     private int queueCount;
-    private final Map<String, Pair<Integer, BlockPos>> posMap = new HashMap<>();
+    private final Object2ObjectMap<String, Pair<Integer, BlockPos>> posMap = new Object2ObjectOpenHashMap<>();
     private final Queue<Triple<Entity, Integer, BlockPos>> markEntitiesToTransport = new ArrayDeque<>();
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private static final Random random = new Random();

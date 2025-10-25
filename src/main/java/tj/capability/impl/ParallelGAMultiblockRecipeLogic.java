@@ -7,8 +7,8 @@ import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeBuilder;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.api.util.GTFluidUtils;
-import gregtech.api.util.InventoryUtils;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
@@ -191,7 +191,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             minMultiplier = Math.min(maxItemsLimit, this.getMinRatioItem(countIngredients, matchingRecipe, maxItemsLimit));
         }
 
-        Map<String, Integer> countFluid = new HashMap<>();
+        Object2IntMap<String> countFluid = new Object2IntOpenHashMap<>();
         if (!matchingRecipe.getFluidInputs().isEmpty()) {
 
             this.findFluid(countFluid, fluidInputs);
@@ -292,7 +292,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         return minMultiplier;
     }
 
-    protected int getMinRatioFluid(Map<String, Integer> countFluid, Recipe r, int maxItemsLimit) {
+    protected int getMinRatioFluid(Object2IntMap<String> countFluid, Recipe r, int maxItemsLimit) {
         int minMultiplier = Integer.MAX_VALUE;
         for (FluidStack fs : r.getFluidInputs()) {
             if (fs.amount != 0) { // skip notConsumable fluids
@@ -306,7 +306,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         return minMultiplier;
     }
 
-    protected void findFluid(Map<String, Integer> countFluid, IMultipleTankHandler fluidInputs) {
+    protected void findFluid(Object2IntMap<String> countFluid, IMultipleTankHandler fluidInputs) {
         for (IFluidTank tank : fluidInputs) {
             if (tank.getFluid() != null) {
                 String name = tank.getFluid().getUnlocalizedName();

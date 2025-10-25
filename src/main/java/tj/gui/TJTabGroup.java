@@ -6,20 +6,20 @@ import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.tab.ITabInfo;
 import gregtech.api.gui.widgets.tab.TabListRenderer;
 import gregtech.api.util.Position;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Tuple;
 import tj.gui.widgets.PopUpWidgetGroup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class TJTabGroup extends AbstractWidgetGroup {
 
     private final List<ITabInfo> tabInfos = new ArrayList<>();
-    private final Map<Integer, AbstractWidgetGroup> tabWidgets = new HashMap<>();
+    private final Int2ObjectMap<AbstractWidgetGroup> tabWidgets = new Int2ObjectOpenHashMap<>();
     private int selectedTabIndex = 0;
     private final TabListRenderer tabListRenderer;
 

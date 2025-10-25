@@ -12,6 +12,7 @@ import gregtech.api.util.DummyContainer;
 import gregtech.api.util.Position;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
@@ -54,7 +55,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
     private final ItemStackHandler encodingInventory;
     private final ItemStackHandler resultInventory = new ItemStackHandler(1);
-    private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectArrayMap<>();
+    private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectOpenHashMap<>();
     private final int encodingSlots;
     private IRecipe currentRecipe;
 

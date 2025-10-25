@@ -1,5 +1,6 @@
 package tj.util;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -9,28 +10,27 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class PlayerWorldIDData extends WorldSavedData {
 
-    private static final Map<UUID, Integer> playerWorldIDMap = new HashMap<>();
+    private static final Map<UUID, Integer> PLAYER_WORLD_ID_MAP = new Object2ObjectOpenHashMap<>();
     private static PlayerWorldIDData INSTANCE;
 
     public PlayerWorldIDData(String name) {
         super(name);
     }
 
-    public static Map<UUID, Integer> getPlayerWorldIDMap() {
-        return playerWorldIDMap;
+    public static Map<UUID, Integer> getPlayerWorldIdMap() {
+        return PLAYER_WORLD_ID_MAP;
     }
 
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
         NBTTagList playerWorldIDList = new NBTTagList();
-        for (Map.Entry<UUID, Integer> player : playerWorldIDMap.entrySet()) {
+        for (Map.Entry<UUID, Integer> player : PLAYER_WORLD_ID_MAP.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
             playerCompound.setUniqueId("UUID", player.getKey());
             playerCompound.setInteger("WorldID", player.getValue());
@@ -48,7 +48,7 @@ public class PlayerWorldIDData extends WorldSavedData {
             NBTTagCompound tag = (NBTTagCompound) compound;
             UUID uuid = tag.getUniqueId("UUID");
             int worldID = tag.getInteger("WorldID");
-            playerWorldIDMap.put(uuid, worldID);
+            PLAYER_WORLD_ID_MAP.put(uuid, worldID);
         }
     }
 

@@ -8,6 +8,8 @@ import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.util.GTUtility;
 import gregtech.common.ConfigHolder;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
@@ -55,8 +57,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected int[] itemOutputIndex = new int[1];
     protected int[] fluidOutputIndex = new int[1];
     protected Recipe[] occupiedRecipes = new Recipe[1];
-    protected Map<Integer, List<FluidStack>> fluidOutputs = new HashMap<>();
-    protected Map<Integer, NonNullList<ItemStack>> itemOutputs = new HashMap<>();
+    protected Int2ObjectMap<List<FluidStack>> fluidOutputs = new Int2ObjectOpenHashMap<>();
+    protected Int2ObjectMap<NonNullList<ItemStack>> itemOutputs = new Int2ObjectOpenHashMap<>();
     protected final Random random = new Random();
 
     protected boolean isActive;

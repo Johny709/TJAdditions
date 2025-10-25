@@ -1,5 +1,6 @@
 package tj.util;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import tj.builder.handlers.BasicEnergyHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import net.minecraft.item.ItemStack;
@@ -12,14 +13,13 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.Map;
 
 public class EnderWorldData extends WorldSavedData {
 
-    private static final Map<String, FluidTank> fluidTankMap = new HashMap<>();
-    private static final Map<String, LargeItemStackHandler> itemChestMap = new HashMap<>();
-    private static final Map<String, BasicEnergyHandler> energyContainerMap = new HashMap<>();
+    private static final Map<String, FluidTank> FLUID_TANK_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Map<String, LargeItemStackHandler> ITEM_CHEST_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Map<String, BasicEnergyHandler> ENERGY_CONTAINER_MAP = new Object2ObjectOpenHashMap<>();
     private static EnderWorldData INSTANCE;
 
     public EnderWorldData(String name) {
@@ -27,15 +27,15 @@ public class EnderWorldData extends WorldSavedData {
     }
 
     public static Map<String, FluidTank> getFluidTankMap() {
-        return fluidTankMap;
+        return FLUID_TANK_MAP;
     }
 
     public static Map<String, LargeItemStackHandler> getItemChestMap() {
-        return itemChestMap;
+        return ITEM_CHEST_MAP;
     }
 
     public static Map<String, BasicEnergyHandler> getEnergyContainerMap() {
-        return energyContainerMap;
+        return ENERGY_CONTAINER_MAP;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class EnderWorldData extends WorldSavedData {
                 containerIDList = new NBTTagList();
 
         int i = 0, j = 0, k = 0;
-        for (Map.Entry<String, FluidTank> tank : fluidTankMap.entrySet()) {
+        for (Map.Entry<String, FluidTank> tank : FLUID_TANK_MAP.entrySet()) {
             NBTTagCompound tankCompound = new NBTTagCompound(), tankIDCompound = new NBTTagCompound(), tankCapacity = new NBTTagCompound();
             tankCompound.setTag("Tank" + i, tank.getValue().writeToNBT(new NBTTagCompound()));
             tankIDCompound.setString("ID" + i, tank.getKey());
@@ -63,7 +63,7 @@ public class EnderWorldData extends WorldSavedData {
             i++;
         }
 
-        for (Map.Entry<String, LargeItemStackHandler> chest : itemChestMap.entrySet()) {
+        for (Map.Entry<String, LargeItemStackHandler> chest : ITEM_CHEST_MAP.entrySet()) {
             NBTTagCompound chestCompound = new NBTTagCompound(), chestIDCompound = new NBTTagCompound(), chestCapacity = new NBTTagCompound();
             chestCompound.setTag("Chest" + j, chest.getValue().getStackInSlot(0).writeToNBT(new NBTTagCompound()));
             chestIDCompound.setString("ID" + j, chest.getKey());
@@ -75,7 +75,7 @@ public class EnderWorldData extends WorldSavedData {
             j++;
         }
 
-        for (Map.Entry<String, BasicEnergyHandler> container : energyContainerMap.entrySet()) {
+        for (Map.Entry<String, BasicEnergyHandler> container : ENERGY_CONTAINER_MAP.entrySet()) {
             NBTTagCompound containerCompound = new NBTTagCompound(), containerIDCompound = new NBTTagCompound();
             containerCompound.setTag("Container" + k, container.getValue().writeToNBT(new NBTTagCompound()));
             containerIDCompound.setString("ID" + k, container.getKey());
@@ -113,7 +113,7 @@ public class EnderWorldData extends WorldSavedData {
 
             FluidTank tank = new FluidTank(tankCapacity);
             tank.readFromNBT(tankCompound);
-            fluidTankMap.put(tankIDCompound, tank);
+            FLUID_TANK_MAP.put(tankIDCompound, tank);
         }
 
         for (int i = 0; i < chestList.tagCount(); i++) {
@@ -123,7 +123,7 @@ public class EnderWorldData extends WorldSavedData {
 
             LargeItemStackHandler chest = new LargeItemStackHandler(1, chestCapacity);
             chest.setStackInSlot(0, new ItemStack(chestCompound));
-            itemChestMap.put(chestIDCompound, chest);
+            ITEM_CHEST_MAP.put(chestIDCompound, chest);
         }
 
         for (int i = 0; i < containerList.tagCount(); i++) {
@@ -132,7 +132,7 @@ public class EnderWorldData extends WorldSavedData {
 
             BasicEnergyHandler container = new BasicEnergyHandler(0);
             container.readFromNBT(containerCompound);
-            energyContainerMap.put(containerIDCompound, container);
+            ENERGY_CONTAINER_MAP.put(containerIDCompound, container);
         }
     }
 

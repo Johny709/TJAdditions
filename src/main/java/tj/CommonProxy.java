@@ -5,9 +5,6 @@ import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
 import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
-import tj.items.item.UnbreakableAxe;
-import tj.items.item.UnbreakableHoe;
-import tj.items.item.UnbreakableShears;
 import tj.recipes.LateRecipes;
 import tj.recipes.RecipeInit;
 import tj.util.EnderWorldData;
@@ -112,14 +109,14 @@ public class CommonProxy {
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         UUID player = event.player.getUniqueID();
         int worldID = event.player.world.provider.getDimension();
-        PlayerWorldIDData.getPlayerWorldIDMap().put(player, worldID);
+        PlayerWorldIDData.getPlayerWorldIdMap().put(player, worldID);
     }
 
     @SubscribeEvent
     public static void onPlayerDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
         UUID player = event.player.getUniqueID();
         int worldID = event.toDim;
-        PlayerWorldIDData.getPlayerWorldIDMap().put(player, worldID);
+        PlayerWorldIDData.getPlayerWorldIdMap().put(player, worldID);
     }
 
     private static <T extends Block> ItemBlock createItemBlock(T block, Function<T, ItemBlock> producer) {

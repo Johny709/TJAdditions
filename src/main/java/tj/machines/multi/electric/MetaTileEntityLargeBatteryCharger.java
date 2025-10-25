@@ -611,7 +611,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
             if (this.linkedPlayersID[i] == null)
                 continue;
 
-            int worldID = PlayerWorldIDData.getPlayerWorldIDMap().get(this.linkedPlayersID[i]);
+            int worldID = PlayerWorldIDData.getPlayerWorldIdMap().get(this.linkedPlayersID[i]);
             this.linkedPlayers[i] = DimensionManager.getWorld(worldID).getPlayerEntityByUUID(this.linkedPlayersID[i]);
             this.entityLinkWorld[i] = worldID;
         }
