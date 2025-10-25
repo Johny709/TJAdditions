@@ -51,4 +51,10 @@ public class TJGuiTextures {
     public static final TextureArea BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX = TextureArea.fullImage("textures/button/batch_256.png");
 
     public static final TextureArea MULTIBLOCK_BOTTOM_TABS = TextureArea.fullImage("textures/gui/tab/multiblock_tabs_bottom.png");
+
+    public static final TextureArea AXE_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/axe_overlay.png");
+    public static final TextureArea HOE_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/hoe_overlay.png");
+    public static final TextureArea SHEARS_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/shears_overlay.png");
+    public static final TextureArea SEEDS_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/seeds_overlay.png");
+    public static final TextureArea BONE_MEAL_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/bone_meal_overlay.png");
 }

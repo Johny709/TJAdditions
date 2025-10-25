@@ -46,7 +46,7 @@ import java.util.List;
 import static gregicadditions.GAMaterials.OrganicFertilizer;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.gui.TJGuiTextures.*;
 
 
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
@@ -122,7 +122,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
         for (int i = 0; i < this.seedInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
-                    .setBackgroundTexture(SLOT));
+                    .setBackgroundTexture(SLOT, SEEDS_OVERLAY));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new SlotWidget(this.exportItems, i, 18 * (i % 3), 18 * (i / 3), true, false)
@@ -131,15 +131,15 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget(this.toolInventory, 0, 52, 22)
-                        .setBackgroundTexture(SLOT, MOLD_OVERLAY))
+                        .setBackgroundTexture(SLOT, HOE_OVERLAY))
                 .widget(new TJSlotWidget(this.toolInventory, 1, 52, 40)
-                        .setBackgroundTexture(SLOT, BOXED_OVERLAY))
+                        .setBackgroundTexture(SLOT, AXE_OVERLAY))
                 .widget(new TJSlotWidget(this.toolInventory, 2, 52, 58)
-                        .setBackgroundTexture(SLOT, BOXED_OVERLAY))
+                        .setBackgroundTexture(SLOT, SHEARS_OVERLAY))
                 .widget(new TJSlotWidget(this.fertilizerInventory, 0, 52, 78)
-                        .setBackgroundTexture(SLOT))
+                        .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new TJSlotWidget(this.fertilizerInventory, 1, 34, 78)
-                        .setBackgroundTexture(SLOT))
+                        .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
