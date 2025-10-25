@@ -92,6 +92,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("machine.universal.linked.entity.radius", (9 + (2 * this.getTier())) / 2, (9 + (2 * this.getTier())) / 2));
+        tooltip.add(I18n.format("tj.machine.farming_station.description", this.getTier() >= GTValues.ZPM ? 4 : this.getTier() >= GTValues.EV ? 2 : 1));
+        tooltip.add(I18n.format("tj.machine.farming_station.fertilizer.description", this.getTier() * 10));
     }
 
     @Override

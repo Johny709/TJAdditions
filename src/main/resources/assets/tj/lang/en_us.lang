@@ -148,8 +148,8 @@ tj.machine.farming_station_iv.name=Elite Farming Station
 tj.machine.farming_station_luv.name=Elite Farming Station II
 tj.machine.farming_station_zpm.name=Elite Farming Station III
 tj.machine.farming_station_uv.name=Elite Farming Station IV
-tj.machine_farming_station_uhv.name=High-Tech Farming Station
-tj.machine_farming_station_uev.name=High-Tech Farming Station II
+tj.machine.farming_station_uhv.name=High-Tech Farming Station
+tj.machine.farming_station_uev.name=High-Tech Farming Station II
 tj.machine.farming_station_uiv.name=High-Tech Farming Station III
 tj.machine.farming_station_umv.name=High-Tech Farming Station IV
 tj.machine.farming_station_uxv.name=Ultimate Farming Station
@@ -249,6 +249,8 @@ tj.machine.filing_cabinet.toggle.enabled=Automatically unlock when all slots are
 tj.machine.filing_cabinet.toggle.disabled=Automatically unlock when all slots are empty. §cDisabled
 
 tj.machine.accelerator_anchor_point.description=Can be linked to Large World Accelerators to accelerate random tick around this block. Apply Redstone signal to stop acceleration.
+tj.machine.farming_station.description=Plants and harvest in an area at 1 block iteration per tick for 1 harvester. Amount of Harvesters: §b%d.§7 Fortune can be applied on seed crops.
+tj.machine.farming_station.fertilizer.description=Has a §e%d%%§7 chance to apply fertilizer every block iteration.
 
 tj.multiblock.large_boiler.insert_item=Insert Item
 tj.multiblock.large_boiler.insert_burnable.name=Insert Burnable

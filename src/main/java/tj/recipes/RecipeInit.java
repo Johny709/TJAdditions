@@ -313,7 +313,7 @@ public class RecipeInit {
                     'C', GACraftingComponents.CONVEYOR.getIngredient(tier),
                     'T', craftingTable,
                     'R', GACraftingComponents.ROBOT_ARM.getIngredient(tier),
-                    'S', tier > 8 ? GACraftingComponents.HULL.getIngredient(tier) : GACraftingComponents.WORSE_HULL.getIngredient(tier + i),
+                    'S', tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm(),
                     'E', GACraftingComponents.CIRCUIT.getIngredient(tier),
                     'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier));
             ModHandler.addShapedRecipe("crafter_hatch_" + GAValues.VN[tier], CRAFTER_HATCHES[i].getStackForm(), " T ", " S ", "   ",

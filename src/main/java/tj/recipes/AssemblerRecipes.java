@@ -1,6 +1,7 @@
 package tj.recipes;
 
 import gregtech.api.metatileentity.MetaTileEntity;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockAbilityCasings;
@@ -305,6 +306,22 @@ public class AssemblerRecipes {
                 .duration(1200)
                 .EUt(GAValues.VA[9])
                 .buildAndRegister();
+
+        for (int i = 0, tier = 1; i < FARMING_STATION.length; i++, tier++) {
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .notConsumable(new IntCircuitIngredient(0))
+                    .input(OrePrefix.gear, MATERIAL_TIER[0][i], 4)
+                    .input(OrePrefix.circuit, CIRCUIT_TIERS[i], 2)
+                    .input(Items.DIAMOND_AXE)
+                    .input(Items.DIAMOND_HOE)
+                    .input(Items.SHEARS)
+                    .inputs(robotArms[i].getStackForm(2))
+                    .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 42))
+                    .inputs(tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm())
+                    .outputs(FARMING_STATION[i].getStackForm())
+                    .duration(400).EUt(GAValues.VA[tier])
+                    .buildAndRegister();
+        }
 
         MetaTileEntity[] chest = new MetaTileEntity[]{COMPRESSED_CHEST, COMPRESSED_CRATE, INFINITY_CHEST, INFINITY_CRATE};
         for (int i = 0; i < 2; i++) {
