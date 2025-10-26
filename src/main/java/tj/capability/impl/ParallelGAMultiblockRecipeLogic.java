@@ -53,16 +53,12 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         IItemHandlerModifiable importInventory = this.getInputInventory();
         IMultipleTankHandler importFluids = this.getInputTank();
         Recipe foundRecipe;
-        if (this.lockRecipe[i] && this.occupiedRecipes[i] != null) {
-            if (!this.occupiedRecipes[i].matches(false, importInventory, importFluids))
+        if (this.lockRecipe[i] && this.occupiedRecipes.get(i) != null) {
+            if (!this.occupiedRecipes.get(i).matches(false, importInventory, importFluids))
                 return false;
-            foundRecipe = this.occupiedRecipes[i];
+            foundRecipe = this.occupiedRecipes.get(i);
         } else {
-            if (!this.distinct) {
-                foundRecipe = this.previousRecipe.get(importInventory, importFluids);
-            } else {
-                foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, this.occupiedRecipes);
-            }
+            foundRecipe = this.distinct ? this.previousRecipe.get(importInventory, importFluids, i, this.occupiedRecipes) : this.previousRecipe.get(importInventory, importFluids);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -81,7 +77,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
         if (currentRecipe == null) {
             return false;
         }
-        this.occupiedRecipes[i] = currentRecipe;
+        this.occupiedRecipes.set(i, currentRecipe);
         if (this.isBatching()) {
             currentRecipe = this.createRecipe(maxVoltage, importInventory, importFluids, currentRecipe, i);
         }
@@ -101,16 +97,11 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe;
-        if (!this.distinct) {
-            foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
-        } else {
-            foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
-        }
+        Recipe foundRecipe = this.distinct ? this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes) : this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
-            this.occupiedRecipes[i] = currentRecipe;
+            this.occupiedRecipes.set(i, currentRecipe);
             currentRecipe = this.createRecipe(maxVoltage, importInventory.get(this.lastRecipeIndex[i]), importFluids, currentRecipe, i);
             if (this.setupAndConsumeRecipeInputs(currentRecipe, this.lastRecipeIndex[i])) {
                 this.setupRecipe(currentRecipe, i);
@@ -123,14 +114,10 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
             if (j == this.lastRecipeIndex[i]) {
                 continue;
             }
-            if (!this.distinct) {
-                foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids);
-            } else {
-                foundRecipe = this.previousRecipe.get(importInventory.get(j), importFluids, i, this.occupiedRecipes);
-            }
+            foundRecipe = this.distinct ? this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes) : this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
-                this.occupiedRecipes[i] = currentRecipe;
+                this.occupiedRecipes.set(i, currentRecipe);
                 currentRecipe = this.createRecipe(maxVoltage, importInventory.get(j), importFluids, currentRecipe, i);
                 if (this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
                     this.setupRecipe(currentRecipe, i);
@@ -157,7 +144,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
                 continue;
             }
             this.previousRecipe.put(currentRecipe);
-            this.occupiedRecipes[i] = currentRecipe;
+            this.occupiedRecipes.set(i, currentRecipe);
             if (this.isBatching()) {
                 currentRecipe = this.createRecipe(maxVoltage, bus, importFluids, currentRecipe, i);
             }

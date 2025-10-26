@@ -173,17 +173,12 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
         // Our caching implementation
         // This guarantees that if we get a recipe cache hit, our efficiency is no different from other machines
-        Recipe foundRecipe;
-        if (!this.distinct) {
-            foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
-        } else {
-            foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
-        }
+        Recipe foundRecipe = this.distinct ? this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes) : this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
         HashSet<Integer> foundRecipeIndex = new HashSet<>();
         if (foundRecipe != null) {
             currentRecipe = foundRecipe;
             if (this.setupAndConsumeRecipeInputs(currentRecipe, this.lastRecipeIndex[i])) {
-                this.occupiedRecipes[i] = currentRecipe;
+                this.occupiedRecipes.set(i, currentRecipe);
                 this.setupRecipe(currentRecipe, i);
                 return true;
             }
@@ -194,15 +189,11 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (j == this.lastRecipeIndex[i]) {
                 continue;
             }
-            if (!this.distinct) {
-                foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
-            } else {
-                foundRecipe = this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes);
-            }
+            foundRecipe = this.distinct ? this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids, i, this.occupiedRecipes) : this.previousRecipe.get(importInventory.get(this.lastRecipeIndex[i]), importFluids);
             if (foundRecipe != null) {
                 currentRecipe = foundRecipe;
                 if (this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
-                    this.occupiedRecipes[i] = currentRecipe;
+                    this.occupiedRecipes.set(i, currentRecipe);
                     this.setupRecipe(currentRecipe, i);
                     return true;
                 }
@@ -231,7 +222,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
             if (!this.setupAndConsumeRecipeInputs(currentRecipe, j)) {
                 continue;
             }
-            this.occupiedRecipes[i] = foundRecipe;
+            this.occupiedRecipes.set(i, currentRecipe);
             this.lastRecipeIndex[i] = j;
             this.setupRecipe(currentRecipe, i);
             return true;

@@ -56,7 +56,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected int[] parallel = new int[1];
     protected int[] itemOutputIndex = new int[1];
     protected int[] fluidOutputIndex = new int[1];
-    protected Recipe[] occupiedRecipes = new Recipe[1];
+    protected List<Recipe> occupiedRecipes = new ArrayList<>();
     protected Int2ObjectMap<List<FluidStack>> fluidOutputs = new Int2ObjectOpenHashMap<>();
     protected Int2ObjectMap<NonNullList<ItemStack>> itemOutputs = new Int2ObjectOpenHashMap<>();
     protected final Random random = new Random();
@@ -83,6 +83,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
         this.recipeCacheSize = recipeCacheSize;
         this.previousRecipe = new ParallelRecipeLRUCache(this.recipeCacheSize);
+        this.occupiedRecipes.add(0, null);
         this.sleepTime[0] = 1;
         this.workingEnabled[0] = true;
         this.parallel[0] = 1;
@@ -114,11 +115,12 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.sleepTimer = Arrays.copyOf(this.sleepTimer, this.size);
         this.sleepTime = Arrays.copyOf(this.sleepTime, this.size);
         this.failCount = Arrays.copyOf(this.failCount, this.size);
-        this.occupiedRecipes = Arrays.copyOf(this.occupiedRecipes, this.size);
         if (remove) {
             this.fluidOutputs.remove(i);
             this.itemOutputs.remove(i);
+            this.occupiedRecipes.remove(i);
         } else {
+            this.occupiedRecipes.add(this.size - 1, null);
             this.sleepTime[this.size -1] = 1;
             this.workingEnabled[this.size -1] = true;
             this.parallel[this.size -1] = 1;
@@ -159,11 +161,11 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     public void setRecipe(Recipe recipe, int i) {
-        this.occupiedRecipes[i] = recipe;
+        this.occupiedRecipes.set(i, recipe);
     }
 
     public Recipe getRecipe(int i) {
-        return this.occupiedRecipes[i];
+        return this.occupiedRecipes.get(i);
     }
 
     @Override
@@ -273,17 +275,13 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         IItemHandlerModifiable importInventory = this.getInputInventory();
         IMultipleTankHandler importFluids = this.getInputTank();
         Recipe foundRecipe;
-        if (this.lockRecipe[i] && this.occupiedRecipes[i] != null) {
-            if (!this.occupiedRecipes[i].matches(false, importInventory, importFluids)) {
+        if (this.lockRecipe[i] && this.occupiedRecipes.get(i) != null) {
+            if (!this.occupiedRecipes.get(i).matches(false, importInventory, importFluids)) {
                 return false;
             }
-            foundRecipe = this.occupiedRecipes[i];
+            foundRecipe = this.occupiedRecipes.get(i);
         } else {
-            if (!distinct) {
-                foundRecipe = this.previousRecipe.get(importInventory, importFluids);
-            } else {
-                foundRecipe = this.previousRecipe.get(importInventory, importFluids, i, this.occupiedRecipes);
-            }
+            foundRecipe = this.distinct ? this.previousRecipe.get(importInventory, importFluids, i, this.occupiedRecipes) : this.previousRecipe.get(importInventory, importFluids);
         }
         if (foundRecipe != null) {
             //if previous recipe still matches inputs, try to use it
@@ -300,7 +298,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             }
         }
         if (currentRecipe != null && this.setupAndConsumeRecipeInputs(currentRecipe)) {
-            this.occupiedRecipes[i] = currentRecipe;
+            this.occupiedRecipes.set(i, currentRecipe);
             this.setupRecipe(currentRecipe, i);
             return true;
         }
@@ -564,7 +562,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     public void setDistinct(boolean distinct) {
         this.distinct = distinct;
         this.previousRecipe.clear();
-        Arrays.fill(this.occupiedRecipes, null);
+        Collections.fill(this.occupiedRecipes, null);
         this.metaTileEntity.markDirty();
     }
 
@@ -617,8 +615,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         NBTTagCompound mainCompound = new NBTTagCompound();
 
         NBTTagList occupiedRecipeList = new NBTTagList();
-        for (int i = 0; i < this.occupiedRecipes.length; i++) {
-            Recipe recipe = this.occupiedRecipes[i];
+        for (int i = 0; i < this.occupiedRecipes.size(); i++) {
+            Recipe recipe = this.occupiedRecipes.get(i);
             if (recipe != null && this.lockRecipe[i]) {
                 NBTTagCompound workableInstanceCompound = new NBTTagCompound();
 
@@ -751,7 +749,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.sleepTimer = new int[this.size];
         this.sleepTime = new int[this.size];
         this.failCount = new int[this.size];
-        this.occupiedRecipes = new Recipe[this.size];
+        this.occupiedRecipes.clear();
         Arrays.fill(this.sleepTime, 1);
         Arrays.fill(this.parallel, 1);
 
@@ -766,6 +764,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             this.recipeEUt[i] = workableInstanceCompound.getInteger("EUt");
             this.itemOutputIndex[i] = workableInstanceCompound.getInteger("ItemIndex");
             this.fluidOutputIndex[i] = workableInstanceCompound.getInteger("FluidIndex");
+            this.occupiedRecipes.add(i, null);
             if (this.progressTime[i] > 0) {
                 NBTTagList itemOutputsList = workableInstanceCompound.getTagList("ItemOutputs", Constants.NBT.TAG_COMPOUND);
                 this.itemOutputs.put(i, NonNullList.create());
@@ -830,7 +829,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             }
 
             Recipe recipe = new Recipe(inputIngredients, itemOutputs, chanceOutputs, fluidInputs, fluidOutputs, duration, energy, false);
-            this.occupiedRecipes[index] = this.controller.parallelRecipeMap[this.controller.getRecipeMapIndex()].findRecipe(recipe);
+            this.occupiedRecipes.set(index, this.controller.parallelRecipeMap[this.controller.getRecipeMapIndex()].findRecipe(recipe));
             this.parallel[index] = parallel;
         }
     }

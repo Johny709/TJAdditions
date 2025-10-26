@@ -4,8 +4,8 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.recipes.Recipe;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
-import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 public class ParallelRecipeLRUCache {
 
@@ -58,12 +58,12 @@ public class ParallelRecipeLRUCache {
         return null;
     }
 
-    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids, int i, Recipe[] occupiedRecipes) {
+    public Recipe get(IItemHandlerModifiable importInventory, IMultipleTankHandler importFluids, int i, List<Recipe> occupiedRecipes) {
         for (Recipe recipe : recipeList) {
             if (recipe == null)
                 continue;
             if (recipe.matches(false, importInventory, importFluids)) {
-                if (Arrays.asList(occupiedRecipes).contains(recipe) && recipe != occupiedRecipes[i])
+                if (occupiedRecipes.contains(recipe) && recipe != occupiedRecipes.get(i))
                     continue;
                 this.recipeList.remove(recipe);
                 this.recipeList.addFirst(recipe);
