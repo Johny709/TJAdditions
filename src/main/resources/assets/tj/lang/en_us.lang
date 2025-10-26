@@ -607,6 +607,7 @@ metaitem.fluid.regulator.umv.name=Fluid Regulator (UMV)
 metaitem.fluid.regulator.max.name=Fluid Regulator (MAX)
 metaitem.turbine_upgrade.name=Turbine Expansion Upgrade Tier %d
 metaitem.turbine_upgrade.description=Can be applied on XL turbines to increase rotor count by +%d.
+metaitem.toolbox.name=Toolbox
 
 item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe

@@ -11,6 +11,7 @@ public class TJMetaItems {
 
     public static List<MetaItem<?>> ITEMS = MetaItem.getMetaItems();
 
+    public static MetaItem<?>.MetaValueItem TOOLBOX;
     public static MetaItem<?>.MetaValueItem CREATIVE_FLUID_COVER;
     public static MetaItem<?>.MetaValueItem CREATIVE_ITEM_COVER;
     public static MetaItem<?>.MetaValueItem CREATIVE_ENERGY_COVER;

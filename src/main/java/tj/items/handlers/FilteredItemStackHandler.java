@@ -2,6 +2,7 @@ package tj.items.handlers;
 
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
+import org.apache.logging.log4j.util.TriConsumer;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -12,7 +13,7 @@ import java.util.function.BiPredicate;
  */
 public class FilteredItemStackHandler extends LargeItemStackHandler {
 
-    private BiConsumer<ItemStack, Boolean> onContentsChanged;
+    private TriConsumer<Integer, ItemStack, Boolean> onContentsChanged;
     private BiPredicate<Integer, ItemStack> itemStackPredicate;
     private final MetaTileEntity tileEntity;
 
@@ -29,7 +30,7 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
         this.tileEntity = tileEntity;
     }
 
-    public FilteredItemStackHandler setOnContentsChanged(BiConsumer<ItemStack, Boolean> onContentsChanged) {
+    public FilteredItemStackHandler setOnContentsChanged(TriConsumer<Integer, ItemStack, Boolean> onContentsChanged) {
         this.onContentsChanged = onContentsChanged;
         return this;
     }
@@ -48,8 +49,9 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
         stack = super.insertItem(slot, stack, simulate);
         if (!simulate) {
             if (this.onContentsChanged != null)
-                this.onContentsChanged.accept(upgradeStack, true);
-            this.tileEntity.markDirty();
+                this.onContentsChanged.accept(slot, upgradeStack, true);
+            if (this.tileEntity != null)
+                this.tileEntity.markDirty();
         }
         return stack;
     }
@@ -61,8 +63,9 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
         ItemStack stack = super.extractItem(slot, amount, simulate);
         if (!simulate) {
             if (this.onContentsChanged != null)
-                this.onContentsChanged.accept(upgradeStack, false);
-            this.tileEntity.markDirty();
+                this.onContentsChanged.accept(slot, upgradeStack, false);
+            if (this.tileEntity != null)
+                this.tileEntity.markDirty();
         }
         return stack;
     }

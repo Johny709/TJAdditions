@@ -7,10 +7,6 @@ import net.minecraft.item.ItemStack;
 import tj.TJValues;
 import tj.items.behaviours.*;
 
-import static gregicadditions.item.GAMetaItems.*;
-import static gregicadditions.item.GAMetaItems.ELECTRIC_MOTOR_MAX;
-import static gregtech.common.items.MetaItems.*;
-import static gregtech.common.items.MetaItems.ELECTRIC_MOTOR_UV;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
 
@@ -18,6 +14,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
 
     @Override
     public void registerSubItems() {
+        TOOLBOX = addItem(999, "toolbox").addComponents(new ToolboxBehaviour()).setMaxStackSize(1);
         CREATIVE_FLUID_COVER = addItem(1000, "creative.fluid.cover");
         CREATIVE_ITEM_COVER = addItem(1001, "creative.item.cover");
         CREATIVE_ENERGY_COVER = addItem(1002, "creative.energy.cover");
