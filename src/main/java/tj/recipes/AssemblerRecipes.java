@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -311,11 +312,11 @@ public class AssemblerRecipes {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .notConsumable(new IntCircuitIngredient(0))
                     .input(OrePrefix.gear, MATERIAL_TIER[0][i], 4)
-                    .input(OrePrefix.circuit, CIRCUIT_TIERS[i], 2)
+                    .input(OrePrefix.circuit, CIRCUIT_TIERS[tier], 2)
                     .input(Items.DIAMOND_AXE)
                     .input(Items.DIAMOND_HOE)
                     .input(Items.SHEARS)
-                    .inputs(robotArms[i].getStackForm(2))
+                    .inputs(robotArms[i].getStackForm(tier >= GTValues.ZPM ? 4 : tier >= GTValues.EV ? 2 : 1))
                     .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 42))
                     .inputs(tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm())
                     .outputs(FARMING_STATION[i].getStackForm())

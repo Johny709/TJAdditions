@@ -93,7 +93,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("machine.universal.linked.entity.radius", (9 + (2 * this.getTier())) / 2, (9 + (2 * this.getTier())) / 2));
         tooltip.add(I18n.format("tj.machine.farming_station.description", this.getTier() >= GTValues.ZPM ? 4 : this.getTier() >= GTValues.EV ? 2 : 1));
-        tooltip.add(I18n.format("tj.machine.farming_station.fertilizer.description", this.getTier() * 10));
+        tooltip.add(I18n.format("tj.machine.farming_station.fertilizer.tooltip", this.getTier() * 10));
     }
 
     @Override
@@ -142,7 +142,6 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new TJSlotWidget(this.fertilizerInventory, 1, 34, 78)
                         .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
-                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new TankWidget(this.waterTank, 105, 78, 18, 18)
@@ -151,10 +150,13 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
+                .widget(new ToggleButtonWidget(79, 58, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
+                        .setTooltipText("tj.machine.farming_station.tool_output.tooltip"))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .widget(widgetGroup)
                 .widget(scrollableWidgetGroup)
+                .label(7, 5, this.getMetaFullName())
                 .bindPlayerInventory(player.inventory, 100)
                 .build(this.getHolder(), player);
     }

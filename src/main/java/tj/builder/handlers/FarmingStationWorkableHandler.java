@@ -52,6 +52,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
     private Supplier<IItemHandlerModifiable> fertilizerInventory;
     private Harvester[] harvesters;
     private boolean initialized;
+    private boolean outputTools;
     private int fertilizerChance;
     private int outputIndex;
     private int range;
@@ -183,6 +184,15 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
             return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
+    }
+
+    public void setOutputTools(boolean outputTools) {
+        this.outputTools = outputTools;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isOutputTools() {
+        return this.outputTools;
     }
 
     private class Harvester {
@@ -353,11 +363,23 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                 return true;
             }
             IElectricItem eu = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-            if (eu != null)
-                return eu.discharge(32, Integer.MAX_VALUE, true, false, false) == 32;
+            if (eu != null) {
+                boolean success = eu.discharge(32, Integer.MAX_VALUE, true, false, false) == 32;
+                if ((!success || eu.getCharge() == 0)&& outputTools) {
+                    itemOutputs.add(stack.copy());
+                    stack.shrink(1);
+                }
+                return success;
+            }
             IEnergyStorage rf = stack.getCapability(CapabilityEnergy.ENERGY, null);
-            if (rf != null)
-                return rf.extractEnergy(128, false) == 128;
+            if (rf != null) {
+                boolean success = rf.extractEnergy(128, false) == 128;
+                if (!success && outputTools) {
+                    itemOutputs.add(stack.copy());
+                    stack.shrink(1);
+                }
+                return success;
+            }
             return false;
         }
     }
