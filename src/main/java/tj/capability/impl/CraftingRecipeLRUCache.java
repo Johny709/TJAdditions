@@ -52,7 +52,8 @@ public class CraftingRecipeLRUCache {
         for (Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe : this.recipeList) {
             if (recipe == null)
                 continue;
-            for (CountableIngredient ingredient : recipe.getMiddle()) {
+            for (int i = 0; i < recipe.getMiddle().size(); i++) {
+                CountableIngredient ingredient = recipe.getMiddle().get(i);
                 int size = ingredient.getCount();
                 int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
                 if (extracted < size)

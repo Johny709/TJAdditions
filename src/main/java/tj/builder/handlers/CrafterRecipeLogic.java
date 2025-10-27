@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.tuple.Triple;;
 import tj.capability.IItemFluidHandlerInfo;
@@ -20,6 +21,7 @@ import tj.multiblockpart.TJMultiblockAbility;
 import tj.util.ItemStackHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,8 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
     private final List<Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>>> recipeMapList = new ArrayList<>();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
+    private ItemStack[] lastItemInputs;
+    private boolean recipeRecheck;
 
     public CrafterRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -57,10 +61,31 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
         return this.previousRecipe;
     }
 
+    protected boolean checkRecipeInputsDirty(IItemHandler inputs) {
+        boolean shouldRecheckRecipe = false;
+        if (lastItemInputs == null || lastItemInputs.length != inputs.getSlots()) {
+            this.lastItemInputs = new ItemStack[inputs.getSlots()];
+            Arrays.fill(lastItemInputs, ItemStack.EMPTY);
+        }
+        for (int i = 0; i < lastItemInputs.length; i++) {
+            ItemStack currentStack = inputs.getStackInSlot(i);
+            ItemStack lastStack = lastItemInputs[i];
+            if (!ItemStack.areItemStacksEqual(currentStack, lastStack)) {
+                this.lastItemInputs[i] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
+                shouldRecheckRecipe = true;
+            } else if (currentStack.getCount() != lastStack.getCount()) {
+                lastStack.setCount(currentStack.getCount());
+                shouldRecheckRecipe = true;
+            }
+        }
+        return shouldRecheckRecipe;
+    }
+
     private boolean trySearchForRecipe(IItemHandlerModifiable importItems) {
         int parallels = this.parallel.getAsInt();
         Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> currentRecipe = this.previousRecipe.get(importItems);
-        if (currentRecipe == null) {
+        if (currentRecipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(importItems))) {
+            this.recipeRecheck = false;
             recipeMapList:
             for (int i = 0; i < this.recipeMapList.size(); i++) {
                 Map<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = this.recipeMapList.get(i);
@@ -121,6 +146,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
             ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.itemOutputs.get(0), false);
             this.itemInputs.clear();
             this.itemOutputs.clear();
+            this.recipeRecheck = true;
             return true;
         }
         return false;
