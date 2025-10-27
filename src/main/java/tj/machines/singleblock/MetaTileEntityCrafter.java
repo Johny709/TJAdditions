@@ -82,6 +82,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
         tooltip.add(I18n.format("tj.multiblock.large_crafter.slots", this.encodingSlots));
+        tooltip.add(I18n.format("tj.machine.crafter.tooltip"));
     }
 
     @Override
