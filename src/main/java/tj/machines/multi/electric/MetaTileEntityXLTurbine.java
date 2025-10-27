@@ -93,7 +93,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new FilteredItemStackHandler(this)
+        return new FilteredItemStackHandler(this, 1, 1)
                 .setItemStackPredicate((slot, stack) -> {
                     Item item = stack.getItem();
                     if (item instanceof MetaItem<?>) {
@@ -104,8 +104,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
                         }
                     }
                     return false;
-                })
-                .setOnContentsChanged((slot, stack, insert) -> {
+                }).setOnContentsChanged((slot, stack, insert) -> {
                     if (this.getWorld() != null && !this.getWorld().isRemote) {
                         this.parallels = BASE_PARALLEL;
                         Item item = stack.getItem();

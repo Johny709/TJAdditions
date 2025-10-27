@@ -56,7 +56,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
             .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
     private final IItemHandlerModifiable fertilizerInventory = new FilteredItemStackHandler(this, 2, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
-    private final IItemHandlerModifiable toolInventory = new FilteredItemStackHandler(this, 3)
+    private final IItemHandlerModifiable toolInventory = new FilteredItemStackHandler(this, 3, 1)
             .setItemStackPredicate((slot, stack) -> {
                 switch (slot) {
                     case 0: return stack.getItem() instanceof ItemHoe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolHoe);

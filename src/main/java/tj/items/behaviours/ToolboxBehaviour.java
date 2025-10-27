@@ -62,14 +62,13 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
                     }
                   return GAMetaItems.INSULATING_TAPE.isItemEqual(stack);
                 });
-        if (compound.hasKey("inventory"))
-            toolboxInventory.deserializeNBT(compound.getCompoundTag("inventory"));
         WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 20));
         for (int i = 0; i < toolboxInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget(toolboxInventory, i, 18 * i, 0)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.defaultBuilder()
+                .bindOpenListener(() -> toolboxInventory.deserializeNBT(compound.getCompoundTag("inventory")))
                 .bindCloseListener(() -> compound.setTag("inventory", toolboxInventory.serializeNBT()))
                 .widget(widgetGroup)
                 .widget(GuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 84, playerStack))
