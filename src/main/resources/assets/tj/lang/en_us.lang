@@ -430,7 +430,7 @@ tj.multiblock.void_more_miner.description=Tier and Heats is determined by Compon
 tj.multiblock.teleporter.description=Use linking device to create new positions or waypoints. Consumes 1M EU base for teleportation and 1000 EU for every block away from Teleporter or from another dimension's X:0, Y:0, Z:0, coordinates. The World must be loaded for interdimensional teleport. Energy hatch tier can be below or equal to components' tier.
 tj.multiblock.large_chisel_workbench.description=Automates the chiseling of blocks. Input Integrated Circuits to determine chisel index. Add more circuits to get chisel index above 32.
 tj.multiblock.large_enchanter.description=An Electric Anvil.
-tj.multiblock.large_crafter.description=Automates crafting table recipes. Add Crafter Hatches to encode recipes. §eWarning: non-consumables in crafting table recipes will get consumed here for now. Some recipes may not work.
+tj.multiblock.large_crafter.description=Automates crafting table recipes. §eWarning: non-consumables in crafting table recipes will get consumed here for now. Some recipes may not work.
 
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7

@@ -311,7 +311,7 @@ public class AssemblerRecipes {
         for (int i = 0, tier = 1; i < FARMING_STATION.length; i++, tier++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .notConsumable(new IntCircuitIngredient(0))
-                    .input(OrePrefix.gear, MATERIAL_TIER[0][i], 4)
+                    .input(OrePrefix.gear, i != 6 ? MATERIAL_TIER[0][i] : Rutherfordium, 4)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[tier], 2)
                     .input(Items.DIAMOND_AXE)
                     .input(Items.DIAMOND_HOE)
