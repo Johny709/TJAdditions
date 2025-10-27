@@ -23,7 +23,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.GuiUtils;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -54,30 +54,23 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
         if (playerStack.getTagCompound() == null)
             playerStack.setTagCompound(new NBTTagCompound());
         final NBTTagCompound compound = playerStack.getTagCompound();
-        IItemHandlerModifiable toolboxInventory = new FilteredItemStackHandler(null, 9)
+        ItemStackHandler toolboxInventory = new FilteredItemStackHandler(null, 9)
                 .setItemStackPredicate((slot, stack) -> {
                     if (stack.getItem() instanceof ToolMetaItem<?>) {
                         IToolStats toolStats = ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats();
                         return toolStats instanceof ToolHardHammer || toolStats instanceof ToolSoftHammer || toolStats instanceof ToolWrench || toolStats instanceof ToolScrewdriver || toolStats instanceof ToolWireCutter || toolStats instanceof ToolCrowbar;
                     }
                   return GAMetaItems.INSULATING_TAPE.isItemEqual(stack);
-                }).setOnContentsChanged((slot, stack, insert) -> {
-                    String index = "index:" + slot;
-                    if (insert)
-                        compound.setTag(index, stack.serializeNBT());
-                    else compound.removeTag(index);
                 });
-        for (int i = 0; i < toolboxInventory.getSlots(); i++) {
-            String index = "index:" + i;
-            if (compound.hasKey(index))
-                toolboxInventory.setStackInSlot(i, new ItemStack(compound.getCompoundTag(index)));
-        }
+        if (compound.hasKey("inventory"))
+            toolboxInventory.deserializeNBT(compound.getCompoundTag("inventory"));
         WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 20));
         for (int i = 0; i < toolboxInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget(toolboxInventory, i, 18 * i, 0)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.defaultBuilder()
+                .bindCloseListener(() -> compound.setTag("inventory", toolboxInventory.serializeNBT()))
                 .widget(widgetGroup)
                 .widget(GuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 84, playerStack))
                 .label(7, 5, "metaitem.toolbox.name")

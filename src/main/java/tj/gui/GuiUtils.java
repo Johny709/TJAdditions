@@ -10,7 +10,7 @@ public class GuiUtils {
 
     /**
      *
-     * @param widgetGroup widget group
+     * @param widgetGroup widget group for slots to get added to
      * @param inventoryPlayer inventory of player
      * @param x X position
      * @param y Y position
