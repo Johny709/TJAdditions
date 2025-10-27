@@ -133,7 +133,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
         boolean canStart = false;
         IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItems.get();
         if (this.trySearchForRecipe(itemInputs)) {
-            this.maxProgress = this.calculateOverclock(30, 20, 2.8F);
+            this.maxProgress = this.calculateOverclock(30, 50, 2.8F);
             canStart = true;
         }
         if (++this.lastInputIndex == this.busCount)
