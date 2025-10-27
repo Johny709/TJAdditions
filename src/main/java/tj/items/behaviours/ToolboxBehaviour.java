@@ -24,6 +24,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.gui.GuiUtils;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
 
@@ -78,8 +79,8 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
         }
         return ModularUI.defaultBuilder()
                 .widget(widgetGroup)
+                .widget(GuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 84, playerStack))
                 .label(7, 5, "metaitem.toolbox.name")
-                .bindPlayerInventory(player.inventory)
                 .build(holder, player);
     }
 }
