@@ -146,6 +146,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new TankWidget(this.waterTank, 105, 78, 18, 18)
                         .setBackgroundTexture(FLUID_SLOT))
+                .widget(new ToggleButtonWidget(133, 78, 18, 18, ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
+                        .setTooltipText("machine.universal.toggle.item_voiding"))
                 .widget(new ToggleButtonWidget(151, 78, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)

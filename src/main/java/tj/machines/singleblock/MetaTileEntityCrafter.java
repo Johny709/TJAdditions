@@ -140,6 +140,8 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
                         .setBackgroundTexture(SLOT))
+                .widget(new ToggleButtonWidget(133, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+                        .setTooltipText("machine.universal.toggle.item_voiding"))
                 .widget(new ToggleButtonWidget(151, 112, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 112, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)

@@ -53,6 +53,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
     private Harvester[] harvesters;
     private boolean initialized;
     private boolean outputTools;
+    private boolean voidOutputs;
     private int fertilizerChance;
     private int outputIndex;
     private int range;
@@ -133,7 +134,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             }
         }
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
-            if (ItemStackHelper.insertIntoItemHandler(exportItems, this.itemOutputs.get(i), true).isEmpty()) {
+            if (this.voidOutputs || ItemStackHelper.insertIntoItemHandler(exportItems, this.itemOutputs.get(i), true).isEmpty()) {
                 ItemStackHelper.insertIntoItemHandler(exportItems, this.itemOutputs.get(i), false);
                 this.outputIndex++;
             } else return false;
@@ -165,6 +166,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         data.setTag("inputList", inputList);
         data.setTag("outputList", outputList);
         data.setInteger("outputIndex", this.outputIndex);
+        data.setBoolean("outputTools", this.outputTools);
+        data.setBoolean("voidOutputs", this.voidOutputs);
         return data;
     }
 
@@ -177,6 +180,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         for (int i = 0; i < outputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(outputList.getCompoundTagAt(i)));
         this.outputIndex = data.getInteger("outputIndex");
+        this.outputTools = data.getBoolean("outputTools");
+        this.voidOutputs = data.getBoolean("voidOutputs");
     }
 
     @Override
@@ -191,8 +196,17 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         this.metaTileEntity.markDirty();
     }
 
+    public void setVoidOutputs(boolean voidOutputs) {
+        this.voidOutputs = voidOutputs;
+        this.metaTileEntity.markDirty();
+    }
+
     public boolean isOutputTools() {
         return this.outputTools;
+    }
+
+    public boolean isVoidOutputs() {
+        return this.voidOutputs;
     }
 
     private class Harvester {
@@ -365,8 +379,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             IElectricItem eu = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
             if (eu != null) {
                 boolean success = eu.discharge(32, Integer.MAX_VALUE, true, false, false) == 32;
-                if ((!success || eu.getCharge() == 0)&& outputTools) {
-                    itemOutputs.add(stack.copy());
+                if ((!success || eu.getCharge() == 0) && outputTools && this.outputTool(stack.copy())) {
                     stack.shrink(1);
                 }
                 return success;
@@ -374,13 +387,20 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             IEnergyStorage rf = stack.getCapability(CapabilityEnergy.ENERGY, null);
             if (rf != null) {
                 boolean success = rf.extractEnergy(128, false) == 128;
-                if (!success && outputTools) {
-                    itemOutputs.add(stack.copy());
+                if (!success && outputTools && this.outputTool(stack.copy())) {
                     stack.shrink(1);
                 }
                 return success;
             }
             return false;
+        }
+
+        private boolean outputTool(ItemStack stack) {
+            IItemHandlerModifiable output = exportItems.get();
+            if (ItemStackHelper.insertIntoItemHandler(output, stack, true).isEmpty()) {
+                ItemStackHelper.insertIntoItemHandler(output, stack, false);
+                return true;
+            } else return false;
         }
     }
 }

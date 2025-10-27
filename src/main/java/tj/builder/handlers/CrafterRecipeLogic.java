@@ -34,6 +34,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private ItemStack[] lastItemInputs;
     private boolean recipeRecheck;
+    private boolean voidOutputs;
 
     public CrafterRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -142,7 +143,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
 
     @Override
     protected boolean completeRecipe() {
-        if (ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.itemOutputs.get(0), true).isEmpty()) {
+        if (this.voidOutputs || ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.itemOutputs.get(0), true).isEmpty()) {
             ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.itemOutputs.get(0), false);
             this.itemInputs.clear();
             this.itemOutputs.clear();
@@ -172,6 +173,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
             outputList.appendTag(stack.serializeNBT());
         data.setTag("inputList", inputList);
         data.setTag("outputList", outputList);
+        data.setBoolean("voidOutputs", this.voidOutputs);
         return data;
     }
 
@@ -183,6 +185,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
             this.itemInputs.add(new ItemStack(inputList.getCompoundTagAt(i)));
         for (int i = 0; i < outputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(outputList.getCompoundTagAt(i)));
+        this.voidOutputs = data.getBoolean("voidOutputs");
     }
 
     @Override
@@ -190,5 +193,14 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
         if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
             return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
+    }
+
+    public void setVoidOutputs(boolean voidOutputs) {
+        this.voidOutputs = voidOutputs;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidOutputs() {
+        return this.voidOutputs;
     }
 }

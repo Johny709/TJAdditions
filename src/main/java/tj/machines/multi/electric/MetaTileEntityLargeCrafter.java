@@ -15,6 +15,8 @@ import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -50,6 +52,7 @@ import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -132,6 +135,13 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         this.recipeLogic.setDistinct(!componentData.equals("distinctEnabled"));
+    }
+
+    @Override
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+                .setTooltipText("machine.universal.toggle.item_voiding"));
     }
 
     @Override
