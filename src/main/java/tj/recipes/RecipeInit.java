@@ -34,8 +34,7 @@ import static gregicadditions.GAMaterials.*;
 import static gregicadditions.machines.GATileEntities.AIR_COLLECTOR;
 import static gregicadditions.machines.GATileEntities.GA_HULLS;
 import static gregtech.api.recipes.RecipeMaps.*;
-import static gregtech.api.unification.material.MarkerMaterials.Tier.Basic;
-import static gregtech.api.unification.material.MarkerMaterials.Tier.Superconductor;
+import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
@@ -298,6 +297,12 @@ public class RecipeInit {
                 'C', new ItemStack(Item.getByNameOrId("actuallyadditions:block_giant_chest_large")),
                 'K', new ItemStack(Item.getByNameOrId("actuallyadditions:item_crate_keeper")),
                 'P', CraftingComponent.PISTON.getIngredient(2));
+
+        ModHandler.addShapedRecipe("tj_toolbox", TOOLBOX.getStackForm(), "RCR", "PSP", "PPP",
+                'R', new UnificationEntry(OrePrefix.stickLong, RedSteel),
+                'C', new UnificationEntry(OrePrefix.circuit, Advanced),
+                'S', STAINLESS_STEEL_CHEST.getStackForm(),
+                'P', new UnificationEntry(OrePrefix.plate, RedSteel));
 
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("filing_cabinet." + i, FILING_CABINET.getStackForm(), "NCN", "PSP", "NCN",
