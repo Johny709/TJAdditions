@@ -133,7 +133,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         slotScrollableWidgetGroup.setItemHandler(this.importItems);
         slotScrollableWidgetGroup.clearWidgets();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
-            slotScrollableWidgetGroup.addWidget(new TJSlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
+            slotScrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
                     .setWidgetGroup(slotScrollableWidgetGroup)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }

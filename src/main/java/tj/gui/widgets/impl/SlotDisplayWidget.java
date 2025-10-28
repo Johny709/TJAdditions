@@ -12,7 +12,7 @@ import tj.gui.widgets.TJSlotWidget;
 import java.io.IOException;
 
 
-public class SlotDisplayWidget extends TJSlotWidget {
+public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
 
     private TriConsumer<Integer, Integer, ItemStack> onPressed;
 

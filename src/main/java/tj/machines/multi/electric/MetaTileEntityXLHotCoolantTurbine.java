@@ -424,7 +424,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     protected void addTabs(WidgetTabBuilder tabBuilder) {
-        tabBuilder.addWidget(new TJSlotWidget(this.importItems, 0, 172, 191)
+        tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 172, 191)
                 .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->

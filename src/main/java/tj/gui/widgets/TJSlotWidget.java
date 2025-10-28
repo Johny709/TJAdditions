@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class TJSlotWidget extends Widget implements ISlotHandler {
+public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements ISlotHandler {
 
     private final IItemHandler itemHandler;
     private final int slotIndex;
@@ -49,29 +49,29 @@ public class TJSlotWidget extends Widget implements ISlotHandler {
         this.slotIndex = slotIndex;
     }
 
-    public TJSlotWidget setItemHandlerSupplier(Supplier<IItemHandler> itemHandlerSupplier) {
+    public R setItemHandlerSupplier(Supplier<IItemHandler> itemHandlerSupplier) {
         this.itemHandlerSupplier = itemHandlerSupplier;
-        return this;
+        return (R) this;
     }
 
-    public TJSlotWidget setWidgetGroup(ISlotGroup widgetGroup) {
+    public R setWidgetGroup(ISlotGroup widgetGroup) {
         this.widgetGroup = widgetGroup;
-        return this;
+        return (R) this;
     }
 
-    public TJSlotWidget setTakeItemsPredicate(BooleanSupplier takeItemsPredicate) {
+    public R setTakeItemsPredicate(BooleanSupplier takeItemsPredicate) {
         this.takeItemsPredicate = takeItemsPredicate;
-        return this;
+        return (R) this;
     }
 
-    public TJSlotWidget setPutItemsPredicate(BooleanSupplier putItemsPredicate) {
+    public R setPutItemsPredicate(BooleanSupplier putItemsPredicate) {
         this.putItemsPredicate = putItemsPredicate;
-        return this;
+        return (R) this;
     }
 
-    public TJSlotWidget setBackgroundTexture(TextureArea... backgroundTexture) {
+    public R setBackgroundTexture(TextureArea... backgroundTexture) {
         this.backgroundTexture = backgroundTexture;
-        return this;
+        return (R) this;
     }
 
     protected IItemHandler getItemHandler() {
