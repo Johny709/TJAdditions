@@ -26,6 +26,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,8 +39,6 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pistonPredicate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.COMPRESSOR_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.FORGE_HAMMER_RECIPES;
 import static gregtech.api.render.Textures.COMPRESSOR_OVERLAY;
 import static gregtech.api.render.Textures.FORGE_HAMMER_OVERLAY;
 
@@ -63,14 +62,12 @@ public class MetaTileEntityParallelLargeForgeHammer extends ParallelRecipeMapMul
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                FORGE_HAMMER_RECIPES.getLocalizedName() + ", " + COMPRESSOR_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeForgeHammer.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeForgeHammer.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeForgeHammer.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeForgeHammer.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_forge_hammer.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -115,8 +112,28 @@ public class MetaTileEntityParallelLargeForgeHammer extends ParallelRecipeMapMul
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeForgeHammer.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeForgeHammer.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeForgeHammer.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeForgeHammer.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeForgeHammer.chancePercentage;
     }
 
     @Override

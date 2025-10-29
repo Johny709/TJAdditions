@@ -37,6 +37,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -58,6 +59,7 @@ import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
 
+import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +87,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected boolean isDistinctBus;
     protected int recipeMapIndex;
     protected BatchMode batchMode = BatchMode.ONE;
-    protected static final DecimalFormat formatter = new DecimalFormat("#0.00");
+    protected static final DecimalFormat FORMATTER = new DecimalFormat("#0.00");
 
     protected IItemHandlerModifiable inputInventory;
     protected IItemHandlerModifiable outputInventory;
@@ -96,6 +98,23 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, ParallelRecipeMap[] recipeMap) {
         super(metaTileEntityId);
         this.parallelRecipeMap = recipeMap;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < this.getRecipeMaps().length; i++) {
+            builder.append(this.getRecipeMaps()[i].getLocalizedName());
+            if (i < this.getRecipeMaps().length - 1)
+                builder.append(", ");
+        }
+        tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()));
+        tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.universal.tooltip.2", FORMATTER.format(this.getEUPercentage() / 100.0)));
+        tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.universal.tooltip.3", FORMATTER.format(this.getDurationPercentage() / 100.0)));
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.parallel.tooltip.1", this.getStack()));
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
+        tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChancePercentage()));
     }
 
     @Override
@@ -206,8 +225,24 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return this.maxVoltage;
     }
 
+    public int getEUPercentage() {
+        return 100;
+    }
+
+    public int getDurationPercentage() {
+        return 100;
+    }
+
+    public int getStack() {
+        return 1;
+    }
+
     public int getMaxParallel() {
         return 1;
+    }
+
+    public int getChancePercentage() {
+        return 100;
     }
 
     public int getPageIndex() {

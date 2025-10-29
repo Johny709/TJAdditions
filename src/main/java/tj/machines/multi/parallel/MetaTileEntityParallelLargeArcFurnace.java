@@ -29,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,8 +44,6 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.ARC_FURNACE_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.PLASMA_ARC_FURNACE_RECIPES;
 import static gregtech.api.render.Textures.ARC_FURNACE_OVERLAY;
 import static gregtech.api.render.Textures.PLASMA_ARC_FURNACE_OVERLAY;
 
@@ -78,15 +77,13 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                ARC_FURNACE_RECIPES.getLocalizedName() + ", " + PLASMA_ARC_FURNACE_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeArcFurnace.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeArcFurnace.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeArcFurnace.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeArcFurnace.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_arc_furnace.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -137,8 +134,28 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeArcFurnace.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeArcFurnace.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeArcFurnace.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeArcFurnace.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeArcFurnace.chancePercentage;
     }
 
     @Override

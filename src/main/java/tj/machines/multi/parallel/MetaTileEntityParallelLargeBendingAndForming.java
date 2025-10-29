@@ -28,6 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,11 +39,8 @@ import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pistonPredicate;
-import static gregicadditions.recipes.GARecipeMaps.CLUSTER_MILL_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.BENDER_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.FORMING_PRESS_RECIPES;
 
 
 public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipeMapMultiblockController {
@@ -64,16 +62,12 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                BENDER_RECIPES.getLocalizedName() + ", " +
-                        FORMING_PRESS_RECIPES.getLocalizedName() + ", " +
-                        CLUSTER_MILL_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeBendingAndForming.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeBendingAndForming.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeBendingAndForming.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeBendingAndForming.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_bending_and_forming.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -123,8 +117,28 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeBendingAndForming.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeBendingAndForming.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeBendingAndForming.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeBendingAndForming.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeBendingAndForming.chancePercentage;
     }
 
     @Override

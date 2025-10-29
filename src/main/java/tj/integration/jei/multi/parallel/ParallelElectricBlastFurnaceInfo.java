@@ -8,13 +8,14 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.ArrayUtils;
+import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -24,7 +25,8 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
-public class ParallelElectricBlastFurnaceInfo extends MultiblockInfoPage {
+
+public class ParallelElectricBlastFurnaceInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -68,9 +70,14 @@ public class ParallelElectricBlastFurnaceInfo extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
+        return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_electric_blast_furnace.description"),
-                I18n.format("tj.multiblock.parallel.description.parallel")};
+                I18n.format("tj.multiblock.parallel.description"),
+                I18n.format("tj.multiblock.parallel.extend.tooltip"),
+                I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"),
+                I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2"),
+                I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3")},
+                super.getDescription());
     }
 
     @Override

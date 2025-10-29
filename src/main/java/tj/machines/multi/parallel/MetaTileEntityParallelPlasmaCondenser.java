@@ -29,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,14 +63,12 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                PLASMA_CONDENSER_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelPlasmaCondenser.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelPlasmaCondenser.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelPlasmaCondenser.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelPlasmaCondenser.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_plasma_condenser.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -121,8 +120,28 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelPlasmaCondenser.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelPlasmaCondenser.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelPlasmaCondenser.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelPlasmaCondenser.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelPlasmaCondenser.chancePercentage;
     }
 
     @Override

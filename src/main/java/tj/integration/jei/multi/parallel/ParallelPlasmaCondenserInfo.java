@@ -15,6 +15,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.WEST;
+
 
 public class ParallelPlasmaCondenserInfo extends TJMultiblockInfoPage {
 
@@ -73,9 +75,11 @@ public class ParallelPlasmaCondenserInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
+        return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_plasma_condenser.description"),
-                I18n.format("tj.multiblock.parallel.description.parallel")};
+                I18n.format("tj.multiblock.parallel.description"),
+                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                super.getDescription());
     }
 
     @Override

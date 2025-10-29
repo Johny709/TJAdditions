@@ -32,6 +32,7 @@ import tj.TJConfig;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.handlers.ParallelVolcanusRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,17 +71,16 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", BLAST_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelVolcanus.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelVolcanus.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelVolcanus.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
+        tooltip.add(I18n.format("tj.multiblock.parallel_volcanus.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        tooltip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
-        tooltip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"));
-        tooltip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2"));
-        tooltip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            tip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
+            tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"));
+            tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2"));
+            tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -146,8 +146,28 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelVolcanus.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelVolcanus.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelVolcanus.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelVolcanus.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelVolcanus.chancePercentage;
     }
 
     @Override

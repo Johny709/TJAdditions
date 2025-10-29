@@ -19,7 +19,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMap;
-import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -32,6 +31,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,11 +40,8 @@ import java.util.List;
 import static tj.TJRecipeMaps.*;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
-import static gregicadditions.recipes.GARecipeMaps.SIMPLE_ORE_WASHER_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.CHEMICAL_BATH_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.ORE_WASHER_RECIPES;
 
 
 public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMapMultiblockController {
@@ -66,15 +63,12 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                ORE_WASHER_RECIPES.getLocalizedName() + ", " + CHEMICAL_BATH_RECIPES.getLocalizedName()
-                        + ", " + SIMPLE_ORE_WASHER_RECIPES.getLocalizedName() + ", " + RecipeMaps.AUTOCLAVE_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeWashingMachine.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeWashingMachine.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeWashingMachine.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeWashingMachine.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_washing_machine.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -130,8 +124,28 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeWashingMachine.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeWashingMachine.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeWashingMachine.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeWashingMachine.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeWashingMachine.chancePercentage;
     }
 
     @Override

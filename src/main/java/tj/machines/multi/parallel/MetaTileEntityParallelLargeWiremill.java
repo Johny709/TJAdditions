@@ -28,6 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,14 +62,12 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                WIREMILL_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeWiremill.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeWiremill.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeWiremill.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeWiremill.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_wiremill.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -114,8 +113,28 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeWiremill.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeWiremill.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeWiremill.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeWiremill.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeWiremill.chancePercentage;
     }
 
     @Override

@@ -5,15 +5,15 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
-import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.ArrayUtils;
+import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -23,7 +23,8 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
-public class ParallelVacuumFreezerInfo extends MultiblockInfoPage {
+
+public class ParallelVacuumFreezerInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -66,9 +67,11 @@ public class ParallelVacuumFreezerInfo extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
+        return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_vacuum_freezer.description"),
-                I18n.format("tj.multiblock.parallel.description.parallel")};
+                I18n.format("tj.multiblock.parallel.description"),
+                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                super.getDescription());
     }
 
     @Override

@@ -30,6 +30,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,8 +44,8 @@ import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblo
 import static gregicadditions.recipes.GARecipeMaps.LARGE_ENGRAVER_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.EXTRUDER_RECIPES;
 import static gregtech.api.recipes.RecipeMaps.LASER_ENGRAVER_RECIPES;
+
 
 public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapMultiblockController {
 
@@ -65,14 +66,12 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                EXTRUDER_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeLaserEngraver.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeLaserEngraver.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeLaserEngraver.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeLaserEngraver.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_laser_engraver.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -121,8 +120,28 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeLaserEngraver.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeLaserEngraver.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeLaserEngraver.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeLaserEngraver.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeLaserEngraver.chancePercentage;
     }
 
     @Override

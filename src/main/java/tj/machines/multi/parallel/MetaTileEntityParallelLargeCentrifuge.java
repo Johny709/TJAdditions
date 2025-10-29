@@ -9,7 +9,6 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -32,6 +31,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,9 +41,7 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.machines.GATileEntities.*;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static tj.TJRecipeMaps.*;
-import static gregicadditions.recipes.GARecipeMaps.LARGE_CENTRIFUGE_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.THERMAL_CENTRIFUGE_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
@@ -76,16 +74,13 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                LARGE_CENTRIFUGE_RECIPES.getLocalizedName() + ", " + THERMAL_CENTRIFUGE_RECIPES.getLocalizedName()
-                        + ", " + GARecipeMaps.GAS_CENTRIFUGE_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeCentrifuge.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeCentrifuge.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeCentrifuge.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeCentrifuge.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_centrifuge.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -142,8 +137,28 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeCentrifuge.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeCentrifuge.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeCentrifuge.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeCentrifuge.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeCentrifuge.chancePercentage;
     }
 
     @Override

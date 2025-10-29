@@ -18,6 +18,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+
 
 public class ParallelLargeCentrifugeInfo extends TJMultiblockInfoPage {
 
@@ -75,9 +77,12 @@ public class ParallelLargeCentrifugeInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
+        return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_large_centrifuge.description"),
-                I18n.format("tj.multiblock.parallel.description.parallel")};
+                I18n.format("tj.multiblock.parallel.description"),
+                I18n.format("tj.multiblock.parallel.extend.tooltip"),
+                I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2")},
+                super.getDescription());
     }
 
     @Override

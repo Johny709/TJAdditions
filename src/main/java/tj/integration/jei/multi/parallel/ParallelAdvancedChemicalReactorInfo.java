@@ -16,6 +16,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
@@ -26,6 +27,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
+
 
 public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage {
 
@@ -92,9 +94,15 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
+        return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.advanced_parallel_chemical_reactor.description"),
-                I18n.format("tj.multiblock.parallel.description.parallel")};
+                I18n.format("tj.multiblock.parallel.description"),
+                I18n.format("tj.multiblock.parallel.extend.tooltip"),
+                I18n.format("tj.multiblock.parallel.chemical_plant.description"),
+                I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"),
+                I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"),
+                I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.3")},
+                super.getDescription());
     }
 
     @Override

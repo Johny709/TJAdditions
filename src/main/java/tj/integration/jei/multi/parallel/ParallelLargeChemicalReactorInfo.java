@@ -9,13 +9,14 @@ import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.ArrayUtils;
+import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 import tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor;
 
@@ -25,7 +26,8 @@ import java.util.List;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
-public class ParallelLargeChemicalReactorInfo extends MultiblockInfoPage {
+
+public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -71,9 +73,11 @@ public class ParallelLargeChemicalReactorInfo extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
+        return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_chemical_reactor.description"),
-                I18n.format("tj.multiblock.parallel.description.parallel")};
+                I18n.format("tj.multiblock.parallel.description"),
+                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                super.getDescription());
     }
 
     @Override

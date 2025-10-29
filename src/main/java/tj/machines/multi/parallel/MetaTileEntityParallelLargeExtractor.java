@@ -28,6 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,8 +41,6 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.EXTRACTOR_RECIPES;
-import static gregtech.api.recipes.RecipeMaps.FLUID_EXTRACTION_RECIPES;
 import static gregtech.api.render.Textures.EXTRACTOR_OVERLAY;
 import static gregtech.api.render.Textures.FLUID_EXTRACTOR_OVERLAY;
 
@@ -65,15 +64,12 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                FLUID_EXTRACTION_RECIPES.getLocalizedName() + ", " +
-                        EXTRACTOR_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelLargeExtractor.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelLargeExtractor.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelLargeExtractor.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.parallelLargeExtractor.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_extractor.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -121,8 +117,28 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelLargeExtractor.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelLargeExtractor.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelLargeExtractor.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeExtractor.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeExtractor.chancePercentage;
     }
 
     @Override

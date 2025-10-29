@@ -8,10 +8,14 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.TJValues;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+
 
 public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
 
@@ -56,5 +60,22 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
             case 14: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[9] : MetaTileEntities.ENERGY_INPUT_HATCH[9];
             default: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[0] : MetaTileEntities.ENERGY_INPUT_HATCH[0];
         }
+    }
+
+    @Override
+    public String[] getDescription() {
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.getController();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < controller.getRecipeMaps().length; i++) {
+            builder.append(controller.getRecipeMaps()[i].getLocalizedName());
+            if (i < controller.getRecipeMaps().length - 1)
+                builder.append(", ");
+        }
+        return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()),
+                I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(controller.getEUPercentage() / 100.0)),
+                I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(controller.getDurationPercentage() / 100.0)),
+                I18n.format("tj.multiblock.parallel.tooltip.1", controller.getStack()),
+                I18n.format("tj.multiblock.parallel.tooltip.2", controller.getMaxParallel()),
+                I18n.format("gtadditions.multiblock.universal.tooltip.5", controller.getChancePercentage())};
     }
 }

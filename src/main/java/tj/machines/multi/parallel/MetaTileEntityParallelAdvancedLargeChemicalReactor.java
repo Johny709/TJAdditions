@@ -31,6 +31,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,8 +44,6 @@ import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReac
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
-import static gregicadditions.recipes.GARecipeMaps.CHEMICAL_PLANT_RECIPES;
-import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
@@ -68,18 +67,16 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1",
-                LARGE_CHEMICAL_RECIPES.getLocalizedName() + ", " + CHEMICAL_PLANT_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.advancedParallelChemicalReactor.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.advancedParallelChemicalReactor.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.advancedParallelChemicalReactor.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", TJConfig.advancedParallelChemicalReactor.chancePercentage));
+        tooltip.add(I18n.format("tj.multiblock.advanced_parallel_chemical_reactor.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        tooltip.add(I18n.format("tj.multiblock.parallel.chemical_plant.description"));
-        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"));
-        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
-        tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.3"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            tip.add(I18n.format("tj.multiblock.parallel.chemical_plant.description"));
+            tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"));
+            tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
+            tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.3"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -148,8 +145,28 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     }
 
     @Override
+    public int getEUPercentage() {
+        return TJConfig.advancedParallelChemicalReactor.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.advancedParallelChemicalReactor.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.advancedParallelChemicalReactor.stack;
+    }
+
+    @Override
     public int getMaxParallel() {
         return TJConfig.advancedParallelChemicalReactor.maximumParallel;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.advancedParallelChemicalReactor.chancePercentage;
     }
 
     @Override

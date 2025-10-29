@@ -30,6 +30,7 @@ import tj.TJConfig;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -74,14 +75,13 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", VACUUM_RECIPES.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.parallelCryogenicFreezer.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.parallelCryogenicFreezer.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJConfig.parallelCryogenicFreezer.stack));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
+        tooltip.add(I18n.format("tj.multiblock.parallel_cryogenic_freezer.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        tooltip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            tip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
+            super.addInformation(stack, player, tip, advanced);
+        });
     }
 
     @Override
@@ -130,6 +130,21 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
         return ClientHandler.FREEZER_OVERLAY;
+    }
+
+    @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelCryogenicFreezer.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelCryogenicFreezer.durationPercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.advancedParallelChemicalReactor.stack;
     }
 
     @Override
