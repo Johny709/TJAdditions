@@ -12,12 +12,16 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
+import tj.util.Color;
+import tj.util.TooltipHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -70,6 +74,8 @@ public class LargeCrafterInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{""};
+        return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack),
+                I18n.format("tj.multiblock.large_crafter.description"),
+                TooltipHelper.blinkingText(Color.YELLOW,  20, "tj.multiblock.large_crafter.warning")};
     }
 }

@@ -48,6 +48,8 @@ import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
@@ -63,6 +65,7 @@ import tj.capability.TJCapabilities;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.textures.TJTextures;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -123,6 +126,20 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityIndustrialFusionReactor(this.metaTileEntityId, this.tier);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.overclock.description").replace("§r", "§7"));
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.recipeMap.getLocalizedName()));
+            tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)));
+            tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)));
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices));
+            tip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.energyToStart));
+        });
     }
 
     public void resetStructure() {
@@ -387,16 +404,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.description"));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.recipeMap.getLocalizedName()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", formatter.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices));
-        tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.energyToStart));
-    }
-
-    @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
@@ -438,6 +445,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.batchMode = BatchMode.values()[data.getInteger("BatchMode")];
         if (data.hasKey("Parallel"))
             this.structurePattern = createStructurePattern();
+    }
+
+    public long getEnergyToStart() {
+        return this.energyToStart;
     }
 
     @Override

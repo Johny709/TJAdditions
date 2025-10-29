@@ -50,6 +50,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -121,14 +122,15 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
         tooltip.add(I18n.format("tj.multiblock.turbine.fast_mode.description"));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
+            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
+            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()));
+            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100));
+        });
     }
 
     @Override
@@ -401,5 +403,10 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
             this.structurePattern = this.createStructurePattern();
             this.scheduleRenderUpdate();
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public String getRecipeMapName() {
+        return this.recipeMap.getLocalizedName();
     }
 }

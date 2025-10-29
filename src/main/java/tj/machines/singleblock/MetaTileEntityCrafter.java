@@ -38,7 +38,9 @@ import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
+import tj.util.Color;
 import tj.util.EnumFacingHelper;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -84,6 +86,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
         tooltip.add(I18n.format("tj.multiblock.large_crafter.slots", this.encodingSlots));
         tooltip.add(I18n.format("tj.machine.crafter.tooltip"));
+        tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.multiblock.large_crafter.warning"));
     }
 
     @Override

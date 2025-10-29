@@ -1,6 +1,5 @@
 package tj.integration.jei.multi;
 
-import com.google.common.collect.Lists;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.jei.GAMultiblockShapeInfo;
@@ -17,9 +16,9 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import tj.builder.handlers.XLTurbineWorkableHandler;
 import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
 
 import java.util.ArrayList;
@@ -87,7 +86,13 @@ public class XLHotCoolantTurbineInfo extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{I18n.format("tj.multiblock.turbine.description"), I18n.format("tj.multiblock.turbine.fast_mode.description")};
+        return new String[]{I18n.format("tj.multiblock.turbine.description"),
+                I18n.format("tj.multiblock.turbine.fast_mode.description"),
+                I18n.format("tj.multiblock.universal.tooltip.1", this.turbine.getRecipeMapName()),
+                I18n.format("tj.multiblock.universal.tooltip.2", 12),
+                I18n.format("tj.multiblock.turbine.tooltip.efficiency"),
+                I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()),
+                I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100)};
     }
 
     @Override

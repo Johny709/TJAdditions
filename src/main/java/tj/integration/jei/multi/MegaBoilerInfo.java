@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
@@ -16,6 +17,8 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.machines.multi.steam.MetaTileEntityMegaBoiler;
+import tj.util.Color;
+import tj.util.TooltipHelper;
 
 import java.util.List;
 
@@ -80,11 +83,14 @@ public class MegaBoilerInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format(boilerType == MetaTileEntityLargeBoiler.BoilerType.BRONZE ? "tj.multiblock.mega_bronze_boiler.description"
-                        : boilerType == MetaTileEntityLargeBoiler.BoilerType.STEEL ? "tj.multiblock.mega_steel_boiler.description"
-                        : boilerType == MetaTileEntityLargeBoiler.BoilerType.TITANIUM ? "tj.multiblock.mega_titanium_boiler.description"
+                I18n.format(this.boilerType == MetaTileEntityLargeBoiler.BoilerType.BRONZE ? "tj.multiblock.mega_bronze_boiler.description"
+                        : this.boilerType == MetaTileEntityLargeBoiler.BoilerType.STEEL ? "tj.multiblock.mega_steel_boiler.description"
+                        : this.boilerType == MetaTileEntityLargeBoiler.BoilerType.TITANIUM ? "tj.multiblock.mega_titanium_boiler.description"
                         : "tj.multiblock.mega_tungstensteel_boiler.description"),
-                I18n.format("tj.multiblock.mega_boiler.parallel.description", this.megaBoiler.getParallel())};
+                I18n.format("tj.multiblock.mega_boiler.parallel.description", this.megaBoiler.getParallel()),
+                Color.YELLOW + I18n.format("tj.multiblock.mega_boiler.warning"),
+                I18n.format("tj.multiblock.universal.tooltip.1", RecipeMaps.DIESEL_GENERATOR_FUELS.getLocalizedName() + ", " + RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.getLocalizedName()),
+                I18n.format("tj.multiblock.universal.tooltip.2", this.megaBoiler.getParallel())};
     }
 
     @Override

@@ -4,9 +4,20 @@ import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 @SideOnly(Side.CLIENT)
 public class TooltipHelper {
+
+    public static void shiftText(List<String> tooltip, Consumer<List<String>> tip) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+            tip.accept(tooltip);
+            tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.more_jei"));
+        } else tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shift"));
+    }
 
     public static String blinking(Color color, int ticks) {
         return FMLClientHandler.instance().getWorldClient().getTotalWorldTime() % ticks < ticks / 2 ? String.valueOf(color) : "";

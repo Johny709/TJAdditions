@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.XLHotCoolantTurbineWorkableHandler;
+import tj.builder.handlers.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.gui.TJGuiTextures;
@@ -58,6 +59,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -149,14 +151,15 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
         tooltip.add(I18n.format("tj.multiblock.turbine.fast_mode.description"));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLHotCoolantTurbineWorkableHandler.getTurbineBonus()));
-        tooltip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast",  100));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
+            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
+            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()));
+            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100));
+        });
     }
 
     @Override
@@ -464,6 +467,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             this.invalidateStructure();
             this.structurePattern = this.createStructurePattern();
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public String getRecipeMapName() {
+        return this.turbineType.recipeMap.getLocalizedName();
     }
 
     /**

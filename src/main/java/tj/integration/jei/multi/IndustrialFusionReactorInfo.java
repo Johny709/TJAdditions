@@ -3,11 +3,14 @@ package tj.integration.jei.multi;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import tj.TJConfig;
+import tj.TJValues;
 import tj.machines.multi.electric.MetaTileEntityIndustrialFusionReactor;
 
 import java.util.ArrayList;
@@ -55,7 +58,13 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.industrial_fusion_reactor.description")};
+                I18n.format("tj.multiblock.industrial_fusion_reactor.description"),
+                I18n.format("tj.multiblock.industrial_fusion_reactor.overclock.description"),
+                I18n.format("tj.multiblock.universal.tooltip.1", RecipeMaps.FUSION_RECIPES.getLocalizedName()),
+                I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)),
+                I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)),
+                I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices),
+                I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.fusionReactor.getEnergyToStart())};
     }
 
     @Override

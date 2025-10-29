@@ -54,7 +54,9 @@ import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
+import tj.util.Color;
 import tj.util.EnumFacingHelper;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -99,9 +101,9 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack));
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
+        tooltip.add(TooltipHelper.blinkingText(Color.YELLOW,  20, "tj.multiblock.large_crafter.warning"));
+        TooltipHelper.shiftText(tooltip, tip -> tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeCrafter.stack)));
     }
 
 
