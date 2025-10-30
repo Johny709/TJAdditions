@@ -5,7 +5,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.fluids.FluidRegistry;
-import tj.blocks.BlockAbilityCasings;
+import tj.blocks.EnergyPortCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
@@ -88,7 +88,7 @@ public class AssemblerRecipes {
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(2))
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Ultimate)
                 .input(OrePrefix.plate, TungstenSteel, 8)
-                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_LUV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_LUV))
                 .duration(200)
                 .EUt(GAValues.VA[6])
                 .buildAndRegister();
@@ -98,7 +98,7 @@ public class AssemblerRecipes {
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(2))
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
                 .input(OrePrefix.plate, Rutherfordium, 8)
-                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_ZPM))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_ZPM))
                 .duration(200)
                 .EUt(GAValues.VA[7])
                 .buildAndRegister();
@@ -108,7 +108,7 @@ public class AssemblerRecipes {
                 .inputs(GAMetaItems.UHPIC.getStackForm(2))
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.plate, Dubnium, 8)
-                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_UV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_UV))
                 .duration(200)
                 .EUt(GAValues.VA[8])
                 .buildAndRegister();
@@ -118,7 +118,7 @@ public class AssemblerRecipes {
                 .inputs(GAMetaItems.UHPIC.getStackForm(4))
                 .input(OrePrefix.circuit, UEV)
                 .input(OrePrefix.plate, Seaborgium, 8)
-                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_UHV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_UHV))
                 .duration(200)
                 .EUt(GAValues.VA[9])
                 .buildAndRegister();
@@ -128,7 +128,7 @@ public class AssemblerRecipes {
                 .inputs(UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UIV)
                 .input(OrePrefix.plate, Bohrium, 8)
-                .outputs(TJMetaBlocks.ABILITY_CASING.getItemVariant(BlockAbilityCasings.AbilityType.ENERGY_PORT_UEV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
                 .duration(200)
                 .EUt(GAValues.VA[10])
                 .buildAndRegister();

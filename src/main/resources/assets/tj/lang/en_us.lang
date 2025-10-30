@@ -255,6 +255,12 @@ tj.machine.farming_station.fertilizer.tooltip=Has a §e%d%%§7 chance to apply f
 tj.machine.farming_station.tool_output.tooltip.enabled=Auto-output electric tools that have no power: §aTrue
 tj.machine.farming_station.tool_output.tooltip.disabled=Auto-output electric tools that have no power: §cFalse
 
+tj.machine.energy_hatch.current_amps=Current amps: §e%d
+tj.machine.energy_hatch.not_found=Energy hatch not found
+tj.machine.energy_hatch.not_export=Must be an input energy hatch
+tj.machine.energy_hatch.set=Amps set to: §e%d
+tj.machine.energy_hatch.not_tier=Energy hatch is not the same tier
+
 tj.machine.crafter.tooltip=Click on recipe output slot to add to recipe list on the right. Left-Click on recipe list slot to display ingredients on crafting grid. Right-Click to remove recipe.
 
 tj.multiblock.large_boiler.insert_item=Insert Item
@@ -485,7 +491,12 @@ tile.ability_casing.energy_port_zpm.name=Fusion Energy Port (ZPM)
 tile.ability_casing.energy_port_uv.name=Fusion Energy Port (UV)
 tile.ability_casing.energy_port_uhv.name=Fusion Energy Port (UHV)
 tile.ability_casing.energy_port_uev.name=Fusion Energy Port (UEV)
-tile.ability_casing.energy_port.description=Non Tile Entity Substitute For Energy Hatches In Industrial Fusion Reactors.
+tile.ability_casing.4.name=Fusion Energy Port (LUV) (4A)
+tile.ability_casing.16.name=Fusion Energy Port (LUV) (16A)
+tile.ability_casing.64.name=Fusion Energy Port (LUV) (64A)
+tile.ability_casing.128.name=Fusion Energy Port (LUV) (128A)
+tile.ability_casing.256.name=Fusion Energy Port (LUV) (256A)
+tile.ability_casing.energy_port.description=Non Tile Entity Substitute For Energy Hatches In Industrial Fusion Reactors. Right-Click with multi-amp input hatch to set amps. Shift-Right-Click to retrieve energy hatch from port.
 tile.pipe_casing.stainless_pipe.name=Stainless Pipe Casing
 tile.fusion_casing.fusion_casing_uhv.name=Fusion Casing MK IV
 tile.fusion_casing.fusion_coil_uhv.name=Fusion Coil Block MK IV

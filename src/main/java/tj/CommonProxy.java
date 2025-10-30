@@ -1,6 +1,7 @@
 package tj;
 
 
+import tj.blocks.TJMetaBlocks;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
 import tj.items.TJMetaItems;
@@ -38,10 +39,10 @@ public class CommonProxy {
         IForgeRegistry<Block> registry = event.getRegistry();
 
         registry.register(SOLID_CASING);
-        registry.register(ABILITY_CASING);
         registry.register(PIPE_CASING);
         registry.register(FUSION_CASING);
         registry.register(FUSION_GLASS);
+        ENERGY_PORT_CASINGS.forEach(registry::register);
     }
 
     @SubscribeEvent
@@ -50,7 +51,7 @@ public class CommonProxy {
         TJItems.init(registry);
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
-        registry.register(createItemBlock(ABILITY_CASING, VariantItemBlock::new));
+        registry.register(createItemBlock(ENERGY_PORT_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(PIPE_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(FUSION_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(FUSION_GLASS, VariantItemBlock::new));

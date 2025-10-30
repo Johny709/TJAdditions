@@ -9,19 +9,16 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class TJMetaBlocks {
 
-    private TJMetaBlocks(){
-    }
+    public static final Set<EnergyPortCasings> ENERGY_PORT_CASINGS = new HashSet<>();
 
     public static BlockSolidCasings SOLID_CASING;
-    public static BlockAbilityCasings ABILITY_CASING;
+    public static EnergyPortCasings ENERGY_PORT_CASING;
     public static BlockPipeCasings PIPE_CASING;
     public static BlockFusionCasings FUSION_CASING;
     public static BlockFusionGlass FUSION_GLASS;
@@ -30,8 +27,12 @@ public class TJMetaBlocks {
         SOLID_CASING = new BlockSolidCasings();
         SOLID_CASING.setRegistryName("solid_casing");
 
-        ABILITY_CASING = new BlockAbilityCasings();
-        ABILITY_CASING.setRegistryName("ability_casing");
+        ENERGY_PORT_CASINGS.add(ENERGY_PORT_CASING = new EnergyPortCasings(1));
+        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(4));
+        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(16));
+        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(64));
+        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(128));
+        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(256));
 
         PIPE_CASING = new BlockPipeCasings();
         PIPE_CASING.setRegistryName("pipe_casing");
@@ -47,7 +48,7 @@ public class TJMetaBlocks {
     @SideOnly(Side.CLIENT)
     public static void registerItemModels() {
         registerItemModel(SOLID_CASING);
-        registerItemModel(ABILITY_CASING);
+        registerItemModel(ENERGY_PORT_CASING);
         registerItemModel(PIPE_CASING);
         registerItemModel(FUSION_CASING);
         registerItemModel(FUSION_GLASS);

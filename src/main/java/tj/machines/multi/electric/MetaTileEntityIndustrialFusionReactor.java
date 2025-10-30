@@ -54,7 +54,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.TJValues;
-import tj.blocks.BlockAbilityCasings;
+import tj.blocks.EnergyPortCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
@@ -169,8 +169,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private void replaceEnergyPortsAsActive(boolean active) {
         this.activeStates.forEach(pos -> {
             IBlockState state = this.getWorld().getBlockState(pos);
-            if (state.getBlock() instanceof BlockAbilityCasings) {
-                state = state.withProperty(BlockAbilityCasings.ACTIVE, active);
+            if (state.getBlock() instanceof EnergyPortCasings) {
+                state = state.withProperty(EnergyPortCasings.ACTIVE, active);
                 this.getWorld().setBlockState(pos, state);
             }
         });
@@ -213,10 +213,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (blockState.getBlock() instanceof BlockAbilityCasings) {
-                BlockAbilityCasings abilityCasings = (BlockAbilityCasings) blockState.getBlock();
-                BlockAbilityCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                List<BlockAbilityCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+            if (blockState.getBlock() instanceof EnergyPortCasings) {
+                EnergyPortCasings abilityCasings = (EnergyPortCasings) blockState.getBlock();
+                EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 currentCasing.add(tieredCasingType);
                 if (currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier && blockWorldState.getWorld() != null) {
                     this.activeStates.add(blockWorldState.getPos());

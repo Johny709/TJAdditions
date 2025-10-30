@@ -10,11 +10,13 @@
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",
     "gregicality.GATransformerProviderMixin",
+    "gregicality.IGAMetaTileEntityEnergyHatchMixin",
     "gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin",
     "gregicality.MetaTileEntityMufflerHatchMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregtech.FuelableInfoProviderMixin",
     "gregtech.IAbstractWidgetGroupMixin",
+    "gregtech.IMetaTileEntityEnergyHatchMixin",
     "gregtech.TransformerInfoProviderMixin"
   ],
   "server": [],
