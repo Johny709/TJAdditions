@@ -1,4 +1,4 @@
-package tj.util;
+package tj.util.consumers;
 
 @FunctionalInterface
 public interface QuintConsumer<T, U, V, W, X> {

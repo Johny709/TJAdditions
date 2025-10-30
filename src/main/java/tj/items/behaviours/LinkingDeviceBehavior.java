@@ -31,7 +31,7 @@ import tj.capability.LinkPos;
 import tj.event.MTELinkEvent;
 import tj.gui.widgets.TJTextFieldWidget;
 import tj.items.LinkingMode;
-import tj.util.QuintConsumer;
+import tj.util.consumers.QuintConsumer;
 
 import java.util.List;
 import java.util.function.Consumer;

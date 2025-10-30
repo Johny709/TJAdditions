@@ -5,10 +5,9 @@ import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityEnergyHatch
 import gregtech.api.GregTechAPI;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.VariantBlock;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityEnergyHatch;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -36,10 +35,11 @@ import tj.mixin.gregtech.IMetaTileEntityEnergyHatchMixin;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityType> {
+public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityType> implements IBlockController {
 
     public static final PropertyBool ACTIVE = PropertyBool.create("active");
     private final int amps;
+    private MultiblockControllerBase controller;
 
     public EnergyPortCasings(int amps) {
         super(Material.IRON);
@@ -73,6 +73,8 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
             if (playerIn.isSneaking() && this.amps != 1) {
                 worldIn.setBlockState(pos, TJMetaBlocks.ENERGY_PORT_CASING.getState(state.getValue(VARIANT)));
                 worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), this.getEnergyHatch(state.getValue(VARIANT).getTier(), this.amps)));
+                if (this.controller != null)
+                    this.controller.invalidateStructure();
             } else playerIn.sendMessage(new TextComponentTranslation("tj.machine.energy_hatch.current_amps", this.amps));
             return true;
         }
@@ -105,6 +107,8 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
                 worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), this.getEnergyHatch(state.getValue(VARIANT).getTier(), this.amps)));
                 playerIn.sendMessage(new TextComponentTranslation("tj.machine.energy_hatch.set", amps));
                 stack.shrink(1);
+                if (this.controller != null)
+                    this.controller.invalidateStructure();
             }
         });
         return true;
@@ -155,6 +159,11 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
 
     public int getAmps() {
         return this.amps;
+    }
+
+    @Override
+    public void setController(MultiblockControllerBase controller) {
+        this.controller = controller;
     }
 
     public enum AbilityType implements IStringSerializable {

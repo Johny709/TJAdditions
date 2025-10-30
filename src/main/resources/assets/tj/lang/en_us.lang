@@ -84,6 +84,7 @@ tj.machine.teleporter.name=Teleporter
 tj.machine.large_chisel_workbench.name=Large Chisel Workbench (LCW)
 tj.machine.large_enchanter.name=Large Enchanter (LE)
 tj.machine.large_crafter.name=Large Crafter (LC)
+tj.machine.mega_fusion.name=Mega Fusion (MF)
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II

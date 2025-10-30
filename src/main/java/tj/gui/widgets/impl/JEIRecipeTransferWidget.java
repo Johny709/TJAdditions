@@ -14,7 +14,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.widgets.IGTRecipeTransferHandler;
-import tj.util.QuintConsumer;
+import tj.util.consumers.QuintConsumer;
 
 import java.io.IOException;
 import java.util.ArrayList;

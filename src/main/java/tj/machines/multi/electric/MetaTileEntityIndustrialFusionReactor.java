@@ -5,10 +5,7 @@ import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GAFusionCasing;
-import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregicadditions.utils.GALog;
 import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -22,13 +19,10 @@ import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeBuilder;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipeproperties.FusionEUToStartProperty;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
@@ -47,10 +41,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.TJValues;
@@ -58,6 +50,8 @@ import tj.blocks.EnergyPortCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
+import tj.builder.handlers.IFusionProvider;
+import tj.builder.handlers.IndustrialFusionRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import tj.capability.IHeatInfo;
@@ -71,7 +65,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -81,7 +74,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
 
-public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockControllerBase implements IHeatInfo {
+public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockControllerBase implements IHeatInfo, IFusionProvider {
 
     private int parallelLayer;
     private long energyToStart;
@@ -166,7 +159,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.reinitializeStructurePattern();
     }
 
-    private void replaceEnergyPortsAsActive(boolean active) {
+    @Override
+    public void replaceEnergyPortsAsActive(boolean active) {
         this.activeStates.forEach(pos -> {
             IBlockState state = this.getWorld().getBlockState(pos);
             if (state.getBlock() instanceof EnergyPortCasings) {
@@ -291,7 +285,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public boolean checkRecipe(Recipe recipe, boolean consumeIfSuccess) {
-        long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
+        long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.getParallels();
         return this.heat >= energyToStart;
     }
 
@@ -309,7 +303,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             this.heat = this.maxHeat;
 
         if (!this.recipeMapWorkable.isActive() || !this.recipeMapWorkable.isWorkingEnabled()) {
-            this.heat -= Math.min(this.heat, 10000L * this.parallelLayer);
+            this.heat -= Math.min(this.heat, 10000L * this.getParallels());
         }
 
         if (this.recipe != null && this.recipeMapWorkable.isWorkingEnabled()) {
@@ -334,7 +328,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.markDirty();
     }
 
-    private BatchMode getBatchMode() {
+    @Override
+    public BatchMode getBatchMode() {
         return this.batchMode;
     }
 
@@ -447,6 +442,12 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             this.structurePattern = createStructurePattern();
     }
 
+    @Override
+    public int getParallels() {
+        return this.parallelLayer;
+    }
+
+    @Override
     public long getEnergyToStart() {
         return this.energyToStart;
     }
@@ -461,9 +462,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         return this.maxHeat;
     }
 
-    private void setRecipe(Recipe recipe, long heat) {
+    @Override
+    public void setRecipe(long heat, Recipe recipe) {
         long energyCapacity = this.energyContainer.getEnergyCapacity();
-        long heatCapacity = heat * this.parallelLayer;
+        long heatCapacity = heat * this.getParallels();
         this.recipe = recipe;
         this.maxHeat = Math.min(energyCapacity, heatCapacity);
     }
@@ -473,100 +475,5 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         if (capability == TJCapabilities.CAPABILITY_HEAT)
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
         return super.getCapability(capability, side);
-    }
-
-    private class IndustrialFusionRecipeLogic extends LargeSimpleRecipeMapMultiblockController.LargeSimpleMultiblockRecipeLogic {
-
-        private final int EUtPercentage;
-        private final int durationPercentage;
-        public RecipeMap<?> recipeMap;
-        private final BiConsumer<Recipe, Long> currentRecipe;
-        private final BooleanConsumer abilityActive;
-
-        public IndustrialFusionRecipeLogic(MetaTileEntityIndustrialFusionReactor tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
-            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
-            this.allowOverclocking = false;
-            this.EUtPercentage = EUtPercentage;
-            this.durationPercentage = durationPercentage;
-            this.recipeMap = tileEntity.recipeMap;
-            this.currentRecipe = tileEntity::setRecipe;
-            this.abilityActive = tileEntity::replaceEnergyPortsAsActive;
-        }
-
-        @Override
-        protected void completeRecipe() {
-            super.completeRecipe();
-            this.currentRecipe.accept(null, 0L);
-        }
-
-        @Override
-        protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
-            int EUt;
-            int duration;
-            int minMultiplier = Integer.MAX_VALUE;
-            long recipeEnergy = Math.max(160_000_000, matchingRecipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L));
-
-            this.currentRecipe.accept(matchingRecipe, recipeEnergy);
-            Map<String, Integer> countFluid = new HashMap<>();
-            if (!matchingRecipe.getFluidInputs().isEmpty()) {
-
-                this.findFluid(countFluid, fluidInputs);
-                minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, matchingRecipe, parallelLayer * batchMode.getAmount()));
-            }
-
-            if (minMultiplier == Integer.MAX_VALUE) {
-                GALog.logger.error("Cannot calculate ratio of items for large multiblocks");
-                return null;
-            }
-            EUt = matchingRecipe.getEUt();
-            duration = matchingRecipe.getDuration();
-
-            float tierDiff = fusionOverclockMultiplier(energyToStart, recipeEnergy);
-
-            List<FluidStack> newFluidInputs = new ArrayList<>();
-            List<FluidStack> outputF = new ArrayList<>();
-            multiplyInputsAndOutputs(newFluidInputs, outputF, matchingRecipe, minMultiplier);
-
-            RecipeBuilder<?> newRecipe = recipeMap.recipeBuilder();
-
-            newRecipe.fluidInputs(newFluidInputs)
-                    .fluidOutputs(outputF)
-                    .EUt((int) Math.max(1, ((EUt * this.EUtPercentage * minMultiplier / 100.0) * tierDiff) / batchMode.getAmount()))
-                    .duration((int) Math.max(1, ((duration * (this.durationPercentage / 100.0)) / tierDiff) * batchMode.getAmount()));
-
-            return newRecipe.build().getResult();
-        }
-
-        private void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
-            for (FluidStack fluidS : recipe.getFluidInputs()) {
-                FluidStack newFluid = new FluidStack(fluidS.getFluid(), fluidS.amount * multiplier);
-                newFluidInputs.add(newFluid);
-            }
-            for (FluidStack fluid : recipe.getFluidOutputs()) {
-                int fluidNum = fluid.amount * multiplier;
-                FluidStack fluidCopy = fluid.copy();
-                fluidCopy.amount = fluidNum;
-                outputF.add(fluidCopy);
-            }
-        }
-
-        private float fusionOverclockMultiplier(long energyToStart, long recipeEnergy) {
-            recipeEnergy = Math.max(160_000_000, recipeEnergy);
-            long recipeEnergyOld = recipeEnergy;
-            float OCMultiplier = 1;
-            while (recipeEnergy <= energyToStart) {
-                if (recipeEnergy != recipeEnergyOld)
-                    OCMultiplier *= recipeEnergy > 640_000_000 ? 4 : 2.8F;
-                recipeEnergy *= 2;
-            }
-            return OCMultiplier;
-        }
-
-        @Override
-        protected void setActive(boolean active) {
-            if (!getWorld().isRemote)
-                this.abilityActive.apply(active);
-            super.setActive(active);
-        }
     }
 }
