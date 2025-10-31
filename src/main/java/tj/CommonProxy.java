@@ -1,7 +1,6 @@
 package tj;
 
 
-import tj.blocks.TJMetaBlocks;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
 import tj.items.TJMetaItems;
@@ -52,6 +51,7 @@ public class CommonProxy {
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(ENERGY_PORT_CASING, VariantItemBlock::new));
+        registry.register(createItemBlock(ADV_ENERGY_PORT_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(PIPE_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(FUSION_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(FUSION_GLASS, VariantItemBlock::new));

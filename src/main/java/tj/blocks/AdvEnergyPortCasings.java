@@ -35,21 +35,21 @@ import tj.mixin.gregtech.IMetaTileEntityEnergyHatchMixin;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityType> implements IBlockController {
+public class AdvEnergyPortCasings extends VariantBlock<AdvEnergyPortCasings.AbilityType> implements IBlockController {
 
     public static final PropertyBool ACTIVE = PropertyBool.create("active");
     private final int amps;
     private MultiblockControllerBase controller;
 
-    public EnergyPortCasings(int amps) {
+    public AdvEnergyPortCasings(int amps) {
         super(Material.IRON);
         this.setHardness(5.0f);
         this.setResistance(10.0f);
         this.setSoundType(SoundType.METAL);
         this.setHarvestLevel("wrench", 2);
-        this.setTranslationKey(amps == 2 ? "ability_casing" : "ability_casing." + amps);
-        this.setRegistryName(amps == 2 ? "ability_casing" : "ability_casing." + amps);
-        this.setDefaultState(getState(AbilityType.ENERGY_PORT_LUV).withProperty(ACTIVE, false));
+        this.setTranslationKey(amps == 2 ? "energy_casing" : "energy_casing." + amps);
+        this.setRegistryName(amps == 2 ? "energy_casing" : "energy_casing." + amps);
+        this.setDefaultState(getState(AbilityType.ENERGY_PORT_UHV).withProperty(ACTIVE, false));
         this.amps = amps;
     }
 
@@ -66,7 +66,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
             return true;
         if (stack.isEmpty()) {
             if (playerIn.isSneaking() && this.amps != 2) {
-                worldIn.setBlockState(pos, TJMetaBlocks.ENERGY_PORT_CASING.getState(state.getValue(VARIANT)));
+                worldIn.setBlockState(pos, TJMetaBlocks.ADV_ENERGY_PORT_CASING.getState(state.getValue(VARIANT)));
                 worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), this.getEnergyHatch(state.getValue(VARIANT).getTier(), this.amps)));
                 if (this.controller != null)
                     this.controller.invalidateStructure();
@@ -96,7 +96,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
             return true;
         }
         long amps = energyContainer.getInputAmperage();
-        TJMetaBlocks.ENERGY_PORT_CASINGS.forEach(block -> {
+        TJMetaBlocks.ADV_ENERGY_PORT_CASINGS.forEach(block -> {
             if (amps == block.getAmps() && this.amps != amps) {
                 worldIn.setBlockState(pos, block.getState(state.getValue(VARIANT)));
                 playerIn.sendMessage(new TextComponentTranslation("tj.machine.energy_hatch.set", amps));
@@ -114,7 +114,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
     public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         if (this.amps > 2) {
             drops.add(this.getEnergyHatch(state.getValue(VARIANT).getTier(), this.getAmps()));
-            drops.add(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(state.getValue(VARIANT)));
+            drops.add(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(state.getValue(VARIANT)));
         } else super.getDrops(drops, world, pos, state, fortune);
     }
 
@@ -134,17 +134,17 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return super.getStateFromMeta(meta % 5).withProperty(ACTIVE, meta / 5 >= 1);
+        return super.getStateFromMeta(meta % 6).withProperty(ACTIVE, meta / 6 >= 1);
     }
 
     @Override
     public int getMetaFromState(IBlockState state) {
-        return super.getMetaFromState(state) + (state.getValue(ACTIVE) ? 5 : 0);
+        return super.getMetaFromState(state) + (state.getValue(ACTIVE) ? 6 : 0);
     }
 
     @Override
     public int damageDropped(IBlockState state) {
-        return super.damageDropped(state) - (state.getValue(ACTIVE) ? 5 : 0);
+        return super.damageDropped(state) - (state.getValue(ACTIVE) ? 6 : 0);
     }
 
     @Override
@@ -169,11 +169,12 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
 
     public enum AbilityType implements IStringSerializable {
 
-        ENERGY_PORT_LUV("energy_port_luv", 6),
-        ENERGY_PORT_ZPM("energy_port_zpm", 7),
-        ENERGY_PORT_UV("energy_port_uv", 8),
         ENERGY_PORT_UHV("energy_port_uhv", 9),
-        ENERGY_PORT_UEV("energy_port_uev", 10);
+        ENERGY_PORT_UEV("energy_port_uev", 10),
+        ENERGY_PORT_UIV("energy_port_uiv", 11),
+        ENERGY_PORT_UMV("energy_port_umv", 12),
+        ENERGY_PORT_UVX("energy_port_uxv", 13),
+        ENERGY_PORT_MAX("energy_port_max", 14);
 
         private final String name;
         private final int tier;
