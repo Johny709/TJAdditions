@@ -42,6 +42,7 @@ public class CommonProxy {
         registry.register(FUSION_CASING);
         registry.register(FUSION_GLASS);
         ENERGY_PORT_CASINGS.forEach(registry::register);
+        ADV_ENERGY_PORT_CASINGS.forEach(registry::register);
     }
 
     @SubscribeEvent

@@ -31,6 +31,7 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
@@ -64,7 +65,7 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, 100, 100, 100, 16, new RecipeMap[]{GARecipeMaps.ADV_FUSION_RECIPES, RecipeMaps.FUSION_RECIPES});
-        this.recipeMapWorkable = new IndustrialFusionRecipeLogic(this, 100, 100, 100, 1);
+        this.recipeMapWorkable = new IndustrialFusionRecipeLogic(this, 100, 100, 100, 1, true);
     }
 
     @Override
@@ -229,11 +230,11 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
         LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
         List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
         int divertor = context.getOrDefault("Divertor", GADivertorCasing.CasingType.DIVERTOR_1).getTier();
-        int coil = context.getOrDefault("Coil", GAFusionCasing.CasingType.ADV_FUSION_COIL_1).ordinal() - 4;
+        int coil = context.getOrDefault("Coil", GAFusionCasing.CasingType.ADV_FUSION_COIL_1).ordinal() - 3;
         int vacuum = context.getOrDefault("Vacuum", GAVacuumCasing.CasingType.VACUUM_1).getTier();
         int cryostat = context.getOrDefault("Cryostat", GACryostatCasing.CasingType.CRYOSTAT_1).getTier();
         this.tier = Math.min(divertor, Math.min(coil, Math.min(vacuum, cryostat)));
-        this.maxVoltage = (long) (Math.pow(4, this.tier + GAValues.UHV) * 8);
+        this.maxVoltage = (long) (Math.pow(4, this.tier + GAValues.UV) * 8);
         long energyCapacity = 0;
         for (int i = 0; i < energyPortAmps.size(); i++) {
             energyCapacity += (long) (100000000 * energyPortAmps.get(i) * Math.pow(2, energyPorts.get(i).getTier() - GAValues.UHV));
@@ -245,17 +246,48 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
         this.inputEnergyContainers = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.inputFluidInventory = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
         this.outputFluidInventory = new FluidTankList(true, this.getAbilities(EXPORT_FLUIDS));
-        this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier + GAValues.UHV], 0, 0, 0);
+        this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier + GAValues.UV], 0, 0, 0);
+        this.writeCustomData(10, buffer -> buffer.writeInt(this.tier + GAValues.UV));
+        this.markDirty();
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return this.recipeMapWorkable.isActive() ? TJTextures.FUSION_PORT_UEV_ACTIVE : TJTextures.FUSION_PORT_UEV;
+        switch (this.tier) {
+            case 9: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
+            case 10: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
+            case 11: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
+            case 12: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
+            case 13: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
+            case 14: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
+            default: return ClientHandler.FUSION_TEXTURE;
+        }
     }
 
     @Override
     public OrientedOverlayRenderer getRecipeMapOverlay(int i) {
         return ClientHandler.FUSION_REACTOR_OVERLAY;
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeInt(this.tier);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.tier = buf.readInt();
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 10) {
+            this.tier = buf.readInt();
+            this.scheduleRenderUpdate();
+        }
     }
 
     @Override

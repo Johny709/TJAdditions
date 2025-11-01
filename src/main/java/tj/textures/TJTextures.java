@@ -65,6 +65,18 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer FUSION_PORT_UHV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uhv_active");
     public static final TJSimpleCubeRenderer FUSION_PORT_UEV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uev");
     public static final TJSimpleCubeRenderer FUSION_PORT_UEV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_uev_active");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UHV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uhv");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UHV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uhv_active");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UEV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uev");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UEV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uev_active");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UIV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uiv");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UIV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uiv_active");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UMV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_umv");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UMV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_umv_active");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UXV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uxv");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_UXV_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_uxv_active");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_MAX = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_max");
+    public static final TJSimpleCubeRenderer ADV_FUSION_PORT_MAX_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_max_active");
 
     public static final TJSimpleOverlayRenderer CHISEL_ARCHITECTURE = new TJSimpleOverlayRenderer("architecturecraft", "items/chisel");
     public static final TJSimpleOverlayRenderer HAMMER = new TJSimpleOverlayRenderer("architecturecraft", "items/hammer");
