@@ -6,7 +6,6 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeBuilder;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.recipeproperties.FusionEUToStartProperty;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -20,16 +19,15 @@ public class IndustrialFusionRecipeLogic extends LargeSimpleRecipeMapMultiblockC
 
     private final int EUtPercentage;
     private final int durationPercentage;
-    public RecipeMap<?> recipeMap;
     private final IFusionProvider fusionReactor;
 
-    public IndustrialFusionRecipeLogic(RecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+    public IndustrialFusionRecipeLogic(RecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack, boolean standardOC) {
         super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
         this.fusionReactor = (IFusionProvider) tileEntity;
-        this.allowOverclocking = false;
         this.EUtPercentage = EUtPercentage;
         this.durationPercentage = durationPercentage;
         this.recipeMap = tileEntity.recipeMap;
+        this.allowOverclocking = standardOC;
     }
 
     @Override
@@ -60,13 +58,13 @@ public class IndustrialFusionRecipeLogic extends LargeSimpleRecipeMapMultiblockC
         EUt = matchingRecipe.getEUt();
         duration = matchingRecipe.getDuration();
 
-        float tierDiff = fusionOverclockMultiplier(this.fusionReactor.getEnergyToStart(), recipeEnergy);
+        float tierDiff = this.allowOverclocking ? 1 : fusionOverclockMultiplier(this.fusionReactor.getEnergyToStart(), recipeEnergy);
 
         List<FluidStack> newFluidInputs = new ArrayList<>();
         List<FluidStack> outputF = new ArrayList<>();
         multiplyInputsAndOutputs(newFluidInputs, outputF, matchingRecipe, minMultiplier);
 
-        RecipeBuilder<?> newRecipe = recipeMap.recipeBuilder();
+        RecipeBuilder<?> newRecipe = this.recipeMap.recipeBuilder();
 
         newRecipe.fluidInputs(newFluidInputs)
                 .fluidOutputs(outputF)
