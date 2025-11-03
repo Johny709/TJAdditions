@@ -4,7 +4,6 @@ import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
-import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.PhantomFluidWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.util.function.BooleanConsumer;
@@ -93,6 +92,11 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     @Override
+    protected String getName() {
+        return "metaitem.ender_fluid_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name";
+    }
+
+    @Override
     protected void addEntryText(ITextComponent keyEntry, String key, FluidTank value) {
         FluidStack fluid = value.getFluid();
         boolean empty = fluid == null;
@@ -115,7 +119,6 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
         this.enableFluidPopUp = popUpWidgetGroup::setEnabled;
         this.fluidFilter.initUI(popUpWidgetGroup::addWidget);
         widget.accept(popUpWidgetGroup);
-        widget.accept(new LabelWidget(30, 4, "metaitem.ender_fluid_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name"));
         widget.accept(new ToggleButtonWidget(151, 161, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
                 .setTooltipText("machine.universal.toggle.filter.open"));
         widget.accept(new ImageWidget(151, 161, 18, 18, FLUID_FILTER));

@@ -4,7 +4,6 @@ import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.common.covers.CoverPump;
 import net.minecraft.client.resources.I18n;
@@ -69,8 +68,12 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
     }
 
     @Override
+    protected String getName() {
+        return "metaitem.ender_energy_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name";
+    }
+
+    @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new LabelWidget(30, 4, "metaitem.ender_energy_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name"));
         widget.accept(new ProgressWidget(this::getEnergyStored, 7, 38, 18, 18) {
             private long energyStored;
             private long energyCapacity;

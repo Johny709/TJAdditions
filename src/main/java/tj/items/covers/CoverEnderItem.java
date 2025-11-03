@@ -82,6 +82,11 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     @Override
+    protected String getName() {
+        return "metaitem.ender_item_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name";
+    }
+
+    @Override
     protected Map<String, LargeItemStackHandler> getMap() {
         return EnderWorldData.getItemChestMap();
     }
@@ -95,11 +100,10 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
         this.itemFilter.initUI(popUpWidgetGroup::addWidget);
         this.enableItemPopUp = popUpWidgetGroup::setEnabled;
         widget.accept(popUpWidgetGroup);
-        widget.accept(new LabelWidget(30, 4, "metaitem.ender_item_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name"));
         widget.accept(new ToggleButtonWidget(151, 161, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
                 .setTooltipText("machine.universal.toggle.filter.open"));
         widget.accept(new ImageWidget(151, 161, 18, 18, ITEM_FILTER));
-        widget.accept(new TJSlotWidget(null, 0, 7, 38)
+        widget.accept(new TJSlotWidget<>(null, 0, 7, 38)
                 .setItemHandlerSupplier(() -> this.handler)
                 .setBackgroundTexture(SLOT));
     }
