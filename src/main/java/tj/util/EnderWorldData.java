@@ -3,11 +3,9 @@ package tj.util;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import tj.builder.handlers.BasicEnergyHandler;
 import tj.items.handlers.LargeItemStackHandler;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -41,98 +39,51 @@ public class EnderWorldData extends WorldSavedData {
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
-        NBTTagList tankList = new NBTTagList(),
-                tankIDList = new NBTTagList(),
-                tankCapacityList = new NBTTagList(),
-                chestList = new NBTTagList(),
-                chestIDList = new NBTTagList(),
-                chestCapacityList = new NBTTagList(),
-                containerList = new NBTTagList(),
-                containerIDList = new NBTTagList();
-
-        int i = 0, j = 0, k = 0;
-        for (Map.Entry<String, FluidTank> tank : FLUID_TANK_MAP.entrySet()) {
-            NBTTagCompound tankCompound = new NBTTagCompound(), tankIDCompound = new NBTTagCompound(), tankCapacity = new NBTTagCompound();
-            tankCompound.setTag("Tank" + i, tank.getValue().writeToNBT(new NBTTagCompound()));
-            tankIDCompound.setString("ID" + i, tank.getKey());
-            tankCapacity.setInteger("Capacity" + i, tank.getValue().getCapacity());
-
-            tankList.appendTag(tankCompound);
-            tankIDList.appendTag(tankIDCompound);
-            tankCapacityList.appendTag(tankCapacity);
-            i++;
+        NBTTagList fluidList = new NBTTagList(), itemList = new NBTTagList(), energyList = new NBTTagList();
+        for (Map.Entry<String, FluidTank> entry : FLUID_TANK_MAP.entrySet()) {
+            NBTTagCompound compound = new NBTTagCompound();
+            compound.setString("key", entry.getKey());
+            compound.setLong("capacity", entry.getValue().getCapacity());
+            entry.getValue().writeToNBT(compound);
+            fluidList.appendTag(compound);
         }
-
-        for (Map.Entry<String, LargeItemStackHandler> chest : ITEM_CHEST_MAP.entrySet()) {
-            NBTTagCompound chestCompound = new NBTTagCompound(), chestIDCompound = new NBTTagCompound(), chestCapacity = new NBTTagCompound();
-            chestCompound.setTag("Chest" + j, chest.getValue().getStackInSlot(0).writeToNBT(new NBTTagCompound()));
-            chestIDCompound.setString("ID" + j, chest.getKey());
-            chestCapacity.setInteger("Capacity" + j, chest.getValue().getCapacity());
-
-            chestList.appendTag(chestCompound);
-            chestIDList.appendTag(chestIDCompound);
-            chestCapacityList.appendTag(chestCapacity);
-            j++;
+        for (Map.Entry<String, LargeItemStackHandler> entry : ITEM_CHEST_MAP.entrySet()) {
+            NBTTagCompound compound = new NBTTagCompound();
+            compound.setString("key", entry.getKey());
+            compound.setLong("capacity", entry.getValue().getCapacity());
+            compound.setTag("stack", entry.getValue().serializeNBT());
+            itemList.appendTag(compound);
         }
-
-        for (Map.Entry<String, BasicEnergyHandler> container : ENERGY_CONTAINER_MAP.entrySet()) {
-            NBTTagCompound containerCompound = new NBTTagCompound(), containerIDCompound = new NBTTagCompound();
-            containerCompound.setTag("Container" + k, container.getValue().writeToNBT(new NBTTagCompound()));
-            containerIDCompound.setString("ID" + k, container.getKey());
-
-            containerList.appendTag(containerCompound);
-            containerIDList.appendTag(containerIDCompound);
-            k++;
+        for (Map.Entry<String, BasicEnergyHandler> entry : ENERGY_CONTAINER_MAP.entrySet()) {
+            NBTTagCompound compound = new NBTTagCompound();
+            compound.setString("key", entry.getKey());
+            entry.getValue().writeToNBT(compound);
+            energyList.appendTag(compound);
         }
-        nbt.setTag("TankList", tankList);
-        nbt.setTag("TankIDList", tankIDList);
-        nbt.setTag("TankCapacityList", tankCapacityList);
-        nbt.setTag("ChestList", chestList);
-        nbt.setTag("ChestIDList", chestIDList);
-        nbt.setTag("ChestCapacityList", chestCapacityList);
-        nbt.setTag("ContainerList", containerList);
-        nbt.setTag("ContainerIDList", containerIDList);
+        nbt.setTag("fluidList", fluidList);
+        nbt.setTag("itemList", itemList);
+        nbt.setTag("energyList", energyList);
         return nbt;
     }
 
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound nbt) {
-        NBTTagList tankList = nbt.getTagList("TankList", Constants.NBT.TAG_COMPOUND),
-                tankIDList = nbt.getTagList("TankIDList", Constants.NBT.TAG_COMPOUND),
-                tankCapacityList = nbt.getTagList("TankCapacityList", Constants.NBT.TAG_COMPOUND),
-                chestList = nbt.getTagList("ChestList", Constants.NBT.TAG_COMPOUND),
-                chestIDList = nbt.getTagList("ChestIDList", Constants.NBT.TAG_COMPOUND),
-                chestCapacityList = nbt.getTagList("ChestCapacityList", Constants.NBT.TAG_COMPOUND),
-                containerList = nbt.getTagList("ContainerList", Constants.NBT.TAG_COMPOUND),
-                containerIDList = nbt.getTagList("ContainerIDList", Constants.NBT.TAG_COMPOUND);
-
-        for (int i = 0; i < tankList.tagCount(); i++) {
-            NBTTagCompound tankCompound = tankList.getCompoundTagAt(i).getCompoundTag("Tank" + i);
-            String tankIDCompound = tankIDList.getCompoundTagAt(i).getString("ID" + i);
-            int tankCapacity = tankCapacityList.getCompoundTagAt(i).getInteger("Capacity" + i);
-
-            FluidTank tank = new FluidTank(tankCapacity);
-            tank.readFromNBT(tankCompound);
-            FLUID_TANK_MAP.put(tankIDCompound, tank);
+        NBTTagList fluidList = nbt.getTagList("fluidList", 10), itemList = nbt.getTagList("itemList", 10), energyList = nbt.getTagList("energyList", 10);
+        for (int i = 0; i < fluidList.tagCount(); i++) {
+            NBTTagCompound compound = fluidList.getCompoundTagAt(i);
+            FLUID_TANK_MAP.put(compound.getString("key"), new FluidTank(compound.getInteger("capacity")).readFromNBT(compound));
         }
-
-        for (int i = 0; i < chestList.tagCount(); i++) {
-            NBTTagCompound chestCompound = chestList.getCompoundTagAt(i).getCompoundTag("Chest" + i);
-            String chestIDCompound = chestIDList.getCompoundTagAt(i).getString("ID" + i);
-            int chestCapacity = chestCapacityList.getCompoundTagAt(i).getInteger("Capacity" + i);
-
-            LargeItemStackHandler chest = new LargeItemStackHandler(1, chestCapacity);
-            chest.setStackInSlot(0, new ItemStack(chestCompound));
-            ITEM_CHEST_MAP.put(chestIDCompound, chest);
+        for (int i = 0; i < itemList.tagCount(); i++) {
+            NBTTagCompound compound = itemList.getCompoundTagAt(i);
+            LargeItemStackHandler itemStackHandler = new LargeItemStackHandler(1, compound.getInteger("capacity"));
+            itemStackHandler.deserializeNBT(compound.getCompoundTag("stack"));
+            ITEM_CHEST_MAP.put(compound.getString("key"), itemStackHandler);
         }
-
-        for (int i = 0; i < containerList.tagCount(); i++) {
-            NBTTagCompound containerCompound = containerList.getCompoundTagAt(i).getCompoundTag("Container" + i);
-            String containerIDCompound = containerIDList.getCompoundTagAt(i).getString("ID" + i);
-
-            BasicEnergyHandler container = new BasicEnergyHandler(0);
-            container.readFromNBT(containerCompound);
-            ENERGY_CONTAINER_MAP.put(containerIDCompound, container);
+        for (int i = 0; i < energyList.tagCount(); i++) {
+            NBTTagCompound compound = energyList.getCompoundTagAt(i);
+            BasicEnergyHandler energyHandler = new BasicEnergyHandler(0);
+            energyHandler.readFromNBT(compound);
+            ENERGY_CONTAINER_MAP.put(compound.getString("key"), energyHandler);
         }
     }
 
