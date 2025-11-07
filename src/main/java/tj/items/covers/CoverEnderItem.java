@@ -88,7 +88,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     protected Map<String, LargeItemStackHandler> getMap() {
-        return EnderWorldData.getItemChestMap(this.ownerId);
+        return EnderWorldData.getINSTANCE().getItemChestMap(this.ownerId);
     }
 
     @Override

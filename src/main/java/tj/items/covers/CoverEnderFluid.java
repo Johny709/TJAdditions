@@ -83,7 +83,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     protected Map<String, FluidTank> getMap() {
-        return EnderWorldData.getFluidTankMap(this.ownerId);
+        return EnderWorldData.getINSTANCE().getFluidTankMap(this.ownerId);
     }
 
     @Override

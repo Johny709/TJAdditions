@@ -15,14 +15,19 @@ import java.util.UUID;
 
 public class PlayerWorldIDData extends WorldSavedData {
 
-    private static final Map<UUID, Integer> PLAYER_WORLD_ID_MAP = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, Integer> PLAYER_WORLD_ID_MAP = new Object2ObjectOpenHashMap<>();
     private static PlayerWorldIDData INSTANCE;
 
     public PlayerWorldIDData(String name) {
         super(name);
+        INSTANCE = this;
     }
 
-    public static Map<UUID, Integer> getPlayerWorldIdMap() {
+    public static PlayerWorldIDData getINSTANCE() {
+        return INSTANCE;
+    }
+
+    public Map<UUID, Integer> getPlayerWorldIdMap() {
         return PLAYER_WORLD_ID_MAP;
     }
 
@@ -52,13 +57,13 @@ public class PlayerWorldIDData extends WorldSavedData {
         }
     }
 
-    public static void setDirty() {
+    public void setDirty() {
         if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER && INSTANCE != null) {
             INSTANCE.markDirty();
         }
     }
 
-    public static void setInstance(PlayerWorldIDData instance) {
+    public void setInstance(PlayerWorldIDData instance) {
         if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
             INSTANCE = instance;
         }

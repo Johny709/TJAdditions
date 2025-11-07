@@ -16,35 +16,39 @@ import java.util.UUID;
 
 public class EnderWorldData extends WorldSavedData {
 
-    private static final Map<UUID, Map<String, FluidTank>> FLUID_TANK_MULTI_MAP = new Object2ObjectOpenHashMap<>();
-    private static final Map<UUID, Map<String, LargeItemStackHandler>> ITEM_CHEST_MULTI_MAP = new Object2ObjectOpenHashMap<>();
-    private static final Map<UUID, Map<String, BasicEnergyHandler>> ENERGY_CONTAINER_MULTI_MAP = new Object2ObjectOpenHashMap<>();
     private static EnderWorldData INSTANCE;
+    private final Map<UUID, Map<String, FluidTank>> fluidTankPlayerMap = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, Map<String, LargeItemStackHandler>> itemChestPlayerMap = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, Map<String, BasicEnergyHandler>> energyContainerPlayerMap = new Object2ObjectOpenHashMap<>();
 
     public EnderWorldData(String name) {
         super(name);
-        FLUID_TANK_MULTI_MAP.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
-        ITEM_CHEST_MULTI_MAP.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
-        ENERGY_CONTAINER_MULTI_MAP.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
+        this.fluidTankPlayerMap.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
+        this.itemChestPlayerMap.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
+        this.energyContainerPlayerMap.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
     }
 
-    public static Map<String, FluidTank> getFluidTankMap(UUID value) {
-        return FLUID_TANK_MULTI_MAP.get(value);
+    public static EnderWorldData getINSTANCE() {
+        return INSTANCE;
     }
 
-    public static Map<String, LargeItemStackHandler> getItemChestMap(UUID value) {
-        return ITEM_CHEST_MULTI_MAP.get(value);
+    public Map<String, FluidTank> getFluidTankMap(UUID value) {
+        return this.fluidTankPlayerMap.get(value);
     }
 
-    public static Map<String, BasicEnergyHandler> getEnergyContainerMap(UUID value) {
-        return ENERGY_CONTAINER_MULTI_MAP.get(value);
+    public Map<String, LargeItemStackHandler> getItemChestMap(UUID value) {
+        return this.itemChestPlayerMap.get(value);
+    }
+
+    public Map<String, BasicEnergyHandler> getEnergyContainerMap(UUID value) {
+        return this.energyContainerPlayerMap.get(value);
     }
 
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
         NBTTagList fluidMap = new NBTTagList();
-        for (Map.Entry<UUID, Map<String, FluidTank>> playerEntry : FLUID_TANK_MULTI_MAP.entrySet()) {
+        for (Map.Entry<UUID, Map<String, FluidTank>> playerEntry : this.fluidTankPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
             NBTTagList fluidList = new NBTTagList();
             for (Map.Entry<String, FluidTank> entry : playerEntry.getValue().entrySet()) {
@@ -60,7 +64,7 @@ public class EnderWorldData extends WorldSavedData {
             fluidMap.appendTag(playerCompound);
         }
         NBTTagList itemMap = new NBTTagList();
-        for (Map.Entry<UUID, Map<String, LargeItemStackHandler>> playerEntry : ITEM_CHEST_MULTI_MAP.entrySet()) {
+        for (Map.Entry<UUID, Map<String, LargeItemStackHandler>> playerEntry : this.itemChestPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
             NBTTagList itemList = new NBTTagList();
             for (Map.Entry<String, LargeItemStackHandler> entry : playerEntry.getValue().entrySet()) {
@@ -76,7 +80,7 @@ public class EnderWorldData extends WorldSavedData {
             itemMap.appendTag(playerCompound);
         }
         NBTTagList energyMap = new NBTTagList();
-        for (Map.Entry<UUID, Map<String, BasicEnergyHandler>> playerEntry : ENERGY_CONTAINER_MULTI_MAP.entrySet()) {
+        for (Map.Entry<UUID, Map<String, BasicEnergyHandler>> playerEntry : this.energyContainerPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
             NBTTagList energyList = new NBTTagList();
             for (Map.Entry<String, BasicEnergyHandler> entry : playerEntry.getValue().entrySet()) {
@@ -108,7 +112,7 @@ public class EnderWorldData extends WorldSavedData {
                 fluidTankMap.put(compound.getString("key"), new FluidTank(compound.getInteger("capacity")).readFromNBT(compound));
             }
             UUID id = playerCompound.hasUniqueId("id") ? playerCompound.getUniqueId("id") : null;
-            FLUID_TANK_MULTI_MAP.put(id, fluidTankMap);
+            this.fluidTankPlayerMap.put(id, fluidTankMap);
         }
         NBTTagList itemMap = nbt.getTagList("itemMap", 10);
         for (int i = 0; i < itemMap.tagCount(); i++) {
@@ -122,7 +126,7 @@ public class EnderWorldData extends WorldSavedData {
                 itemChestMap.put(compound.getString("key"), itemStackHandler);
             }
             UUID id = playerCompound.hasUniqueId("id") ? playerCompound.getUniqueId("id") : null;
-            ITEM_CHEST_MULTI_MAP.put(id, itemChestMap);
+            this.itemChestPlayerMap.put(id, itemChestMap);
         }
         NBTTagList energyMap = nbt.getTagList("energyMap", 10);
         for (int i = 0; i < energyMap.tagCount(); i++) {
@@ -136,17 +140,17 @@ public class EnderWorldData extends WorldSavedData {
                 energyContainerMap.put(compound.getString("key"), energyHandler);
             }
             UUID id = playerCompound.hasUniqueId("id") ? playerCompound.getUniqueId("id") : null;
-            ENERGY_CONTAINER_MULTI_MAP.put(id, energyContainerMap);
+            this.energyContainerPlayerMap.put(id, energyContainerMap);
         }
     }
 
-    public static void setDirty() {
+    public void setDirty() {
         if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER && INSTANCE != null) {
             INSTANCE.markDirty();
         }
     }
 
-    public static void setInstance(EnderWorldData instance) {
+    public void setInstance(EnderWorldData instance) {
         if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
             INSTANCE = instance;
         }

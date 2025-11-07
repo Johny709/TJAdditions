@@ -64,7 +64,7 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     protected Map<String, BasicEnergyHandler> getMap() {
-        return EnderWorldData.getEnergyContainerMap(this.ownerId);
+        return EnderWorldData.getINSTANCE().getEnergyContainerMap(this.ownerId);
     }
 
     @Override

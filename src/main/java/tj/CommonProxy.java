@@ -63,7 +63,6 @@ public class CommonProxy {
         RecipeInit.init();
     }
 
-
     @SubscribeEvent
     public static void registerOrePrefix(RegistryEvent.Register<IRecipe> event) {
         TJMetaItems.registerOreDict();
@@ -72,29 +71,27 @@ public class CommonProxy {
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
         MapStorage storage = event.getWorld().getMapStorage();
-        WorldSavedData worldData = storage.getOrLoadData(EnderWorldData.class, "EnderWorldData");
-        WorldSavedData playerWorldData = storage.getOrLoadData(PlayerWorldIDData.class, "PlayerWorldListData");
+        EnderWorldData enderWorldData = (EnderWorldData) storage.getOrLoadData(EnderWorldData.class, "EnderWorldData");
+        PlayerWorldIDData playerWorldData = (PlayerWorldIDData) storage.getOrLoadData(PlayerWorldIDData.class, "PlayerWorldListData");
 
-        if (worldData == null) {
+        if (enderWorldData == null) {
             storage.setData("EnderWorldData", new EnderWorldData("EnderWorldData"));
-        }
+        } else enderWorldData.setInstance(enderWorldData);
         if (playerWorldData == null) {
             storage.setData("PlayerWorldListData", new PlayerWorldIDData("PlayerWorldListData"));
-        }
-        EnderWorldData.setInstance((EnderWorldData) worldData);
-        PlayerWorldIDData.setInstance((PlayerWorldIDData) playerWorldData);
+        } else playerWorldData.setInstance(playerWorldData);
     }
 
     @SubscribeEvent
     public static void onWorldUnload(WorldEvent.Unload event) {
-        EnderWorldData.setDirty();
-        PlayerWorldIDData.setDirty();
+        EnderWorldData.getINSTANCE().setDirty();
+        PlayerWorldIDData.getINSTANCE().setDirty();
     }
 
     @SubscribeEvent
     public static void onWorldSave(WorldEvent.Save event) {
-        EnderWorldData.setDirty();
-        PlayerWorldIDData.setDirty();
+        EnderWorldData.getINSTANCE().setDirty();
+        PlayerWorldIDData.getINSTANCE().setDirty();
     }
 
     @SubscribeEvent
@@ -111,14 +108,14 @@ public class CommonProxy {
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         UUID player = event.player.getUniqueID();
         int worldID = event.player.world.provider.getDimension();
-        PlayerWorldIDData.getPlayerWorldIdMap().put(player, worldID);
+        PlayerWorldIDData.getINSTANCE().getPlayerWorldIdMap().put(player, worldID);
     }
 
     @SubscribeEvent
     public static void onPlayerDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
         UUID player = event.player.getUniqueID();
         int worldID = event.toDim;
-        PlayerWorldIDData.getPlayerWorldIdMap().put(player, worldID);
+        PlayerWorldIDData.getINSTANCE().getPlayerWorldIdMap().put(player, worldID);
     }
 
     private static <T extends Block> ItemBlock createItemBlock(T block, Function<T, ItemBlock> producer) {
