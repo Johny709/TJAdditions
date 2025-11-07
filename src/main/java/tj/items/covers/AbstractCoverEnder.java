@@ -42,6 +42,7 @@ import tj.textures.TJTextures;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -54,6 +55,7 @@ import static tj.gui.TJGuiTextures.*;
 public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, IPlayerUI, ITickable, IControllable {
 
     protected String text = "";
+    protected UUID ownerId;
     protected String searchPrompt = "";
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
@@ -289,7 +291,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void addChannelDisplayText(List<ITextComponent> textList) {
-
+        textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + this.searchResults + "§r/§e" + this.getMap().size() + "§r)"));
     }
 
     private void addDisplayText(List<ITextComponent> textList) {
@@ -377,6 +379,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         data.setBoolean("HasSpaces", this.hasSpaces);
         data.setInteger("TransferRate", this.transferRate);
         data.setString("Text", this.text);
+        if (this.ownerId != null)
+            data.setUniqueId("ownerId", this.ownerId);
     }
 
     @Override
@@ -387,6 +391,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.isCaseSensitive = data.getBoolean("CaseSensitive");
         this.hasSpaces = data.getBoolean("HasSpaces");
         this.transferRate = data.getInteger("TransferRate");
+        if (data.hasKey("ownerId"))
+            this.ownerId = data.getUniqueId("ownerId");
         if (data.hasKey("Text")) {
             this.text = data.getString("Text");
             this.handler = this.getMap().get((K) this.text);
