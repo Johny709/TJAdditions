@@ -87,8 +87,13 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     @Override
+    protected Map<String, Map<String, LargeItemStackHandler>> getPlayerMap() {
+        return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
+    }
+
+    @Override
     protected Map<String, LargeItemStackHandler> getMap() {
-        return EnderWorldData.getINSTANCE().getItemChestMap(this.ownerId);
+        return EnderWorldData.getINSTANCE().getItemChestMap(this.channel);
     }
 
     @Override
@@ -144,11 +149,11 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     public void update() {
-        if (this.isWorkingEnabled) {
+        if (this.timer++ % 50 == 0)
             this.handler = this.getMap().get(this.text);
-            if (this.handler == null) {
-                return;
-            }
+        if (this.handler == null)
+            return;
+        if (this.isWorkingEnabled) {
             if (this.pumpMode == IMPORT) {
                 this.moveInventoryItems(this.itemInventory, this.handler);
             } else {

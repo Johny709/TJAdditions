@@ -55,12 +55,14 @@ import static tj.gui.TJGuiTextures.*;
 public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, IPlayerUI, ITickable, IControllable {
 
     protected String text = "";
+    protected String channel;
     protected UUID ownerId;
     protected String searchPrompt = "";
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
     protected int maxTransferRate;
     protected int transferRate = maxTransferRate;
+    protected int timer;
     protected boolean isFilterPopUp;
     protected boolean isCaseSensitive;
     protected boolean hasSpaces;
@@ -79,7 +81,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
         renderState.baseColour = getPortalColor() << 8;
         renderState.alphaOverride = 0xFF;
-        getOverlay().renderSided(attachedSide, renderState, translation, pipeline);
+        this.getOverlay().renderSided(attachedSide, renderState, translation, pipeline);
 
         renderState.baseColour = TJValues.VC[getTier()] << 8;
         TJTextures.INSIDE_OVERLAY_BASE.renderSided(attachedSide, renderState, translation, pipeline);
@@ -110,6 +112,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     protected abstract TJSimpleOverlayRenderer getOverlay();
+
+    protected abstract Map<String, Map<K, V>> getPlayerMap();
 
     protected abstract Map<K, V> getMap();
 
@@ -217,7 +221,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     tab.addWidget(addWidgetGroup);
                 })
                 .addTab("names", new ItemStack(Items.NAME_TAG), tab -> {
-                    ScrollableListWidget listWidget = new ScrollableListWidget(3, 38, 182, 80) {
+                    ScrollableListWidget listWidget = new ScrollableListWidget(3, 38, 182, 103) {
                         @Override
                         public boolean isWidgetClickable(Widget widget) {
                             return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
@@ -280,6 +284,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         return this.pumpMode;
     }
 
+    private void setChannel(String channel) {
+        this.channel = channel;
+        this.markAsDirty();
+    }
+
     private void setTextID(String text) {
         this.text = text;
         this.handler = this.getMap().get((K) this.text);
@@ -291,7 +300,29 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void addChannelDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + this.searchResults + "§r/§e" + this.getMap().size() + "§r)"));
+        int count = 0, searchResults = 0;
+        textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + this.searchResults + "§r/§e" + this.getPlayerMap().size() + "§r)"));
+        for (Map.Entry<String, Map<K, V>> entry : this.getPlayerMap().entrySet()) {
+            String text =  entry.getKey() != null ? entry.getKey().toString() : "PUBLIC";
+            String result = text;
+
+            if (!this.isCaseSensitive)
+                result = result.toLowerCase();
+
+            if (!this.hasSpaces)
+                result = result.replace(" ", "");
+
+            if (!result.isEmpty() && !result.contains(this.searchPrompt))
+                continue;
+
+            textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
+                    .appendText("\n")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select:channel:" + text))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:channel:" + text)));
+        }
     }
 
     private void addDisplayText(List<ITextComponent> textList) {
@@ -312,11 +343,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
             ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
                     .appendText("\n")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select:" + text))
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select:entry:" + text))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + text))
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + text));
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:entry:" + text));
             textList.add(keyEntry);
             this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
             searchResults++;
@@ -329,15 +360,19 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     private void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.startsWith("select")) {
             String[] select = componentData.split(":");
-            this.setTextID(select[1]);
+            if (select[1].equals("entry"))
+                this.setTextID(select[2]);
+            else this.setChannel(select[2]);
 
         } else if (componentData.startsWith("remove")) {
             String[] remove = componentData.split(":");
-            this.getMap().remove(remove[1]);
+            if (remove[1].equals("entry"))
+                this.getMap().remove(remove[2]);
+            else this.getPlayerMap().remove(remove[2]);
 
         } else if (componentData.startsWith("rename")) {
             String[] rename = componentData.split(":");
-            this.renamePrompt = rename[1];
+            this.renamePrompt = rename[2];
             PlayerHolder holder = new PlayerHolder(player, this);
             holder.openUI();
         }
@@ -379,6 +414,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         data.setBoolean("HasSpaces", this.hasSpaces);
         data.setInteger("TransferRate", this.transferRate);
         data.setString("Text", this.text);
+        if (this.channel != null)
+            data.setString("channel", this.channel);
         if (this.ownerId != null)
             data.setUniqueId("ownerId", this.ownerId);
     }
@@ -391,6 +428,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.isCaseSensitive = data.getBoolean("CaseSensitive");
         this.hasSpaces = data.getBoolean("HasSpaces");
         this.transferRate = data.getInteger("TransferRate");
+        if (data.hasKey("channel"))
+            this.channel = data.getString("channel");
         if (data.hasKey("ownerId"))
             this.ownerId = data.getUniqueId("ownerId");
         if (data.hasKey("Text")) {
