@@ -16,6 +16,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.HorizontalTabListRenderer;
 import gregtech.common.covers.CoverPump;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -33,10 +34,7 @@ import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.uifactory.IPlayerUI;
 import tj.gui.uifactory.PlayerHolder;
-import tj.gui.widgets.OnTextFieldWidget;
-import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJClickButtonWidget;
-import tj.gui.widgets.TJTextFieldWidget;
+import tj.gui.widgets.*;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 
@@ -121,6 +119,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     protected abstract V createHandler();
 
+    protected void addChannel(Widget.ClickData clickData) {
+        this.getPlayerMap().putIfAbsent(this.channel, new Object2ObjectOpenHashMap<>());
+    }
+
     protected void onAddEntry(Widget.ClickData clickData) {
         this.getMap().putIfAbsent((K) this.text, this.createHandler());
     }
@@ -187,7 +189,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
                     widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
                     widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
-                    widgetGroup.addWidget(new TJTextFieldWidget(32, 43, 112, 18, false, this::getTextID, this::setTextID)
+                    widgetGroup.addWidget(new TJTextFieldWidget(32, 43, 112, 18, false, () -> this.text, this::setTextID)
                             .setTextLength(256)
                             .setTooltipText("machine.universal.toggle.current.entry")
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
@@ -195,7 +197,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setTooltipText("metaitem.ender_cover.transfer")
                             .setTooltipFormat(this::getTooltipFormat)
                             .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-                    widgetGroup.addWidget(new TJTextFieldWidget(32, 147, 112, 18, false, this::getSearchPrompt, this::setSearchPrompt)
+                    widgetGroup.addWidget(new TJTextFieldWidget(32, 147, 112, 18, false, () -> this.searchPrompt, this::setSearchPrompt)
                             .setTextLength(256)
                             .setBackgroundText("machine.universal.search")
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
@@ -212,7 +214,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setTooltipText("machine.universal.case_sensitive"));
                     widgetGroup.addWidget(new ToggleButtonWidget(151, 142, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
                             .setTooltipText("machine.universal.spaces"));
-                    widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, this::getPumpMode, this::setPumpMode));
+                    widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                     widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                             .setTooltipText("machine.universal.toggle.run.mode"));
                     this.addWidgets(addWidgetGroup::addWidget);
@@ -230,10 +232,17 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     listWidget.addWidget(new TJAdvancedTextWidget(2, 3, this::addChannelDisplayText, 0xFFFFFF)
                             .setClickHandler(this::handleDisplayClick)
                             .setMaxWidthLimit(1000));
-                    tab.addWidget(new ImageWidget(3, 15, 170, 18, DISPLAY));
+                    tab.addWidget(new ImageWidget(3, 15, 142, 18, DISPLAY));
                     tab.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
-                    tab.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "O", this::onAddEntry)
-                            .setTooltipText("machine.universal.toggle.add.entry"));
+                    tab.addWidget(new NewTextFieldWidget<>(5, 20, 139, 18)
+                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                            .setTooltipText("machine.universal.toggle.current.channel")
+                            .setBackgroundText("machine.universal.search")
+                            .setTextResponder(this::setChannel)
+                            .setInitialText(this.channel)
+                            .setMaxStringLength(256));
+                    tab.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "O", this::addChannel)
+                            .setTooltipText("machine.universal.toggle.add.channel"));
                     tab.addWidget(listWidget);
                 });
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
@@ -246,10 +255,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     private void setSearchPrompt(String searchPrompt) {
         this.searchPrompt = searchPrompt;
         this.markAsDirty();
-    }
-
-    private String getSearchPrompt() {
-        return this.searchPrompt;
     }
 
     private String[] getTooltipFormat() {
@@ -280,10 +285,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.markAsDirty();
     }
 
-    private CoverPump.PumpMode getPumpMode() {
-        return this.pumpMode;
-    }
-
     private void setChannel(String channel) {
         this.channel = channel;
         this.markAsDirty();
@@ -295,15 +296,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.markAsDirty();
     }
 
-    private String getTextID() {
-        return this.text;
-    }
-
     private void addChannelDisplayText(List<ITextComponent> textList) {
         int count = 0, searchResults = 0;
         textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + this.searchResults + "§r/§e" + this.getPlayerMap().size() + "§r)"));
         for (Map.Entry<String, Map<K, V>> entry : this.getPlayerMap().entrySet()) {
-            String text =  entry.getKey() != null ? entry.getKey().toString() : "PUBLIC";
+            String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
             String result = text;
 
             if (!this.isCaseSensitive)
@@ -328,7 +325,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     private void addDisplayText(List<ITextComponent> textList) {
         int count = 0, searchResults = 0;
         textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + this.searchResults + "§r/§e" + this.getMap().size() + "§r)"));
-        for (Map.Entry<K, V> entry : getMap().entrySet()) {
+        for (Map.Entry<K, V> entry : this.getMap().entrySet()) {
             String text = (String) entry.getKey();
             String result = text;
 

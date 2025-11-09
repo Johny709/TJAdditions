@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.Map;
 
 public class EnderWorldData extends WorldSavedData {
@@ -44,15 +45,15 @@ public class EnderWorldData extends WorldSavedData {
     }
 
     public Map<String, FluidTank> getFluidTankMap(String value) {
-        return this.fluidTankPlayerMap.get(value);
+        return this.fluidTankPlayerMap.getOrDefault(value, Collections.emptyMap());
     }
 
     public Map<String, LargeItemStackHandler> getItemChestMap(String value) {
-        return this.itemChestPlayerMap.get(value);
+        return this.itemChestPlayerMap.getOrDefault(value, Collections.emptyMap());
     }
 
     public Map<String, BasicEnergyHandler> getEnergyContainerMap(String value) {
-        return this.energyContainerPlayerMap.get(value);
+        return this.energyContainerPlayerMap.getOrDefault(value, Collections.emptyMap());
     }
 
     @Override
