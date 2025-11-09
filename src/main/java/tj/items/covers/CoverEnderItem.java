@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.PopUpWidgetGroup;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.LargeItemStackHandler;
@@ -87,7 +88,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     @Override
-    protected Map<String, Map<String, LargeItemStackHandler>> getPlayerMap() {
+    protected Map<String, Pair<CoverEnderProfile, Map<String, LargeItemStackHandler>>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
     }
 

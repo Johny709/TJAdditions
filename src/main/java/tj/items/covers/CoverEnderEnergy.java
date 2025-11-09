@@ -13,6 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.HoverEvent;
+import org.apache.commons.lang3.tuple.Pair;
 import tj.builder.handlers.BasicEnergyHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
@@ -63,7 +64,7 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
     }
 
     @Override
-    protected Map<String, Map<String, BasicEnergyHandler>> getPlayerMap() {
+    protected Map<String, Pair<CoverEnderProfile, Map<String, BasicEnergyHandler>>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getEnergyContainerPlayerMap();
     }
 

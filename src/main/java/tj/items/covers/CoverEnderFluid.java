@@ -20,6 +20,7 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.PopUpWidgetGroup;
 import tj.gui.widgets.TJTankWidget;
 import tj.textures.TJSimpleOverlayRenderer;
@@ -82,7 +83,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     @Override
-    protected Map<String, Map<String, FluidTank>> getPlayerMap() {
+    protected Map<String, Pair<CoverEnderProfile, Map<String, FluidTank>>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getFluidTankPlayerMap();
     }
 

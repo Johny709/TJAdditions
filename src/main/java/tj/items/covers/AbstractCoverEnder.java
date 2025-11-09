@@ -5,7 +5,6 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.GAValues;
 import gregtech.api.capability.IControllable;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverBehaviorUIFactory;
@@ -19,17 +18,20 @@ import gregtech.common.covers.CoverPump;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.uifactory.IPlayerUI;
@@ -92,6 +94,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public EnumActionResult onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, CuboidRayTraceResult hitResult) {
         if (!playerIn.world.isRemote) {
+            if (this.ownerId == null) {
+                this.ownerId = playerIn.getUniqueID();
+                this.writeUpdateData(2, buffer -> buffer.writeUniqueId(this.ownerId));
+            }
             this.openUI((EntityPlayerMP) playerIn);
         }
         return EnumActionResult.SUCCESS;
@@ -109,9 +115,13 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         return "Null";
     }
 
+    protected CoverEnderProfile getEnderProfile()  {
+        return this.getPlayerMap().getOrDefault(this.channel, this.getPlayerMap().get(null)).getLeft();
+    }
+
     protected abstract TJSimpleOverlayRenderer getOverlay();
 
-    protected abstract Map<String, Map<K, V>> getPlayerMap();
+    protected abstract Map<String, Pair<CoverEnderProfile, Map<K, V>>> getPlayerMap();
 
     protected abstract Map<K, V> getMap();
 
@@ -120,7 +130,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected abstract V createHandler();
 
     protected void addChannel(Widget.ClickData clickData) {
-        this.getPlayerMap().putIfAbsent(this.channel, new Object2ObjectOpenHashMap<>());
+        this.getPlayerMap().putIfAbsent(this.channel, Pair.of(new CoverEnderProfile(this.ownerId), new Object2ObjectOpenHashMap<>()));
     }
 
     protected void onAddEntry(Widget.ClickData clickData) {
@@ -166,7 +176,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     public ModularUI createUI(EntityPlayer player) {
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
-                .addWidget(new LabelWidget(30, 4, "metaitem.ender_energy_cover_" + GAValues.VN[this.getTier()].toLowerCase() + ".name"))
+                .addWidget(new LabelWidget(30, 4, this.getName()))
                 .addTab(this.getName(), this.getPickItem(), tab -> {
                     WidgetGroup widgetGroup = new WidgetGroup(), addWidgetGroup = new WidgetGroup();
                     ScrollableListWidget listWidget = new ScrollableListWidget(3, 61, 182, 80) {
@@ -189,10 +199,12 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
                     widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
                     widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
-                    widgetGroup.addWidget(new TJTextFieldWidget(32, 43, 112, 18, false, () -> this.text, this::setTextID)
-                            .setTextLength(256)
+                    widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 18, false)
+                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setTooltipText("machine.universal.toggle.current.entry")
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
+                            .setTextResponder(this::setTextID)
+                            .setTextSupplier(() -> this.text)
+                            .setMaxStringLength(256));
                     widgetGroup.addWidget(new TJTextFieldWidget(32, 20, 112, 18, false, this::getTransferRate, this::setTransferRate)
                             .setTooltipText("metaitem.ender_cover.transfer")
                             .setTooltipFormat(this::getTooltipFormat)
@@ -222,7 +234,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     tab.addWidget(listWidget);
                     tab.addWidget(addWidgetGroup);
                 })
-                .addTab("names", new ItemStack(Items.NAME_TAG), tab -> {
+                .addTab("machine.universal.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76),tab -> {
                     ScrollableListWidget listWidget = new ScrollableListWidget(3, 38, 182, 103) {
                         @Override
                         public boolean isWidgetClickable(Widget widget) {
@@ -232,17 +244,20 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     listWidget.addWidget(new TJAdvancedTextWidget(2, 3, this::addChannelDisplayText, 0xFFFFFF)
                             .setClickHandler(this::handleDisplayClick)
                             .setMaxWidthLimit(1000));
-                    tab.addWidget(new ImageWidget(3, 15, 142, 18, DISPLAY));
+                    tab.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                     tab.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
-                    tab.addWidget(new NewTextFieldWidget<>(5, 20, 139, 18)
+                    tab.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setTooltipText("machine.universal.toggle.current.channel")
                             .setBackgroundText("machine.universal.search")
+                            .setTextSupplier(() -> this.channel)
                             .setTextResponder(this::setChannel)
-                            .setInitialText(this.channel)
                             .setMaxStringLength(256));
                     tab.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "O", this::addChannel)
                             .setTooltipText("machine.universal.toggle.add.channel"));
+                    tab.addWidget(new ToggleButtonWidget(7, 15, 18, 18, UNLOCK_LOCK, () -> this.getEnderProfile().isPublic(), this::setPublic)
+                            .setTooltipText("metaitem.ender_cover.private"));
+                    tab.addWidget(new LabelWidget(3, 150, "machine.universal.owner", this.ownerId));
                     tab.addWidget(listWidget);
                 });
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
@@ -285,8 +300,14 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.markAsDirty();
     }
 
+    private void setPublic(boolean isPublic) {
+        this.getPlayerMap().get(this.channel).getLeft().setPublic(isPublic);
+        this.markAsDirty();
+    }
+
     private void setChannel(String channel) {
         this.channel = channel;
+        this.handler = this.getMap().get((K) this.text);
         this.markAsDirty();
     }
 
@@ -299,7 +320,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     private void addChannelDisplayText(List<ITextComponent> textList) {
         int count = 0, searchResults = 0;
         textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + this.searchResults + "§r/§e" + this.getPlayerMap().size() + "§r)"));
-        for (Map.Entry<String, Map<K, V>> entry : this.getPlayerMap().entrySet()) {
+        for (Map.Entry<String, Pair<CoverEnderProfile, Map<K, V>>> entry : this.getPlayerMap().entrySet()) {
             String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
             String result = text;
 
@@ -318,7 +339,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     .appendText(" ")
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:channel:" + text)));
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:channel:" + text))
+                    .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getLeft().getOwner())))));
         }
     }
 
@@ -355,23 +377,25 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected abstract void addEntryText(ITextComponent keyEntry, K key, V value);
 
     private void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
-        if (componentData.startsWith("select")) {
-            String[] select = componentData.split(":");
-            if (select[1].equals("entry"))
-                this.setTextID(select[2]);
-            else this.setChannel(select[2]);
-
-        } else if (componentData.startsWith("remove")) {
-            String[] remove = componentData.split(":");
-            if (remove[1].equals("entry"))
-                this.getMap().remove(remove[2]);
-            else this.getPlayerMap().remove(remove[2]);
-
-        } else if (componentData.startsWith("rename")) {
-            String[] rename = componentData.split(":");
-            this.renamePrompt = rename[2];
-            PlayerHolder holder = new PlayerHolder(player, this);
-            holder.openUI();
+        String[] components = componentData.split(";");
+        if (this.ownerId != null && !this.ownerId.equals(player.getUniqueID()))
+            return;
+        switch (components[0]) {
+            case "select":
+                if (components[1].equals("entry"))
+                    this.setTextID(components[2]);
+                else this.setChannel(components[2]);
+                break;
+            case "remove":
+                if (components[1].equals("entry"))
+                    this.getMap().remove(components[2]);
+                else this.getPlayerMap().remove(components[2]);
+                break;
+            case "rename":
+                this.renamePrompt = components[2];
+                PlayerHolder holder = new PlayerHolder(player, this);
+                holder.openUI();
+                break;
         }
     }
 
@@ -389,17 +413,24 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     public void readUpdateData(int id, PacketBuffer packetBuffer) {
         if (id == 1) {
             this.isFilterPopUp = packetBuffer.readBoolean();
+        } else if (id == 2) {
+            this.ownerId = packetBuffer.readUniqueId();
         }
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer packetBuffer) {
         packetBuffer.writeBoolean(this.isFilterPopUp);
+        packetBuffer.writeBoolean(this.ownerId != null);
+        if (this.ownerId != null)
+            packetBuffer.writeUniqueId(this.ownerId);
     }
 
     @Override
     public void readInitialSyncData(PacketBuffer packetBuffer) {
         this.isFilterPopUp = packetBuffer.readBoolean();
+        if (packetBuffer.readBoolean())
+            this.ownerId = packetBuffer.readUniqueId();
     }
 
     @Override

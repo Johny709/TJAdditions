@@ -1,7 +1,9 @@
 package tj.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.apache.commons.lang3.tuple.Pair;
 import tj.builder.handlers.BasicEnergyHandler;
+import tj.items.covers.CoverEnderProfile;
 import tj.items.handlers.LargeItemStackHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -11,59 +13,58 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.Map;
 
 public class EnderWorldData extends WorldSavedData {
 
     private static EnderWorldData INSTANCE;
-    private final Map<String, Map<String, FluidTank>> fluidTankPlayerMap = new Object2ObjectOpenHashMap<>();
-    private final Map<String, Map<String, LargeItemStackHandler>> itemChestPlayerMap = new Object2ObjectOpenHashMap<>();
-    private final Map<String, Map<String, BasicEnergyHandler>> energyContainerPlayerMap = new Object2ObjectOpenHashMap<>();
+    private final Map<String, Pair<CoverEnderProfile, Map<String, FluidTank>>> fluidTankPlayerMap = new Object2ObjectOpenHashMap<>();
+    private final Map<String, Pair<CoverEnderProfile, Map<String, LargeItemStackHandler>>> itemChestPlayerMap = new Object2ObjectOpenHashMap<>();
+    private final Map<String, Pair<CoverEnderProfile, Map<String, BasicEnergyHandler>>> energyContainerPlayerMap = new Object2ObjectOpenHashMap<>();
 
     public EnderWorldData(String name) {
         super(name);
-        this.fluidTankPlayerMap.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
-        this.itemChestPlayerMap.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
-        this.energyContainerPlayerMap.putIfAbsent(null, new Object2ObjectOpenHashMap<>());
+        this.fluidTankPlayerMap.putIfAbsent(null, Pair.of(new CoverEnderProfile(null), new Object2ObjectOpenHashMap<>()));
+        this.itemChestPlayerMap.putIfAbsent(null, Pair.of(new CoverEnderProfile(null), new Object2ObjectOpenHashMap<>()));
+        this.energyContainerPlayerMap.putIfAbsent(null, Pair.of(new CoverEnderProfile(null), new Object2ObjectOpenHashMap<>()));
     }
 
     public static EnderWorldData getINSTANCE() {
         return INSTANCE;
     }
 
-    public Map<String, Map<String, FluidTank>> getFluidTankPlayerMap() {
+    public Map<String, Pair<CoverEnderProfile, Map<String, FluidTank>>> getFluidTankPlayerMap() {
         return this.fluidTankPlayerMap;
     }
 
-    public Map<String, Map<String, LargeItemStackHandler>> getItemChestPlayerMap() {
+    public Map<String, Pair<CoverEnderProfile, Map<String, LargeItemStackHandler>>> getItemChestPlayerMap() {
         return this.itemChestPlayerMap;
     }
 
-    public Map<String, Map<String, BasicEnergyHandler>> getEnergyContainerPlayerMap() {
+    public Map<String, Pair<CoverEnderProfile, Map<String, BasicEnergyHandler>>> getEnergyContainerPlayerMap() {
         return this.energyContainerPlayerMap;
     }
 
     public Map<String, FluidTank> getFluidTankMap(String value) {
-        return this.fluidTankPlayerMap.getOrDefault(value, Collections.emptyMap());
+        return this.fluidTankPlayerMap.getOrDefault(value, this.fluidTankPlayerMap.get(null)).getRight();
     }
 
     public Map<String, LargeItemStackHandler> getItemChestMap(String value) {
-        return this.itemChestPlayerMap.getOrDefault(value, Collections.emptyMap());
+        return this.itemChestPlayerMap.getOrDefault(value, this.itemChestPlayerMap.get(null)).getRight();
     }
 
     public Map<String, BasicEnergyHandler> getEnergyContainerMap(String value) {
-        return this.energyContainerPlayerMap.getOrDefault(value, Collections.emptyMap());
+        return this.energyContainerPlayerMap.getOrDefault(value, this.energyContainerPlayerMap.get(null)).getRight();
     }
 
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
         NBTTagList fluidMap = new NBTTagList();
-        for (Map.Entry<String, Map<String, FluidTank>> playerEntry : this.fluidTankPlayerMap.entrySet()) {
+        for (Map.Entry<String, Pair<CoverEnderProfile, Map<String, FluidTank>>> playerEntry : this.fluidTankPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
             NBTTagList fluidList = new NBTTagList();
-            for (Map.Entry<String, FluidTank> entry : playerEntry.getValue().entrySet()) {
+            for (Map.Entry<String, FluidTank> entry : playerEntry.getValue().getRight().entrySet()) {
                 NBTTagCompound compound = new NBTTagCompound();
                 compound.setString("key", entry.getKey());
                 compound.setLong("capacity", entry.getValue().getCapacity());
@@ -73,13 +74,14 @@ public class EnderWorldData extends WorldSavedData {
             if (playerEntry.getKey() != null)
                 playerCompound.setString("id", playerEntry.getKey());
             playerCompound.setTag("fluidList", fluidList);
+            playerEntry.getValue().getLeft().writeToNBT(playerCompound);
             fluidMap.appendTag(playerCompound);
         }
         NBTTagList itemMap = new NBTTagList();
-        for (Map.Entry<String, Map<String, LargeItemStackHandler>> playerEntry : this.itemChestPlayerMap.entrySet()) {
+        for (Map.Entry<String, Pair<CoverEnderProfile, Map<String, LargeItemStackHandler>>> playerEntry : this.itemChestPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
             NBTTagList itemList = new NBTTagList();
-            for (Map.Entry<String, LargeItemStackHandler> entry : playerEntry.getValue().entrySet()) {
+            for (Map.Entry<String, LargeItemStackHandler> entry : playerEntry.getValue().getRight().entrySet()) {
                 NBTTagCompound compound = new NBTTagCompound();
                 compound.setString("key", entry.getKey());
                 compound.setLong("capacity", entry.getValue().getCapacity());
@@ -89,13 +91,14 @@ public class EnderWorldData extends WorldSavedData {
             if (playerEntry.getKey() != null)
                 playerCompound.setString("id", playerEntry.getKey());
             playerCompound.setTag("itemList", itemList);
+            playerEntry.getValue().getLeft().writeToNBT(playerCompound);
             itemMap.appendTag(playerCompound);
         }
         NBTTagList energyMap = new NBTTagList();
-        for (Map.Entry<String, Map<String, BasicEnergyHandler>> playerEntry : this.energyContainerPlayerMap.entrySet()) {
+        for (Map.Entry<String, Pair<CoverEnderProfile, Map<String, BasicEnergyHandler>>> playerEntry : this.energyContainerPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
             NBTTagList energyList = new NBTTagList();
-            for (Map.Entry<String, BasicEnergyHandler> entry : playerEntry.getValue().entrySet()) {
+            for (Map.Entry<String, BasicEnergyHandler> entry : playerEntry.getValue().getRight().entrySet()) {
                 NBTTagCompound compound = new NBTTagCompound();
                 compound.setString("key", entry.getKey());
                 entry.getValue().writeToNBT(compound);
@@ -104,6 +107,7 @@ public class EnderWorldData extends WorldSavedData {
             if (playerEntry.getKey() != null)
                 playerCompound.setString("id", playerEntry.getKey());
             playerCompound.setTag("energyList", energyList);
+            playerEntry.getValue().getLeft().writeToNBT(playerCompound);
             energyMap.appendTag(playerCompound);
         }
         nbt.setTag("fluidMap", fluidMap);
@@ -124,7 +128,7 @@ public class EnderWorldData extends WorldSavedData {
                 fluidTankMap.put(compound.getString("key"), new FluidTank(compound.getInteger("capacity")).readFromNBT(compound));
             }
             String id = playerCompound.hasKey("id") ? playerCompound.getString("id") : null;
-            this.fluidTankPlayerMap.put(id, fluidTankMap);
+            this.fluidTankPlayerMap.put(id, Pair.of(CoverEnderProfile.fromNBT(playerCompound), fluidTankMap));
         }
         NBTTagList itemMap = nbt.getTagList("itemMap", 10);
         for (int i = 0; i < itemMap.tagCount(); i++) {
@@ -138,7 +142,7 @@ public class EnderWorldData extends WorldSavedData {
                 itemChestMap.put(compound.getString("key"), itemStackHandler);
             }
             String id = playerCompound.hasKey("id") ? playerCompound.getString("id") : null;
-            this.itemChestPlayerMap.put(id, itemChestMap);
+            this.itemChestPlayerMap.put(id, Pair.of(CoverEnderProfile.fromNBT(playerCompound), itemChestMap));
         }
         NBTTagList energyMap = nbt.getTagList("energyMap", 10);
         for (int i = 0; i < energyMap.tagCount(); i++) {
@@ -152,7 +156,7 @@ public class EnderWorldData extends WorldSavedData {
                 energyContainerMap.put(compound.getString("key"), energyHandler);
             }
             String id = playerCompound.hasKey("id") ? playerCompound.getString("id") : null;
-            this.energyContainerPlayerMap.put(id, energyContainerMap);
+            this.energyContainerPlayerMap.put(id, Pair.of(CoverEnderProfile.fromNBT(playerCompound), energyContainerMap));
         }
     }
 

@@ -32,6 +32,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     protected int backgroundTextColor;
     protected Predicate<String> textValidator;
     protected Consumer<String> textResponder;
+    protected Supplier<String> textSupplier;
     protected Supplier<String[]> formatSupplier;
     protected String currentString;
     protected String backgroundText;
@@ -64,12 +65,11 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     }
 
     /**
-     * Set the initial text when this widget or textbox is opened up by player.
-     * @param text initial text
+     * Set the supplier that updates the textbox with the text it gets. If the string inside the supplier is null, then its treated as an empty string.
+     * @param textSupplier supplier
      */
-    public R setInitialText(String text) {
-        if (isClientSide())
-            this.textField.setText(text != null ? text : "");
+    public R setTextSupplier(Supplier<String> textSupplier) {
+        this.textSupplier = textSupplier;
         return (R) this;
     }
 
@@ -222,6 +222,25 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     private void onTextChanged(String text) {
         if (this.textValidator.test(text))
             this.writeClientAction(1, buffer -> buffer.writeString(text));
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        if (this.textSupplier != null) {
+            String s = this.textSupplier.get();
+            s = s != null ? s : "";
+            this.currentString = s;
+            this.writeUpdateInfo(1, buffer -> buffer.writeString(this.currentString));
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void readUpdateInfo(int id, PacketBuffer buffer) {
+        if (id == 1) {
+            this.currentString = buffer.readString(Short.MAX_VALUE);
+            this.textField.setText(this.currentString);
+        }
     }
 
     @Override
