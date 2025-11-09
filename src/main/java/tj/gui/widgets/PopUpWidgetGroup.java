@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.function.BooleanSupplier;
 
-
+@Deprecated
 public class PopUpWidgetGroup extends AbstractWidgetGroup {
 
     private final int width;

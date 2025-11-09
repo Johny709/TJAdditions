@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 /**
  * Similar to {@link TJTextFieldWidget} but text supplier and responder are only initialized and updated by other widgets.
  */
+@Deprecated
 public class OnTextFieldWidget extends TJTextFieldWidget {
 
     public OnTextFieldWidget(int xPosition, int yPosition, int width, int height, boolean enableBackground, Supplier<String> textSupplier, Consumer<String> textResponder) {

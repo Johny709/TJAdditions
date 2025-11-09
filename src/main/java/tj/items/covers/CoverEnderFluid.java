@@ -21,8 +21,9 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.apache.commons.lang3.tuple.Pair;
-import tj.gui.widgets.PopUpWidgetGroup;
+import tj.gui.widgets.ButtonWidget;
 import tj.gui.widgets.TJTankWidget;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
@@ -117,17 +118,19 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     @Override
+    protected void addToPopUpWidget(ButtonPopUpWidget buttonPopUpWidget) {
+        buttonPopUpWidget.addWidgets(new ButtonWidget<>(151, 161, 18, 18)
+                .setBackgroundTextures(TOGGLE_BUTTON_BACK), widgetGroup -> {
+            widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                    .setTooltipText("cover.filter.blacklist"));
+            this.fluidFilter.initUI(widgetGroup::addWidget);
+            widgetGroup.addWidget(new ImageWidget(151, 161, 18, 18, FLUID_FILTER));
+            return false;
+        });
+    }
+
+    @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
-        popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                .setTooltipText("cover.filter.blacklist"));
-        popUpWidgetGroup.setEnabled(this.isFilterPopUp);
-        this.enableFluidPopUp = popUpWidgetGroup::setEnabled;
-        this.fluidFilter.initUI(popUpWidgetGroup::addWidget);
-        widget.accept(popUpWidgetGroup);
-        widget.accept(new ToggleButtonWidget(151, 161, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
-                .setTooltipText("machine.universal.toggle.filter.open"));
-        widget.accept(new ImageWidget(151, 161, 18, 18, FLUID_FILTER));
         widget.accept(new TJTankWidget(this::getFluidTank, 7, 38, 18, 18)
                 .setBackgroundTexture(FLUID_SLOT)
                 .setContainerClicking(true, true));

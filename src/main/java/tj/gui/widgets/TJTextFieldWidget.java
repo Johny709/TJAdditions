@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+@Deprecated
 public class TJTextFieldWidget extends TextFieldWidget {
 
     private String tooltipText;

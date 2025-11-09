@@ -37,6 +37,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.gui.uifactory.IPlayerUI;
 import tj.gui.uifactory.PlayerHolder;
 import tj.gui.widgets.*;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 
@@ -127,6 +128,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     protected abstract void addWidgets(Consumer<Widget> widget);
 
+    protected void addToPopUpWidget(ButtonPopUpWidget buttonPopUpWidget) {}
+
     protected abstract V createHandler();
 
     protected void addChannel(Widget.ClickData clickData) {
@@ -178,61 +181,59 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getName()))
                 .addTab(this.getName(), this.getPickItem(), tab -> {
-                    WidgetGroup widgetGroup = new WidgetGroup(), addWidgetGroup = new WidgetGroup();
                     ScrollableListWidget listWidget = new ScrollableListWidget(3, 61, 182, 80) {
                         @Override
                         public boolean isWidgetClickable(Widget widget) {
                             return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
                         }
                     };
-                    listWidget.addWidget(new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF) {
-                        @Override
-                        public boolean mouseClicked(int mouseX, int mouseY, int button) {
-                            if (!isFilterPopUp())
-                                return super.mouseClicked(mouseX, mouseY, button);
-                            return false;
-                        }
-                    }.setClickHandler(this::handleDisplayClick)
+                    listWidget.addWidget(new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF)
+                            .setClickHandler(this::handleDisplayClick)
                             .setMaxWidthLimit(1000));
-                    widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 18, false)
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                            .setTooltipText("machine.universal.toggle.current.entry")
-                            .setTextResponder(this::setTextID)
-                            .setTextSupplier(() -> this.text)
-                            .setMaxStringLength(256));
-                    widgetGroup.addWidget(new TJTextFieldWidget(32, 20, 112, 18, false, this::getTransferRate, this::setTransferRate)
-                            .setTooltipText("metaitem.ender_cover.transfer")
-                            .setTooltipFormat(this::getTooltipFormat)
-                            .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-                    widgetGroup.addWidget(new TJTextFieldWidget(32, 147, 112, 18, false, () -> this.searchPrompt, this::setSearchPrompt)
-                            .setTextLength(256)
-                            .setBackgroundText("machine.universal.search")
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
-                    widgetGroup.addWidget(new TJClickButtonWidget(151, 38, 18, 18, "O", this::onAddEntry)
-                            .setTooltipText("machine.universal.toggle.add.entry"));
-                    widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
-                            .setTooltipText("machine.universal.toggle.increment.disabled"));
-                    widgetGroup.addWidget(new TJClickButtonWidget(7, 15, 18, 18, "-", this::onDecrement)
-                            .setTooltipText("machine.universal.toggle.decrement.disabled"));
-                    widgetGroup.addWidget(new TJClickButtonWidget(-20, 38, 18, 18, "", this::onClear)
-                            .setTooltipText("machine.universal.toggle.clear")
-                            .setButtonTexture(BUTTON_CLEAR_GRID));
-                    widgetGroup.addWidget(new ToggleButtonWidget(7, 142, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
-                            .setTooltipText("machine.universal.case_sensitive"));
-                    widgetGroup.addWidget(new ToggleButtonWidget(151, 142, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
-                            .setTooltipText("machine.universal.spaces"));
-                    widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                    widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                            .setTooltipText("machine.universal.toggle.run.mode"));
-                    this.addWidgets(addWidgetGroup::addWidget);
-                    tab.addWidget(widgetGroup);
-                    tab.addWidget(listWidget);
-                    tab.addWidget(addWidgetGroup);
+                    ButtonPopUpWidget buttonPopUpWidget = new ButtonPopUpWidget(0, 0, 0, 0)
+                            .addWidgets(widgetGroup -> {
+                                widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
+                                widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
+                                widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
+                                widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
+                                widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
+                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 18, false)
+                                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                        .setBackgroundText("machine.universal.toggle.current.entry")
+                                        .setTooltipText("machine.universal.toggle.current.entry")
+                                        .setTextResponder(this::setTextID)
+                                        .setTextSupplier(() -> this.text)
+                                        .setMaxStringLength(256));
+                                widgetGroup.addWidget(new TJTextFieldWidget(32, 20, 112, 18, false, this::getTransferRate, this::setTransferRate)
+                                        .setTooltipText("metaitem.ender_cover.transfer")
+                                        .setTooltipFormat(this::getTooltipFormat)
+                                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
+                                widgetGroup.addWidget(new TJTextFieldWidget(32, 147, 112, 18, false, () -> this.searchPrompt, this::setSearchPrompt)
+                                        .setTextLength(256)
+                                        .setBackgroundText("machine.universal.search")
+                                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
+                                widgetGroup.addWidget(new TJClickButtonWidget(151, 38, 18, 18, "O", this::onAddEntry)
+                                        .setTooltipText("machine.universal.toggle.add.entry"));
+                                widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
+                                        .setTooltipText("machine.universal.toggle.increment.disabled"));
+                                widgetGroup.addWidget(new TJClickButtonWidget(7, 15, 18, 18, "-", this::onDecrement)
+                                        .setTooltipText("machine.universal.toggle.decrement.disabled"));
+                                widgetGroup.addWidget(new TJClickButtonWidget(-20, 38, 18, 18, "", this::onClear)
+                                        .setTooltipText("machine.universal.toggle.clear")
+                                        .setButtonTexture(BUTTON_CLEAR_GRID));
+                                widgetGroup.addWidget(new ToggleButtonWidget(7, 142, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+                                        .setTooltipText("machine.universal.case_sensitive"));
+                                widgetGroup.addWidget(new ToggleButtonWidget(151, 142, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+                                        .setTooltipText("machine.universal.spaces"));
+                                widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
+                                widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                                        .setTooltipText("machine.universal.toggle.run.mode"));
+                                widgetGroup.addWidget(listWidget);
+                                this.addWidgets(widgetGroup::addWidget);
+                                return true;
+                            });
+                    this.addToPopUpWidget(buttonPopUpWidget);
+                    tab.addWidget(buttonPopUpWidget);
                 })
                 .addTab("machine.universal.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76),tab -> {
                     ScrollableListWidget listWidget = new ScrollableListWidget(3, 38, 182, 103) {
@@ -248,8 +249,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     tab.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
                     tab.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                            .setBackgroundText("machine.universal.toggle.current.channel")
                             .setTooltipText("machine.universal.toggle.current.channel")
-                            .setBackgroundText("machine.universal.search")
                             .setTextSupplier(() -> this.channel)
                             .setTextResponder(this::setChannel)
                             .setMaxStringLength(256));
@@ -377,7 +378,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected abstract void addEntryText(ITextComponent keyEntry, K key, V value);
 
     private void handleDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
-        String[] components = componentData.split(";");
+        String[] components = componentData.split(":");
         if (this.ownerId != null && !this.ownerId.equals(player.getUniqueID()))
             return;
         switch (components[0]) {
