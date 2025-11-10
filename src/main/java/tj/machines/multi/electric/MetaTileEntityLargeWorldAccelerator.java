@@ -231,7 +231,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                 }
             };
             scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedEntities2, 0xFFFFFF)
-                    .setClickHandler(this::handleLinkedDisplayClick)
+                    .addClickHandler(this::handleLinkedDisplayClick)
                     .setMaxWidthLimit(1000));
             linkedEntitiesDisplayTab.addWidget(new AdvancedTextWidget(10, -20, this::addDisplayLinkedEntities, 0xFFFFFF));
             linkedEntitiesDisplayTab.addWidget(scrollWidget);
@@ -344,7 +344,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         this.updateEnergyPerTick();
     }
 
-    protected void handleLinkedDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
+    protected void handleLinkedDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
 

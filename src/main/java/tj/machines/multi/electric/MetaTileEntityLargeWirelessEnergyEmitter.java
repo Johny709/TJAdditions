@@ -244,7 +244,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 }
             };
             scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedEntitiesText2, 0xFFFFFF)
-                    .setClickHandler(this::handleLinkedDisplayClick)
+                    .addClickHandler(this::handleLinkedDisplayClick)
                     .setMaxWidthLimit(1000));
             linkedEntitiesDisplayTab.addWidget(new AdvancedTextWidget(10, -20, this::addDisplayLinkedEntitiesText, 0xFFFFFF));
             linkedEntitiesDisplayTab.addWidget(scrollWidget);
@@ -359,7 +359,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         this.updateTotalEnergyPerTick();
     }
 
-    protected void handleLinkedDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
+    protected void handleLinkedDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
 

@@ -669,6 +669,7 @@ machine.universal.toggle.clear.disabled=Clear
 machine.universal.entries=Entries
 machine.universal.channels=Channels
 machine.universal.toggle.add.entry=Add Entry
+machine.universal.toggle.rename.entry=Rename Entry
 machine.universal.toggle.add.channel=Add Channel
 machine.universal.toggle.current.entry=Current Entry
 machine.universal.toggle.current.channel=Current Channel

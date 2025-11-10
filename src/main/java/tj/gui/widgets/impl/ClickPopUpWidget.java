@@ -1,10 +1,9 @@
 package tj.gui.widgets.impl;
 
-import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ScrollableListWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import net.minecraft.entity.player.EntityPlayer;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.TJAdvancedTextWidget;
 
@@ -16,24 +15,32 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
         super(x, y, width, height);
     }
 
-    public ClickPopUpWidget addWidgets(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, Predicate<WidgetGroup> widgets) {
+    /**
+     * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
+     * @param x X offset of widget group.
+     * @param y Y offset of widget group.
+     * @param width width of widget group.
+     * @param height height of widget group.
+     * @param textWidget text widget to activate this popup upon certain click conditions.
+     * @param add set to add this text widget to this widget group
+     * @param widgets widgets to add.
+     */
+    public ClickPopUpWidget addWidgets(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
-        ScrollableListWidget listWidget = new ScrollableListWidget(x, y, width, height) {
-            @Override
-            public boolean isWidgetClickable(Widget widget) {
-                return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-            }
-        };
-        listWidget.addWidget(textWidget.setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(listWidget);
+        textWidget.setTextId(String.valueOf(this.selectedIndex))
+                .addClickHandler(this::handleDisplayClick);
+        if (add)
+            widgetGroup.addWidget(textWidget);
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
         this.buttons.add(null);
         this.addWidget(widgetGroup);
         return this;
     }
 
-    private void handleDisplayClick(String componentData, ClickData clickData) {
-
+    private void handleDisplayClick(String componentData, String textId, ClickData clickData, EntityPlayer player) {
+        String[] component = componentData.split(":");
+        if (component[0].equals("@Popup"))
+            this.handleButtonPress(textId);
     }
 }

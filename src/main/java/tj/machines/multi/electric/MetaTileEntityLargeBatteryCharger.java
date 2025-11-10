@@ -292,7 +292,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                 }
             };
             scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedPlayersText2, 0xFFFFFF)
-                    .setClickHandler(this::handleLinkedPlayersClick)
+                    .addClickHandler(this::handleLinkedPlayersClick)
                     .setMaxWidthLimit(1000));
             linkedPlayersTab.addWidget(new AdvancedTextWidget(10, -20, this::addDisplayLinkedPlayersText, 0xFFFFFF));
             linkedPlayersTab.addWidget(scrollWidget);
@@ -408,7 +408,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         this.updateFluidConsumption();
     }
 
-    private void handleLinkedPlayersClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
+    private void handleLinkedPlayersClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
 

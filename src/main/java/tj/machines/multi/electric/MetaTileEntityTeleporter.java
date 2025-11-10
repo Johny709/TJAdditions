@@ -347,7 +347,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             }
         };
         scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, displayText2, 0xFFFFFF)
-                .setClickHandler(this::handlePosDisplayClick)
+                .addClickHandler(this::handlePosDisplayClick)
                 .setMaxWidthLimit(1000));
         widgetGroup.addWidget(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
         widgetGroup.addWidget(scrollWidget);
@@ -507,7 +507,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.queueCount = queueCount;
     }
 
-    private void handlePosDisplayClick(String componentData, Widget.ClickData clickData, EntityPlayer player) {
+    private void handlePosDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.startsWith("tp")) {
             String[] world = componentData.split("w");
             String[] pos = world[1].split("x");

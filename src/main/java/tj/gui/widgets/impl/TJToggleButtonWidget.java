@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.widgets.ButtonWidget;
 
+import javax.annotation.Nonnull;
 import java.util.function.BooleanSupplier;
 
 public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
@@ -27,6 +28,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
      * Supplier to get the state of button.
      * @param isPressedCondition is button pressed
      */
+    @Nonnull
     public TJToggleButtonWidget setPressedCondition(BooleanSupplier isPressedCondition) {
         this.isPressedCondition = isPressedCondition;
         return this;
@@ -75,7 +77,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
         Position pos = this.getPosition();
         Size size = this.getSize();
         if (!this.useToggleTexture) {
-            if (this.isPressedCondition != null && this.isPressedCondition.getAsBoolean())
+            if (this.isPressedCondition.getAsBoolean())
                 this.activeTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
             else this.baseTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         } else if (this.toggleTexture instanceof SizedTextureArea) {

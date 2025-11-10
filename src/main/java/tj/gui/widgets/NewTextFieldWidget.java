@@ -19,7 +19,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -30,13 +30,15 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
 
     protected int maxStringLength = 32;
     protected int backgroundTextColor;
+    protected boolean updateOnType;
     protected Predicate<String> textValidator;
-    protected Consumer<String> textResponder;
+    protected BiConsumer<String, String> textResponder;
     protected Supplier<String> textSupplier;
     protected Supplier<String[]> formatSupplier;
     protected String currentString;
     protected String backgroundText;
     protected String tooltipText;
+    protected String textId;
     protected String[] format;
 
     public NewTextFieldWidget(int x, int y, int width, int height) {
@@ -56,16 +58,21 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     }
 
     /**
-     * Set responder that sends text whenever the textbox gets typed in.
+     * Set responder that sends text whenever the textbox gets typed in. {@link NewTextFieldWidget#setUpdateOnTyping(boolean)} must be set to true. Default: false.
      * @param textResponder responder
      */
-    public R setTextResponder(Consumer<String> textResponder) {
+    public R setTextResponder(BiConsumer<String, String> textResponder) {
         this.textResponder = textResponder;
         return (R) this;
     }
 
+    public R setUpdateOnTyping(boolean updateOnType) {
+        this.updateOnType = updateOnType;
+        return (R) this;
+    }
+
     /**
-     * Set the supplier that updates the textbox with the text it gets. If the string inside the supplier is null, then its treated as an empty string.
+     * Set the supplier that updates the textbox. If the string inside the supplier is null, then its treated as an empty string.
      * @param textSupplier supplier
      */
     public R setTextSupplier(Supplier<String> textSupplier) {
@@ -153,6 +160,47 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
         return (R) this;
     }
 
+    public void setTextId(String textId) {
+        this.textId = textId;
+        if (!isClientSide())
+            this.writeUpdateInfo(2, buffer -> buffer.writeString(this.textId));
+    }
+
+    /**
+     * Usually called by other widgets to initiate a manual response. e.g. a button press
+     */
+    public void triggerResponse() {
+        this.textResponder.accept(this.currentString, this.textId);
+    }
+
+    /**
+     * Usually called by other widgets to initiate a manual response. e.g. a button press
+     */
+    public <T> void triggerResponse(T t) {
+        this.textResponder.accept(this.currentString, this.textId);
+    }
+
+    /**
+     * Usually called by other widgets to initiate a manual response. e.g. a button press
+     */
+    public <T, U> void triggerResponse(T t, U u) {
+        this.textResponder.accept(this.currentString, this.textId);
+    }
+
+    /**
+     * Usually called by other widgets to initiate a manual response. e.g. a button press
+     */
+    public <T, U, V> void triggerResponse(T t, U u, V v) {
+        this.textResponder.accept(this.currentString, this.textId);
+    }
+
+    /**
+     * Usually called by other widgets to initiate a manual response. e.g. a button press
+     */
+    public <T, U, V, O> void triggerResponse(T t, U u, V v, O o) {
+        this.textResponder.accept(this.currentString, this.textId);
+    }
+
     @SideOnly(Side.CLIENT)
     public String getText() {
         return this.textField.getText();
@@ -227,9 +275,9 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     @Override
     public void detectAndSendChanges() {
         if (this.textSupplier != null) {
-            String s = this.textSupplier.get();
-            s = s != null ? s : "";
-            this.currentString = s;
+            String text = this.textSupplier.get();
+            text = text != null ? text : "";
+            this.currentString = text;
             this.writeUpdateInfo(1, buffer -> buffer.writeString(this.currentString));
         }
     }
@@ -240,6 +288,8 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
         if (id == 1) {
             this.currentString = buffer.readString(Short.MAX_VALUE);
             this.textField.setText(this.currentString);
+        } else if (id == 2) {
+            this.textId = buffer.readString(Short.MAX_VALUE);
         }
     }
 
@@ -247,8 +297,8 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
             this.currentString = buffer.readString(Short.MAX_VALUE);
-            if (this.textResponder != null)
-                this.textResponder.accept(this.currentString);
+            if (this.updateOnType && this.textResponder != null)
+                this.textResponder.accept(this.currentString, this.textId);
         }
     }
 }
