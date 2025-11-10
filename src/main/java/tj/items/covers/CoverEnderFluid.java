@@ -119,7 +119,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     @Override
-    protected void addToPopUpWidget(ButtonPopUpWidget buttonPopUpWidget) {
+    protected void addToPopUpWidget(ButtonPopUpWidget<?> buttonPopUpWidget) {
         buttonPopUpWidget.addWidgets(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .setBackgroundTextures(FLUID_FILTER)

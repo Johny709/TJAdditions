@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
+public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidget<T> {
 
-    private final List<Widget> buttons = new ArrayList<>();
+    protected final List<Widget> buttons = new ArrayList<>();
 
     public ButtonPopUpWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -32,7 +32,7 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
      * @param button button widget to activate this popup.
      * @param widgets widgets to add.
      */
-    public ButtonPopUpWidget addWidgets(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+    public T addWidgets(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
         button.setButtonId(String.valueOf(this.selectedIndex))
                 .setButtonResponder(this::handleButtonPress);
         if (button instanceof TJToggleButtonWidget)
@@ -43,11 +43,11 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
         this.addWidget(widgetGroup);
         this.addWidget(button);
         this.buttons.add(button);
-        return this;
+        return (T) this;
     }
 
     @Override
-    public ButtonPopUpWidget addWidgets(Predicate<WidgetGroup> widgets) {
+    public T addWidgets(Predicate<WidgetGroup> widgets) {
         this.buttons.add(null);
         return super.addWidgets(widgets);
     }
@@ -57,12 +57,12 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
      * @param button button widget to activate this popup.
      * @param widgets widgets to add.
      */
-    public ButtonPopUpWidget addWidgets(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+    public T addWidgets(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
         this.addWidgets(0, 0, 0, 0, button, widgets);
-        return this;
+        return (T) this;
     }
 
-    private void handleButtonPress(String buttonId) {
+    protected void handleButtonPress(String buttonId) {
         try {
             this.selectedIndex = Integer.parseInt(buttonId);
             this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));

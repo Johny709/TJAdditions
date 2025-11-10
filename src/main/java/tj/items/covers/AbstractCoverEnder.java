@@ -38,6 +38,7 @@ import tj.gui.uifactory.IPlayerUI;
 import tj.gui.uifactory.PlayerHolder;
 import tj.gui.widgets.*;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 
@@ -128,7 +129,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     protected abstract void addWidgets(Consumer<Widget> widget);
 
-    protected void addToPopUpWidget(ButtonPopUpWidget buttonPopUpWidget) {}
+    protected void addToPopUpWidget(ButtonPopUpWidget<?> buttonPopUpWidget) {}
 
     protected abstract V createHandler();
 
@@ -181,16 +182,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getName()))
                 .addTab(this.getName(), this.getPickItem(), tab -> {
-                    ScrollableListWidget listWidget = new ScrollableListWidget(3, 61, 182, 80) {
-                        @Override
-                        public boolean isWidgetClickable(Widget widget) {
-                            return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-                        }
-                    };
-                    listWidget.addWidget(new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF)
-                            .setClickHandler(this::handleDisplayClick)
-                            .setMaxWidthLimit(1000));
-                    ButtonPopUpWidget buttonPopUpWidget = new ButtonPopUpWidget(0, 0, 0, 0)
+                    ClickPopUpWidget buttonPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
                             .addWidgets(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
@@ -231,7 +223,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(listWidget);
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;
-                            });
+                            }).addWidgets(3, 61, 182, 80, new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF)
+                                    .setClickHandler(this::handleDisplayClick)
+                                    .setMaxWidthLimit(1000), widgetGroup -> );
                     this.addToPopUpWidget(buttonPopUpWidget);
                     tab.addWidget(buttonPopUpWidget);
                 })

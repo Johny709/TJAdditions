@@ -27,10 +27,11 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
         if (id == 1) {
             ClickData clickData = ClickData.readFromBuf(buffer);
             String componentData = buffer.readString(128);
-            EntityPlayer player = gui.entityPlayer;
-            if (playerClickHandler != null) {
-                playerClickHandler.accept(componentData, clickData, player);
-            }
+            EntityPlayer player = this.gui.entityPlayer;
+            if (this.playerClickHandler != null)
+                this.playerClickHandler.accept(componentData, clickData, player);
+            if (this.clickHandler != null)
+                this.clickHandler.accept(componentData, clickData);
         }
     }
 }
