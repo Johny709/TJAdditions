@@ -17,12 +17,14 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
-import tj.gui.widgets.PopUpWidgetGroup;
 import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -98,17 +100,21 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     @Override
+    protected void addToPopUpWidget(ButtonPopUpWidget buttonPopUpWidget) {
+        buttonPopUpWidget.addWidgets(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
+                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                        .setBackgroundTextures(ITEM_FILTER)
+                        .useToggleTexture(true), widgetGroup -> {
+            widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+            widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                    .setTooltipText("cover.filter.blacklist"));
+            this.itemFilter.initUI(widgetGroup::addWidget);
+            return false;
+        }).setClickArea(new Rectangle(346, 107, 60, 78));
+    }
+
+    @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        PopUpWidgetGroup popUpWidgetGroup = new PopUpWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
-        popUpWidgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                .setTooltipText("cover.filter.blacklist"));
-        popUpWidgetGroup.setEnabled(this.isFilterPopUp);
-        this.itemFilter.initUI(popUpWidgetGroup::addWidget);
-        this.enableItemPopUp = popUpWidgetGroup::setEnabled;
-        widget.accept(popUpWidgetGroup);
-        widget.accept(new ToggleButtonWidget(151, 161, 18, 18, TOGGLE_BUTTON_BACK, this::isFilterPopUp, this::setFilterPopUp)
-                .setTooltipText("machine.universal.toggle.filter.open"));
-        widget.accept(new ImageWidget(151, 161, 18, 18, ITEM_FILTER));
         widget.accept(new TJSlotWidget<>(null, 0, 7, 38)
                 .setItemHandlerSupplier(() -> this.handler)
                 .setBackgroundTexture(SLOT));

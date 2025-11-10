@@ -2,7 +2,6 @@ package tj.items.covers;
 
 import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.PhantomFluidWidget;
