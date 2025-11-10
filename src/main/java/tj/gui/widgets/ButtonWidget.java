@@ -1,5 +1,6 @@
 package tj.gui.widgets;
 
+import com.google.common.base.Preconditions;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
@@ -17,10 +18,13 @@ import tj.util.consumers.QuadConsumer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
 
     protected QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse;
+    protected Supplier<String[]> formatSupplier;
     protected Consumer<String> buttonResponder;
     protected TextureArea[] backgroundTextures;
     protected String[] format;
@@ -38,6 +42,32 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
      */
     public R setTextResponderWithMouse(QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse) {
         this.textResponderWithMouse = textResponderWithMouse;
+        return (R) this;
+    }
+
+    /**
+     * Translates the passed in String for display when cursor is hovering over this widget.
+     * @param tooltipText The String text to translate
+     */
+    public R setTooltipText(String tooltipText) {
+        Preconditions.checkNotNull(tooltipText, "tooltipText");
+        this.tooltipText = tooltipText;
+        return (R) this;
+    }
+
+    /**
+     * The format args used for translating series of text for TooltipText. Text is constantly updated by the supplier.
+     * @apiNote
+     * <p>Very similar to I18n.format() where Object... param is the series of text being translated. See setTooltipText for String translateKey param.
+     * <pre>{@code
+     *     I18n.format(String translateKey, Object... parameters)
+     * }</pre>
+     *
+     * @param formatSupplier translate series of text
+     */
+    public R setTooltipFormat(Supplier<String[]> formatSupplier) {
+        this.formatSupplier = formatSupplier;
+        this.format = new String[formatSupplier.get().length];
         return (R) this;
     }
 
@@ -121,6 +151,29 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
                 this.buttonResponder.accept(buttonId);
             if (this.textResponderWithMouse != null)
                 this.textResponderWithMouse.accept(buttonId, mouseX, mouseY, button);
+        }
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        if (this.formatSupplier != null) {
+            String[] formatArgs = this.formatSupplier.get();
+            this.writeUpdateInfo(2, buffer -> {
+                buffer.writeInt(formatArgs.length);
+                for (String format : formatArgs) {
+                    buffer.writeString(format);
+                }
+            });
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void readUpdateInfo(int id, PacketBuffer buffer) {
+        if (id == 2) {
+            for (int i = 0; i < buffer.readInt(); i++) {
+               this.format[i] =  buffer.readString(Short.MAX_VALUE);
+            }
         }
     }
 }

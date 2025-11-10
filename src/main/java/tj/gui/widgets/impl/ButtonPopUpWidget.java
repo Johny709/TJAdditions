@@ -46,6 +46,12 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
         return this;
     }
 
+    @Override
+    public ButtonPopUpWidget addWidgets(Predicate<WidgetGroup> widgets) {
+        this.buttons.add(null);
+        return super.addWidgets(widgets);
+    }
+
     /**
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
      * @param button button widget to activate this popup.
@@ -68,7 +74,8 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
     public void drawInForeground(int mouseX, int mouseY) {
         super.drawInForeground(mouseX, mouseY);
         for (Widget widget : this.buttons)
-            widget.drawInForeground(mouseX, mouseY);
+            if (widget != null)
+                widget.drawInForeground(mouseX, mouseY);
     }
 
     @Override
@@ -76,15 +83,16 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         super.drawInBackground(mouseX, mouseY, context);
         for (Widget widget : this.buttons)
-            widget.drawInBackground(mouseX, mouseY, context);
+            if (widget != null)
+                widget.drawInBackground(mouseX, mouseY, context);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        boolean success = super.mouseClicked(mouseX, mouseY, button);
         for (Widget widget : this.buttons)
-            success = success || widget.mouseClicked(mouseX, mouseY, button);
-        return success;
+            if (widget != null)
+                widget.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }
