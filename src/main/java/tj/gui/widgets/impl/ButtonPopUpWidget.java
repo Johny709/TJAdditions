@@ -3,6 +3,8 @@ package tj.gui.widgets.impl;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.util.Position;
+import gregtech.api.util.Size;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
@@ -21,15 +23,20 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
         super(x, y, width, height);
     }
 
-    public ButtonPopUpWidget addWidgets(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+    public ButtonPopUpWidget addWidgets(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
         button.setButtonId(String.valueOf(this.selectedIndex))
                 .setButtonResponder(this::handleButtonPress);
-        WidgetGroup widgetGroup = new WidgetGroup();
+        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
         this.addWidget(widgetGroup);
         this.addWidget(button);
         this.buttons.add(button);
+        return this;
+    }
+
+    public ButtonPopUpWidget addWidgets(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+        this.addWidgets(0, 0, 0, 0, button, widgets);
         return this;
     }
 

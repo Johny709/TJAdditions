@@ -27,6 +27,7 @@ import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -119,14 +120,14 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     protected void addToPopUpWidget(ButtonPopUpWidget buttonPopUpWidget) {
-        buttonPopUpWidget.addWidgets(new ButtonWidget<>(151, 161, 18, 18)
-                .setBackgroundTextures(TOGGLE_BUTTON_BACK), widgetGroup -> {
+        buttonPopUpWidget.addWidgets(112, 61, 0, 0, new ButtonWidget<>(151, 161, 18, 18)
+                .setBackgroundTextures(TOGGLE_BUTTON_BACK, FLUID_FILTER), widgetGroup -> {
+            widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
             widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                     .setTooltipText("cover.filter.blacklist"));
             this.fluidFilter.initUI(widgetGroup::addWidget);
-            widgetGroup.addWidget(new ImageWidget(151, 161, 18, 18, FLUID_FILTER));
             return false;
-        });
+        }).setClickArea(new Rectangle(346, 107, 60, 78));
     }
 
     @Override

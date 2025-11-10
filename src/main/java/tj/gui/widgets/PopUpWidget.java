@@ -9,12 +9,14 @@ import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
+import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
@@ -28,6 +30,11 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
     public PopUpWidget(int x, int y, int width, int height) {
         super(new Position(x, y), new Size(width, height));
+    }
+
+    public R setClickArea(Rectangle clickArea) {
+        this.clickArea = clickArea;
+        return (R) this;
     }
 
     /**
@@ -56,7 +63,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
         WidgetGroup widgetGroup = new WidgetGroup();
         boolean visible = widgets.test(widgetGroup);
         this.widgetMap.put(this.selectedIndex++ ,Pair.of(visible, widgetGroup));
-        this.widgets.add(widgetGroup);
+        this.addWidget(widgetGroup);
         return (R) this;
     }
 
@@ -67,14 +74,24 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     }
 
     @Override
+    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
+        AbstractWidgetGroup widgetGroup = (AbstractWidgetGroup) this.widgetMap.get(this.selectedIndex).getRight();
+        return widgetGroup.getPhantomTargets(ingredient);
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        AbstractWidgetGroup widgetGroup = (AbstractWidgetGroup) this.widgetMap.get(this.selectedIndex).getRight();
+        return widgetGroup.getIngredientOverMouse(mouseX, mouseY);
+    }
+
+    @Override
     public void detectAndSendChanges() {
         if (this.indexSupplier != null) {
             this.selectedIndex = this.indexSupplier.getAsInt();
             this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));
         }
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
-            if (this.selectedIndex == widget.getIntKey())
-                widget.getValue().getRight().detectAndSendChanges();
+        this.widgetMap.get(this.selectedIndex).getRight().detectAndSendChanges();
     }
 
     @Override
@@ -88,9 +105,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
-            if (this.selectedIndex == widget.getIntKey() || widget.getValue().getLeft())
-                widget.getValue().getRight().drawInForeground(mouseX, mouseY);
+        this.widgetMap.get(this.selectedIndex).getRight().drawInForeground(mouseX, mouseY);
     }
 
     @Override
@@ -106,55 +121,36 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        boolean success = false;
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
-            if (this.selectedIndex == widget.getIntKey())
-                success = success || widget.getValue().getRight().mouseWheelMove(mouseX, mouseY, wheelDelta);
-        return success;
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseWheelMove(mouseX, mouseY, wheelDelta);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        System.out.println("X: " + mouseX + " Y: " + mouseY + " button: " + button);
         if (this.clickArea != null && !this.clickArea.contains(mouseX, mouseY)) {
             this.selectedIndex = 0;
             this.writeClientAction(2, buffer -> buffer.writeInt(this.selectedIndex));
         }
-        boolean success = false;
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
-            if (this.selectedIndex == widget.getIntKey())
-                success = success || widget.getValue().getRight().mouseClicked(mouseX, mouseY, button);
-        return success;
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        boolean success = false;
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
-            if (this.selectedIndex == widget.getIntKey())
-                success = success || widget.getValue().getRight().mouseDragged(mouseX, mouseY, button, timeDragged);
-        return success;
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseDragged(mouseX, mouseY, button, timeDragged);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
-        boolean success = false;
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
-            if (this.selectedIndex == widget.getIntKey())
-                success = success || widget.getValue().getRight().mouseReleased(mouseX, mouseY, button);
-        return success;
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean keyTyped(char charTyped, int keyCode) {
-        boolean success = false;
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
-            if (this.selectedIndex == widget.getIntKey())
-                success = success || widget.getValue().getRight().keyTyped(charTyped, keyCode);
-        return success;
+        return this.widgetMap.get(this.selectedIndex).getRight().keyTyped(charTyped, keyCode);
     }
 
     @Override
