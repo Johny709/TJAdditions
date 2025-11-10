@@ -56,7 +56,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     }
 
     /**
-     * return true in the predicate for non-selected widgets to be visible but still can not be interacted.
+     * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
      * @param widgets widgets to add.
      */
     public R addWidgets(Predicate<WidgetGroup> widgets) {

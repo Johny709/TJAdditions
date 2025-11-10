@@ -2,6 +2,7 @@ package tj.items.covers;
 
 import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.PhantomFluidWidget;
@@ -21,9 +22,9 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.apache.commons.lang3.tuple.Pair;
-import tj.gui.widgets.ButtonWidget;
 import tj.gui.widgets.TJTankWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
@@ -120,8 +121,10 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     protected void addToPopUpWidget(ButtonPopUpWidget buttonPopUpWidget) {
-        buttonPopUpWidget.addWidgets(112, 61, 0, 0, new ButtonWidget<>(151, 161, 18, 18)
-                .setBackgroundTextures(TOGGLE_BUTTON_BACK, FLUID_FILTER), widgetGroup -> {
+        buttonPopUpWidget.addWidgets(112, 61, 0, 0, new TJToggleButtonWidget(151, 161, 18, 18)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setBackgroundTextures(FLUID_FILTER)
+                .useToggleTexture(true), widgetGroup -> {
             widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
             widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                     .setTooltipText("cover.filter.blacklist"));

@@ -23,9 +23,20 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
         super(x, y, width, height);
     }
 
+    /**
+     * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
+     * @param x X offset of widget group.
+     * @param y Y offset of widget group.
+     * @param width width of widget group.
+     * @param height height of widget group.
+     * @param button button widget to activate this popup.
+     * @param widgets widgets to add.
+     */
     public ButtonPopUpWidget addWidgets(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
         button.setButtonId(String.valueOf(this.selectedIndex))
                 .setButtonResponder(this::handleButtonPress);
+        if (button instanceof TJToggleButtonWidget)
+            ((TJToggleButtonWidget) button).setPressedCondition(() -> this.selectedIndex == button.getButtonIdAsLong());
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
@@ -35,6 +46,11 @@ public class ButtonPopUpWidget extends PopUpWidget<ButtonPopUpWidget> {
         return this;
     }
 
+    /**
+     * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
+     * @param button button widget to activate this popup.
+     * @param widgets widgets to add.
+     */
     public ButtonPopUpWidget addWidgets(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
         this.addWidgets(0, 0, 0, 0, button, widgets);
         return this;
