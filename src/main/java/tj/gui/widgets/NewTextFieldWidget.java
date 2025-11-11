@@ -166,6 +166,10 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
             this.writeUpdateInfo(2, buffer -> buffer.writeString(this.textId));
     }
 
+    public String getTextId() {
+        return this.textId != null ? this.textId : "";
+    }
+
     /**
      * Usually called by other widgets to initiate a manual response. e.g. a button press
      */

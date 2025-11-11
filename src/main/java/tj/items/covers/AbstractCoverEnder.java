@@ -234,9 +234,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;
                             }).addWidgets(3, 61, 182, 80, textWidget, false, widgetGroup -> {
-                                widgetGroup.addWidget(new LabelWidget(30, 2, "machine.universal.toggle.rename.entry"));
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidget.getTextId())), 0x404040));
                                 widgetGroup.addWidget(textFieldWidget);
                                 widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
                                         .setButtonResponder(textFieldWidget::triggerResponse)
@@ -284,9 +284,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(listWidget);
                                 return true;
                             }).addWidgets(3, 61, 182, 80, textWidget, false, widgetGroup -> {
-                                widgetGroup.addWidget(new LabelWidget(30, 2, "machine.universal.toggle.rename.channel"));
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidget.getTextId())), 0x404040));
                                 widgetGroup.addWidget(textFieldWidget);
                                 widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
                                         .setButtonResponder(textFieldWidget::triggerResponse)

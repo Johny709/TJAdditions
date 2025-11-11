@@ -666,6 +666,7 @@ machine.universal.toggle.fluid_voiding.disabled=Fluid Voiding: Disabled
 machine.universal.toggle.clear=Clear
 machine.universal.toggle.clear.enabled=Clear
 machine.universal.toggle.clear.disabled=Clear
+machine.universal.renaming=Renaming: %s
 machine.universal.entries=Entries
 machine.universal.channels=Channels
 machine.universal.toggle.add.entry=Add Entry
