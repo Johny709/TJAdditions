@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,6 +38,12 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
     public TJAdvancedTextWidget setTextId(String textId) {
         this.textId = textId;
         return this;
+    }
+
+    public static ITextComponent withButton(ITextComponent textComponent, String componentData) {
+        Style style = textComponent.getStyle();
+        style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "@!" + componentData));
+        return textComponent;
     }
 
     @SideOnly(Side.CLIENT)

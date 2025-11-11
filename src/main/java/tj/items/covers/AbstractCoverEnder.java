@@ -29,6 +29,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.TJValues;
@@ -36,6 +37,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.gui.widgets.*;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
+import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
@@ -51,6 +53,8 @@ import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.tab.HorizontalTabListRenderer.HorizontalStartCorner.LEFT;
 import static gregtech.api.gui.widgets.tab.HorizontalTabListRenderer.VerticalLocation.TOP;
+import static net.minecraft.util.text.TextFormatting.GRAY;
+import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.gui.TJGuiTextures.*;
 
 public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
@@ -178,19 +182,14 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .addClickHandler(this.handleDisplayClick(textFieldWidget));
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
-                            .addWidgets(widgetGroup -> {
-                                ScrollableListWidget listWidget = new ScrollableListWidget(3, 61, 182, 80) {
-                                    @Override
-                                    public boolean isWidgetClickable(Widget widget) {
-                                        return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-                                    }
-                                };
-                                listWidget.addWidget(textWidget);
+                            .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
+                                widgetGroup.addWidget(new ScrollableTextWidget(3, 61, 182, 80)
+                                        .addTextWidget(textWidget));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.toggle.current.entry")
@@ -230,10 +229,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                                 widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                                         .setTooltipText("machine.universal.toggle.run.mode"));
-                                widgetGroup.addWidget(listWidget);
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;
-                            }).addWidgets(3, 61, 182, 80, textWidget, false, widgetGroup -> {
+                            }).addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidget.getTextId())), 0x404040));
@@ -258,16 +256,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .addClickHandler(this.handleDisplayClick(textFieldWidget));
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
-                            .addWidgets(widgetGroup -> {
-                                ScrollableListWidget listWidget = new ScrollableListWidget(3, 38, 182, 103) {
-                                    @Override
-                                    public boolean isWidgetClickable(Widget widget) {
-                                        return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-                                    }
-                                };
-                                listWidget.addWidget(textWidget);
+                            .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
+                                widgetGroup.addWidget(new ScrollableTextWidget(3, 38, 182, 103)
+                                        .addTextWidget(textWidget));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.toggle.current.channel")
@@ -280,10 +273,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setTooltipText("machine.universal.toggle.add.channel"));
                                 widgetGroup.addWidget(new ToggleButtonWidget(7, 15, 18, 18, UNLOCK_LOCK, () -> this.getEnderProfile().isPublic(), this::setPublic)
                                         .setTooltipText("metaitem.ender_cover.private"));
-                                widgetGroup.addWidget(new LabelWidget(3, 150, "machine.universal.owner", this.ownerId));
-                                widgetGroup.addWidget(listWidget);
+                                widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.ownerId));
                                 return true;
-                            }).addWidgets(3, 61, 182, 80, textWidget, false, widgetGroup -> {
+                            }).addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidget.getTextId())), 0x404040));
@@ -293,6 +285,17 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .setPressedCondition(() -> false)
                                         .useToggleTexture(true));
+                                return false;
+                            }).addPopup(0, 38, 182, 103, new TJToggleButtonWidget(151, 145, 18, 18)
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setBackgroundTextures(LIST_OVERLAY)
+                                    .useToggleTexture(true), widgetGroup -> {
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 103, BORDERED_BACKGROUND));
+                                widgetGroup.addWidget(new ImageWidget(3, 15, 176, 80, DISPLAY));
+                                widgetGroup.addWidget(new ScrollableTextWidget(3, 15, 185, 80)
+                                        .addTextWidget(new TJAdvancedTextWidget(2, 3, this::addPlayerDisplayText, 0xFFFFFF)
+                                                .addClickHandler(this::handlePlayerDisplayClick)));
+                                widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.list.players")), 0x404040));
                                 return false;
                             });
                     tab.addWidget(clickPopUpWidget);
@@ -376,6 +379,28 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         this.markAsDirty();
     }
 
+    private void handlePlayerDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
+        String[] component = componentData.split(":");
+        UUID uuid = UUID.fromString(component[1]);
+        if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getOwner().equals(uuid))
+            return;
+        if (component[0].equals("Add"))
+            this.getEnderProfile().getAllowedUsers().add(uuid);
+        else if (component[0].equals("Remove"))
+            this.getEnderProfile().getAllowedUsers().remove(uuid);
+    }
+
+    private void addPlayerDisplayText(List<ITextComponent> textList) {
+        List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
+        for (EntityPlayer player : playerList) {
+            boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
+            textList.add(new TextComponentString(player.getDisplayNameString()).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(player.getDisplayNameString())))).appendText("\n")
+                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
+                    .appendText(" ")
+                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
+        }
+    }
+
     private void addChannelDisplayText(List<ITextComponent> textList) {
         int count = 0, searchResults = 0;
         textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + this.searchResults + "§r/§e" + this.getPlayerMap().size() + "§r)"));
@@ -394,7 +419,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
             textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
                     .appendText("\n")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select:channel:" + text))
+                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
                     .appendText(" ")
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
                     .appendText(" ")
@@ -421,7 +446,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
             ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
                     .appendText("\n")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), "select:entry:" + text))
+                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.text) ? GRAY : YELLOW)), "select:entry:" + text))
                     .appendText(" ")
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
                     .appendText(" ")

@@ -101,7 +101,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     protected void addToPopUpWidget(ButtonPopUpWidget<?> buttonPopUpWidget) {
-        buttonPopUpWidget.addWidgets(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
+        buttonPopUpWidget.addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .setBackgroundTextures(ITEM_FILTER)
                         .useToggleTexture(true), widgetGroup -> {

@@ -32,7 +32,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      * @param button button widget to activate this popup.
      * @param widgets widgets to add.
      */
-    public T addWidgets(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+    public T addPopup(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
         button.setButtonId(String.valueOf(this.selectedIndex))
                 .setButtonResponder(this::handleButtonPress);
         if (button instanceof TJToggleButtonWidget)
@@ -46,8 +46,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
         return (T) this;
     }
 
-    @Override
-    public T addWidgets(Predicate<WidgetGroup> widgets) {
+    public T addPopup(Predicate<WidgetGroup> widgets) {
         this.buttons.add(null);
         return super.addWidgets(widgets);
     }
@@ -57,8 +56,8 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      * @param button button widget to activate this popup.
      * @param widgets widgets to add.
      */
-    public T addWidgets(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
-        this.addWidgets(0, 0, 0, 0, button, widgets);
+    public T addPopup(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+        this.addPopup(0, 0, 0, 0, button, widgets);
         return (T) this;
     }
 

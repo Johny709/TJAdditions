@@ -25,7 +25,7 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
      * @param add set to add this text widget to this widget group
      * @param widgets widgets to add.
      */
-    public ClickPopUpWidget addWidgets(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
+    public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
         textWidget.setTextId(String.valueOf(this.selectedIndex))
