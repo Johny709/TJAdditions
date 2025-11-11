@@ -39,6 +39,7 @@ import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
+import tj.util.consumers.QuadConsumer;
 
 import java.util.List;
 import java.util.Map;
@@ -144,9 +145,18 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         }
     }
 
+    private void renameChannel(String name, String id) {
+        Pair<CoverEnderProfile, Map<K, V>> map = this.getPlayerMap().get(id);
+        if (map != null && map.getLeft().getOwner() != null && map.getLeft().getOwner().equals(this.ownerId)) {
+            this.getPlayerMap().remove(id);
+            this.getPlayerMap().put(name, map);
+        }
+    }
+
     private void setRename(String name, String id) {
         V value = this.getMap().get(id);
         if (value != null) {
+            this.text = name;
             this.getMap().remove(id);
             this.handler = this.getMap().put((K) name, value);
         }
@@ -158,20 +168,16 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getName()))
                 .addTab(this.getName(), this.getPickItem(), tab -> {
-                    NewTextFieldWidget<?> textFieldWidget = new NewTextFieldWidget<>(12, 15, 159, 12)
+                    NewTextFieldWidget<?> textFieldWidget = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.entry")
                             .setTooltipText("machine.universal.toggle.rename.entry")
                             .setTextResponder(this::setRename)
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF)
-                            .addClickHandler((text, id, click, entityPlayer) -> {
-                                String[] args = text.split(":");
-                                if (args[0].equals("@Popup"))
-                                    textFieldWidget.setTextId(args[1]);
-                            }).addClickHandler(this::handleDisplayClick);
+                            .addClickHandler(this.handleDisplayClick(textFieldWidget));
                     textWidget.setMaxWidthLimit(1000);
-                    ClickPopUpWidget buttonPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
+                    ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
                             .addWidgets(widgetGroup -> {
                                 ScrollableListWidget listWidget = new ScrollableListWidget(3, 61, 182, 80) {
                                     @Override
@@ -185,26 +191,29 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
-                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 12, false)
+                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.toggle.current.entry")
                                         .setTooltipText("machine.universal.toggle.current.entry")
                                         .setTextResponder(this::setTextID)
                                         .setTextSupplier(() -> this.text)
-                                        .setMaxStringLength(256));
-                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 12, false)
+                                        .setMaxStringLength(256)
+                                        .setUpdateOnTyping(true));
+                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 13, false)
                                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                                         .setBackgroundText("metaitem.ender_cover.transfer")
                                         .setTooltipText("metaitem.ender_cover.transfer")
                                         .setTooltipFormat(this::getTooltipFormat)
                                         .setTextResponder(this::setTransferRate)
-                                        .setTextSupplier(this::getTransferRate));
-                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 12, false)
+                                        .setTextSupplier(this::getTransferRate)
+                                        .setUpdateOnTyping(true));
+                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.search")
                                         .setTextSupplier(() -> this.searchPrompt)
                                         .setTextResponder(this::setSearchPrompt)
-                                        .setMaxStringLength(256));
+                                        .setMaxStringLength(256)
+                                        .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new TJClickButtonWidget(151, 38, 18, 18, "O", this::onAddEntry)
                                         .setTooltipText("machine.universal.toggle.add.entry"));
                                 widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
@@ -236,40 +245,85 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .useToggleTexture(true));
                                 return false;
                             });
-                    this.addToPopUpWidget(buttonPopUpWidget);
-                    tab.addWidget(buttonPopUpWidget);
-                }).addTab("machine.universal.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76),tab -> {
-                    ScrollableListWidget listWidget = new ScrollableListWidget(3, 38, 182, 103) {
-                        @Override
-                        public boolean isWidgetClickable(Widget widget) {
-                            return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-                        }
-                    };
-                    listWidget.addWidget(new TJAdvancedTextWidget(2, 3, this::addChannelDisplayText, 0xFFFFFF)
-                            .addClickHandler(this::handleDisplayClick)
-                            .setMaxWidthLimit(1000));
-                    tab.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
-                    tab.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
-                    tab.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
+                    this.addToPopUpWidget(clickPopUpWidget);
+                    tab.addWidget(clickPopUpWidget);
+                }).addTab("machine.universal.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76), tab -> {
+                    NewTextFieldWidget<?> textFieldWidget = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                            .setBackgroundText("machine.universal.toggle.current.channel")
-                            .setTooltipText("machine.universal.toggle.current.channel")
-                            .setTextSupplier(() -> this.channel)
-                            .setTextResponder(this::setChannel)
-                            .setMaxStringLength(256)
-                            .setUpdateOnTyping(true));
-                    tab.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "O", this::addChannel)
-                            .setTooltipText("machine.universal.toggle.add.channel"));
-                    tab.addWidget(new ToggleButtonWidget(7, 15, 18, 18, UNLOCK_LOCK, () -> this.getEnderProfile().isPublic(), this::setPublic)
-                            .setTooltipText("metaitem.ender_cover.private"));
-                    tab.addWidget(new LabelWidget(3, 150, "machine.universal.owner", this.ownerId));
-                    tab.addWidget(listWidget);
+                            .setBackgroundText("machine.universal.toggle.rename.channel")
+                            .setTooltipText("machine.universal.toggle.rename.channel")
+                            .setTextResponder(this::renameChannel)
+                            .setMaxStringLength(256);
+                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this::addChannelDisplayText, 0xFFFFFF)
+                            .addClickHandler(this.handleDisplayClick(textFieldWidget));
+                    textWidget.setMaxWidthLimit(1000);
+                    ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
+                            .addWidgets(widgetGroup -> {
+                                ScrollableListWidget listWidget = new ScrollableListWidget(3, 38, 182, 103) {
+                                    @Override
+                                    public boolean isWidgetClickable(Widget widget) {
+                                        return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
+                                    }
+                                };
+                                listWidget.addWidget(textWidget);
+                                widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
+                                widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
+                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
+                                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                        .setBackgroundText("machine.universal.toggle.current.channel")
+                                        .setTooltipText("machine.universal.toggle.current.channel")
+                                        .setTextSupplier(() -> this.channel)
+                                        .setTextResponder(this::setChannel)
+                                        .setMaxStringLength(256)
+                                        .setUpdateOnTyping(true));
+                                widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "O", this::addChannel)
+                                        .setTooltipText("machine.universal.toggle.add.channel"));
+                                widgetGroup.addWidget(new ToggleButtonWidget(7, 15, 18, 18, UNLOCK_LOCK, () -> this.getEnderProfile().isPublic(), this::setPublic)
+                                        .setTooltipText("metaitem.ender_cover.private"));
+                                widgetGroup.addWidget(new LabelWidget(3, 150, "machine.universal.owner", this.ownerId));
+                                widgetGroup.addWidget(listWidget);
+                                return true;
+                            }).addWidgets(3, 61, 182, 80, textWidget, false, widgetGroup -> {
+                                widgetGroup.addWidget(new LabelWidget(30, 2, "machine.universal.toggle.rename.channel"));
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                                widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                                widgetGroup.addWidget(textFieldWidget);
+                                widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
+                                        .setButtonResponder(textFieldWidget::triggerResponse)
+                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                        .setPressedCondition(() -> false)
+                                        .useToggleTexture(true));
+                                return false;
+                            });
+                    tab.addWidget(clickPopUpWidget);
                 });
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
                 .bindPlayerInventory(player.inventory, 181)
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
                 .build(this, player);
+    }
+
+    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handleDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
+        return (componentData, textId, clickData, player) -> {
+            String[] components = componentData.split(":");
+            if (components[0].equals("@Popup"))
+                textFieldWidget.setTextId(components[1]);
+            if (components.length < 3 || this.ownerId != null && !this.ownerId.equals(player.getUniqueID()))
+                return;
+            switch (components[0]) {
+                case "select":
+                    if (components[1].equals("entry"))
+                        this.setTextID(components[2], textId);
+                    else this.setChannel(components[2], textId);
+                    break;
+                case "remove":
+                    if (components[1].equals("entry"))
+                        this.getMap().remove(components[2]);
+                    else this.getPlayerMap().remove(components[2]);
+                    break;
+            }
+        };
     }
 
     private void setSearchPrompt(String searchPrompt, String id) {
@@ -344,7 +398,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                     .appendText(" ")
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
                     .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:channel:" + text))
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
                     .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getLeft().getOwner())))));
         }
     }
@@ -381,32 +435,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     protected abstract void addEntryText(ITextComponent keyEntry, K key, V value);
 
-    private void handleDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
-        String[] components = componentData.split(":");
-        if (this.ownerId != null && !this.ownerId.equals(player.getUniqueID()))
-            return;
-        switch (components[0]) {
-            case "select":
-                if (components[1].equals("entry"))
-                    this.setTextID(components[2], textId);
-                else this.setChannel(components[2], textId);
-                break;
-            case "remove":
-                if (components[1].equals("entry"))
-                    this.getMap().remove(components[2]);
-                else this.getPlayerMap().remove(components[2]);
-                break;
-        }
-    }
-
     protected void setFilterPopUp(boolean isFilterPopUp) {
         this.isFilterPopUp = isFilterPopUp;
         this.writeUpdateData(1, buffer -> buffer.writeBoolean(this.isFilterPopUp));
         this.markAsDirty();
-    }
-
-    protected boolean isFilterPopUp() {
-        return this.isFilterPopUp;
     }
 
     @Override

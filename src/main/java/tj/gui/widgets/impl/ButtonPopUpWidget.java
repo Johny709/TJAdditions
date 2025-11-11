@@ -71,6 +71,23 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
 
     @Override
     @SideOnly(Side.CLIENT)
+    public void updateScreen() {
+        super.updateScreen();
+        for (Widget widget : this.buttons)
+            if (widget != null)
+                widget.updateScreen();
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        for (Widget widget : this.buttons)
+            if (widget != null)
+                widget.detectAndSendChanges();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         super.drawInForeground(mouseX, mouseY);
         for (Widget widget : this.buttons)

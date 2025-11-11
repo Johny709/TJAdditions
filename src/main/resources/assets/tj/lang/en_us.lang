@@ -671,6 +671,7 @@ machine.universal.channels=Channels
 machine.universal.toggle.add.entry=Add Entry
 machine.universal.toggle.rename.entry=Rename Entry
 machine.universal.toggle.add.channel=Add Channel
+machine.universal.toggle.rename.channel=Rename Channel
 machine.universal.toggle.current.entry=Current Entry
 machine.universal.toggle.current.channel=Current Channel
 machine.universal.linked.entity.null=Not linked

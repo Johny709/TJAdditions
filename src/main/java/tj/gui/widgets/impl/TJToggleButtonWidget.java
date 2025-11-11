@@ -5,6 +5,8 @@ import gregtech.api.gui.resources.SizedTextureArea;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.widgets.ButtonWidget;
@@ -15,6 +17,7 @@ import java.util.function.BooleanSupplier;
 public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
     private boolean useToggleTexture;
+    private boolean isPressed;
     private TextureArea toggleTexture;
     private TextureArea activeTexture;
     private TextureArea baseTexture;
@@ -73,7 +76,6 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        boolean isPressed = this.isPressedCondition.getAsBoolean();
         Position pos = this.getPosition();
         Size size = this.getSize();
         if (!this.useToggleTexture) {
@@ -81,15 +83,60 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
                 this.activeTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
             else this.baseTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         } else if (this.toggleTexture instanceof SizedTextureArea) {
-            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, isPressed ? 0.5 : 0.0, 0.5);
+            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.isPressed ? 0.5 : 0.0, 0.5);
         } else {
-            this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, isPressed ? 0.5 : 0.0, 1.0, 0.5);
+            this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
         }
         super.drawInBackground(mouseX, mouseY, context);
     }
 
     @Override
-    public boolean isMouseOverElement(int mouseX, int mouseY) {
-        return !this.isPressedCondition.getAsBoolean() && super.isMouseOverElement(mouseX, mouseY);
+    @SideOnly(Side.CLIENT)
+    public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        if (!this.isPressed && this.isMouseOverElement(mouseX, mouseY)) {
+            this.gui.entityPlayer.playSound(SoundEvents.UI_BUTTON_CLICK, 0.5F, 0.5F);
+            this.isPressed = true;
+            this.writeClientAction(1, buffer -> {
+                buffer.writeString(this.buttonId != null ? this.buttonId : "");
+                buffer.writeBoolean(this.isPressed);
+                buffer.writeInt(mouseX);
+                buffer.writeInt(mouseY);
+                buffer.writeInt(button);
+            });
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void handleClientAction(int id, PacketBuffer buffer) {
+        if (id == 1) {
+            String buttonId = buffer.readString(Short.MAX_VALUE);
+            this.isPressed = buffer.readBoolean();
+            int mouseX = buffer.readInt();
+            int mouseY = buffer.readInt();
+            int button = buffer.readInt();
+            if (this.buttonResponder != null)
+                this.buttonResponder.accept(buttonId);
+            if (this.textResponderWithMouse != null)
+                this.textResponderWithMouse.accept(buttonId, mouseX, mouseY, button);
+        }
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if (this.isPressedCondition != null) {
+            this.isPressed = this.isPressedCondition.getAsBoolean();
+            this.writeUpdateInfo(3, buffer -> buffer.writeBoolean(this.isPressed));
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void readUpdateInfo(int id, PacketBuffer buffer) {
+        super.readUpdateInfo(id, buffer);
+        if (id == 3)
+            this.isPressed = buffer.readBoolean();
     }
 }
