@@ -6,6 +6,9 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -28,7 +31,9 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     protected TextureArea[] backgroundTextures;
     protected String[] format;
     protected String buttonId;
+    protected String displayText;
     protected String tooltipText;
+    protected int textColor = 0xFFFFFF;
     protected long buttonIdAsLong;
 
     public ButtonWidget(int x, int y, int width, int height) {
@@ -93,10 +98,28 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
 
     /**
      * Add textures to render in background. Last texture passed in will be rendered on top of all the others.
-     * @param backgroundTextures textures
+     * @param backgroundTextures  textures
      */
     public R setBackgroundTextures(TextureArea... backgroundTextures) {
         this.backgroundTextures = backgroundTextures;
+        return (R) this;
+    }
+
+    /**
+     * Set text to display on button.
+     * @param displayText text
+     */
+    public R setDisplayText(String displayText) {
+        this.displayText = displayText;
+        return (R) this;
+    }
+
+    /**
+     * Color of display text.
+     * @param textColor hex color
+     */
+    public R setDisplayTextColor(int textColor) {
+        this.textColor = textColor;
         return (R) this;
     }
 
@@ -121,6 +144,14 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
         if (this.backgroundTextures != null)
             for (TextureArea textureArea : this.backgroundTextures)
                 textureArea.draw(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight());
+        if (this.displayText != null) {
+            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            String text = I18n.format(this.displayText);
+            fontRenderer.drawString(text,
+                    this.getPosition().getX() + this.getSize().getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
+                    this.getPosition().getY() + this.getSize().getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
+        }
     }
 
     @Override

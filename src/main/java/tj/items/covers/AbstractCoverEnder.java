@@ -136,10 +136,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected abstract V createHandler();
 
     protected void addChannel(String name, String id) {
-        this.getPlayerMap().putIfAbsent(this.channel, Pair.of(new CoverEnderProfile(this.ownerId), new Object2ObjectOpenHashMap<>()));
+        this.getPlayerMap().putIfAbsent(name, Pair.of(new CoverEnderProfile(this.ownerId), new Object2ObjectOpenHashMap<>()));
     }
 
-    protected void onAddEntry(String name, String id) {
+    protected void addEntry(String name, String id) {
         if (name != null)
             this.getMap().putIfAbsent((K) name, this.createHandler());
     }
@@ -158,7 +158,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         }
     }
 
-    private void setRename(String name, String id) {
+    private void renameEntry(String name, String id) {
         V value = this.getMap().get(id);
         if (value != null) {
             this.text = name;
@@ -177,19 +177,13 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.entry")
                             .setTooltipText("machine.universal.toggle.rename.entry")
-                            .setTextResponder(this::setRename)
+                            .setTextResponder(this::renameEntry)
                             .setMaxStringLength(256);
                     NewTextFieldWidget<?> textFieldWidgetEntry = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.add.entry")
                             .setTooltipText("machine.universal.toggle.add.entry")
-                            .setTextResponder(this::onAddEntry)
-                            .setMaxStringLength(256);
-                    NewTextFieldWidget<?> textFieldWidgetChannel = new NewTextFieldWidget<>(12, 20, 159, 13)
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                            .setBackgroundText("machine.universal.toggle.add.channel")
-                            .setTooltipText("machine.universal.toggle.add.channel")
-                            .setTextResponder(this::addChannel)
+                            .setTextResponder(this::addEntry)
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF)
                             .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
@@ -256,10 +250,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             }).addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 38, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.entry")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true), widgetGroup -> {
+                                    .useToggleTexture(true)
+                                    .setDisplayText("O"), widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
-                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.entry")), 0x404040));
+                                widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.entry")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetEntry);
                                 widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
                                         .setButtonResponder(textFieldWidgetEntry::triggerResponse)
@@ -276,6 +271,12 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setBackgroundText("machine.universal.toggle.rename.channel")
                             .setTooltipText("machine.universal.toggle.rename.channel")
                             .setTextResponder(this::renameChannel)
+                            .setMaxStringLength(256);
+                    NewTextFieldWidget<?> textFieldWidgetChannel = new NewTextFieldWidget<>(12, 20, 159, 13)
+                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                            .setBackgroundText("machine.universal.toggle.add.channel")
+                            .setTooltipText("machine.universal.toggle.add.channel")
+                            .setTextResponder(this::addChannel)
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this::addChannelDisplayText, 0xFFFFFF)
                             .addClickHandler(this.handleDisplayClick(textFieldWidget));
@@ -305,6 +306,21 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(textFieldWidget);
                                 widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
                                         .setButtonResponder(textFieldWidget::triggerResponse)
+                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                        .setPressedCondition(() -> false)
+                                        .useToggleTexture(true));
+                                return false;
+                            }).addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 15, 18, 18)
+                                    .setTooltipText("machine.universal.toggle.add.channel")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .useToggleTexture(true)
+                                    .setDisplayText("O"), widgetGroup -> {
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                                widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                                widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
+                                widgetGroup.addWidget(textFieldWidgetChannel);
+                                widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
+                                        .setButtonResponder(textFieldWidgetChannel::triggerResponse)
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .setPressedCondition(() -> false)
                                         .useToggleTexture(true));
