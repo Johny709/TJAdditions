@@ -1,10 +1,14 @@
 package tj.util;
 
-public class MutableVar<T> {
+/**
+ * Mainly used as a wrapper class for primitives to be treated as reference type.
+ * @param <T> type
+ */
+public class Variable<T> {
 
     private T value;
 
-    public MutableVar(T value) {
+    public Variable(T value) {
         this.value = value;
     }
 
@@ -18,7 +22,7 @@ public class MutableVar<T> {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof MutableVar<?> ? ((MutableVar<?>) obj).getValue().equals(this.getValue()) : super.equals(obj);
+        return obj instanceof Variable<?> ? ((Variable<?>) obj).getValue().equals(this.getValue()) : super.equals(obj);
     }
 
     @Override

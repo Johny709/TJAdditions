@@ -41,12 +41,9 @@ import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
-import tj.util.MutableVar;
 import tj.util.consumers.QuadConsumer;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -166,10 +163,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        MutableVar<Boolean> caseSensitive = new MutableVar<>(false);
-        MutableVar<Boolean> spaces = new MutableVar<>(false);
-        MutableVar<Integer> searchResults = new MutableVar<>(0);
-        MutableVar<String> search = new MutableVar<>("");
+        List<Integer> searchResults = Arrays.asList(0, 0, 0);
+        List<Integer> patternFlags = Arrays.asList(0, 0, 0);
+        List<String> search = Arrays.asList("", "", "");
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getName()))
@@ -186,7 +182,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setTooltipText("machine.universal.toggle.add.entry")
                             .setTextResponder(this::addEntry)
                             .setMaxStringLength(256);
-                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addEntryDisplayText(caseSensitive, spaces, search, searchResults), 0xFFFFFF)
+                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addEntryDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
                             .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
@@ -217,8 +213,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.search")
-                                        .setTextSupplier(search::getValue)
-                                        .setTextResponder((result, id) -> search.setValue(result))
+                                        .setTextSupplier(() -> search.get(0))
+                                        .setTextResponder((result, id) -> search.set(0, result))
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
@@ -228,15 +224,83 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new TJClickButtonWidget(-20, 38, 18, 18, "", this::onClear)
                                         .setTooltipText("machine.universal.toggle.clear")
                                         .setButtonTexture(BUTTON_CLEAR_GRID));
-                                widgetGroup.addWidget(new ToggleButtonWidget(7, 142, 18, 18, CASE_SENSITIVE_BUTTON, caseSensitive::getValue, caseSensitive::setValue)
-                                        .setTooltipText("machine.universal.case_sensitive"));
-                                widgetGroup.addWidget(new ToggleButtonWidget(151, 142, 18, 18, SPACES_BUTTON, spaces::getValue, spaces::setValue)
-                                        .setTooltipText("machine.universal.spaces"));
                                 widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                                 widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                                         .setTooltipText("machine.universal.toggle.run.mode"));
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;
+                            }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
+                                    .setTooltipText("machine.universal.search.settings")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .useToggleTexture(true)
+                                    .setDisplayText("⚙"), widgetGroup -> {
+                                    widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+                                    widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
+                                    widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", patternFlags.get(0))), 0x404040));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.UNIX_LINES))
+                                            .setDisplayText("string.regex.pattern.unix_lines.flag")
+                                            .setTooltipText("string.regex.pattern.unix_lines")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.CASE_INSENSITIVE))
+                                            .setDisplayText("string.regex.pattern.case_insensitive.flag")
+                                            .setTooltipText("string.regex.pattern.case_insensitive")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.COMMENTS))
+                                            .setDisplayText("string.regex.pattern.comments.flag")
+                                            .setTooltipText("string.regex.pattern.comments")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.MULTILINE))
+                                            .setDisplayText("string.regex.pattern.multiline.flag")
+                                            .setTooltipText("string.regex.pattern.multiline")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.LITERAL))
+                                            .setDisplayText("string.regex.pattern.literal.flag")
+                                            .setTooltipText("string.regex.pattern.literal")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.DOTALL))
+                                            .setDisplayText("string.regex.pattern.dotall.flag")
+                                            .setTooltipText("string.regex.pattern.dotall")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.UNICODE_CASE))
+                                            .setDisplayText("string.regex.pattern.unicode_case.flag")
+                                            .setTooltipText("string.regex.pattern.unicode_case")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.CANON_EQ))
+                                            .setDisplayText("string.regex.pattern.canon_eq.flag")
+                                            .setTooltipText("string.regex.pattern.canon_eq")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
+                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.UNICODE_CHARACTER_CLASS))
+                                            .setDisplayText("string.regex.pattern.unicode_character_class.flag")
+                                            .setTooltipText("string.regex.pattern.unicode_character_class")
+                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                            .setPressedCondition(() -> false)
+                                            .useToggleTexture(true));
+                                    return false;
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -291,7 +355,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setTooltipText("machine.universal.toggle.add.channel")
                             .setTextResponder(this::addChannel)
                             .setMaxStringLength(256);
-                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(caseSensitive, spaces, search, searchResults), 0xFFFFFF)
+                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
                             .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
@@ -461,21 +525,13 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         }
     }
 
-    private Consumer<List<ITextComponent>> addChannelDisplayText(MutableVar<Boolean> caseSensitive, MutableVar<Boolean> spaces, MutableVar<String> search, MutableVar<Integer> searchResults) {
+    private Consumer<List<ITextComponent>> addChannelDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
         return (textList) -> {
             int count = 0, results = 0;
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults + "§r/§e" + this.getPlayerMap().size() + "§r)"));
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
             for (Map.Entry<String, Pair<CoverEnderProfile, Map<K, V>>> entry : this.getPlayerMap().entrySet()) {
                 String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
-                String result = text;
-
-                if (!caseSensitive.getValue())
-                    result = result.toLowerCase();
-
-                if (!spaces.getValue())
-                    result = result.replace(" ", "");
-
-                if (!result.isEmpty() && !result.contains(search.getValue()))
+                if (!text.isEmpty() && !Pattern.compile(text, patternFlags.get(1)).matcher(search.get(1)).find())
                     continue;
 
                 textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
@@ -487,25 +543,17 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getLeft().getOwner())))));
             }
-            searchResults.setValue(results);
+            searchResults.set(1, results);
         };
     }
 
-    private Consumer<List<ITextComponent>> addEntryDisplayText(MutableVar<Boolean> caseSensitive, MutableVar<Boolean> spaces, MutableVar<String> search, MutableVar<Integer> searchResults) {
+    private Consumer<List<ITextComponent>> addEntryDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
         return (textList) -> {
             int count = 0, results = 0;
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults + "§r/§e" + this.getMap().size() + "§r)"));
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getMap().size() + "§r)"));
             for (Map.Entry<K, V> entry : this.getMap().entrySet()) {
                 String text = (String) entry.getKey();
-                String result = text;
-
-                if (!caseSensitive.getValue())
-                    result = result.toLowerCase();
-
-                if (!spaces.getValue())
-                    result = result.replace(" ", "");
-
-                if (!result.isEmpty() && !result.contains(search.getValue()))
+                if (!text.isEmpty() && !Pattern.compile(text, patternFlags.get(0)).matcher(search.get(0)).find())
                     continue;
 
                 ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
@@ -519,7 +567,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
                 results++;
             }
-            searchResults.setValue(results);
+            searchResults.set(0, results);
         };
     }
 
