@@ -236,40 +236,40 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setTooltipText("machine.universal.toggle.run.mode"));
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;
-                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                            }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
-                                    .setDisplayText("machine.universal.ok")
+                            .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
+                                    .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
-                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                            .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetRename);
                                 return false;
-                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                            }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
-                                    .setDisplayText("machine.universal.ok")
+                            .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetEntry::triggerResponse)
+                                    .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 38, 18, 18)
+                            .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 38, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.entry")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .useToggleTexture(true)
                                     .setDisplayText("O"), widgetGroup -> {
-                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.entry")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetEntry);
@@ -311,40 +311,40 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setTooltipText("metaitem.ender_cover.private"));
                                 widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.ownerId));
                                 return true;
-                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                            }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
-                                    .setDisplayText("machine.universal.ok")
+                            .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
+                                    .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
-                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                            .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetRename);
                                 return false;
-                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                            }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
-                                    .setDisplayText("machine.universal.ok")
+                            .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetChannel::triggerResponse)
+                                    .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setPressedCondition(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 15, 18, 18)
+                            .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 15, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.channel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .useToggleTexture(true)
                                     .setDisplayText("O"), widgetGroup -> {
-                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetChannel);

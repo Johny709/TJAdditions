@@ -158,7 +158,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (this.isMouseOverElement(mouseX, mouseY)) {
-            this.gui.entityPlayer.playSound(SoundEvents.UI_BUTTON_CLICK, 0.5F, 0.5F);
+            this.playButtonClickSound();
             this.writeClientAction(1, buffer -> {
                 buffer.writeString(this.buttonId != null ? this.buttonId : "");
                 buffer.writeInt(mouseX);
