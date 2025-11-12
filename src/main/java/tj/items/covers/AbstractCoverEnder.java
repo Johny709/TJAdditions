@@ -13,6 +13,7 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.HorizontalTabListRenderer;
+import gregtech.api.util.GTLog;
 import gregtech.common.covers.CoverPump;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.entity.player.EntityPlayer;
@@ -70,6 +71,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     public AbstractCoverEnder(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
+        GTLog.logger.info("Creating Ender Cover");
     }
 
     @Override
@@ -236,7 +238,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                     .setDisplayText("⚙"), widgetGroup -> {
                                     widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
                                     widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
-                                    widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", patternFlags.get(0))), 0x404040));
                                     return this.addSearchTextWidgets(widgetGroup, patternFlags, 0);
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
@@ -299,6 +300,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
+                                widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ScrollableTextWidget(3, 38, 182, 103)
                                         .addTextWidget(textWidget));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
@@ -358,16 +360,29 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetChannel);
                                 return false;
-                            }).addPopup(0, 38, 182, 103, new TJToggleButtonWidget(7, 145, 18, 18)
+                            }).addPopup(0, 38, 182, 120, new TJToggleButtonWidget(7, 142, 18, 18)
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setBackgroundTextures(LIST_OVERLAY)
                                     .useToggleTexture(true), widgetGroup -> {
-                                widgetGroup.addWidget(new ImageWidget(0, 0, 182, 103, BORDERED_BACKGROUND));
-                                widgetGroup.addWidget(new ImageWidget(3, 15, 176, 80, DISPLAY));
-                                widgetGroup.addWidget(new ScrollableTextWidget(3, 15, 185, 80)
-                                        .addTextWidget(new TJAdvancedTextWidget(2, 3, this::addPlayerDisplayText, 0xFFFFFF)
-                                                .addClickHandler(this::handlePlayerDisplayClick)));
-                                widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.list.players")), 0x404040));
+                                widgetGroup.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                                        .addPopup(innerWidgetGroup -> {
+                                            innerWidgetGroup.addWidget(new ImageWidget(0, 0, 182, 120, BORDERED_BACKGROUND));
+                                            innerWidgetGroup.addWidget(new ImageWidget(3, 15, 176, 80, DISPLAY));
+                                            innerWidgetGroup.addWidget(new ImageWidget(30, 96, 115, 18, DISPLAY));
+                                            innerWidgetGroup.addWidget(new ScrollableTextWidget(3, 15, 185, 80)
+                                                    .addTextWidget(new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
+                                                            .addClickHandler(this::handlePlayerDisplayClick)));
+                                            innerWidgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.list.players")), 0x404040));
+                                            return true;
+                                        }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 96, 18, 18)
+                                                .setTooltipText("machine.universal.search.settings")
+                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                .useToggleTexture(true)
+                                                .setDisplayText("⚙"), innerWidgetGroup -> {
+                                            innerWidgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+                                            innerWidgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
+                                            return this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2);
+                                        }));
                                 return false;
                             }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
                                     .setTooltipText("machine.universal.search.settings")
@@ -376,7 +391,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                     .setDisplayText("⚙"), widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
-                                widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", patternFlags.get(0))), 0x404040));
                                 return this.addSearchTextWidgets(widgetGroup, patternFlags, 1);
                             });
                     tab.addWidget(clickPopUpWidget);
@@ -389,6 +403,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private boolean addSearchTextWidgets(WidgetGroup widgetGroup, List<Integer> patternFlags, int i) {
+        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", patternFlags.get(i))), 0x404040));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.UNIX_LINES))
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
@@ -533,25 +548,34 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             this.getEnderProfile().getAllowedUsers().remove(uuid);
     }
 
-    private void addPlayerDisplayText(List<ITextComponent> textList) {
-        int count = 0;
-        List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
-        for (EntityPlayer player : playerList) {
-            boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
-            textList.add(new TextComponentString("[§e" + (++count) + "§r] " + player.getDisplayNameString()).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(player.getDisplayNameString())))).appendText("\n")
-                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
-                    .appendText(" ")
-                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
-        }
+    private Consumer<List<ITextComponent>> addPlayerDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
+        return (textList) -> {
+            int count = 0, results = 0;
+            String name = search.get(2);
+            List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
+            for (EntityPlayer player : playerList) {
+                String text = player.getDisplayNameString();
+                if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
+                    continue;
+                boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
+                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
+                        .appendText(" ")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
+                results++;
+            }
+            searchResults.set(2, results);
+        };
     }
 
     private Consumer<List<ITextComponent>> addChannelDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
         return (textList) -> {
             int count = 0, results = 0;
+            String name = search.get(1);
             textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
             for (Map.Entry<String, Pair<CoverEnderProfile, Map<K, V>>> entry : this.getPlayerMap().entrySet()) {
                 String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
-                if (!search.get(1).isEmpty() && !Pattern.compile(search.get(1), patternFlags.get(1)).matcher(text).find())
+                if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
                     continue;
 
                 textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
@@ -562,6 +586,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getLeft().getOwner())))));
+                results++;
             }
             searchResults.set(1, results);
         };
@@ -570,10 +595,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     private Consumer<List<ITextComponent>> addEntryDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
         return (textList) -> {
             int count = 0, results = 0;
+            String name = search.get(0);
             textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getMap().size() + "§r)"));
             for (Map.Entry<K, V> entry : this.getMap().entrySet()) {
                 String text = (String) entry.getKey();
-                if (!search.get(0).isEmpty() && !Pattern.compile(search.get(0), patternFlags.get(0)).matcher(text).find())
+                if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(0)).matcher(text).find())
                     continue;
 
                 ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
@@ -620,6 +646,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
+        GTLog.logger.info("Saving Ender Cover");
         data.setInteger("PumpMode", this.pumpMode.ordinal());
         data.setBoolean("IsWorking", this.isWorkingEnabled);
         data.setInteger("TransferRate", this.transferRate);
@@ -633,6 +660,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
+        GTLog.logger.info("Loading Ender Cover");
         this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("PumpMode")];
         this.isWorkingEnabled = data.getBoolean("IsWorking");
         this.transferRate = data.getInteger("TransferRate");
