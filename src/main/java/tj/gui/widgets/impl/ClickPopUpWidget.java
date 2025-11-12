@@ -1,5 +1,6 @@
 package tj.gui.widgets.impl;
 
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -32,9 +33,12 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
                 .addClickHandler(this::handleDisplayClick);
         if (add)
             widgetGroup.addWidget(textWidget);
-        this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
-        this.buttons.add(null);
+        for (Widget widget : this.pendingWidgets)
+            widgetGroup.addWidget(widget);
         this.addWidget(widgetGroup);
+        this.buttons.add(null);
+        this.pendingWidgets.clear();
+        this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
         return this;
     }
 

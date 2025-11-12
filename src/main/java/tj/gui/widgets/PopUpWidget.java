@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
@@ -23,6 +24,7 @@ import java.util.function.Predicate;
 public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
     protected final Int2ObjectMap<Pair<Boolean, Widget>> widgetMap = new Int2ObjectOpenHashMap<>();
+    protected final List<Widget> pendingWidgets = new ArrayList<>();
     protected Rectangle clickArea;
     protected AdoptableTextureArea textureArea;
     protected IntSupplier indexSupplier;
@@ -59,11 +61,12 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
      * @param widgets widgets to add.
      */
-    public R addWidgets(Predicate<WidgetGroup> widgets) {
+    public R addPopup(Predicate<WidgetGroup> widgets) {
         WidgetGroup widgetGroup = new WidgetGroup();
         boolean visible = widgets.test(widgetGroup);
-        this.widgetMap.put(this.selectedIndex++ ,Pair.of(visible, widgetGroup));
         this.addWidget(widgetGroup);
+        this.pendingWidgets.clear();
+        this.widgetMap.put(this.selectedIndex++ ,Pair.of(visible, widgetGroup));
         return (R) this;
     }
 

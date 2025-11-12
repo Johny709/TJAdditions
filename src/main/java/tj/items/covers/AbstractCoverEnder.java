@@ -236,18 +236,35 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setTooltipText("machine.universal.toggle.run.mode"));
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;
-                            }).addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
+                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                                    .setDisplayText("machine.universal.cancel")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
+                                    .setDisplayText("machine.universal.ok")
+                                    .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetRename);
-                                widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
-                                        .setButtonResponder(textFieldWidgetRename::triggerResponse)
-                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                        .setPressedCondition(() -> false)
-                                        .useToggleTexture(true));
                                 return false;
-                            }).addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 38, 18, 18)
+                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                                    .setDisplayText("machine.universal.cancel")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
+                                    .setDisplayText("machine.universal.ok")
+                                    .setButtonResponderWithMouse(textFieldWidgetEntry::triggerResponse)
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 38, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.entry")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .useToggleTexture(true)
@@ -256,17 +273,12 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.entry")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetEntry);
-                                widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
-                                        .setButtonResponder(textFieldWidgetEntry::triggerResponse)
-                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                        .setPressedCondition(() -> false)
-                                        .useToggleTexture(true));
                                 return false;
                             });
                     this.addToPopUpWidget(clickPopUpWidget);
                     tab.addWidget(clickPopUpWidget);
                 }).addTab("machine.universal.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76), tab -> {
-                    NewTextFieldWidget<?> textFieldWidget = new NewTextFieldWidget<>(12, 20, 159, 13)
+                    NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.channel")
                             .setTooltipText("machine.universal.toggle.rename.channel")
@@ -279,7 +291,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setTextResponder(this::addChannel)
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this::addChannelDisplayText, 0xFFFFFF)
-                            .addClickHandler(this.handleDisplayClick(textFieldWidget));
+                            .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
@@ -299,18 +311,35 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setTooltipText("metaitem.ender_cover.private"));
                                 widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.ownerId));
                                 return true;
-                            }).addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
+                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                                    .setDisplayText("machine.universal.cancel")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
+                                    .setDisplayText("machine.universal.ok")
+                                    .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addPopup(0, 61, 182, 80, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
-                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidget.getTextId())), 0x404040));
-                                widgetGroup.addWidget(textFieldWidget);
-                                widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
-                                        .setButtonResponder(textFieldWidget::triggerResponse)
-                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                        .setPressedCondition(() -> false)
-                                        .useToggleTexture(true));
+                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
+                                widgetGroup.addWidget(textFieldWidgetRename);
                                 return false;
-                            }).addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 15, 18, 18)
+                            }).addClosingButton(new TJToggleButtonWidget(10, 40, 81, 18)
+                                    .setDisplayText("machine.universal.cancel")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addClosingButton(new TJToggleButtonWidget(91, 40, 81, 18)
+                                    .setDisplayText("machine.universal.ok")
+                                    .setButtonResponderWithMouse(textFieldWidgetChannel::triggerResponse)
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .setPressedCondition(() -> false)
+                                    .useToggleTexture(true))
+                            .addPopup(0, 61, 182, 80, new TJToggleButtonWidget(151, 15, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.channel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .useToggleTexture(true)
@@ -319,11 +348,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetChannel);
-                                widgetGroup.addWidget(new TJToggleButtonWidget(10, 40, 162, 18)
-                                        .setButtonResponder(textFieldWidgetChannel::triggerResponse)
-                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                        .setPressedCondition(() -> false)
-                                        .useToggleTexture(true));
                                 return false;
                             }).addPopup(0, 38, 182, 103, new TJToggleButtonWidget(151, 145, 18, 18)
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -430,10 +454,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void addPlayerDisplayText(List<ITextComponent> textList) {
+        int count = 0;
         List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
         for (EntityPlayer player : playerList) {
             boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
-            textList.add(new TextComponentString(player.getDisplayNameString()).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(player.getDisplayNameString())))).appendText("\n")
+            textList.add(new TextComponentString("[§e" + (++count) + "§r] " + player.getDisplayNameString()).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(player.getDisplayNameString())))).appendText("\n")
                     .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
                     .appendText(" ")
                     .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
@@ -498,12 +523,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     protected abstract void addEntryText(ITextComponent keyEntry, K key, V value);
-
-    protected void setFilterPopUp(boolean isFilterPopUp) {
-        this.isFilterPopUp = isFilterPopUp;
-        this.writeUpdateData(1, buffer -> buffer.writeBoolean(this.isFilterPopUp));
-        this.markAsDirty();
-    }
 
     @Override
     public void readUpdateData(int id, PacketBuffer packetBuffer) {

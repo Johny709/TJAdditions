@@ -24,6 +24,17 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
     }
 
     /**
+     * Call this before any of the {@link ButtonPopUpWidget#addPopup(Predicate)} methods. These widgets are bind to the popup defined by calling the {@link ButtonPopUpWidget#addPopup(Predicate) method} mentioned
+     * @param buttons button widgets to close this popup.
+     */
+    public T addClosingButton(ButtonWidget<?> button) {
+        button.setButtonId(String.valueOf(0));
+        button.setButtonResponder(this::handleButtonPress);
+        this.pendingWidgets.add(button);
+        return (T) this;
+    }
+
+    /**
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
      * @param x X offset of widget group.
      * @param y Y offset of widget group.
@@ -39,16 +50,19 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
             ((TJToggleButtonWidget) button).setPressedCondition(() -> this.selectedIndex == button.getButtonIdAsLong());
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
-        this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
+        for (Widget widget : this.pendingWidgets)
+            widgetGroup.addWidget(widget);
         this.addWidget(widgetGroup);
         this.addWidget(button);
         this.buttons.add(button);
+        this.pendingWidgets.clear();
+        this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
         return (T) this;
     }
 
     public T addPopup(Predicate<WidgetGroup> widgets) {
         this.buttons.add(null);
-        return super.addWidgets(widgets);
+        return super.addPopup(widgets);
     }
 
     /**

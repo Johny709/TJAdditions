@@ -4,7 +4,6 @@ import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
-import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.covers.filter.SimpleItemFilter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,7 +36,6 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     private final IItemHandler itemInventory;
     private final SimpleItemFilter itemFilter;
-    private BooleanConsumer enableItemPopUp;
     private final int capacity;
     private final int tier;
     private boolean isFilterBlacklist = true;
@@ -128,12 +126,6 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     private boolean isFilterBlacklist() {
         return this.isFilterBlacklist;
-    }
-
-    @Override
-    protected void setFilterPopUp(boolean isFilterPopUp) {
-        this.enableItemPopUp.apply(isFilterPopUp);
-        super.setFilterPopUp(isFilterPopUp);
     }
 
     @Override

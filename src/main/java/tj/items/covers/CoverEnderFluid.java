@@ -6,7 +6,6 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.PhantomFluidWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.filter.SimpleFluidFilter;
 import net.minecraft.nbt.NBTTagCompound;
@@ -40,7 +39,6 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     private final IFluidHandler fluidTank;
     private final SimpleFluidFilter fluidFilter;
-    private BooleanConsumer enableFluidPopUp;
     private final int capacity;
     private final int tier;
     private boolean isFilterBlacklist = true;
@@ -147,12 +145,6 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     private boolean isFilterBlacklist() {
         return this.isFilterBlacklist;
-    }
-
-    @Override
-    protected void setFilterPopUp(boolean isFilterPopUp) {
-        this.enableFluidPopUp.apply(isFilterPopUp);
-        super.setFilterPopUp(isFilterPopUp);
     }
 
     private IFluidTank getFluidTank() {

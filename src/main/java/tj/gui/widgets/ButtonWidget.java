@@ -44,7 +44,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
      * Set responder for when this button gets pressed. This respond with the buttonId along with mouse click values.
      * @param textResponderWithMouse (buttonId, mouseX, mouseY, button) ->
      */
-    public R setTextResponderWithMouse(QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse) {
+    public R setButtonResponderWithMouse(QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse) {
         this.textResponderWithMouse = textResponderWithMouse;
         return (R) this;
     }
