@@ -237,70 +237,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                     widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
                                     widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
                                     widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", patternFlags.get(0))), 0x404040));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.UNIX_LINES))
-                                            .setDisplayText("string.regex.pattern.unix_lines.flag")
-                                            .setTooltipText("string.regex.pattern.unix_lines")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.CASE_INSENSITIVE))
-                                            .setDisplayText("string.regex.pattern.case_insensitive.flag")
-                                            .setTooltipText("string.regex.pattern.case_insensitive")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.COMMENTS))
-                                            .setDisplayText("string.regex.pattern.comments.flag")
-                                            .setTooltipText("string.regex.pattern.comments")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.MULTILINE))
-                                            .setDisplayText("string.regex.pattern.multiline.flag")
-                                            .setTooltipText("string.regex.pattern.multiline")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.LITERAL))
-                                            .setDisplayText("string.regex.pattern.literal.flag")
-                                            .setTooltipText("string.regex.pattern.literal")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.DOTALL))
-                                            .setDisplayText("string.regex.pattern.dotall.flag")
-                                            .setTooltipText("string.regex.pattern.dotall")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.UNICODE_CASE))
-                                            .setDisplayText("string.regex.pattern.unicode_case.flag")
-                                            .setTooltipText("string.regex.pattern.unicode_case")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.CANON_EQ))
-                                            .setDisplayText("string.regex.pattern.canon_eq.flag")
-                                            .setTooltipText("string.regex.pattern.canon_eq")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
-                                            .setButtonResponder(s -> patternFlags.set(0, Pattern.UNICODE_CHARACTER_CLASS))
-                                            .setDisplayText("string.regex.pattern.unicode_character_class.flag")
-                                            .setTooltipText("string.regex.pattern.unicode_character_class")
-                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                            .setPressedCondition(() -> false)
-                                            .useToggleTexture(true));
-                                    return false;
+                                    return this.addSearchTextWidgets(widgetGroup, patternFlags, 0);
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -374,6 +311,13 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new ToggleButtonWidget(7, 15, 18, 18, UNLOCK_LOCK, () -> this.getEnderProfile().isPublic(), this::setPublic)
                                         .setTooltipText("metaitem.ender_cover.private"));
+                                widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+                                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                        .setBackgroundText("machine.universal.search")
+                                        .setTextSupplier(() -> search.get(1))
+                                        .setTextResponder((result, id) -> search.set(1, result))
+                                        .setMaxStringLength(256)
+                                        .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.ownerId));
                                 return true;
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
@@ -414,7 +358,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetChannel);
                                 return false;
-                            }).addPopup(0, 38, 182, 103, new TJToggleButtonWidget(151, 145, 18, 18)
+                            }).addPopup(0, 38, 182, 103, new TJToggleButtonWidget(7, 145, 18, 18)
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setBackgroundTextures(LIST_OVERLAY)
                                     .useToggleTexture(true), widgetGroup -> {
@@ -425,6 +369,15 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                                 .addClickHandler(this::handlePlayerDisplayClick)));
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.list.players")), 0x404040));
                                 return false;
+                            }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
+                                    .setTooltipText("machine.universal.search.settings")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .useToggleTexture(true)
+                                    .setDisplayText("⚙"), widgetGroup -> {
+                                widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+                                widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
+                                widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", patternFlags.get(0))), 0x404040));
+                                return this.addSearchTextWidgets(widgetGroup, patternFlags, 1);
                             });
                     tab.addWidget(clickPopUpWidget);
                 });
@@ -433,6 +386,73 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
                 .build(this, player);
+    }
+
+    private boolean addSearchTextWidgets(WidgetGroup widgetGroup, List<Integer> patternFlags, int i) {
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.UNIX_LINES))
+                .setDisplayText("string.regex.pattern.unix_lines.flag")
+                .setTooltipText("string.regex.pattern.unix_lines")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.CASE_INSENSITIVE))
+                .setDisplayText("string.regex.pattern.case_insensitive.flag")
+                .setTooltipText("string.regex.pattern.case_insensitive")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.COMMENTS))
+                .setDisplayText("string.regex.pattern.comments.flag")
+                .setTooltipText("string.regex.pattern.comments")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.MULTILINE))
+                .setDisplayText("string.regex.pattern.multiline.flag")
+                .setTooltipText("string.regex.pattern.multiline")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.LITERAL))
+                .setDisplayText("string.regex.pattern.literal.flag")
+                .setTooltipText("string.regex.pattern.literal")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.DOTALL))
+                .setDisplayText("string.regex.pattern.dotall.flag")
+                .setTooltipText("string.regex.pattern.dotall")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.UNICODE_CASE))
+                .setDisplayText("string.regex.pattern.unicode_case.flag")
+                .setTooltipText("string.regex.pattern.unicode_case")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.CANON_EQ))
+                .setDisplayText("string.regex.pattern.canon_eq.flag")
+                .setTooltipText("string.regex.pattern.canon_eq")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
+                .setButtonResponder(s -> patternFlags.set(i, Pattern.UNICODE_CHARACTER_CLASS))
+                .setDisplayText("string.regex.pattern.unicode_character_class.flag")
+                .setTooltipText("string.regex.pattern.unicode_character_class")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setPressedCondition(() -> false)
+                .useToggleTexture(true));
+        return false;
     }
 
     private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handleDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
@@ -531,7 +551,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
             for (Map.Entry<String, Pair<CoverEnderProfile, Map<K, V>>> entry : this.getPlayerMap().entrySet()) {
                 String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
-                if (!text.isEmpty() && !Pattern.compile(text, patternFlags.get(1)).matcher(search.get(1)).find())
+                if (!search.get(1).isEmpty() && !Pattern.compile(search.get(1), patternFlags.get(1)).matcher(text).find())
                     continue;
 
                 textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
@@ -553,7 +573,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getMap().size() + "§r)"));
             for (Map.Entry<K, V> entry : this.getMap().entrySet()) {
                 String text = (String) entry.getKey();
-                if (!text.isEmpty() && !Pattern.compile(text, patternFlags.get(0)).matcher(search.get(0)).find())
+                if (!search.get(0).isEmpty() && !Pattern.compile(search.get(0), patternFlags.get(0)).matcher(text).find())
                     continue;
 
                 ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
