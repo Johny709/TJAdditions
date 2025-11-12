@@ -14,7 +14,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.HorizontalTabListRenderer;
 import gregtech.common.covers.CoverPump;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -41,6 +41,7 @@ import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
+import tj.util.MutableVar;
 import tj.util.consumers.QuadConsumer;
 
 import java.util.List;
@@ -62,16 +63,12 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected String text = "";
     protected String channel;
     protected UUID ownerId;
-    protected String searchPrompt = "";
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
     protected int maxTransferRate;
     protected int transferRate = maxTransferRate;
     protected int timer;
     protected boolean isFilterPopUp;
-    protected boolean isCaseSensitive;
-    protected boolean hasSpaces;
-    private int searchResults;
     protected V handler;
 
     public AbstractCoverEnder(ICoverable coverHolder, EnumFacing attachedSide) {
@@ -169,6 +166,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
+        MutableVar<Boolean> caseSensitive = new MutableVar<>(false);
+        MutableVar<Boolean> spaces = new MutableVar<>(false);
+        MutableVar<Integer> searchResults = new MutableVar<>(0);
+        MutableVar<String> search = new MutableVar<>("");
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getName()))
@@ -185,7 +186,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setTooltipText("machine.universal.toggle.add.entry")
                             .setTextResponder(this::addEntry)
                             .setMaxStringLength(256);
-                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this::addDisplayText, 0xFFFFFF)
+                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addEntryDisplayText(caseSensitive, spaces, search, searchResults), 0xFFFFFF)
                             .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
@@ -216,8 +217,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.search")
-                                        .setTextSupplier(() -> this.searchPrompt)
-                                        .setTextResponder(this::setSearchPrompt)
+                                        .setTextSupplier(search::getValue)
+                                        .setTextResponder((result, id) -> search.setValue(result))
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
@@ -227,9 +228,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                 widgetGroup.addWidget(new TJClickButtonWidget(-20, 38, 18, 18, "", this::onClear)
                                         .setTooltipText("machine.universal.toggle.clear")
                                         .setButtonTexture(BUTTON_CLEAR_GRID));
-                                widgetGroup.addWidget(new ToggleButtonWidget(7, 142, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
+                                widgetGroup.addWidget(new ToggleButtonWidget(7, 142, 18, 18, CASE_SENSITIVE_BUTTON, caseSensitive::getValue, caseSensitive::setValue)
                                         .setTooltipText("machine.universal.case_sensitive"));
-                                widgetGroup.addWidget(new ToggleButtonWidget(151, 142, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
+                                widgetGroup.addWidget(new ToggleButtonWidget(151, 142, 18, 18, SPACES_BUTTON, spaces::getValue, spaces::setValue)
                                         .setTooltipText("machine.universal.spaces"));
                                 widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                                 widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
@@ -290,7 +291,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                             .setTooltipText("machine.universal.toggle.add.channel")
                             .setTextResponder(this::addChannel)
                             .setMaxStringLength(256);
-                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this::addChannelDisplayText, 0xFFFFFF)
+                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(caseSensitive, spaces, search, searchResults), 0xFFFFFF)
                             .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
@@ -392,11 +393,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         };
     }
 
-    private void setSearchPrompt(String searchPrompt, String id) {
-        this.searchPrompt = searchPrompt;
-        this.markAsDirty();
-    }
-
     private String[] getTooltipFormat() {
         return ArrayUtils.toArray(getTransferRate());
     }
@@ -465,61 +461,66 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         }
     }
 
-    private void addChannelDisplayText(List<ITextComponent> textList) {
-        int count = 0, searchResults = 0;
-        textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + this.searchResults + "§r/§e" + this.getPlayerMap().size() + "§r)"));
-        for (Map.Entry<String, Pair<CoverEnderProfile, Map<K, V>>> entry : this.getPlayerMap().entrySet()) {
-            String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
-            String result = text;
+    private Consumer<List<ITextComponent>> addChannelDisplayText(MutableVar<Boolean> caseSensitive, MutableVar<Boolean> spaces, MutableVar<String> search, MutableVar<Integer> searchResults) {
+        return (textList) -> {
+            int count = 0, results = 0;
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults + "§r/§e" + this.getPlayerMap().size() + "§r)"));
+            for (Map.Entry<String, Pair<CoverEnderProfile, Map<K, V>>> entry : this.getPlayerMap().entrySet()) {
+                String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
+                String result = text;
 
-            if (!this.isCaseSensitive)
-                result = result.toLowerCase();
+                if (!caseSensitive.getValue())
+                    result = result.toLowerCase();
 
-            if (!this.hasSpaces)
-                result = result.replace(" ", "");
+                if (!spaces.getValue())
+                    result = result.replace(" ", "");
 
-            if (!result.isEmpty() && !result.contains(this.searchPrompt))
-                continue;
+                if (!result.isEmpty() && !result.contains(search.getValue()))
+                    continue;
 
-            textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
-                    .appendText("\n")
-                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
-                    .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getLeft().getOwner())))));
-        }
+                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
+                        .appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getLeft().getOwner())))));
+            }
+            searchResults.setValue(results);
+        };
     }
 
-    private void addDisplayText(List<ITextComponent> textList) {
-        int count = 0, searchResults = 0;
-        textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + this.searchResults + "§r/§e" + this.getMap().size() + "§r)"));
-        for (Map.Entry<K, V> entry : this.getMap().entrySet()) {
-            String text = (String) entry.getKey();
-            String result = text;
+    private Consumer<List<ITextComponent>> addEntryDisplayText(MutableVar<Boolean> caseSensitive, MutableVar<Boolean> spaces, MutableVar<String> search, MutableVar<Integer> searchResults) {
+        return (textList) -> {
+            int count = 0, results = 0;
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults + "§r/§e" + this.getMap().size() + "§r)"));
+            for (Map.Entry<K, V> entry : this.getMap().entrySet()) {
+                String text = (String) entry.getKey();
+                String result = text;
 
-            if (!this.isCaseSensitive)
-                result = result.toLowerCase();
+                if (!caseSensitive.getValue())
+                    result = result.toLowerCase();
 
-            if (!this.hasSpaces)
-                result = result.replace(" ", "");
+                if (!spaces.getValue())
+                    result = result.replace(" ", "");
 
-            if (!result.isEmpty() && !result.contains(this.searchPrompt))
-                continue;
+                if (!result.isEmpty() && !result.contains(search.getValue()))
+                    continue;
 
-            ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
-                    .appendText("\n")
-                    .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.text) ? GRAY : YELLOW)), "select:entry:" + text))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text));
-            textList.add(keyEntry);
-            this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
-            searchResults++;
-        }
-        this.searchResults = searchResults;
+                ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
+                        .appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.text) ? GRAY : YELLOW)), "select:entry:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text));
+                textList.add(keyEntry);
+                this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
+                results++;
+            }
+            searchResults.setValue(results);
+        };
     }
 
     protected abstract void addEntryText(ITextComponent keyEntry, K key, V value);
@@ -553,8 +554,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         super.writeToNBT(data);
         data.setInteger("PumpMode", this.pumpMode.ordinal());
         data.setBoolean("IsWorking", this.isWorkingEnabled);
-        data.setBoolean("CaseSensitive", this.isCaseSensitive);
-        data.setBoolean("HasSpaces", this.hasSpaces);
         data.setInteger("TransferRate", this.transferRate);
         data.setString("Text", this.text);
         if (this.channel != null)
@@ -568,8 +567,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         super.readFromNBT(data);
         this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("PumpMode")];
         this.isWorkingEnabled = data.getBoolean("IsWorking");
-        this.isCaseSensitive = data.getBoolean("CaseSensitive");
-        this.hasSpaces = data.getBoolean("HasSpaces");
         this.transferRate = data.getInteger("TransferRate");
         if (data.hasKey("channel"))
             this.channel = data.getString("channel");
@@ -589,24 +586,6 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     @Override
     public void setWorkingEnabled(boolean isWorkingEnabled) {
         this.isWorkingEnabled = isWorkingEnabled;
-        this.markAsDirty();
-    }
-
-    private boolean isCaseSensitive() {
-        return this.isCaseSensitive;
-    }
-
-    private void setCaseSensitive(Boolean isCaseSensitive) {
-        this.isCaseSensitive = isCaseSensitive;
-        this.markAsDirty();
-    }
-
-    private boolean hasSpaces() {
-        return this.hasSpaces;
-    }
-
-    private void setSpaces(Boolean hasSpaces) {
-        this.hasSpaces = hasSpaces;
         this.markAsDirty();
     }
 }
