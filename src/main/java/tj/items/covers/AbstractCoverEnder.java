@@ -60,6 +60,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
     protected String text = "";
     protected String channel;
+    protected String lastEntry;
     protected UUID ownerId;
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
@@ -132,17 +133,19 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected abstract V createHandler();
 
     protected void addChannel(String name, String id) {
-        this.getPlayerMap().putIfAbsent(name, Pair.of(new CoverEnderProfile(this.ownerId), new Object2ObjectOpenHashMap<>()));
+        this.getPlayerMap().putIfAbsent(name, Pair.of(new CoverEnderProfile(this.ownerId, (Map<String, ?>) this.getMap()), new Object2ObjectOpenHashMap<>()));
     }
 
     protected void addEntry(String name, String id) {
-        if (name != null)
+        if (name != null) {
             this.getMap().putIfAbsent((K) name, this.createHandler());
+            this.getEnderProfile().addEntry(name);
+        }
     }
 
     protected void onClear(Widget.ClickData clickData) {
-        if (this.getMap().containsKey((K) this.text)) {
-            this.getMap().put((K) this.text, this.createHandler());
+        if (this.getMap().containsKey((K) this.lastEntry)) {
+            this.getMap().put((K) this.lastEntry, this.createHandler());
         }
     }
 
@@ -157,10 +160,22 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     private void renameEntry(String name, String id) {
         V value = this.getMap().get(id);
         if (value != null) {
-            this.text = name;
-            this.getMap().remove(id);
-            this.handler = this.getMap().put((K) name, value);
+            this.lastEntry = name;
+            this.getMap().put((K) this.lastEntry, this.getMap().remove(id));
+            this.getEnderProfile().renameEntry(id, this.lastEntry);
         }
+    }
+
+    private void removeEntry(String key) {
+        this.getEnderProfile().removeEntry(key);
+    }
+
+    public void setHandler(V handler) {
+        this.handler = handler;
+    }
+
+    public void setLastEntry(String lastEntry) {
+        this.lastEntry = lastEntry;
     }
 
     @Override
@@ -200,7 +215,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.toggle.current.entry")
                                         .setTooltipText("machine.universal.toggle.current.entry")
-                                        .setTextResponder(this::setTextID)
+                                        .setTextResponder(this::setEntry)
                                         .setTextSupplier(() -> this.text)
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
@@ -480,12 +495,12 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             switch (components[0]) {
                 case "select":
                     if (components[1].equals("entry"))
-                        this.setTextID(components[2], textId);
+                        this.setEntry(components[2], textId);
                     else this.setChannel(components[2], textId);
                     break;
                 case "remove":
                     if (components[1].equals("entry"))
-                        this.getMap().remove(components[2]);
+                        this.removeEntry(components[2]);
                     else this.getPlayerMap().remove(components[2]);
                     break;
             }
@@ -526,14 +541,21 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void setChannel(String channel, String id) {
-        this.channel = channel;
-        this.handler = this.getMap().get((K) this.text);
+        if (!this.channel.equals(channel)) {
+            this.getEnderProfile().removeCover(this.lastEntry, this);
+            this.channel = channel;
+        }
         this.markAsDirty();
     }
 
-    private void setTextID(String text, String id) {
+    private void setEntry(String text, String id) {
         this.text = text;
         this.handler = this.getMap().get((K) this.text);
+        if (this.handler != null && this.lastEntry != null) {
+            this.getEnderProfile().removeCover(this.lastEntry, this);
+            this.getEnderProfile().addCover(text, this);
+            this.lastEntry = text;
+        }
         this.markAsDirty();
     }
 
@@ -604,7 +626,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
 
                 ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
                         .appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.text) ? GRAY : YELLOW)), "select:entry:" + text))
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.lastEntry) ? GRAY : YELLOW)), "select:entry:" + text))
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
                         .appendText(" ")
@@ -651,6 +673,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         data.setBoolean("IsWorking", this.isWorkingEnabled);
         data.setInteger("TransferRate", this.transferRate);
         data.setString("Text", this.text);
+        if (this.lastEntry != null)
+            data.setString("lastEntry", this.lastEntry);
         if (this.channel != null)
             data.setString("channel", this.channel);
         if (this.ownerId != null)
@@ -668,6 +692,11 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             this.channel = data.getString("channel");
         if (data.hasKey("ownerId"))
             this.ownerId = data.getUniqueId("ownerId");
+        if (data.hasKey("lastEntry")) {
+            this.lastEntry = data.getString("lastEntry");
+            this.handler = this.getMap().get(this.lastEntry);
+            this.getEnderProfile().addCover(this.lastEntry, this);
+        }
         if (data.hasKey("Text")) {
             this.text = data.getString("Text");
             this.handler = this.getMap().get((K) this.text);
