@@ -45,6 +45,7 @@ public class EnderCoverItem extends AbstractEnderCover<LargeItemStackHandler> {
         this.itemInventory = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         this.capacity = (int) Math.min(Math.pow(4, tier) * 10, Integer.MAX_VALUE);
         this.maxTransferRate = (int) Math.min(Math.round(Math.pow(4, tier) / 20), Integer.MAX_VALUE);
+        this.transferRate = this.maxTransferRate;
         this.itemFilter = new SimpleItemFilter() {
             @Override
             public void initUI(Consumer<Widget> widgetGroup) {

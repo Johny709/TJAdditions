@@ -48,6 +48,7 @@ public class EnderCoverFluid extends AbstractEnderCover<FluidTank> {
         this.fluidTank = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
         this.capacity = (int) Math.min(Math.pow(4, tier) * 1000, Integer.MAX_VALUE);
         this.maxTransferRate = (int) Math.min(Math.pow(4, tier) * 16, Integer.MAX_VALUE);
+        this.transferRate = this.maxTransferRate;
         this.fluidFilter = new SimpleFluidFilter() {
             @Override
             public void initUI(Consumer<Widget> widgetGroup) {

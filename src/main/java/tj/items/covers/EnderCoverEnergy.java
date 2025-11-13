@@ -40,6 +40,7 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
         this.energyContainer = this.coverHolder.getCapability(CAPABILITY_ENERGY_CONTAINER, null);
         this.capacity = (long) (Math.pow(4, tier) * 1000);
         this.maxTransferRate = (int) Math.min(Math.pow(4, tier) * 8, Integer.MAX_VALUE);
+        this.transferRate = this.maxTransferRate;
     }
 
     @Override

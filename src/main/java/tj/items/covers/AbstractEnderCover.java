@@ -63,7 +63,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
     protected int maxTransferRate;
-    protected int transferRate = maxTransferRate;
+    protected int transferRate;
     protected boolean isFilterPopUp;
     protected V handler;
 
