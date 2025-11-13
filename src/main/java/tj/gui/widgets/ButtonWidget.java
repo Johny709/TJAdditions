@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
@@ -32,6 +33,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     protected String buttonId;
     protected String displayText;
     protected String tooltipText;
+    protected ItemStack displayItem;
     protected int textColor = 0xFFFFFF;
     protected long buttonIdAsLong;
 
@@ -105,6 +107,15 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     }
 
     /**
+     * Set item to display on button.
+     * @param displayItem ItemStack
+     */
+    public R setItemDisplay(ItemStack displayItem) {
+        this.displayItem = displayItem;
+        return (R) this;
+    }
+
+    /**
      * Set text to display on button.
      * @param displayText text
      */
@@ -150,6 +161,9 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
                     this.getPosition().getX() + this.getSize().getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
                     this.getPosition().getY() + this.getSize().getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
             GlStateManager.color(1.0f, 1.0f, 1.0f);
+        }
+        if (this.displayItem != null && !this.displayItem.isEmpty()) {
+            drawItemStack(this.displayItem, this.getPosition().getX() + 1, this.getPosition().getY() + 1, null);
         }
     }
 

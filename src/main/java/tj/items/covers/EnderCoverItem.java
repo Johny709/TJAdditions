@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import tj.gui.widgets.PopUpWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
@@ -93,8 +94,8 @@ public class EnderCoverItem extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected void addToPopUpWidget(ButtonPopUpWidget<?> buttonPopUpWidget) {
-        buttonPopUpWidget.addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
+    protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
+        ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
                         .setTooltipText("cover.conveyor.item_filter.title")
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .setBackgroundTextures(ITEM_FILTER)

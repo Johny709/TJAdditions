@@ -36,7 +36,6 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
         for (Widget widget : this.pendingWidgets)
             widgetGroup.addWidget(widget);
         this.addWidget(widgetGroup);
-        this.buttons.add(null);
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
         return this;

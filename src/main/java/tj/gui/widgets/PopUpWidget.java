@@ -18,12 +18,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
 public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
-    protected final Int2ObjectMap<Pair<Boolean, Widget>> widgetMap = new Int2ObjectOpenHashMap<>();
+    protected final Int2ObjectMap<Pair<Boolean, WidgetGroup>> widgetMap = new Int2ObjectOpenHashMap<>();
     protected final List<Widget> pendingWidgets = new ArrayList<>();
     protected Rectangle clickArea;
     protected AdoptableTextureArea textureArea;
@@ -32,6 +33,11 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
     public PopUpWidget(int x, int y, int width, int height) {
         super(new Position(x, y), new Size(width, height));
+    }
+
+    public R passPopup(Consumer<PopUpWidget<R>> widgetConsumer) {
+        widgetConsumer.accept(this);
+        return (R) this;
     }
 
     public R setClickArea(Rectangle clickArea) {
@@ -100,7 +106,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public void updateScreen() {
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
+        for (Int2ObjectMap.Entry<Pair<Boolean, WidgetGroup>> widget : this.widgetMap.int2ObjectEntrySet())
             if (this.selectedIndex == widget.getIntKey() || widget.getValue().getLeft())
                 widget.getValue().getRight().updateScreen();
     }
@@ -116,7 +122,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         if (this.textureArea != null)
             this.textureArea.draw(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight());
-        for (Int2ObjectMap.Entry<Pair<Boolean, Widget>> widget : this.widgetMap.int2ObjectEntrySet())
+        for (Int2ObjectMap.Entry<Pair<Boolean, WidgetGroup>> widget : this.widgetMap.int2ObjectEntrySet())
             if (this.selectedIndex == widget.getIntKey() || widget.getValue().getLeft())
                 widget.getValue().getRight().drawInBackground(mouseX, mouseY, context);
     }

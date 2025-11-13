@@ -34,7 +34,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.widgets.*;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
@@ -122,7 +121,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     protected abstract void addWidgets(Consumer<Widget> widget);
 
-    protected void addToPopUpWidget(ButtonPopUpWidget<?> buttonPopUpWidget) {}
+    protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {}
 
     protected abstract V createHandler();
 
@@ -197,10 +196,10 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;
                             }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
+                                    .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                     .setTooltipText("machine.universal.search.settings")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true)
-                                    .setDisplayText("⚙"), widgetGroup -> {
+                                    .useToggleTexture(true), widgetGroup -> {
                                     widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
                                     widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
                                     return this.addSearchTextWidgets(widgetGroup, patternFlags, 0);
@@ -246,8 +245,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.entry")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetEntry);
                                 return false;
-                            });
-                    this.addToPopUpWidget(clickPopUpWidget);
+                            }).passPopup(this::addToPopUpWidget);
                     tab.addWidget(clickPopUpWidget);
                 }).addTab("machine.universal.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76), tab -> {
                     NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
@@ -355,20 +353,20 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                             innerWidgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.list.players")), 0x404040));
                                             return true;
                                         }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 96, 18, 18)
+                                                .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                                 .setTooltipText("machine.universal.search.settings")
                                                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                .useToggleTexture(true)
-                                                .setDisplayText("⚙"), innerWidgetGroup -> {
+                                                .useToggleTexture(true), innerWidgetGroup -> {
                                             innerWidgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
                                             innerWidgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
                                             return this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2);
                                         }));
                                 return false;
                             }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
+                                    .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                     .setTooltipText("machine.universal.search.settings")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true)
-                                    .setDisplayText("⚙"), widgetGroup -> {
+                                    .useToggleTexture(true), widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
                                 return this.addSearchTextWidgets(widgetGroup, patternFlags, 1);
