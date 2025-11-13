@@ -24,7 +24,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
     }
 
     /**
-     * Call this before any of the {@link ButtonPopUpWidget#addPopup(Predicate)} methods. These widgets are bind to the popup defined by calling the {@link ButtonPopUpWidget#addPopup(Predicate) method} mentioned
+     * Call this before any of the {@link ButtonPopUpWidget#addPopup(Predicate)} methods. These widgets are bound to the popup defined by calling the {@link ButtonPopUpWidget#addPopup(Predicate) method} mentioned
      * @param button button widgets to close this popup.
      */
     public T addClosingButton(ButtonWidget<?> button) {
@@ -47,7 +47,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
         button.setButtonId(String.valueOf(this.selectedIndex))
                 .setButtonResponder(this::handleButtonPress);
         if (button instanceof TJToggleButtonWidget)
-            ((TJToggleButtonWidget) button).setPressedCondition(() -> this.selectedIndex == button.getButtonIdAsLong());
+            ((TJToggleButtonWidget) button).setButtonSupplier(() -> this.selectedIndex == button.getButtonIdAsLong());
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
         for (Widget widget : this.pendingWidgets)

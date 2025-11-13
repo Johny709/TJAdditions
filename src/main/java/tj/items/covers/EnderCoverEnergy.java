@@ -128,9 +128,7 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
 
     @Override
     public void update() {
-        if (this.handler == null)
-            return;
-        if (this.isWorkingEnabled) {
+        if (this.isWorkingEnabled && this.handler != null) {
             if (this.pumpMode == CoverPump.PumpMode.IMPORT) {
                 this.importEnergy(this.handler);
             } else {

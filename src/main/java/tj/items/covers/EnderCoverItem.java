@@ -143,9 +143,7 @@ public class EnderCoverItem extends AbstractEnderCover<LargeItemStackHandler> {
 
     @Override
     public void update() {
-        if (this.handler == null)
-            return;
-        if (this.isWorkingEnabled) {
+        if (this.isWorkingEnabled && this.handler != null) {
             if (this.pumpMode == IMPORT) {
                 this.moveInventoryItems(this.itemInventory, this.handler);
             } else {

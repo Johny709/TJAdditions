@@ -76,6 +76,15 @@ public class EnderCoverProfile<V> {
                 cover.setChannel(key);
     }
 
+    public void removeChannel() {
+        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet())
+            for (AbstractEnderCover<V> cover : entry.getValue()) {
+                cover.setLastEntry(null);
+                cover.setHandler(null);
+                cover.setChannel(null);
+            }
+    }
+
     public void setPublic(boolean isPublic) {
         if (this.owner != null)
             this.isPublic = isPublic;

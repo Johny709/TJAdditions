@@ -42,6 +42,7 @@ import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.consumers.QuadConsumer;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -89,11 +90,10 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     @Override
     public EnumActionResult onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, CuboidRayTraceResult hitResult) {
+        if (this.ownerId == null) {
+            this.ownerId = playerIn.getUniqueID();
+        }
         if (!playerIn.world.isRemote) {
-            if (this.ownerId == null) {
-                this.ownerId = playerIn.getUniqueID();
-                this.writeUpdateData(2, buffer -> buffer.writeUniqueId(this.ownerId));
-            }
             this.openUI((EntityPlayerMP) playerIn);
         }
         return EnumActionResult.SUCCESS;
@@ -111,6 +111,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return "Null";
     }
 
+    @Nonnull
     protected EnderCoverProfile<V> getEnderProfile()  {
         return this.getPlayerMap().getOrDefault(this.channel, this.getPlayerMap().get(null));
     }
@@ -144,6 +145,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.add.entry")
                             .setTooltipText("machine.universal.toggle.add.entry")
+                            .setTextId(player.getUniqueID().toString())
                             .setTextResponder(this::addEntry)
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addEntryDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
@@ -162,8 +164,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.toggle.current.entry")
                                         .setTooltipText("machine.universal.toggle.current.entry")
-                                        .setTextResponder(this::setEntry)
+                                        .setTextId(player.getUniqueID().toString())
                                         .setTextSupplier(() -> this.lastEntry)
+                                        .setTextResponder(this::setEntry)
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 13, false)
@@ -176,9 +179,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                        .setTextResponder((result, id) -> search.set(0, result))
                                         .setBackgroundText("machine.universal.search")
                                         .setTextSupplier(() -> search.get(0))
-                                        .setTextResponder((result, id) -> search.set(0, result))
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
@@ -204,30 +207,34 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
-                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
+                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
+                                    int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
+                                    String entry = textFieldWidgetRename.getTextId().substring(0, index);
+                                    textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
+                                }, 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetRename);
                                 return false;
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetEntry::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 38, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.entry")
@@ -253,6 +260,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.add.channel")
                             .setTooltipText("machine.universal.toggle.add.channel")
+                            .setTextId(player.getUniqueID().toString())
                             .setTextResponder(this::addChannel)
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
@@ -269,17 +277,23 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                         .setBackgroundText("machine.universal.toggle.current.channel")
                                         .setTooltipText("machine.universal.toggle.current.channel")
+                                        .setTextId(player.getUniqueID().toString())
                                         .setTextSupplier(() -> this.channel)
                                         .setTextResponder(this::setChannel)
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
-                                widgetGroup.addWidget(new ToggleButtonWidget(7, 15, 18, 18, UNLOCK_LOCK, () -> this.getEnderProfile().isPublic(), this::setPublic)
-                                        .setTooltipText("metaitem.ender_cover.private"));
+                                widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18)
+                                        .setButtonSupplier(() -> this.getEnderProfile().isPublic())
+                                        .setTooltipText("metaitem.ender_cover.private")
+                                        .setButtonId(player.getUniqueID().toString())
+                                        .setToggleButtonResponder(this::setPublic)
+                                        .setToggleTexture(UNLOCK_LOCK)
+                                        .useToggleTexture(true));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                        .setTextResponder((result, id) -> search.set(1, result))
                                         .setBackgroundText("machine.universal.search")
                                         .setTextSupplier(() -> search.get(1))
-                                        .setTextResponder((result, id) -> search.set(1, result))
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.ownerId));
@@ -287,30 +301,34 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
-                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
+                                widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
+                                    int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
+                                    String entry = textFieldWidgetRename.getTextId().substring(0, index);
+                                    textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
+                                }, 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetRename);
                                 return false;
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetChannel::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setPressedCondition(() -> false)
+                                    .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 15, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.channel")
@@ -371,63 +389,63 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
                 .setTooltipText("string.regex.pattern.unix_lines")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.CASE_INSENSITIVE))
                 .setDisplayText("string.regex.pattern.case_insensitive.flag")
                 .setTooltipText("string.regex.pattern.case_insensitive")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.COMMENTS))
                 .setDisplayText("string.regex.pattern.comments.flag")
                 .setTooltipText("string.regex.pattern.comments")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.MULTILINE))
                 .setDisplayText("string.regex.pattern.multiline.flag")
                 .setTooltipText("string.regex.pattern.multiline")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.LITERAL))
                 .setDisplayText("string.regex.pattern.literal.flag")
                 .setTooltipText("string.regex.pattern.literal")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.DOTALL))
                 .setDisplayText("string.regex.pattern.dotall.flag")
                 .setTooltipText("string.regex.pattern.dotall")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.UNICODE_CASE))
                 .setDisplayText("string.regex.pattern.unicode_case.flag")
                 .setTooltipText("string.regex.pattern.unicode_case")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.CANON_EQ))
                 .setDisplayText("string.regex.pattern.canon_eq.flag")
                 .setTooltipText("string.regex.pattern.canon_eq")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
                 .setButtonResponder(s -> patternFlags.set(i, Pattern.UNICODE_CHARACTER_CLASS))
                 .setDisplayText("string.regex.pattern.unicode_character_class.flag")
                 .setTooltipText("string.regex.pattern.unicode_character_class")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setPressedCondition(() -> false)
+                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         return false;
     }
@@ -435,21 +453,19 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handleDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
         return (componentData, textId, clickData, player) -> {
             String[] components = componentData.split(":");
-            if (components[0].equals("@Popup"))
-                textFieldWidget.setTextId(components[1]);
-            if (components.length < 3 || this.ownerId != null && !this.ownerId.equals(player.getUniqueID()))
-                return;
             switch (components[0]) {
                 case "select":
                     if (components[1].equals("entry"))
                         this.setEntry(components[2], textId);
-                    else this.setChannel(components[2], textId);
+                    else this.setChannel(components[2], player.getUniqueID().toString());
                     break;
                 case "remove":
                     if (components[1].equals("entry"))
-                        this.removeEntry(components[2]);
-                    else this.getPlayerMap().remove(components[2]);
+                        this.removeEntry(components[2], player.getUniqueID().toString());
+                    else this.removeChannel(components[2], player.getUniqueID().toString());
                     break;
+                case "@Popup":
+                    textFieldWidget.setTextId(components[1] + ":" + player.getUniqueID());
             }
         };
     }
@@ -482,27 +498,45 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         this.markAsDirty();
     }
 
-    private void setPublic(boolean isPublic) {
-        this.getPlayerMap().get(this.channel).setPublic(isPublic);
-        this.markAsDirty();
-    }
-
-    private void addChannel(String key, String id) {
-        this.getPlayerMap().putIfAbsent(key, new EnderCoverProfile<>(this.ownerId, new Object2ObjectOpenHashMap<>()));
-    }
-
-    private void renameChannel(String key, String id) {
-        EnderCoverProfile<V> map = this.getPlayerMap().get(id);
-        if (map != null && map.getOwner() != null && map.getOwner().equals(this.ownerId)) {
-            this.getEnderProfile().editChannel(key);
-            this.getPlayerMap().put(key, this.getPlayerMap().remove(id));
+    private void setPublic(boolean isPublic, String uuid) {
+        if (this.getEnderProfile().getOwner() != null && this.getEnderProfile().getOwner().equals(UUID.fromString(uuid))) {
+            this.getEnderProfile().setPublic(isPublic);
+            this.markAsDirty();
         }
     }
 
-    private void setChannel(String key, String id) {
-        if (!key.equals(this.channel)) {
+    private void addChannel(String key, String uuid) {
+        if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid))) {
+            this.getPlayerMap().putIfAbsent(key, new EnderCoverProfile<>(this.ownerId, new Object2ObjectOpenHashMap<>()));
+            this.markAsDirty();
+        }
+    }
+
+    private void renameChannel(String key, String id) {
+        int index = id.lastIndexOf(":");
+        String entry = id.substring(0, index);
+        String uuid = id.substring(index + 1);
+        EnderCoverProfile<V> profile = this.getPlayerMap().get(entry);
+        if (profile != null && profile.getOwner() != null && profile.getOwner().equals(UUID.fromString(uuid))) {
+            this.getEnderProfile().editChannel(key);
+            this.getPlayerMap().put(key, this.getPlayerMap().remove(entry));
+            this.markAsDirty();
+        }
+    }
+
+    private void removeChannel(String key, String uuid) {
+        if (this.getEnderProfile().getOwner() != null && this.getEnderProfile().getOwner().equals(UUID.fromString(uuid))) {
+            this.getPlayerMap().remove(key).removeChannel();
+            this.markAsDirty();
+        }
+    }
+
+    private void setChannel(String key, String uuid) {
+        EnderCoverProfile<?> profile = this.getPlayerMap().getOrDefault(key, this.getPlayerMap().get(null));
+        if (!key.equals(this.channel) && (profile.isPublic() || profile.getOwner().toString().equals(uuid))) {
             this.getEnderProfile().removeCoverFromEntry(this.lastEntry, this);
             this.setChannel(key);
+            this.getEnderProfile().addCoverToEntry(this.lastEntry, this);
         }
     }
 
@@ -511,36 +545,44 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         this.markAsDirty();
     }
 
-    private void setEntry(String key, String id) {
-        this.handler = this.getEnderProfile().getEntries().get(key);
-        if (this.handler != null && !key.equals(this.lastEntry)) {
+    private void setEntry(String key, String uuid) {
+        if (this.getEnderProfile().containsEntry(key) && !key.equals(this.lastEntry) && (this.getEnderProfile().isPublic() || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid)))) {
             this.getEnderProfile().removeCoverFromEntry(this.lastEntry, this);
             this.getEnderProfile().addCoverToEntry(key, this);
+            this.handler = this.getEnderProfile().getEntries().get(key);
             this.setLastEntry(key);
         }
     }
 
-    private void addEntry(String key, String id) {
-        if (key != null) {
+    private void addEntry(String key, String uuid) {
+        if (key != null && (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid)))) {
             this.getEnderProfile().addEntry(key, this.createHandler());
+            this.markAsDirty();
         }
     }
 
     private void onClear(Widget.ClickData clickData) {
         if (this.getEnderProfile().containsEntry(this.lastEntry)) {
             this.getEnderProfile().editEntry(this.lastEntry, this.createHandler());
+            this.markAsDirty();
         }
     }
 
     private void renameEntry(String key, String id) {
-        if (this.getEnderProfile().containsEntry(id)) {
-            this.getEnderProfile().editEntry(id, key);
+        int index = id.lastIndexOf(":");
+        String entry = id.substring(0, index);
+        String uuid = id.substring(index + 1);
+        if (this.getEnderProfile().containsEntry(entry) && (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid)))) {
+            this.getEnderProfile().editEntry(entry, key);
             this.setLastEntry(key);
         }
     }
 
-    private void removeEntry(String key) {
-        this.getEnderProfile().removeEntry(key);
+    private void removeEntry(String key, String uuid) {
+        if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid))) {
+            this.getEnderProfile().removeEntry(key);
+            this.markAsDirty();
+        }
     }
 
     public void setHandler(V handler) {
@@ -661,23 +703,23 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("PumpMode", this.pumpMode.ordinal());
-        data.setBoolean("IsWorking", this.isWorkingEnabled);
-        data.setInteger("TransferRate", this.transferRate);
-        if (this.lastEntry != null)
-            data.setString("lastEntry", this.lastEntry);
+        data.setInteger("pumpMode", this.pumpMode.ordinal());
+        data.setBoolean("isWorking", this.isWorkingEnabled);
+        data.setInteger("transferRate", this.transferRate);
         if (this.channel != null)
             data.setString("channel", this.channel);
         if (this.ownerId != null)
             data.setUniqueId("ownerId", this.ownerId);
+        if (this.lastEntry != null)
+            data.setString("lastEntry", this.lastEntry);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("PumpMode")];
-        this.isWorkingEnabled = data.getBoolean("IsWorking");
-        this.transferRate = data.getInteger("TransferRate");
+        this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("pumpMode")];
+        this.isWorkingEnabled = data.getBoolean("isWorking");
+        this.transferRate = data.getInteger("transferRate");
         if (data.hasKey("channel"))
             this.channel = data.getString("channel");
         if (data.hasKey("ownerId"))

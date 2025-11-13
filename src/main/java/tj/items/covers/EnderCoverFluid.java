@@ -147,9 +147,7 @@ public class EnderCoverFluid extends AbstractEnderCover<FluidTank> {
 
     @Override
     public void update() {
-        if (this.handler == null)
-            return;
-        if (this.isWorkingEnabled) {
+        if (this.isWorkingEnabled && this.handler != null) {
             if (this.pumpMode == CoverPump.PumpMode.EXPORT) {
                 FluidStack enderStack = this.getFluidTank().drain(this.transferRate, false);
                 if (enderStack != null && this.fluidTank.fill(enderStack, false) > 0) {

@@ -160,10 +160,11 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
         return (R) this;
     }
 
-    public void setTextId(String textId) {
+    public R setTextId(String textId) {
         this.textId = textId;
         if (!isClientSide())
             this.writeUpdateInfo(2, buffer -> buffer.writeString(this.textId));
+        return (R) this;
     }
 
     public String getTextId() {

@@ -5,13 +5,13 @@ import gregtech.api.gui.resources.SizedTextureArea;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.widgets.ButtonWidget;
 
 import javax.annotation.Nonnull;
+import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 
 public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
@@ -22,6 +22,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     private TextureArea activeTexture;
     private TextureArea baseTexture;
     private BooleanSupplier isPressedCondition;
+    private BiConsumer<Boolean, String> toggleButtonResponder;
 
     public TJToggleButtonWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -32,8 +33,17 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
      * @param isPressedCondition is button pressed
      */
     @Nonnull
-    public TJToggleButtonWidget setPressedCondition(BooleanSupplier isPressedCondition) {
+    public TJToggleButtonWidget setButtonSupplier(BooleanSupplier isPressedCondition) {
         this.isPressedCondition = isPressedCondition;
+        return this;
+    }
+
+    /**
+     * Set responder for when this button gets pressed. This respond with the state of button and buttonId.
+     * @param toggleButtonResponder buttonId ->
+     */
+    public TJToggleButtonWidget setToggleButtonResponder(BiConsumer<Boolean, String> toggleButtonResponder) {
+        this.toggleButtonResponder = toggleButtonResponder;
         return this;
     }
 
@@ -93,9 +103,9 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (!this.isPressed && this.isMouseOverElement(mouseX, mouseY)) {
+        if (this.isMouseOverElement(mouseX, mouseY)) {
             this.playButtonClickSound();
-            this.isPressed = true;
+            this.isPressed = !this.isPressed;
             this.writeClientAction(1, buffer -> {
                 buffer.writeString(this.buttonId != null ? this.buttonId : "");
                 buffer.writeBoolean(this.isPressed);
@@ -118,6 +128,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
             int button = buffer.readInt();
             if (this.buttonResponder != null)
                 this.buttonResponder.accept(buttonId);
+            if (this.toggleButtonResponder != null)
+                this.toggleButtonResponder.accept(this.isPressed, buttonId);
             if (this.textResponderWithMouse != null)
                 this.textResponderWithMouse.accept(buttonId, mouseX, mouseY, button);
         }
