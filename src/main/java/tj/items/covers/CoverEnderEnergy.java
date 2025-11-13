@@ -64,13 +64,8 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
     }
 
     @Override
-    protected Map<String, Pair<CoverEnderProfile, Map<String, BasicEnergyHandler>>> getPlayerMap() {
+    protected Map<String, CoverEnderProfile<BasicEnergyHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getEnergyContainerPlayerMap();
-    }
-
-    @Override
-    protected Map<String, BasicEnergyHandler> getMap() {
-        return EnderWorldData.getINSTANCE().getEnergyContainerMap(this.channel);
     }
 
     @Override
@@ -134,8 +129,6 @@ public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHand
 
     @Override
     public void update() {
-        if (this.timer++ % 50 == 0)
-            this.handler = this.getMap().get(this.text);
         if (this.handler == null)
             return;
         if (this.isWorkingEnabled) {

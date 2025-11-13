@@ -83,13 +83,8 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     }
 
     @Override
-    protected Map<String, Pair<CoverEnderProfile, Map<String, FluidTank>>> getPlayerMap() {
+    protected Map<String, CoverEnderProfile<FluidTank>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getFluidTankPlayerMap();
-    }
-
-    @Override
-    protected Map<String, FluidTank> getMap() {
-        return EnderWorldData.getINSTANCE().getFluidTankMap(this.channel);
     }
 
     @Override
@@ -153,8 +148,6 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
 
     @Override
     public void update() {
-        if (this.timer++ % 50 == 0)
-            this.handler = this.getMap().get(this.text);
         if (this.handler == null)
             return;
         if (this.isWorkingEnabled) {

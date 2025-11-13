@@ -15,7 +15,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
@@ -88,13 +87,8 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     }
 
     @Override
-    protected Map<String, Pair<CoverEnderProfile, Map<String, LargeItemStackHandler>>> getPlayerMap() {
+    protected Map<String, CoverEnderProfile<LargeItemStackHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
-    }
-
-    @Override
-    protected Map<String, LargeItemStackHandler> getMap() {
-        return EnderWorldData.getINSTANCE().getItemChestMap(this.channel);
     }
 
     @Override
@@ -149,8 +143,6 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
 
     @Override
     public void update() {
-        if (this.timer++ % 50 == 0)
-            this.handler = this.getMap().get(this.text);
         if (this.handler == null)
             return;
         if (this.isWorkingEnabled) {

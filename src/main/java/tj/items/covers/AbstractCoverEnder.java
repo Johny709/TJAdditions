@@ -15,7 +15,7 @@ import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.HorizontalTabListRenderer;
 import gregtech.api.util.GTLog;
 import gregtech.common.covers.CoverPump;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -32,7 +32,6 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.widgets.*;
@@ -116,15 +115,13 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         return "Null";
     }
 
-    protected CoverEnderProfile getEnderProfile()  {
-        return this.getPlayerMap().getOrDefault(this.channel, this.getPlayerMap().get(null)).getLeft();
+    protected CoverEnderProfile<V> getEnderProfile()  {
+        return this.getPlayerMap().getOrDefault(this.channel, this.getPlayerMap().get(null));
     }
 
     protected abstract TJSimpleOverlayRenderer getOverlay();
 
-    protected abstract Map<String, Pair<CoverEnderProfile, Map<K, V>>> getPlayerMap();
-
-    protected abstract Map<K, V> getMap();
+    protected abstract Map<String, CoverEnderProfile<V>> getPlayerMap();
 
     protected abstract void addWidgets(Consumer<Widget> widget);
 
@@ -133,37 +130,31 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected abstract V createHandler();
 
     protected void addChannel(String name, String id) {
-        this.getPlayerMap().putIfAbsent(name, Pair.of(new CoverEnderProfile(this.ownerId, (Map<String, ?>) this.getMap()), new Object2ObjectOpenHashMap<>()));
+        this.getPlayerMap().putIfAbsent(name, new CoverEnderProfile<>(this.ownerId, new Object2ObjectOpenHashMap<>()));
     }
 
     protected void addEntry(String name, String id) {
         if (name != null) {
-            this.getMap().putIfAbsent((K) name, this.createHandler());
-            this.getEnderProfile().addEntry(name);
+            this.getEnderProfile().addEntry(name, this.createHandler());
         }
     }
 
     protected void onClear(Widget.ClickData clickData) {
-        if (this.getMap().containsKey((K) this.lastEntry)) {
-            this.getMap().put((K) this.lastEntry, this.createHandler());
+        if (this.getEnderProfile().getEntries().containsKey(this.lastEntry)) {
+            this.getEnderProfile().getEntries().put(this.lastEntry, this.createHandler());
         }
     }
 
     private void renameChannel(String name, String id) {
-        Pair<CoverEnderProfile, Map<K, V>> map = this.getPlayerMap().get(id);
-        if (map != null && map.getLeft().getOwner() != null && map.getLeft().getOwner().equals(this.ownerId)) {
-            this.getPlayerMap().remove(id);
-            this.getPlayerMap().put(name, map);
+        CoverEnderProfile<V> map = this.getPlayerMap().get(id);
+        if (map != null && map.getOwner() != null && map.getOwner().equals(this.ownerId)) {
+            this.getPlayerMap().put(name, this.getPlayerMap().remove(id));
         }
     }
 
     private void renameEntry(String name, String id) {
-        V value = this.getMap().get(id);
-        if (value != null) {
-            this.lastEntry = name;
-            this.getMap().put((K) this.lastEntry, this.getMap().remove(id));
-            this.getEnderProfile().renameEntry(id, this.lastEntry);
-        }
+        this.getEnderProfile().renameEntry(id, this.lastEntry);
+        this.lastEntry = name;
     }
 
     private void removeEntry(String key) {
@@ -536,7 +527,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void setPublic(boolean isPublic) {
-        this.getPlayerMap().get(this.channel).getLeft().setPublic(isPublic);
+        this.getPlayerMap().get(this.channel).setPublic(isPublic);
         this.markAsDirty();
     }
 
@@ -549,8 +540,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     }
 
     private void setEntry(String text, String id) {
-        this.text = text;
-        this.handler = this.getMap().get((K) this.text);
+        this.handler = this.getEnderProfile().getEntries().get(text);
         if (this.handler != null && this.lastEntry != null) {
             this.getEnderProfile().removeCover(this.lastEntry, this);
             this.getEnderProfile().addCover(text, this);
@@ -595,7 +585,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             int count = 0, results = 0;
             String name = search.get(1);
             textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
-            for (Map.Entry<String, Pair<CoverEnderProfile, Map<K, V>>> entry : this.getPlayerMap().entrySet()) {
+            for (Map.Entry<String, CoverEnderProfile<V>> entry : this.getPlayerMap().entrySet()) {
                 String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
                 if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
                     continue;
@@ -607,7 +597,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getLeft().getOwner())))));
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
                 results++;
             }
             searchResults.set(1, results);
@@ -618,9 +608,9 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         return (textList) -> {
             int count = 0, results = 0;
             String name = search.get(0);
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getMap().size() + "§r)"));
-            for (Map.Entry<K, V> entry : this.getMap().entrySet()) {
-                String text = (String) entry.getKey();
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getEnderProfile().getEntries().size() + "§r)"));
+            for (Map.Entry<String, V> entry : this.getEnderProfile().getEntries().entrySet()) {
+                String text = entry.getKey();
                 if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(0)).matcher(text).find())
                     continue;
 
@@ -639,7 +629,7 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
         };
     }
 
-    protected abstract void addEntryText(ITextComponent keyEntry, K key, V value);
+    protected abstract void addEntryText(ITextComponent keyEntry, String key, V value);
 
     @Override
     public void readUpdateData(int id, PacketBuffer packetBuffer) {
@@ -694,12 +684,8 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
             this.ownerId = data.getUniqueId("ownerId");
         if (data.hasKey("lastEntry")) {
             this.lastEntry = data.getString("lastEntry");
-            this.handler = this.getMap().get(this.lastEntry);
+            this.handler = this.getEnderProfile().getEntries().get(this.lastEntry);
             this.getEnderProfile().addCover(this.lastEntry, this);
-        }
-        if (data.hasKey("Text")) {
-            this.text = data.getString("Text");
-            this.handler = this.getMap().get((K) this.text);
         }
     }
 

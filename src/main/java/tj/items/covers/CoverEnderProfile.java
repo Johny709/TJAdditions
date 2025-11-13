@@ -6,15 +6,15 @@ import net.minecraft.nbt.NBTTagList;
 
 import java.util.*;
 
-public class CoverEnderProfile {
+public class CoverEnderProfile<V> {
 
     private final UUID owner;
     private final Set<UUID> allowedUsers = new HashSet<>();
-    private final Map<String, Set<AbstractCoverEnder<?, ?>>> covers = new Object2ObjectOpenHashMap<>();
-    private final Map<String, ?> entries;
+    private final Map<String, Set<AbstractCoverEnder<?, V>>> covers = new Object2ObjectOpenHashMap<>();
+    private final Map<String, V> entries;
     private boolean isPublic = true;
 
-    public CoverEnderProfile(UUID owner, Map<String, ?> entries) {
+    public CoverEnderProfile(UUID owner, Map<String, V> entries) {
         this.entries = entries;
         this.owner = owner;
         this.allowedUsers.add(this.owner);
@@ -22,46 +22,52 @@ public class CoverEnderProfile {
             this.covers.put(key, new HashSet<>());
     }
 
-    public static CoverEnderProfile fromNBT(NBTTagCompound nbt, Map<String, ?> entries) {
+    public static <V> CoverEnderProfile<V> fromNBT(NBTTagCompound nbt, Map<String, V> entries) {
         NBTTagCompound compound = nbt.getCompoundTag("coverProfile");
         UUID uuid = compound.hasUniqueId("owner") ? compound.getUniqueId("owner") : null;
-        CoverEnderProfile coverEnderProfile = new CoverEnderProfile(uuid, entries);
+        CoverEnderProfile<V> coverEnderProfile = new CoverEnderProfile<>(uuid, entries);
         coverEnderProfile.readFromNBT(nbt);
         return coverEnderProfile;
     }
 
-    public void addCover(String key, AbstractCoverEnder<?, ?> cover) {
-        Set<AbstractCoverEnder<?, ?>> set = this.covers.get(key);
+    public void addCover(String key, AbstractCoverEnder<?, V> cover) {
+        Set<AbstractCoverEnder<?, V>> set = this.covers.get(key);
         if (set != null)
             set.add(cover);
     }
 
-    public void removeCover(String key, AbstractCoverEnder<?, ?> cover) {
+    public void removeCover(String key, AbstractCoverEnder<?, V> cover) {
         this.covers.getOrDefault(key, new HashSet<>()).remove(cover);
     }
 
     public void removeEntry(String key) {
-        Set<AbstractCoverEnder<?, ?>> set = this.covers.remove(key);
-        for (AbstractCoverEnder<?, ?> cover : set) {
+        Set<AbstractCoverEnder<?, V>> set = this.covers.remove(key);
+        for (AbstractCoverEnder<?, V> cover : set) {
             cover.setLastEntry(null);
             cover.setHandler(null);
         }
     }
 
     public void renameEntry(String oldKey, String newKey) {
-        Set<AbstractCoverEnder<?, ?>> set = this.covers.remove(oldKey);
+        Set<AbstractCoverEnder<?, V>> set = this.covers.remove(oldKey);
+        this.entries.put(newKey, this.entries.remove(oldKey));
         this.covers.put(newKey, set);
-        for (AbstractCoverEnder<?, ?> cover : set)
+        for (AbstractCoverEnder<?, V> cover : set)
             cover.setLastEntry(newKey);
     }
 
-    public void addEntry(String key) {
+    public void addEntry(String key, V handler) {
+        this.entries.putIfAbsent(key, handler);
         this.covers.putIfAbsent(key, new HashSet<>());
     }
 
     public void setPublic(boolean isPublic) {
         if (this.owner != null)
             this.isPublic = isPublic;
+    }
+
+    public Map<String, V> getEntries() {
+        return this.entries;
     }
 
     public boolean isPublic() {
