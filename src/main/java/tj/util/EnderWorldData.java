@@ -1,7 +1,6 @@
 package tj.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.apache.commons.lang3.tuple.Pair;
 import tj.builder.handlers.BasicEnergyHandler;
 import tj.items.covers.CoverEnderProfile;
 import tj.items.handlers.LargeItemStackHandler;

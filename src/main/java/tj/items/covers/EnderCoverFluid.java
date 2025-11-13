@@ -19,7 +19,6 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.TJTankWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
@@ -35,7 +34,7 @@ import static tj.TJValues.DUMMY_TANK;
 import static tj.gui.TJGuiTextures.FLUID_FILTER;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
-public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
+public class EnderCoverFluid extends AbstractEnderCover<FluidTank> {
 
     private final IFluidHandler fluidTank;
     private final SimpleFluidFilter fluidFilter;
@@ -43,7 +42,7 @@ public class CoverEnderFluid extends AbstractCoverEnder<String, FluidTank> {
     private final int tier;
     private boolean isFilterBlacklist = true;
 
-    public CoverEnderFluid(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
+    public EnderCoverFluid(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
         this.tier = tier;
         this.fluidTank = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);

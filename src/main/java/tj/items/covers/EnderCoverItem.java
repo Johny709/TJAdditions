@@ -31,7 +31,7 @@ import static gregtech.common.covers.CoverPump.PumpMode.IMPORT;
 import static tj.gui.TJGuiTextures.*;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
-public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHandler> {
+public class EnderCoverItem extends AbstractEnderCover<LargeItemStackHandler> {
 
     private final IItemHandler itemInventory;
     private final SimpleItemFilter itemFilter;
@@ -39,7 +39,7 @@ public class CoverEnderItem extends AbstractCoverEnder<String, LargeItemStackHan
     private final int tier;
     private boolean isFilterBlacklist = true;
 
-    public CoverEnderItem(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
+    public EnderCoverItem(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
         this.tier = tier;
         this.itemInventory = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);

@@ -55,7 +55,7 @@ import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.gui.TJGuiTextures.*;
 
-public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
+public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
     protected String text = "";
     protected String channel;
@@ -65,11 +65,10 @@ public abstract class AbstractCoverEnder<K, V> extends CoverBehavior implements 
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
     protected int maxTransferRate;
     protected int transferRate = maxTransferRate;
-    protected int timer;
     protected boolean isFilterPopUp;
     protected V handler;
 
-    public AbstractCoverEnder(ICoverable coverHolder, EnumFacing attachedSide) {
+    public AbstractEnderCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
         GTLog.logger.info("Creating Ender Cover");
     }

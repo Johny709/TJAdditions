@@ -13,7 +13,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.HoverEvent;
-import org.apache.commons.lang3.tuple.Pair;
 import tj.builder.handlers.BasicEnergyHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
@@ -29,13 +28,13 @@ import static tj.gui.TJGuiTextures.BAR_HEAT;
 import static tj.gui.TJGuiTextures.BAR_STEEL;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
-public class CoverEnderEnergy extends AbstractCoverEnder<String, BasicEnergyHandler> {
+public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
 
     private final IEnergyContainer energyContainer;
     private final long capacity;
     private final int tier;
 
-    public CoverEnderEnergy(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
+    public EnderCoverEnergy(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
         this.tier = tier;
         this.energyContainer = this.coverHolder.getCapability(CAPABILITY_ENERGY_CONTAINER, null);

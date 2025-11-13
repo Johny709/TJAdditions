@@ -10,7 +10,7 @@ public class CoverEnderProfile<V> {
 
     private final UUID owner;
     private final Set<UUID> allowedUsers = new HashSet<>();
-    private final Map<String, Set<AbstractCoverEnder<?, V>>> covers = new Object2ObjectOpenHashMap<>();
+    private final Map<String, Set<AbstractEnderCover<V>>> covers = new Object2ObjectOpenHashMap<>();
     private final Map<String, V> entries;
     private boolean isPublic = true;
 
@@ -30,29 +30,29 @@ public class CoverEnderProfile<V> {
         return coverEnderProfile;
     }
 
-    public void addCover(String key, AbstractCoverEnder<?, V> cover) {
-        Set<AbstractCoverEnder<?, V>> set = this.covers.get(key);
+    public void addCover(String key, AbstractEnderCover<V> cover) {
+        Set<AbstractEnderCover<V>> set = this.covers.get(key);
         if (set != null)
             set.add(cover);
     }
 
-    public void removeCover(String key, AbstractCoverEnder<?, V> cover) {
+    public void removeCover(String key, AbstractEnderCover<V> cover) {
         this.covers.getOrDefault(key, new HashSet<>()).remove(cover);
     }
 
     public void removeEntry(String key) {
-        Set<AbstractCoverEnder<?, V>> set = this.covers.remove(key);
-        for (AbstractCoverEnder<?, V> cover : set) {
+        Set<AbstractEnderCover<V>> set = this.covers.remove(key);
+        for (AbstractEnderCover<V> cover : set) {
             cover.setLastEntry(null);
             cover.setHandler(null);
         }
     }
 
     public void renameEntry(String oldKey, String newKey) {
-        Set<AbstractCoverEnder<?, V>> set = this.covers.remove(oldKey);
+        Set<AbstractEnderCover<V>> set = this.covers.remove(oldKey);
         this.entries.put(newKey, this.entries.remove(oldKey));
         this.covers.put(newKey, set);
-        for (AbstractCoverEnder<?, V> cover : set)
+        for (AbstractEnderCover<V> cover : set)
             cover.setLastEntry(newKey);
     }
 

@@ -28,9 +28,9 @@ public class TJCoverBehaviours {
         int enderCoverID = 129; // occupies IDs 129 - 165
         for (int i = 0; i < ENDER_FLUID_COVERS.length; i++) {
             int finalI = i + 3;
-            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_fluid_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_FLUID_COVERS[i], (cover, face) -> new CoverEnderFluid(cover, face, finalI));
-            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_item_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_ITEM_COVERS[i], (cover, face) -> new CoverEnderItem(cover, face, finalI));
-            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_energy_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_ENERGY_COVERS[i], (cover, face) -> new CoverEnderEnergy(cover, face, finalI));
+            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_fluid_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_FLUID_COVERS[i], (cover, face) -> new EnderCoverFluid(cover, face, finalI));
+            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_item_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_ITEM_COVERS[i], (cover, face) -> new EnderCoverItem(cover, face, finalI));
+            registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_energy_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_ENERGY_COVERS[i], (cover, face) -> new EnderCoverEnergy(cover, face, finalI));
         }
     }
 
