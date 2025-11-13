@@ -247,7 +247,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 return false;
                             }).passPopup(this::addToPopUpWidget);
                     tab.addWidget(clickPopUpWidget);
-                }).addTab("machine.universal.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76), tab -> {
+                }).addTab("tj.multiblock.tab.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76), tab -> {
                     NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.channel")
@@ -338,21 +338,28 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetChannel);
                                 return false;
-                            }).addPopup(0, 38, 182, 120, new TJToggleButtonWidget(7, 142, 18, 18)
+                            }).addPopup(0, 38, 182, 130, new TJToggleButtonWidget(7, 142, 18, 18)
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setBackgroundTextures(LIST_OVERLAY)
                                     .useToggleTexture(true), widgetGroup -> {
                                 widgetGroup.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                                         .addPopup(innerWidgetGroup -> {
-                                            innerWidgetGroup.addWidget(new ImageWidget(0, 0, 182, 120, BORDERED_BACKGROUND));
-                                            innerWidgetGroup.addWidget(new ImageWidget(3, 15, 176, 80, DISPLAY));
-                                            innerWidgetGroup.addWidget(new ImageWidget(30, 96, 115, 18, DISPLAY));
-                                            innerWidgetGroup.addWidget(new ScrollableTextWidget(3, 15, 185, 80)
+                                            innerWidgetGroup.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
+                                            innerWidgetGroup.addWidget(new ImageWidget(3, 25, 176, 80, DISPLAY));
+                                            innerWidgetGroup.addWidget(new ImageWidget(30, 106, 115, 18, DISPLAY));
+                                            innerWidgetGroup.addWidget(new ScrollableTextWidget(3, 25, 185, 80)
                                                     .addTextWidget(new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
                                                             .addClickHandler(this::handlePlayerDisplayClick)));
-                                            innerWidgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.list.players")), 0x404040));
+                                            innerWidgetGroup.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.allowed_players", this.channel))), 0x404040));
+                                            innerWidgetGroup.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
+                                                    .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                                    .setTextResponder((result, id) -> search.set(2, result))
+                                                    .setBackgroundText("machine.universal.search")
+                                                    .setTextSupplier(() -> search.get(2))
+                                                    .setMaxStringLength(256)
+                                                    .setUpdateOnTyping(true));
                                             return true;
-                                        }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 96, 18, 18)
+                                        }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18)
                                                 .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                                 .setTooltipText("machine.universal.search.settings")
                                                 .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -608,6 +615,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
             int count = 0, results = 0;
             String name = search.get(2);
             List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.players") + "§r(§e" + searchResults.get(2) + "§r/§e" + playerList.size() + "§r)"));
             for (EntityPlayer player : playerList) {
                 String text = player.getDisplayNameString();
                 if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
@@ -627,7 +635,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return (textList) -> {
             int count = 0, results = 0;
             String name = search.get(1);
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
             for (Map.Entry<String, EnderCoverProfile<V>> entry : this.getPlayerMap().entrySet()) {
                 String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
                 if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
@@ -651,7 +659,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return (textList) -> {
             int count = 0, results = 0;
             String name = search.get(0);
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getEnderProfile().getEntries().size() + "§r)"));
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getEnderProfile().getEntries().size() + "§r)"));
             for (Map.Entry<String, V> entry : this.getEnderProfile().getEntries().entrySet()) {
                 String text = entry.getKey();
                 if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(0)).matcher(text).find())
