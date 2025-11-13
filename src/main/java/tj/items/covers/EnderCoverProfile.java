@@ -6,7 +6,7 @@ import net.minecraft.nbt.NBTTagList;
 
 import java.util.*;
 
-public class CoverEnderProfile<V> {
+public class EnderCoverProfile<V> {
 
     private final UUID owner;
     private final Set<UUID> allowedUsers = new HashSet<>();
@@ -14,30 +14,34 @@ public class CoverEnderProfile<V> {
     private final Map<String, V> entries;
     private boolean isPublic = true;
 
-    public CoverEnderProfile(UUID owner, Map<String, V> entries) {
-        this.entries = entries;
+    public EnderCoverProfile(UUID owner, Map<String, V> entries) {
         this.owner = owner;
+        this.entries = entries;
         this.allowedUsers.add(this.owner);
         for (String key : entries.keySet())
             this.covers.put(key, new HashSet<>());
     }
 
-    public static <V> CoverEnderProfile<V> fromNBT(NBTTagCompound nbt, Map<String, V> entries) {
+    public static <V> EnderCoverProfile<V> fromNBT(NBTTagCompound nbt, Map<String, V> entries) {
         NBTTagCompound compound = nbt.getCompoundTag("coverProfile");
         UUID uuid = compound.hasUniqueId("owner") ? compound.getUniqueId("owner") : null;
-        CoverEnderProfile<V> coverEnderProfile = new CoverEnderProfile<>(uuid, entries);
-        coverEnderProfile.readFromNBT(nbt);
-        return coverEnderProfile;
+        EnderCoverProfile<V> enderCoverProfile = new EnderCoverProfile<>(uuid, entries);
+        enderCoverProfile.readFromNBT(nbt);
+        return enderCoverProfile;
     }
 
-    public void addCover(String key, AbstractEnderCover<V> cover) {
+    public void addCoverToEntry(String key, AbstractEnderCover<V> cover) {
         Set<AbstractEnderCover<V>> set = this.covers.get(key);
         if (set != null)
             set.add(cover);
     }
 
-    public void removeCover(String key, AbstractEnderCover<V> cover) {
+    public void removeCoverFromEntry(String key, AbstractEnderCover<V> cover) {
         this.covers.getOrDefault(key, new HashSet<>()).remove(cover);
+    }
+
+    public boolean containsEntry(String key) {
+        return this.entries.containsKey(key);
     }
 
     public void removeEntry(String key) {
@@ -48,7 +52,12 @@ public class CoverEnderProfile<V> {
         }
     }
 
-    public void renameEntry(String oldKey, String newKey) {
+    public void editEntry(String key, V handler) {
+        for (AbstractEnderCover<V> cover : this.covers.get(key))
+            cover.setHandler(handler);
+    }
+
+    public void editEntry(String oldKey, String newKey) {
         Set<AbstractEnderCover<V>> set = this.covers.remove(oldKey);
         this.entries.put(newKey, this.entries.remove(oldKey));
         this.covers.put(newKey, set);
@@ -59,6 +68,12 @@ public class CoverEnderProfile<V> {
     public void addEntry(String key, V handler) {
         this.entries.putIfAbsent(key, handler);
         this.covers.putIfAbsent(key, new HashSet<>());
+    }
+
+    public void editChannel(String key) {
+        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet())
+            for (AbstractEnderCover<V> cover : entry.getValue())
+                cover.setChannel(key);
     }
 
     public void setPublic(boolean isPublic) {
@@ -86,11 +101,11 @@ public class CoverEnderProfile<V> {
         NBTTagCompound compound = new NBTTagCompound();
         NBTTagList userList = new NBTTagList();
         for (UUID id : this.allowedUsers) {
-            if (id == null)
-                continue;
-            NBTTagCompound compound1 = new NBTTagCompound();
-            compound1.setUniqueId("user", id);
-            userList.appendTag(compound1);
+            if (id != null) {
+                NBTTagCompound compound1 = new NBTTagCompound();
+                compound1.setUniqueId("user", id);
+                userList.appendTag(compound1);
+            }
         }
         if (this.owner != null)
             compound.setUniqueId("owner", this.owner);

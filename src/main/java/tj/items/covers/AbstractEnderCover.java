@@ -13,7 +13,6 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.HorizontalTabListRenderer;
-import gregtech.api.util.GTLog;
 import gregtech.common.covers.CoverPump;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -57,7 +56,6 @@ import static tj.gui.TJGuiTextures.*;
 
 public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
-    protected String text = "";
     protected String channel;
     protected String lastEntry;
     protected UUID ownerId;
@@ -70,7 +68,6 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     public AbstractEnderCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        GTLog.logger.info("Creating Ender Cover");
     }
 
     @Override
@@ -114,59 +111,19 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return "Null";
     }
 
-    protected CoverEnderProfile<V> getEnderProfile()  {
+    protected EnderCoverProfile<V> getEnderProfile()  {
         return this.getPlayerMap().getOrDefault(this.channel, this.getPlayerMap().get(null));
     }
 
     protected abstract TJSimpleOverlayRenderer getOverlay();
 
-    protected abstract Map<String, CoverEnderProfile<V>> getPlayerMap();
+    protected abstract Map<String, EnderCoverProfile<V>> getPlayerMap();
 
     protected abstract void addWidgets(Consumer<Widget> widget);
 
     protected void addToPopUpWidget(ButtonPopUpWidget<?> buttonPopUpWidget) {}
 
     protected abstract V createHandler();
-
-    protected void addChannel(String name, String id) {
-        this.getPlayerMap().putIfAbsent(name, new CoverEnderProfile<>(this.ownerId, new Object2ObjectOpenHashMap<>()));
-    }
-
-    protected void addEntry(String name, String id) {
-        if (name != null) {
-            this.getEnderProfile().addEntry(name, this.createHandler());
-        }
-    }
-
-    protected void onClear(Widget.ClickData clickData) {
-        if (this.getEnderProfile().getEntries().containsKey(this.lastEntry)) {
-            this.getEnderProfile().getEntries().put(this.lastEntry, this.createHandler());
-        }
-    }
-
-    private void renameChannel(String name, String id) {
-        CoverEnderProfile<V> map = this.getPlayerMap().get(id);
-        if (map != null && map.getOwner() != null && map.getOwner().equals(this.ownerId)) {
-            this.getPlayerMap().put(name, this.getPlayerMap().remove(id));
-        }
-    }
-
-    private void renameEntry(String name, String id) {
-        this.getEnderProfile().renameEntry(id, this.lastEntry);
-        this.lastEntry = name;
-    }
-
-    private void removeEntry(String key) {
-        this.getEnderProfile().removeEntry(key);
-    }
-
-    public void setHandler(V handler) {
-        this.handler = handler;
-    }
-
-    public void setLastEntry(String lastEntry) {
-        this.lastEntry = lastEntry;
-    }
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
@@ -206,7 +163,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setBackgroundText("machine.universal.toggle.current.entry")
                                         .setTooltipText("machine.universal.toggle.current.entry")
                                         .setTextResponder(this::setEntry)
-                                        .setTextSupplier(() -> this.text)
+                                        .setTextSupplier(() -> this.lastEntry)
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 13, false)
@@ -530,21 +487,68 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         this.markAsDirty();
     }
 
-    private void setChannel(String channel, String id) {
-        if (!this.channel.equals(channel)) {
-            this.getEnderProfile().removeCover(this.lastEntry, this);
-            this.channel = channel;
+    private void addChannel(String key, String id) {
+        this.getPlayerMap().putIfAbsent(key, new EnderCoverProfile<>(this.ownerId, new Object2ObjectOpenHashMap<>()));
+    }
+
+    private void renameChannel(String key, String id) {
+        EnderCoverProfile<V> map = this.getPlayerMap().get(id);
+        if (map != null && map.getOwner() != null && map.getOwner().equals(this.ownerId)) {
+            this.getEnderProfile().editChannel(key);
+            this.getPlayerMap().put(key, this.getPlayerMap().remove(id));
         }
+    }
+
+    private void setChannel(String key, String id) {
+        if (!key.equals(this.channel)) {
+            this.getEnderProfile().removeCoverFromEntry(this.lastEntry, this);
+            this.setChannel(key);
+        }
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
         this.markAsDirty();
     }
 
-    private void setEntry(String text, String id) {
-        this.handler = this.getEnderProfile().getEntries().get(text);
-        if (this.handler != null && this.lastEntry != null) {
-            this.getEnderProfile().removeCover(this.lastEntry, this);
-            this.getEnderProfile().addCover(text, this);
-            this.lastEntry = text;
+    private void setEntry(String key, String id) {
+        this.handler = this.getEnderProfile().getEntries().get(key);
+        if (this.handler != null && !key.equals(this.lastEntry)) {
+            this.getEnderProfile().removeCoverFromEntry(this.lastEntry, this);
+            this.getEnderProfile().addCoverToEntry(key, this);
+            this.setLastEntry(key);
         }
+    }
+
+    private void addEntry(String key, String id) {
+        if (key != null) {
+            this.getEnderProfile().addEntry(key, this.createHandler());
+        }
+    }
+
+    private void onClear(Widget.ClickData clickData) {
+        if (this.getEnderProfile().containsEntry(this.lastEntry)) {
+            this.getEnderProfile().editEntry(this.lastEntry, this.createHandler());
+        }
+    }
+
+    private void renameEntry(String key, String id) {
+        if (this.getEnderProfile().containsEntry(id)) {
+            this.getEnderProfile().editEntry(id, key);
+            this.setLastEntry(key);
+        }
+    }
+
+    private void removeEntry(String key) {
+        this.getEnderProfile().removeEntry(key);
+    }
+
+    public void setHandler(V handler) {
+        this.handler = handler;
+    }
+
+    public void setLastEntry(String lastEntry) {
+        this.lastEntry = lastEntry;
         this.markAsDirty();
     }
 
@@ -584,7 +588,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
             int count = 0, results = 0;
             String name = search.get(1);
             textList.add(new TextComponentString("§l" + I18n.translateToLocal("machine.universal.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
-            for (Map.Entry<String, CoverEnderProfile<V>> entry : this.getPlayerMap().entrySet()) {
+            for (Map.Entry<String, EnderCoverProfile<V>> entry : this.getPlayerMap().entrySet()) {
                 String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
                 if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
                     continue;
@@ -657,11 +661,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        GTLog.logger.info("Saving Ender Cover");
         data.setInteger("PumpMode", this.pumpMode.ordinal());
         data.setBoolean("IsWorking", this.isWorkingEnabled);
         data.setInteger("TransferRate", this.transferRate);
-        data.setString("Text", this.text);
         if (this.lastEntry != null)
             data.setString("lastEntry", this.lastEntry);
         if (this.channel != null)
@@ -673,7 +675,6 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        GTLog.logger.info("Loading Ender Cover");
         this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("PumpMode")];
         this.isWorkingEnabled = data.getBoolean("IsWorking");
         this.transferRate = data.getInteger("TransferRate");
@@ -684,7 +685,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         if (data.hasKey("lastEntry")) {
             this.lastEntry = data.getString("lastEntry");
             this.handler = this.getEnderProfile().getEntries().get(this.lastEntry);
-            this.getEnderProfile().addCover(this.lastEntry, this);
+            this.getEnderProfile().addCoverToEntry(this.lastEntry, this);
         }
     }
 

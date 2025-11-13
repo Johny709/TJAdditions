@@ -87,7 +87,7 @@ public class EnderCoverItem extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected Map<String, CoverEnderProfile<LargeItemStackHandler>> getPlayerMap() {
+    protected Map<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
     }
 

@@ -63,7 +63,7 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
     }
 
     @Override
-    protected Map<String, CoverEnderProfile<BasicEnergyHandler>> getPlayerMap() {
+    protected Map<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getEnergyContainerPlayerMap();
     }
 
