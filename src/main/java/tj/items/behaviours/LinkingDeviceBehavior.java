@@ -2,9 +2,7 @@ package tj.items.behaviours;
 
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
@@ -29,13 +27,10 @@ import net.minecraftforge.common.MinecraftForge;
 import tj.capability.LinkEntity;
 import tj.capability.LinkPos;
 import tj.event.MTELinkEvent;
-import tj.gui.widgets.TJTextFieldWidget;
+import tj.gui.widgets.NewTextFieldWidget;
 import tj.items.LinkingMode;
-import tj.util.consumers.QuintConsumer;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
@@ -46,93 +41,73 @@ import static tj.items.LinkingMode.*;
 
 public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
-    private QuintConsumer<String, BlockPos, EntityPlayer, World, Integer> posResponder;
-    private Consumer<NBTTagCompound> nbtResponder;
-    private Supplier<Integer> rangeSupplier;
-    private NBTTagCompound nbt;
-    private EntityPlayer player;
-    private World world;
-    private boolean isPressed;
-    private String name;
-    private int index;
-    private int worldID;
-    private int x;
-    private int y;
-    private int z;
-
     @Override
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
-        this.nbt = player.getHeldItem(hand).getOrCreateSubCompound("Link.XYZ");
-        NBTTagCompound modeNBT = player.getHeldItem(hand).getOrCreateSubCompound("LinkMode");
+        ItemStack stack = player.getHeldItem(hand);
+        NBTTagCompound nbt = stack.getOrCreateSubCompound("Link.XYZ");
+        NBTTagCompound promptNBT = stack.getOrCreateSubCompound("Prompt.XYZ");
+        NBTTagCompound modeNBT = stack.getOrCreateSubCompound("LinkMode");
         LinkingMode linkingMode = modeNBT.hasKey("Mode") ? LinkingMode.values()[modeNBT.getInteger("Mode")] : BLOCK;
-        double x = this.nbt.hasKey("X") ? this.nbt.getDouble("X") : 0;
-        double y = this.nbt.hasKey("Y") ? this.nbt.getDouble("Y") : 0;
-        double z = this.nbt.hasKey("Z") ? this.nbt.getDouble("Z") : 0;
-        int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
-        String name = this.nbt.hasKey("Name") ? this.nbt.getString("Name") : "Null";
+        double x = nbt.hasKey("X") ? nbt.getDouble("X") : 0;
+        double y = nbt.hasKey("Y") ? nbt.getDouble("Y") : 0;
+        double z = nbt.hasKey("Z") ? nbt.getDouble("Z") : 0;
+        int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
+        String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
         MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, pos);
         TileEntity targetTE = world.getTileEntity(pos);
         if (!world.isRemote && hand == MAIN_HAND) {
             if (!player.isSneaking()) {
                 if (!name.equals("Null")) {
-                    WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
+                    WorldServer getWorld = nbt.hasKey("DimensionID") ? DimensionManager.getWorld(nbt.getInteger("DimensionID")) : (WorldServer) world;
                     BlockPos worldPos = new BlockPos(x, y, z);
                     getWorld.getChunk(worldPos);
                     MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(getWorld, worldPos);
                     if (linkedGTTE instanceof LinkPos && !(linkedGTTE instanceof LinkEntity) &&(linkingMode == BLOCK || linkingMode == BLOCK_PROMPT)) {
                         LinkPos linkPos = (LinkPos) linkedGTTE;
-                        this.posResponder = linkPos::setPos;
-                        this.nbtResponder = linkPos::setLinkData;
-                        this.rangeSupplier = linkPos::getRange;
-                        this.player = player;
-                        this.world = world;
-                        this.worldID = world.provider.getDimension();
-                        this.x = pos.getX();
-                        this.y = pos.getY();
-                        this.z = pos.getZ();
-                        this.name = world.getBlockState(pos).getBlock().getLocalizedName();
-                        this.nbt = linkPos.getLinkData();
-                        player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", this.nbt);
+                        nbt.setInteger("Range", linkPos.getRange());
+                        promptNBT.setInteger("world", world.provider.getDimension());
+                        promptNBT.setInteger("x", pos.getX());
+                        promptNBT.setInteger("y", pos.getY());
+                        promptNBT.setInteger("z", pos.getZ());
+                        promptNBT.setString("name", world.getBlockState(pos).getBlock().getLocalizedName());
+                        stack.getTagCompound().setTag("Link.XYZ", linkPos.getLinkData());
                         if (targetTE != null) {
-                            this.x = targetTE.getPos().getX();
-                            this.y = targetTE.getPos().getY();
-                            this.z = targetTE.getPos().getZ();
-                            this.name = targetTE.getBlockType().getLocalizedName();
+                            promptNBT.setInteger("x", targetTE.getPos().getX());
+                            promptNBT.setInteger("y", targetTE.getPos().getY());
+                            promptNBT.setInteger("z", targetTE.getPos().getZ());
+                            name = targetTE.getBlockType().getLocalizedName();
                         }
                         if (targetGTTE != null) {
-                            this.x = targetGTTE.getPos().getX();
-                            this.y = targetGTTE.getPos().getY();
-                            this.z = targetGTTE.getPos().getZ();
-                            this.name = targetGTTE.getMetaFullName();
+                            promptNBT.setInteger("x", targetGTTE.getPos().getX());
+                            promptNBT.setInteger("y", targetGTTE.getPos().getY());
+                            promptNBT.setInteger("z", targetGTTE.getPos().getZ());
+                            name = targetGTTE.getMetaFullName();
                         }
-                        this.name = net.minecraft.util.text.translation.I18n.translateToLocal(this.name);
+                        promptNBT.setString("name", net.minecraft.util.text.translation.I18n.translateToLocal(name));
                         if (linkI > 0) {
                             for (int i = 0; i < 2; i++) {
                                 for (int j = 0; j < linkPos.getPosSize(); j++) {
                                     BlockPos targetPos = linkPos.getPos(j);
-                                    if (i == 0 && targetPos != null && targetPos.getX() == this.x && targetPos.getY() == this.y && targetPos.getZ() == this.z) {
+                                    if (i == 0 && targetPos != null && targetPos.getX() == promptNBT.getInteger("x") && targetPos.getY() == promptNBT.getInteger("y") && targetPos.getZ() == promptNBT.getInteger("z")) {
                                         player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.occupied")
                                                 .appendText(" ")
                                                 .appendSibling(new TextComponentTranslation(linkedGTTE.getMetaFullName()).setStyle(new Style().setColor(TextFormatting.YELLOW))));
                                         return EnumActionResult.SUCCESS;
                                     }
                                     if (i == 1 && targetPos == null) {
-                                        this.index = j;
+                                        promptNBT.setInteger("index", j);
                                         if (linkingMode == BLOCK_PROMPT) {
-                                            this.isPressed = false;
                                             PlayerInventoryHolder.openHandItemUI(player, hand);
                                             return EnumActionResult.SUCCESS;
                                         }
-                                        if (this.inRange())
-                                            this.setPos();
+                                        if (this.inRange(nbt, promptNBT, player))
+                                            this.setPos(nbt, promptNBT, player);
                                         break;
                                     }
                                 }
                             }
                             MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE));
-                        } else {
-                            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
-                        }
+                        } else player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                         return EnumActionResult.SUCCESS;
                     }
                 } else {
@@ -144,10 +119,10 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                     LinkPos linkPos = (LinkPos) targetGTTE;
                     boolean hasLink = false;
                     if (linkPos.getLinkData() == null) {
-                        linkPos.setLinkData(this.nbt);
-                        this.setLinkData(this.nbt, targetGTTE, linkPos);
+                        linkPos.setLinkData(nbt);
+                        this.setLinkData(nbt, targetGTTE, linkPos);
                     } else {
-                        this.nbt = linkPos.getLinkData();
+                        nbt = linkPos.getLinkData();
                         player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", nbt);
                         hasLink = true;
                     }
@@ -181,34 +156,30 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        this.nbt = player.getHeldItem(hand).getOrCreateSubCompound("Link.XYZ");
-        NBTTagCompound modeNBT = player.getHeldItem(hand).getOrCreateSubCompound("LinkMode");
+        ItemStack stack = player.getHeldItem(hand);
+        NBTTagCompound nbt = stack.getOrCreateSubCompound("Link.XYZ");
+        NBTTagCompound promptNBT = stack.getOrCreateSubCompound("Prompt.XYZ");
+        NBTTagCompound modeNBT = stack.getOrCreateSubCompound("LinkMode");
         LinkingMode linkingMode = modeNBT.hasKey("Mode") ? LinkingMode.values()[modeNBT.getInteger("Mode")] : BLOCK;
-        double x = this.nbt.hasKey("X") ? this.nbt.getDouble("X") : 0;
-        double y = this.nbt.hasKey("Y") ? this.nbt.getDouble("Y") : 0;
-        double z = this.nbt.hasKey("Z") ? this.nbt.getDouble("Z") : 0;
-        int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
-        String name = this.nbt.hasKey("Name") ? this.nbt.getString("Name") : "Null";
+        double x = nbt.hasKey("X") ? nbt.getDouble("X") : 0;
+        double y = nbt.hasKey("Y") ? nbt.getDouble("Y") : 0;
+        double z = nbt.hasKey("Z") ? nbt.getDouble("Z") : 0;
+        int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
+        String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
         if (!world.isRemote) {
             if (!name.equals("Null") && player.isSneaking() && hand == MAIN_HAND) {
-                WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
+                WorldServer getWorld = nbt.hasKey("DimensionID") ? DimensionManager.getWorld(nbt.getInteger("DimensionID")) : (WorldServer) world;
                 BlockPos worldPos = new BlockPos(x, y, z);
                 getWorld.getChunk(worldPos);
                 MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(getWorld, worldPos);
                 if (metaTileEntity instanceof LinkEntity && (linkingMode == ENTITY || linkingMode == ENTITY_PROMPT)) {
                     LinkEntity linkEntity = (LinkEntity) metaTileEntity;
-                    this.posResponder = linkEntity::setPos;
-                    this.nbtResponder = linkEntity::setLinkData;
-                    this.rangeSupplier = linkEntity::getRange;
-                    this.player = player;
-                    this.name = player.getName();
-                    this.world = world;
-                    this.worldID = world.provider.getDimension();
-                    this.x = player.getPosition().getX();
-                    this.y = player.getPosition().getY();
-                    this.z = player.getPosition().getZ();
-                    this.nbt = linkEntity.getLinkData();
-                    player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", this.nbt);
+                    promptNBT.setString("name", player.getName());
+                    promptNBT.setInteger("world", world.provider.getDimension());
+                    promptNBT.setInteger("x", player.getPosition().getX());
+                    promptNBT.setInteger("y", player.getPosition().getY());
+                    promptNBT.setInteger("z", player.getPosition().getZ());
+                    player.getHeldItem(hand).getTagCompound().setTag("Link.XYZ", linkEntity.getLinkData());
                     if (linkI > 0) {
                         for (int i = 0; i < 2; i++) {
                             for (int j = 0; j < linkEntity.getPosSize(); j++) {
@@ -219,19 +190,15 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                                 }
                                 if (i == 1 && targetEntity == null) {
                                     if (linkingMode == ENTITY_PROMPT) {
-                                        this.isPressed = false;
                                         PlayerInventoryHolder.openHandItemUI(player, hand);
                                         return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
-                                    }
-                                    if (this.inRange())
-                                        this.setPos();
+                                    } else if (this.inRange(nbt, promptNBT, player))
+                                        this.setPos(nbt, promptNBT, player);
                                     break;
                                 }
                             }
                         }
-                    } else {
-                        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
-                    }
+                    } else player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                 }
             } else if (hand == OFF_HAND) {
                 int mode = linkingMode.ordinal();
@@ -270,113 +237,81 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new TJTextFieldWidget(4, 14, 166, 18, true, this::getName, this::setName)
-                .setTextLength(256)
-                .setTooltipText("metaitem.linking.device.set.name")
-                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(4, 34, 166, 18, true, this::getWorldID, this::setWorldID)
-                .setTooltipText("metaitem.linking.device.set.world")
-                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(4, 54, 166, 18, true, this::getX, this::setX)
-                .setTooltipText("metaitem.linking.device.set.x")
-                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(4, 74, 166, 18, true, this::getY, this::setY)
-                .setTooltipText("metaitem.linking.device.set.y")
-                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new TJTextFieldWidget(4, 94, 166, 18, true, this::getZ, this::setZ)
-                .setTooltipText("metaitem.linking.device.set.z")
-                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ToggleButtonWidget(4, 114, 166, 18, TOGGLE_BUTTON_BACK, this::isPressed, this::setPressed));
-        widgetGroup.addWidget(new LabelWidget(60, 120, "metaitem.linking.device.set.position", 0x000000));
+        ItemStack stack = player.getHeldItem(MAIN_HAND);
+        NBTTagCompound promptNBT = stack.getOrCreateSubCompound("Prompt.XYZ");
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 138)
-                .widget(widgetGroup)
+                .widget(new NewTextFieldWidget<>(4, 14, 166, 18, true)
+                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                        .setTextResponder((s, id) -> promptNBT.setString("name", s))
+                        .setTextSupplier(() -> promptNBT.getString("name"))
+                        .setTooltipText("metaitem.linking.device.set.name")
+                        .setMaxStringLength(256)
+                        .setUpdateOnTyping(true))
+                .widget(new NewTextFieldWidget<>(4, 34, 166, 18, true)
+                        .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTextResponder((s, id) -> promptNBT.setInteger("world", Integer.parseInt(s)))
+                        .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("world")))
+                        .setTooltipText("metaitem.linking.device.set.world")
+                        .setUpdateOnTyping(true))
+                .widget(new NewTextFieldWidget<>(4, 54, 166, 18, true)
+                        .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTextResponder((s, id) -> promptNBT.setInteger("x", Integer.parseInt(s)))
+                        .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("x")))
+                        .setTooltipText("metaitem.linking.device.set.x")
+                        .setUpdateOnTyping(true))
+                .widget(new NewTextFieldWidget<>(4, 74, 166, 18, true)
+                        .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTextResponder((s, id) -> promptNBT.setInteger("y", Integer.parseInt(s)))
+                        .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("y")))
+                        .setTooltipText("metaitem.linking.device.set.y")
+                        .setUpdateOnTyping(true))
+                .widget(new NewTextFieldWidget<>(4, 94, 166, 18, true)
+                        .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTextResponder((s, id) -> promptNBT.setInteger("z", Integer.parseInt(s)))
+                        .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("z")))
+                        .setTooltipText("metaitem.linking.device.set.z")
+                        .setUpdateOnTyping(true))
+                .widget(new ToggleButtonWidget(4, 114, 166, 18, TOGGLE_BUTTON_BACK, () -> false, (bool) -> {
+                    if (this.inRange(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player))
+                        this.setPos(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player);
+                })).label(60, 120, "metaitem.linking.device.set.position")
                 .build(holder, player);
     }
 
-    private void setName(String name) {
-        this.name = name;
-    }
-
-    private void setWorldID(String worldID) {
-        this.worldID = Integer.parseInt(worldID);
-    }
-
-    private void setX(String x) {
-        this.x = Integer.parseInt(x);
-    }
-
-    private void setY(String y) {
-        this.y = Integer.parseInt(y);
-    }
-
-    private void setZ(String z) {
-        this.z = Integer.parseInt(z);
-    }
-
-    private void setPressed(boolean isPressed) {
-        if (!this.isPressed) {
-            this.isPressed = isPressed;
-            if (this.inRange())
-                this.setPos();
-        }
-    }
-
-    private boolean inRange() {
-        double x = this.nbt.hasKey("X") ? this.nbt.getDouble("X") : 0;
-        double y = this.nbt.hasKey("Y") ? this.nbt.getDouble("Y") : 0;
-        double z = this.nbt.hasKey("Z") ? this.nbt.getDouble("Z") : 0;
-        int xDiff = (int) Math.abs(this.x - x);
-        int yDiff = (int) Math.abs(this.y - y);
-        int zDiff = (int) Math.abs(this.z - z);
+    private boolean inRange(NBTTagCompound nbt, NBTTagCompound promptNBT, EntityPlayer player) {
+        double x = nbt.hasKey("X") ? nbt.getDouble("X") : 0;
+        double y = nbt.hasKey("Y") ? nbt.getDouble("Y") : 0;
+        double z = nbt.hasKey("Z") ? nbt.getDouble("Z") : 0;
+        int xDiff = (int) Math.abs(promptNBT.getInteger("x") - x);
+        int yDiff = (int) Math.abs(promptNBT.getInteger("y") - y);
+        int zDiff = (int) Math.abs(promptNBT.getInteger("z") - z);
         int targetRange = xDiff + yDiff + zDiff;
-        int range = this.rangeSupplier.get();
+        int range = nbt.getInteger("Range");
         boolean inRange = range >= targetRange;
         if (!inRange)
-            this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.far"));
+            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.far"));
         return inRange;
     }
 
-    private void setPos() {
-        BlockPos pos = new BlockPos(this.x, this.y, this.z);
-        double x = this.nbt.getDouble("X");
-        double y = this.nbt.getDouble("Y");
-        double z = this.nbt.getDouble("Z");
-        WorldServer getWorld = this.nbt.hasKey("DimensionID") ? DimensionManager.getWorld(this.nbt.getInteger("DimensionID")) : (WorldServer) world;
+    private void setPos(NBTTagCompound nbt, NBTTagCompound promptNBT, EntityPlayer player) {
+        World world = player.getEntityWorld();
+        BlockPos pos = new BlockPos(promptNBT.getInteger("x"), promptNBT.getInteger("y"), promptNBT.getInteger("z"));
+        double x = nbt.getDouble("X");
+        double y = nbt.getDouble("Y");
+        double z = nbt.getDouble("Z");
+        WorldServer getWorld = nbt.hasKey("DimensionID") ? DimensionManager.getWorld(nbt.getInteger("DimensionID")) : (WorldServer) world;
         MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(getWorld, new BlockPos(x, y, z));
-        MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(this.world, pos);
-        int linkI = this.nbt.hasKey("I") ? this.nbt.getInteger("I") : 0;
-        this.nbt.setInteger("I", linkI - 1);
-        this.world.getChunk(pos);
-        this.posResponder.accept(this.name, pos, this.player, this.world, this.index);
-        this.nbtResponder.accept(this.nbt);
-        this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
-        this.player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
-                .appendSibling(new TextComponentString(" " + this.nbt.getInteger("I"))));
+        MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, pos);
+        int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
+        nbt.setInteger("I", linkI - 1);
+        world.getChunk(pos);
+        if (linkedGTTE instanceof LinkPos) {
+            ((LinkPos) linkedGTTE).setPos(promptNBT.getString("name"), pos, player, player.getEntityWorld(), promptNBT.getInteger("index"));
+            ((LinkPos) linkedGTTE).setLinkData(nbt);
+        }
+        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
+        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
+                .appendSibling(new TextComponentString(" " + nbt.getInteger("I"))));
         MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE));
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getWorldID() {
-        return String.valueOf(this.worldID);
-    }
-
-    public String getX() {
-        return String.valueOf(this.x);
-    }
-
-    public String getY() {
-        return String.valueOf(this.y);
-    }
-
-    public String getZ() {
-        return String.valueOf(this.z);
-    }
-
-    public boolean isPressed() {
-        return this.isPressed;
     }
 }
