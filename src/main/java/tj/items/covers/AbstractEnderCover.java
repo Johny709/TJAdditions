@@ -127,9 +127,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        List<Integer> searchResults = Arrays.asList(0, 0, 0);
-        List<Integer> patternFlags = Arrays.asList(0, 0, 0);
-        List<String> search = Arrays.asList("", "", "");
+        int[] searchResults = new int[3];
+        int[][] patternFlags = new int[3][9];
+        String[] search = new String[]{"", "", ""};
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getName()))
@@ -178,9 +178,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                                        .setTextResponder((result, id) -> search.set(0, result))
+                                        .setTextResponder((result, id) -> search[0] = result)
                                         .setBackgroundText("machine.universal.search")
-                                        .setTextSupplier(() -> search.get(0))
+                                        .setTextSupplier(() -> search[0])
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
@@ -289,9 +289,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .useToggleTexture(true));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                                        .setTextResponder((result, id) -> search.set(1, result))
+                                        .setTextResponder((result, id) -> search[1] = result)
                                         .setBackgroundText("machine.universal.search")
-                                        .setTextSupplier(() -> search.get(1))
+                                        .setTextSupplier(() -> search[1])
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.ownerId));
@@ -353,9 +353,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                             innerWidgetGroup.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.allowed_players", this.channel))), 0x404040));
                                             innerWidgetGroup.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
                                                     .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                                                    .setTextResponder((result, id) -> search.set(2, result))
+                                                    .setTextResponder((result, id) -> search[2] = result)
                                                     .setBackgroundText("machine.universal.search")
-                                                    .setTextSupplier(() -> search.get(2))
+                                                    .setTextSupplier(() -> search[2])
                                                     .setMaxStringLength(256)
                                                     .setUpdateOnTyping(true));
                                             return true;
@@ -387,70 +387,70 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .build(this, player);
     }
 
-    private boolean addSearchTextWidgets(WidgetGroup widgetGroup, List<Integer> patternFlags, int i) {
-        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", patternFlags.get(i))), 0x404040));
+    private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
+        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags[i]))), 0x404040));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.UNIX_LINES))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][0] = pressed ? Pattern.UNIX_LINES : 0)
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
                 .setTooltipText("string.regex.pattern.unix_lines")
+                .setButtonSupplier(() -> patternFlags[i][0] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.CASE_INSENSITIVE))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][1] = pressed ? Pattern.CASE_INSENSITIVE : 0)
                 .setDisplayText("string.regex.pattern.case_insensitive.flag")
                 .setTooltipText("string.regex.pattern.case_insensitive")
+                .setButtonSupplier(() -> patternFlags[i][1] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.COMMENTS))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][2] = pressed ? Pattern.COMMENTS : 0)
                 .setDisplayText("string.regex.pattern.comments.flag")
+                .setButtonSupplier(() -> patternFlags[i][2] != 0)
                 .setTooltipText("string.regex.pattern.comments")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.MULTILINE))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][3] = pressed ? Pattern.MULTILINE : 0)
                 .setDisplayText("string.regex.pattern.multiline.flag")
                 .setTooltipText("string.regex.pattern.multiline")
+                .setButtonSupplier(() -> patternFlags[i][3] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.LITERAL))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][4] = pressed ? Pattern.LITERAL : 0)
                 .setDisplayText("string.regex.pattern.literal.flag")
+                .setButtonSupplier(() -> patternFlags[i][4] != 0)
                 .setTooltipText("string.regex.pattern.literal")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.DOTALL))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][5] = pressed ? Pattern.DOTALL : 0)
                 .setDisplayText("string.regex.pattern.dotall.flag")
+                .setButtonSupplier(() -> patternFlags[i][5] != 0)
                 .setTooltipText("string.regex.pattern.dotall")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.UNICODE_CASE))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][6] = pressed ? Pattern.UNICODE_CASE : 0)
                 .setDisplayText("string.regex.pattern.unicode_case.flag")
                 .setTooltipText("string.regex.pattern.unicode_case")
+                .setButtonSupplier(() -> patternFlags[i][6] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.CANON_EQ))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][7] = pressed ? Pattern.CANON_EQ : 0)
                 .setDisplayText("string.regex.pattern.canon_eq.flag")
+                .setButtonSupplier(() -> patternFlags[i][7] != 0)
                 .setTooltipText("string.regex.pattern.canon_eq")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
-                .setButtonResponder(s -> patternFlags.set(i, Pattern.UNICODE_CHARACTER_CLASS))
+                .setToggleButtonResponder((pressed, s) -> patternFlags[i][8] = pressed ? Pattern.UNICODE_CHARACTER_CLASS : 0)
                 .setDisplayText("string.regex.pattern.unicode_character_class.flag")
                 .setTooltipText("string.regex.pattern.unicode_character_class")
+                .setButtonSupplier(() -> patternFlags[i][8] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setButtonSupplier(() -> false)
                 .useToggleTexture(true));
         return false;
     }
@@ -610,59 +610,21 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
             this.getEnderProfile().getAllowedUsers().remove(uuid);
     }
 
-    private Consumer<List<ITextComponent>> addPlayerDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
-        return (textList) -> {
-            int count = 0, results = 0;
-            String name = search.get(2);
-            List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.players") + "§r(§e" + searchResults.get(2) + "§r/§e" + playerList.size() + "§r)"));
-            for (EntityPlayer player : playerList) {
-                String text = player.getDisplayNameString();
-                if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
-                    continue;
-                boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
-                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
-                        .appendText(" ")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
-                results++;
-            }
-            searchResults.set(2, results);
-        };
+    private int getFlags(int[] flags) {
+        int flag = 0;
+        for (int i : flags) {
+            flag |= i;
+        }
+        return flag;
     }
 
-    private Consumer<List<ITextComponent>> addChannelDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
+    private Consumer<List<ITextComponent>> addEntryDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
         return (textList) -> {
             int count = 0, results = 0;
-            String name = search.get(1);
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.channels") + "§r(§e" + searchResults.get(1) + "§r/§e" + this.getPlayerMap().size() + "§r)"));
-            for (Map.Entry<String, EnderCoverProfile<V>> entry : this.getPlayerMap().entrySet()) {
-                String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
-                if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(1)).matcher(text).find())
-                    continue;
-
-                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
-                        .appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
-                results++;
-            }
-            searchResults.set(1, results);
-        };
-    }
-
-    private Consumer<List<ITextComponent>> addEntryDisplayText(List<Integer> searchResults, List<Integer> patternFlags, List<String> search) {
-        return (textList) -> {
-            int count = 0, results = 0;
-            String name = search.get(0);
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.entries") + "§r(§e" + searchResults.get(0) + "§r/§e" + this.getEnderProfile().getEntries().size() + "§r)"));
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.entries") + "§r(§e" + searchResults[0] + "§r/§e" + this.getEnderProfile().getEntries().size() + "§r)"));
             for (Map.Entry<String, V> entry : this.getEnderProfile().getEntries().entrySet()) {
                 String text = entry.getKey();
-                if (!name.isEmpty() && !Pattern.compile(name, patternFlags.get(0)).matcher(text).find())
+                if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(patternFlags[0])).matcher(text).find())
                     continue;
 
                 ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
@@ -676,7 +638,50 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
                 results++;
             }
-            searchResults.set(0, results);
+            searchResults[0] = results;
+        };
+    }
+
+    private Consumer<List<ITextComponent>> addChannelDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
+        return (textList) -> {
+            int count = 0, results = 0;
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.channels") + "§r(§e" + searchResults[1] + "§r/§e" + this.getPlayerMap().size() + "§r)"));
+            for (Map.Entry<String, EnderCoverProfile<V>> entry : this.getPlayerMap().entrySet()) {
+                String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
+                if (!search[1].isEmpty() && !Pattern.compile(search[1], this.getFlags(patternFlags[1])).matcher(text).find())
+                    continue;
+
+                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
+                        .appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
+                results++;
+            }
+            searchResults[1] = results;
+        };
+    }
+
+    private Consumer<List<ITextComponent>> addPlayerDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
+        return (textList) -> {
+            int count = 0, results = 0;
+            List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.players") + "§r(§e" + searchResults[2] + "§r/§e" + playerList.size() + "§r)"));
+            for (EntityPlayer player : playerList) {
+                String text = player.getDisplayNameString();
+                if (!search[2].isEmpty() && !Pattern.compile(search[2], this.getFlags(patternFlags[2])).matcher(text).find())
+                    continue;
+                boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
+                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
+                        .appendText(" ")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
+                results++;
+            }
+            searchResults[2] = results;
         };
     }
 
