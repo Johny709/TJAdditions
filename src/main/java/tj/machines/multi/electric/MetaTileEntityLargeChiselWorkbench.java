@@ -64,12 +64,12 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
 
     public MetaTileEntityLargeChiselWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItems(() -> this.itemInputs)
-                .setExportItems(() -> this.itemOutputs)
-                .setImportEnergy(() -> this.energyInput)
+        this.workableHandler.setImportItemsSupplier(() -> this.itemInputs)
+                .setExportItemsSupplier(() -> this.itemOutputs)
+                .setImportEnergySupplier(() -> this.energyInput)
                 .setInputBus(this::getInputBus)
-                .setMaxVoltage(() -> this.maxVoltage)
-                .setParallel(() -> this.parallel);
+                .setMaxVoltageSupplier(() -> this.maxVoltage)
+                .setParallelSupplier(() -> this.parallel);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyInput)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEUt())
+                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEnergyPerTick())
                     .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")

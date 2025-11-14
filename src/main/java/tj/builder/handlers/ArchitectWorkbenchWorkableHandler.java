@@ -29,7 +29,7 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<A
     @Override
     protected boolean startRecipe() {
         boolean canStart = false;
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItems.get();
+        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItemsSupplier.get();
         if (this.findCatalyst(itemInputs) && this.findInputs(itemInputs)) {
             this.output = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), this.input.getCount());
             NBTTagCompound compound = this.catalyst.getTagCompound().copy();
@@ -46,8 +46,8 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<A
 
     @Override
     protected boolean completeRecipe() {
-        if (ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.output, true).isEmpty()) {
-            ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.output, false);
+        if (ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.output, true).isEmpty()) {
+            ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.output, false);
             if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
                 ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
             this.catalyst = null;
@@ -70,7 +70,7 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<A
     }
 
     private boolean findInputs(IItemHandlerModifiable itemInputs) {
-        int availableParallels = this.parallel.getAsInt();
+        int availableParallels = this.parallelSupplier.getAsInt();
         int count = 0;
         for (int i = 0; i < itemInputs.getSlots() && availableParallels != 0; i++) {
             ItemStack stack = itemInputs.getStackInSlot(i);

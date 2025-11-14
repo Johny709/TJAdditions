@@ -85,12 +85,12 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
 
     public MetaTileEntityLargeCrafter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.recipeLogic.setImportItems(() -> this.importItemInventory)
-                .setExportItems(() -> this.exportItemInventory)
-                .setImportEnergy(() -> this.energyContainer)
+        this.recipeLogic.setImportItemsSupplier(() -> this.importItemInventory)
+                .setExportItemsSupplier(() -> this.exportItemInventory)
+                .setImportEnergySupplier(() -> this.energyContainer)
                 .setInputBus((index) -> this.getAbilities(IMPORT_ITEMS).get(index))
-                .setMaxVoltage(() -> this.maxVoltage)
-                .setParallel(() -> this.parallel);
+                .setMaxVoltageSupplier(() -> this.maxVoltage)
+                .setParallelSupplier(() -> this.parallel);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.recipeLogic.hasNotEnoughEnergy(), this.recipeLogic.getEUt())
+                    .energyInput(!this.recipeLogic.hasNotEnoughEnergy(), this.recipeLogic.getEnergyPerTick())
                     .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")

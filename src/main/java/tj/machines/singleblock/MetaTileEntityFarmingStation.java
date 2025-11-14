@@ -71,14 +71,14 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         int range = (9 + (2 * tier)) * (9 + (2 * tier));
-        this.workableHandler.setImportItems(this::getImportItems)
-                .setExportItems(this::getExportItems)
-                .setImportFluids(this::getImportFluids)
+        this.workableHandler.setImportItemsSupplier(this::getImportItems)
+                .setExportItemsSupplier(this::getExportItems)
+                .setImportFluidsSupplier(this::getImportFluids)
                 .setToolInventory(() -> this.toolInventory)
                 .setFertilizerInventory(() -> this.fertilizerInventory)
-                .setImportEnergy(this::getEnergyContainer)
-                .setMaxVoltage(this::getMaxVoltage)
-                .setTier(this::getTier)
+                .setImportEnergySupplier(this::getEnergyContainer)
+                .setMaxVoltageSupplier(this::getMaxVoltage)
+                .setTierSupplier(this::getTier)
                 .initialize(range);
         this.initializeInventory();
     }

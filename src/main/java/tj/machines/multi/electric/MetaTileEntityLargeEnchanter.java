@@ -73,14 +73,14 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
 
     public MetaTileEntityLargeEnchanter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItems(() -> this.itemInputs)
-                .setExportItems(() -> this.itemOutputs)
-                .setImportFluids(() -> this.fluidInputs)
-                .setImportEnergy(() -> this.energyInput)
+        this.workableHandler.setImportItemsSupplier(() -> this.itemInputs)
+                .setExportItemsSupplier(() -> this.itemOutputs)
+                .setImportFluidsSupplier(() -> this.fluidInputs)
+                .setImportEnergySupplier(() -> this.energyInput)
                 .setInputBus(this::getInputBus)
-                .setMaxVoltage(() -> this.maxVoltage)
-                .setTier(() -> this.tier)
-                .setParallel(() -> parallel);
+                .setMaxVoltageSupplier(() -> this.maxVoltage)
+                .setTierSupplier(() -> this.tier)
+                .setParallelSupplier(() -> parallel);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyInput)
                     .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEUt())
+                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEnergyPerTick())
                     .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")

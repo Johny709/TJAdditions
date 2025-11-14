@@ -67,11 +67,11 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
 
     public MetaTileEntityVoidMOreMiner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.minerRecipeLogic.setExportItems(() -> this.outputInventory)
-                .setImportFluids(() -> this.importFluidHandler)
-                .setExportFluids(() -> this.exportFluidHandler)
-                .setImportEnergy(() -> this.energyContainer)
-                .setMaxVoltage(() -> this.maxVoltage);
+        this.minerRecipeLogic.setExportItemsSupplier(() -> this.outputInventory)
+                .setImportFluidsSupplier(() -> this.importFluidHandler)
+                .setExportFluidsSupplier(() -> this.exportFluidHandler)
+                .setImportEnergySupplier(() -> this.energyContainer)
+                .setMaxVoltageSupplier(() -> this.maxVoltage);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
-                    .energyInput(!this.minerRecipeLogic.hasNotEnoughEnergy(), this.minerRecipeLogic.getEUt())
+                    .energyInput(!this.minerRecipeLogic.hasNotEnoughEnergy(), this.minerRecipeLogic.getEnergyPerTick())
                     .temperature(this.minerRecipeLogic.heat(), this.minerRecipeLogic.maxHeat())
                     .isWorking(this.minerRecipeLogic.isWorkingEnabled(), this.minerRecipeLogic.isActive(), this.minerRecipeLogic.getProgress(), this.minerRecipeLogic.getMaxProgress());
             if (this.minerRecipeLogic.isOverheat())

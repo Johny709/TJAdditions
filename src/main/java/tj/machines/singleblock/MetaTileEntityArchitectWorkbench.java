@@ -30,11 +30,11 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
         super(metaTileEntityId, tier);
         this.initializeInventory();
         this.workableHandler.initialize(1)
-                .setImportItems(this::getImportItems)
-                .setExportItems(this::getExportItems)
-                .setImportEnergy(this::getEnergyContainer)
-                .setMaxVoltage(this::getMaxVoltage)
-                .setParallel(() -> 1);
+                .setImportItemsSupplier(this::getImportItems)
+                .setExportItemsSupplier(this::getExportItems)
+                .setImportEnergySupplier(this::getEnergyContainer)
+                .setMaxVoltageSupplier(this::getMaxVoltage)
+                .setParallelSupplier(() -> 1);
     }
 
     @Override

@@ -34,13 +34,13 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
     @Override
     protected boolean startRecipe() {
         boolean canStart = false;
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItems.get();
+        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItemsSupplier.get();
         int catalystSlotIndex = this.findCatalyst(itemInputs);
         if (catalystSlotIndex > -1 && this.findInputs(itemInputs, catalystSlotIndex, true)) {
             FluidStack fluid = FluidRegistry.getFluidStack("xpjuice", this.experience);
             if (this.hasEnoughFluid(fluid, this.experience)) {
                 this.findInputs(itemInputs, catalystSlotIndex, false);
-                this.importFluids.get().drain(fluid, true);
+                this.importFluidsSupplier.get().drain(fluid, true);
                 this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
                 canStart = true;
             }
@@ -54,8 +54,8 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), stack, false);
+            if (ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty()) {
+                ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, false);
                 this.outputIndex++;
             } else return false;
         }
@@ -111,7 +111,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
             boolean hasApplied = false;
             short catalystEnchant = catalystCompound.getShort("id");
             short catalystLevel = catalystCompound.getShort("lvl");
-            for (int j = 0; j < stackEnchants.tagCount() && parallelsUsed < this.parallel.getAsInt(); j++) {
+            for (int j = 0; j < stackEnchants.tagCount() && parallelsUsed < this.parallelSupplier.getAsInt(); j++) {
                 NBTTagCompound stackCompound = stackEnchants.getCompoundTagAt(i);
                 short stackEnchant = stackCompound.getShort("id");
                 short stackLevel = stackCompound.getShort("lvl");
@@ -119,7 +119,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
                     stackLevel = catalystLevel == stackLevel ? (short) (catalystLevel + 1)
                             : catalystLevel > stackLevel ? catalystLevel
                             : stackLevel;
-                    if (stackLevel > this.tier.getAsInt())
+                    if (stackLevel > this.tierSupplier.getAsInt())
                         continue;
                     hasApplied = true;
                     applied += stackLevel;
@@ -134,7 +134,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
                 NBTTagCompound newCatalystCompound = new NBTTagCompound();
                 newCatalystCompound.setShort("id", catalystEnchant);
                 newCatalystCompound.setShort("lvl", catalystLevel);
-                if (parallelsUsed < this.parallel.getAsInt()) {
+                if (parallelsUsed < this.parallelSupplier.getAsInt()) {
                     newStackEnchants.appendTag(newCatalystCompound);
                     applied += catalystLevel;
                     parallelsUsed++;

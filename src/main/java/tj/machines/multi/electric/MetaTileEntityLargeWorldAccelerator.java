@@ -4,9 +4,13 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.metatileentity.MTETrait;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
+import tj.builder.handlers.AcceleratorWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IParallelController;
@@ -14,9 +18,7 @@ import tj.capability.LinkEvent;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
 import tj.gui.TJGuiTextures;
-import tj.gui.uifactory.IPlayerUI;
 import tj.gui.uifactory.PlayerHolder;
-import tj.gui.widgets.OnTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.gui.widgets.TJClickButtonWidget;
 import tj.gui.widgets.TJTextFieldWidget;
@@ -35,94 +37,64 @@ import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.IWorkable;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.MetaTileEntityUIFactory;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.pipenet.block.material.TileEntityMaterialPipeBase;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
-import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
+import static tj.builder.handlers.AcceleratorWorkableHandler.AcceleratorMode.*;
 import static tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
 import static tj.gui.TJGuiTextures.SPACES_BUTTON;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController, IWorkable, IPlayerUI {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this);
 
-    private long energyPerTick;
-    private boolean isActive = false;
-    private AcceleratorMode acceleratorMode;
     private IMultipleTankHandler importFluidHandler;
     private IEnergyContainer energyContainer;
     private int tier;
-    private int gtAcceleratorTier;
-    private int energyMultiplier = 1;
-    private String[] entityLinkName;
-    private BlockPos[] entityLinkBlockPos;
-    private int fluidConsumption;
     private final int pageSize = 4;
     private int pageIndex;
-    private int progress;
-    private int maxProgress = 1;
-    private String renamePrompt = "";
-    private String searchPrompt = "";
-    private boolean isCaseSensitive;
-    private boolean hasSpaces;
-    private int searchResults;
-    private NBTTagCompound linkData;
 
     public MetaTileEntityLargeWorldAccelerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.acceleratorMode = AcceleratorMode.RANDOM_TICK;
-        this.isWorkingEnabled = false;
+        this.workableHandler.setImportFluidsSupplier(() -> this.importFluidHandler)
+                .setImportEnergySupplier(() -> this.energyContainer);
     }
 
     @Override
@@ -131,6 +103,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.large_world_accelerator.description"));
         tooltip.add(I18n.format("metaitem.item.linking.device.link.from"));
@@ -143,17 +116,17 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (isStructureFormed()) {
-            boolean randomTick = this.acceleratorMode == AcceleratorMode.RANDOM_TICK;
-            boolean tileEntity = this.acceleratorMode == AcceleratorMode.TILE_ENTITY;
+            boolean randomTick = this.workableHandler.getAcceleratorMode() == AcceleratorWorkableHandler.AcceleratorMode.RANDOM_TICK;
+            boolean tileEntity = this.workableHandler.getAcceleratorMode() == TILE_ENTITY;
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
-                    .energyInput(hasEnoughEnergy(this.energyPerTick), this.energyPerTick, this.maxProgress)
+                    .energyInput(this.energyContainer.getEnergyStored() >= this.workableHandler.getEnergyPerTick(), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
                     .fluidInput(hasEnoughFluid(this.fluidConsumption), UUMatter.getFluid(this.fluidConsumption))
                     .custom(text -> text.add(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
                             : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
                             : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
-                    .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
+                    .isWorking(this.isWorkingEnabled, this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
         }
     }
 
@@ -163,24 +136,13 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     private void addDisplayLinkedEntities2(List<ITextComponent> textList) {
         int searchResults = 0;
-        for (int i = 0; i < this.entityLinkName.length; i++) {
-            String name = this.entityLinkName[i] != null ? this.entityLinkName[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
-            String result = name, result2 = name;
+        for (int i = 0; i < this.workableHandler.getEntityLinkName().length; i++) {
+            String name = this.workableHandler.getEntityLinkName()[i] != null ? this.workableHandler.getEntityLinkName()[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
 
-            if (!this.isCaseSensitive) {
-                result = result.toLowerCase();
-                result2 = result2.toUpperCase();
-            }
 
-            if (!this.hasSpaces) {
-                result = result.replace(" ", "");
-                result2 = result2.replace(" ", "");
-            }
 
-            if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
-                continue;
 
-            BlockPos pos = this.entityLinkBlockPos[i] != null ? this.entityLinkBlockPos[i] : TJValues.DUMMY_POS;
+            BlockPos pos = this.workableHandler.getEntityLinkBlockPos()[i] != null ? this.workableHandler.getEntityLinkBlockPos()[i] : TJValues.DUMMY_POS;
             MetaTileEntity metaTileEntity = BlockMachine.getMetaTileEntity(this.getWorld(), pos);
             boolean isMetaTileEntity = metaTileEntity != null;
 
@@ -203,21 +165,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     protected int getExtended() {
         return 18;
-    }
-
-    @Override
-    public ModularUI createUI(PlayerHolder holder, EntityPlayer player) {
-        ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 80);
-        builder.widget(new ImageWidget(10, 10, 156, 18, DISPLAY));
-        OnTextFieldWidget onTextFieldWidget = new OnTextFieldWidget(15, 15, 151, 18, false, this::getRename, this::setRename);
-        onTextFieldWidget.setTooltipText("machine.universal.set.name");
-        onTextFieldWidget.setBackgroundText("machine.universal.set.name");
-        onTextFieldWidget.setTextLength(256);
-        onTextFieldWidget.setValidator(str -> Pattern.compile(".*").matcher(str).matches());
-        builder.widget(onTextFieldWidget);
-        builder.widget(new TJClickButtonWidget(10, 38, 156, 18, "OK", onTextFieldWidget::onResponder)
-                .setClickHandler(this::onPlayerPressed));
-        return builder.build(holder, player);
     }
 
     @Override
@@ -256,105 +203,25 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
         widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
                 .setTooltipText("machine.universal.tick.speed")
-                .setTooltipFormat(this::getTickSpeedFormat)
+                .setTooltipFormat(this.workableHandler::getTickSpeedFormat)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
         widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
         widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
-    }
-
-    private String getRename() {
-        return this.renamePrompt;
-    }
-
-    private void setRename(String name) {
-        String finalName = this.checkDuplicateNames(name, 1);
-        IntStream.range(0, this.entityLinkName.length)
-                .filter(i -> this.entityLinkName[i].equals(this.renamePrompt))
-                .forEach(i -> this.entityLinkName[i] = finalName);
-    }
-
-    private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
-        MetaTileEntityUIFactory.INSTANCE.openUI(this.getHolder(), (EntityPlayerMP) player);
-    }
-
-    private String[] getTickSpeedFormat() {
-        return ArrayUtils.toArray(String.valueOf(this.maxProgress));
-    }
-
-    private void onIncrement(Widget.ClickData clickData) {
-        this.maxProgress = MathHelper.clamp(this.maxProgress * 2, 1, Integer.MAX_VALUE);
-        this.markDirty();
-    }
-
-    private void onDecrement(Widget.ClickData clickData) {
-        this.maxProgress = MathHelper.clamp(this.maxProgress / 2, 1, Integer.MAX_VALUE);
-        this.markDirty();
-    }
-
-    private String getTickSpeed() {
-        return String.valueOf(this.maxProgress);
-    }
-
-    private void setTickSpeed(String maxProgress) {
-        this.maxProgress = maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress);
-        this.markDirty();
-    }
-
-    private String getSearchPrompt() {
-        return this.searchPrompt;
-    }
-
-    private void setSearchPrompt(String searchPrompt) {
-        this.searchPrompt = searchPrompt;
-        this.markDirty();
-    }
-
-    private void onClear(Widget.ClickData clickData) {
-        this.setSearchPrompt("");
-    }
-
-    private boolean isCaseSensitive() {
-        return this.isCaseSensitive;
-    }
-
-    private void setCaseSensitive(Boolean isCaseSensitive) {
-        this.isCaseSensitive = isCaseSensitive;
-        this.markDirty();
-    }
-
-    private boolean hasSpaces() {
-        return this.hasSpaces;
-    }
-
-    private void setSpaces(Boolean hasSpaces) {
-        this.hasSpaces = hasSpaces;
-        this.markDirty();
-    }
-
-    private boolean isReset() {
-        return false;
-    }
-
-    private void setReset(boolean reset) {
-        Arrays.fill(this.entityLinkName, null);
-        Arrays.fill(this.entityLinkBlockPos, null);
-        this.linkData.setInteger("I", getPosSize());
-        this.updateEnergyPerTick();
     }
 
     protected void handleLinkedDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
         if (componentData.equals("leftPage") && this.pageIndex > 0) {
             this.pageIndex -= this.pageSize;
 
-        } else if (componentData.equals("rightPage") && this.pageIndex < this.entityLinkBlockPos.length - this.pageSize) {
+        } else if (componentData.equals("rightPage") && this.pageIndex < this.workableHandler.getEntityLinkBlockPos().length - this.pageSize) {
             this.pageIndex += this.pageSize;
 
         } else if (componentData.startsWith("remove")) {
             String[] remove = componentData.split(":");
             int i = Integer.parseInt(remove[1]);
-            int index = linkData.getInteger("I");
+            int index = workableHandler.getLinkData().getInteger("I");
             this.linkData.setInteger("I", index + 1);
             this.entityLinkBlockPos[i] = null;
             this.entityLinkName[i] = null;
@@ -369,107 +236,14 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
     protected void updateFormedValid() {
-        if (getOffsetTimer() > 100) {
-            if (!this.isWorkingEnabled || this.getNumProblems() >= 6 || this.maxProgress < 1) {
-                if (this.isActive)
-                    this.setActive(false);
-                return;
-            }
-
-            if (this.progress > 0 && !this.isActive)
-                this.setActive(true);
-
-            if (this.progress >= this.maxProgress) {
-                if (this.hasEnoughEnergy(this.energyPerTick)) {
-                    WorldServer world = (WorldServer) this.getWorld();
-                    switch (this.acceleratorMode) {
-                        case TILE_ENTITY:
-                            for (BlockPos pos : this.entityLinkBlockPos) {
-                                if (pos == null) {
-                                    continue;
-                                }
-                                TileEntity targetTE = world.getTileEntity(pos);
-                                if (targetTE == null || targetTE instanceof TileEntityMaterialPipeBase || targetTE instanceof MetaTileEntityHolder) {
-                                    continue;
-                                }
-                                boolean horror = false;
-                                if (clazz != null && targetTE instanceof ITickable) {
-                                    horror = clazz.isInstance(targetTE);
-                                }
-                                if (targetTE instanceof ITickable && (!horror || !world.isRemote)) {
-                                    IntStream.range(0, (int) Math.pow(2, this.tier)).forEach(value -> ((ITickable) targetTE).update());
-                                }
-                            }
-                            break;
-
-                        case GT_TILE_ENTITY:
-                            if (this.gtAcceleratorTier < 1) {
-                                return;
-                            }
-                            if (this.hasEnoughFluid(this.fluidConsumption)) {
-                                this.importFluidHandler.drain(UUMatter.getFluid(this.fluidConsumption), true);
-                                if (this.entityLinkBlockPos[0] != null) {
-                                    MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, this.entityLinkBlockPos[0]);
-                                    if (targetGTTE == null || targetGTTE instanceof AcceleratorBlacklist) {
-                                        return;
-                                    }
-                                    IntStream.range(0, (int) Math.pow(4, this.gtAcceleratorTier)).forEach(value -> targetGTTE.update());
-                                }
-                            }
-                            break;
-
-                        case RANDOM_TICK:
-                            for (BlockPos blockPos : this.entityLinkBlockPos) {
-                                if (blockPos == null)
-                                    continue;
-                                MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, blockPos);
-                                if (targetGTTE instanceof MetaTileEntityAcceleratorAnchorPoint) {
-                                    if (((MetaTileEntityAcceleratorAnchorPoint) targetGTTE).isRedStonePowered())
-                                        continue;
-                                }
-                                BlockPos upperConner = blockPos.north(this.tier).east(this.tier);
-                                for (int x = 0; x < getArea(); x++) {
-                                    BlockPos row = upperConner.south(x);
-                                    for (int y = 0; y < getArea(); y++) {
-                                        BlockPos cell = row.west(y);
-                                        IBlockState targetBlock = world.getBlockState(cell);
-                                        IntStream.range(0, (int) Math.pow(2, this.tier)).forEach(value -> {
-                                            if (world.rand.nextInt(100) == 0) {
-                                                if (targetBlock.getBlock().getTickRandomly()) {
-                                                    targetBlock.getBlock().randomTick(world, cell, targetBlock, world.rand);
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                    }
-                    this.energyContainer.removeEnergy(this.energyPerTick);
-                }
-                this.calculateMaintenance(this.maxProgress);
-                this.progress = 0;
-                if (this.isActive)
-                    this.setActive(false);
-            }
-
-            if (this.progress <= 0) {
-                this.progress = 1;
-                if (!this.isActive)
-                    this.setActive(true);
-            } else {
-                this.progress++;
-            }
-        }
-    }
-
-    private void updateEnergyPerTick() {
-        long count = Arrays.stream(this.entityLinkBlockPos).filter(Objects::nonNull).count();
-        this.energyPerTick = (long) ((Math.pow(4, this.tier) * 8) * this.energyMultiplier) * count;
-    }
-
-    private boolean hasEnoughEnergy(long amount) {
-        return this.energyContainer.getEnergyStored() >= amount;
+        if (getOffsetTimer() > 100)
+            this.workableHandler.update();
     }
 
     private boolean hasEnoughFluid(int amount) {
@@ -477,60 +251,20 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         return fluidStack != null && fluidStack.amount == amount;
     }
 
-    public int getArea() {
-        return (this.tier * 2) + 1;
-    }
-
-    static Class clazz;
-
-    static {
-        try {
-            clazz = Class.forName("cofh.core.block.TileCore");
-        } catch (Exception ignored) {
-
-        }
-    }
-
-    private void setLinkedEntitiesPos(MetaTileEntity metaTileEntity) {
-        if (this.entityLinkBlockPos != null)
-            Arrays.stream(this.entityLinkBlockPos)
-                    .filter(Objects::nonNull)
-                    .map(blockPos -> BlockMachine.getMetaTileEntity(getWorld(), blockPos))
-                    .filter(entity -> entity instanceof LinkEvent)
-                    .forEach(entity -> ((LinkEvent) entity).onLink(metaTileEntity));
-    }
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
-        this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         FieldGenCasing.CasingType fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV);
         EmitterCasing.CasingType emitter = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV);
         this.tier = Math.min(fieldGen.getTier(), emitter.getTier());
-        this.gtAcceleratorTier = this.tier - GAValues.UHV;
-        if (this.acceleratorMode == AcceleratorMode.GT_TILE_ENTITY) {
-            this.entityLinkName = this.entityLinkName != null ? this.entityLinkName : new String[1];
-            this.entityLinkBlockPos = this.entityLinkBlockPos != null ? this.entityLinkBlockPos : new BlockPos[1];
-        } else {
-            this.entityLinkName = this.entityLinkName != null ? Arrays.copyOf(this.entityLinkName, this.tier) : new String[this.tier];
-            this.entityLinkBlockPos = this.entityLinkBlockPos != null ? Arrays.copyOf(this.entityLinkBlockPos, this.tier) : new BlockPos[this.tier];
-        }
-        this.fluidConsumption = (int) Math.pow(4, this.gtAcceleratorTier - 1) * 1000;
-        this.setLinkedEntitiesPos(this);
-        this.updateEnergyPerTick();
-        if (this.linkData != null) {
-            int size = this.linkData.getInteger("Size") - this.entityLinkBlockPos.length;
-            int remaining = Math.max(0, (this.linkData.getInteger("I") - size));
-            this.linkData.setInteger("Size", this.entityLinkBlockPos.length);
-            this.linkData.setInteger("I", remaining);
-        }
+        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
     }
 
     @Override
     public void onRemoval() {
         if (!this.getWorld().isRemote)
-            this.setLinkedEntitiesPos(null);
+            this.workableHandler.setLinkedEntitiesPos(null);
         super.onRemoval();
     }
 
@@ -560,31 +294,32 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        Textures.AMPLIFAB_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive);
+        Textures.AMPLIFAB_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.workableHandler.isActive());
     }
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         String tileMode = "null";
-        switch (this.acceleratorMode) {
+        switch (this.workableHandler.getAcceleratorMode()) {
             case RANDOM_TICK:
-                this.acceleratorMode = AcceleratorMode.TILE_ENTITY;
+                this.workableHandler.setAcceleratorMode(TILE_ENTITY);
                 this.energyMultiplier = 1;
                 this.entityLinkName = new String[this.tier];
                 this.entityLinkBlockPos = new BlockPos[this.tier];
                 tileMode = "gregtech.machine.world_accelerator.mode.tile";
                 break;
              case TILE_ENTITY:
-                 this.acceleratorMode = AcceleratorMode.GT_TILE_ENTITY;
+                 this.workableHandler.setAcceleratorMode(GT_TILE_ENTITY);
                  this.energyMultiplier = 64;
                  this.entityLinkName = new String[1];
                  this.entityLinkBlockPos = new BlockPos[1];
                  tileMode = "tj.multiblock.large_world_accelerator.mode.GT";
                  break;
             case GT_TILE_ENTITY:
-                this.acceleratorMode = AcceleratorMode.RANDOM_TICK;
+                this.workableHandler.setAcceleratorMode(RANDOM_TICK);
                 this.energyMultiplier = 1;
                 this.entityLinkName = new String[this.tier];
                 this.entityLinkBlockPos = new BlockPos[this.tier];
@@ -599,83 +334,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             playerIn.sendStatusMessage(new TextComponentTranslation(tileMode), false);
         }
         return true;
-    }
-
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        NBTTagList linkList = new NBTTagList();
-        for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
-            if (this.entityLinkBlockPos[i] != null) {
-                NBTTagCompound tag = new NBTTagCompound();
-                tag.setInteger("Index", i);
-                tag.setDouble("X", this.entityLinkBlockPos[i].getX());
-                tag.setDouble("Y", this.entityLinkBlockPos[i].getY());
-                tag.setDouble("Z", this.entityLinkBlockPos[i].getZ());
-                tag.setString("Name", this.entityLinkName[i]);
-                linkList.appendTag(tag);
-            }
-        }
-        data.setTag("Links", linkList);
-        data.setLong("EnergyPerTick", this.energyPerTick);
-        data.setInteger("Progress", this.progress);
-        data.setInteger("MaxProgress", this.maxProgress);
-        data.setInteger("EnergyMultiplier", this.energyMultiplier);
-        data.setInteger("AcceleratorMode", this.acceleratorMode.ordinal());
-        data.setInteger("BlockPosSize", this.entityLinkBlockPos.length);
-        if (this.linkData != null)
-            data.setTag("Link.XYZ", this.linkData);
-        return data;
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.energyMultiplier = data.getInteger("EnergyMultiplier");
-        this.energyPerTick = data.getLong("EnergyPerTick");
-        this.acceleratorMode = AcceleratorMode.values()[data.getInteger("AcceleratorMode")];
-        this.entityLinkName = new String[data.getInteger("BlockPosSize")];
-        this.entityLinkBlockPos = new BlockPos[data.getInteger("BlockPosSize")];
-        this.maxProgress = data.hasKey("MaxProgress") ? data.getInteger("MaxProgress") : 1;
-        this.progress = data.getInteger("Progress");
-        NBTTagList linkList = data.getTagList("Links", Constants.NBT.TAG_COMPOUND);
-        for (NBTBase nbtBase : linkList) {
-            NBTTagCompound tag = (NBTTagCompound) nbtBase;
-            int i = tag.getInteger("Index");
-            this.entityLinkBlockPos[i] = new BlockPos(tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z"));
-            this.entityLinkName[i] = tag.getString("Name");
-        }
-        if (data.hasKey("Link.XYZ"))
-            this.linkData = data.getCompoundTag("Link.XYZ");
-    }
-
-    protected void setActive(boolean active) {
-        this.isActive = active;
-        this.markDirty();
-        if (!getWorld().isRemote) {
-            this.writeCustomData(1, buf -> buf.writeBoolean(active));
-        }
-    }
-
-    @Override
-    public void receiveCustomData(int dataId, PacketBuffer buf) {
-        super.receiveCustomData(dataId, buf);
-        if (dataId == 1) {
-            this.isActive = buf.readBoolean();
-            this.getHolder().scheduleChunkForRenderUpdate();
-        }
-    }
-
-    @Override
-    public void writeInitialSyncData(PacketBuffer buf) {
-        super.writeInitialSyncData(buf);
-        buf.writeBoolean(this.isActive);
-    }
-
-    @Override
-    public void receiveInitialSyncData(PacketBuffer buf) {
-        super.receiveInitialSyncData(buf);
-        this.isActive = buf.readBoolean();
     }
 
     @Override
@@ -734,17 +392,17 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public void setLinkData(NBTTagCompound linkData) {
-        this.linkData = linkData;
+        this.workableHandler.setLinkData(linkData);
     }
 
     @Override
     public NBTTagCompound getLinkData() {
-        return this.linkData;
+        return this.workableHandler.getLinkData();
     }
 
     @Override
     public void onLink(MetaTileEntity tileEntity) {
-        this.updateEnergyPerTick();
+        this.workableHandler.updateEnergyPerTick();
     }
 
     @Override
@@ -759,7 +417,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public long getTotalEnergyConsumption() {
-        return this.energyPerTick;
+        return this.workableHandler.getEnergyPerTick();
     }
 
     @Override
@@ -776,22 +434,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
         return super.getCapability(capability, side);
-    }
-
-    @Override
-    public int getProgress() {
-        return this.progress;
-    }
-
-    @Override
-    public int getMaxProgress() {
-        return this.maxProgress;
-    }
-
-    public enum AcceleratorMode {
-        RANDOM_TICK,
-        TILE_ENTITY,
-        GT_TILE_ENTITY
     }
 
 }

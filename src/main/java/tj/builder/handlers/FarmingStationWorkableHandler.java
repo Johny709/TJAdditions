@@ -78,8 +78,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         super.initialize(range);
         this.range = range;
         this.radius = (int) Math.sqrt(range);
-        this.fertilizerChance = this.tier.getAsInt() * 10;
-        int amount = this.tier.getAsInt() >= GTValues.ZPM ? 4 : this.tier.getAsInt() >= GTValues.EV ? 2 : 1;
+        this.fertilizerChance = this.tierSupplier.getAsInt() * 10;
+        int amount = this.tierSupplier.getAsInt() >= GTValues.ZPM ? 4 : this.tierSupplier.getAsInt() >= GTValues.EV ? 2 : 1;
         this.harvesters = new Harvester[amount];
         for (int i = 0; i < this.harvesters.length; i++) {
             this.harvesters[i] = new Harvester();
@@ -124,8 +124,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
 
     @Override
     protected boolean completeRecipe() {
-        IItemHandlerModifiable importItems = this.importItems.get();
-        IItemHandlerModifiable exportItems = this.exportItems.get();
+        IItemHandlerModifiable importItems = this.importItemsSupplier.get();
+        IItemHandlerModifiable exportItems = this.exportItemsSupplier.get();
         for (int i = 0; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
             Block block = Block.getBlockFromItem(stack.getItem());
@@ -232,7 +232,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             if (block == Blocks.AIR) {
                 IBlockState itemState = null;
                 ItemStack stack = ItemStack.EMPTY;
-                IItemHandlerModifiable input = importItems.get();
+                IItemHandlerModifiable input = importItemsSupplier.get();
                 for (int i = 0; i < input.getSlots(); i++) {
                     stack = input.getStackInSlot(i);
                     Block itemBlock = Block.getBlockFromItem(stack.getItem());
@@ -262,7 +262,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             state = world.getBlockState(this.posHarvester);
             block = state.getBlock();
             if (block instanceof BlockFarmland && state.getValue(BlockFarmland.MOISTURE) < 7) {
-                IFluidHandler tank = importFluids.get();
+                IFluidHandler tank = importFluidsSupplier.get();
                 FluidStack drain = tank.drain(100, false);
                 if (drain != null && drain.amount == 100) {
                     tank.drain(100, true);
@@ -396,7 +396,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         }
 
         private boolean outputTool(ItemStack stack) {
-            IItemHandlerModifiable output = exportItems.get();
+            IItemHandlerModifiable output = exportItemsSupplier.get();
             if (ItemStackHelper.insertIntoItemHandler(output, stack, true).isEmpty()) {
                 ItemStackHelper.insertIntoItemHandler(output, stack, false);
                 return true;

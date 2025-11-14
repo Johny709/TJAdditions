@@ -30,7 +30,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<Chis
     @Override
     protected boolean startRecipe() {
         boolean canStart = false;
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItems.get();
+        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItemsSupplier.get();
         if (this.findCircuit(itemInputs) && this.findInputs(itemInputs)) {
             List<ICarvingVariation> carvingGroups = CarvingUtils.getChiselRegistry().getGroup(this.input).getVariations();
             int variation = Math.min(this.circuitNumber, carvingGroups.size() - 1);
@@ -46,8 +46,8 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<Chis
 
     @Override
     protected boolean completeRecipe() {
-        if (ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.output, true).isEmpty()) {
-            ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.output, false);
+        if (ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.output, true).isEmpty()) {
+            ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.output, false);
             this.input = null;
             this.output = null;
             return true;
@@ -68,7 +68,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<Chis
     }
 
     private boolean findInputs(IItemHandlerModifiable itemInputs) {
-        int availableParallels = this.parallel.getAsInt();
+        int availableParallels = this.parallelSupplier.getAsInt();
         int count = 0;
         for (int i = 0; i < itemInputs.getSlots(); i++) {
             ItemStack stack = itemInputs.getStackInSlot(i);

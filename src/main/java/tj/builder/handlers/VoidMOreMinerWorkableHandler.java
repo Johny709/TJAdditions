@@ -65,16 +65,16 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<VoidMO
         boolean hasEnoughPyrotheum = this.hasEnoughFluid(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
         boolean hasEnoughCryotheum = this.hasEnoughFluid(Cryotheum.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
         if (hasEnoughPyrotheum && hasEnoughCryotheum) {
-            this.fluidInputsList.add(this.importFluids.get().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
-            this.fluidInputsList.add(this.importFluids.get().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
+            this.fluidInputsList.add(this.importFluidsSupplier.get().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
+            this.fluidInputsList.add(this.importFluidsSupplier.get().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
             canMineOres = true;
         } else if (hasEnoughPyrotheum) {
-            this.fluidInputsList.add(this.importFluids.get().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
+            this.fluidInputsList.add(this.importFluidsSupplier.get().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
             this.temperature += (long) (this.currentDrillingFluid / 100.0);
             this.currentDrillingFluid *= 1.02;
             canMineOres = true;
         } else if (hasEnoughCryotheum) {
-            this.fluidInputsList.add(this.importFluids.get().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
+            this.fluidInputsList.add(this.importFluidsSupplier.get().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
             this.currentDrillingFluid /= 1.02;
             this.temperature -= (long) (this.currentDrillingFluid / 100.0);
         } else {
@@ -96,8 +96,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<VoidMO
         boolean hasEnoughDrillingMud = this.hasEnoughFluid(DrillingMud.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
         boolean canOutputUsedDrillingMud = this.canOutputFluid(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
         if (hasEnoughDrillingMud && canOutputUsedDrillingMud) {
-            this.fluidInputsList.add(this.importFluids.get().drain(DrillingMud.getFluid(this.getCurrentDrillingFluid()), true));
-            int outputAmount = this.exportFluids.get().fill(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), true);
+            this.fluidInputsList.add(this.importFluidsSupplier.get().drain(DrillingMud.getFluid(this.getCurrentDrillingFluid()), true));
+            int outputAmount = this.exportFluidsSupplier.get().fill(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), true);
             this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
             long nbOres = this.temperature / 1000;
 
@@ -110,7 +110,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<VoidMO
                         .collect(Collectors.toCollection(ArrayList::new)));
             }
         } else return false;
-        this.energyPerTick = this.maxVoltage.getAsLong();
+        this.energyPerTick = this.maxVoltageSupplier.getAsLong();
         return true;
     }
 
@@ -128,7 +128,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<VoidMO
 
     @Override
     protected boolean completeRecipe() {
-        this.oreOutputs.forEach(ore -> ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), ore, false));
+        this.oreOutputs.forEach(ore -> ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), ore, false));
         this.fluidInputsList.clear();
         this.fluidOutputsList.clear();
         this.oreOutputs.clear();

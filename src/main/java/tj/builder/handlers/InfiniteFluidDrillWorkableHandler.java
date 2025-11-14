@@ -70,11 +70,11 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         FluidStack drillingMud = DrillingMud.getFluid(this.drillingMudAmount);
         FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.drillingMudAmount);
         if (this.hasEnoughFluid(drillingMud, this.drillingMudAmount) && this.canOutputFluid(usedDrillingMud, this.drillingMudAmount)) {
-            this.fluidInputsList.add(this.importFluids.get().drain(DrillingMud.getFluid(this.drillingMudAmount), true));
-            int outputAmount = this.exportFluids.get().fill(UsedDrillingMud.getFluid(this.drillingMudAmount), true);
+            this.fluidInputsList.add(this.importFluidsSupplier.get().drain(DrillingMud.getFluid(this.drillingMudAmount), true));
+            int outputAmount = this.exportFluidsSupplier.get().fill(UsedDrillingMud.getFluid(this.drillingMudAmount), true);
             this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
             this.fluidOutputsList.addAll(Arrays.asList(this.veinFluidStack));
-            this.energyPerTick = this.maxVoltage.getAsLong();
+            this.energyPerTick = this.maxVoltageSupplier.getAsLong();
             return true;
         }
         return false;
@@ -85,7 +85,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         for (int i = this.outputIndex; i < this.veinFluidStack.length; i++) {
             if (!this.canOutputFluid(this.veinFluidStack[i], this.outputVeinFluidAmount[i]))
                 return false;
-            this.exportFluids.get().fill(this.veinFluidStack[i], true);
+            this.exportFluidsSupplier.get().fill(this.veinFluidStack[i], true);
             this.outputIndex++;
         }
         this.fluidInputsList.clear();

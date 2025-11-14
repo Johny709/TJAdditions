@@ -40,13 +40,13 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
         super(metaTileEntityId, tier);
         this.tank = new FluidTank(64000);
         this.workableHandler.initialize(1)
-                .setImportItems(this::getImportItems)
-                .setExportItems(this::getExportItems)
-                .setImportFluids(this::getImportFluids)
-                .setImportEnergy(this::getEnergyContainer)
-                .setMaxVoltage(this::getMaxVoltage)
-                .setTier(this::getTier)
-                .setParallel(() -> 1);
+                .setImportItemsSupplier(this::getImportItems)
+                .setExportItemsSupplier(this::getExportItems)
+                .setImportFluidsSupplier(this::getImportFluids)
+                .setImportEnergySupplier(this::getEnergyContainer)
+                .setMaxVoltageSupplier(this::getMaxVoltage)
+                .setTierSupplier(this::getTier)
+                .setParallelSupplier(() -> 1);
         this.initializeInventory();
     }
 

@@ -83,7 +83,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
     }
 
     private boolean trySearchForRecipe(IItemHandlerModifiable importItems) {
-        int parallels = this.parallel.getAsInt();
+        int parallels = this.parallelSupplier.getAsInt();
         Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> currentRecipe = this.previousRecipe.get(importItems);
         if (currentRecipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(importItems))) {
             this.recipeRecheck = false;
@@ -131,7 +131,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
     @Override
     protected boolean startRecipe() {
         boolean canStart = false;
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItems.get();
+        IItemHandlerModifiable itemInputs = this.isDistinct ? this.inputBus.apply(this.lastInputIndex) : this.importItemsSupplier.get();
         if (this.trySearchForRecipe(itemInputs)) {
             this.maxProgress = this.calculateOverclock(30, 50, 2.8F);
             canStart = true;
@@ -143,8 +143,8 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
 
     @Override
     protected boolean completeRecipe() {
-        if (this.voidOutputs || ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.itemOutputs.get(0), true).isEmpty()) {
-            ItemStackHelper.insertIntoItemHandler(this.exportItems.get(), this.itemOutputs.get(0), false);
+        if (this.voidOutputs || ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.itemOutputs.get(0), true).isEmpty()) {
+            ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.itemOutputs.get(0), false);
             this.itemInputs.clear();
             this.itemOutputs.clear();
             this.recipeRecheck = true;

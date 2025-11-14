@@ -77,11 +77,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.parallel = parallel;
-        this.boilerRecipeLogic.setImportItems(() -> this.itemImportInventory)
-                .setExportItems(() -> this.itemExportInventory)
-                .setImportFluids(() -> this.fluidImportInventory)
-                .setExportFluids(() -> this.steamOutputTank)
-                .setParallel(this::getParallel)
+        this.boilerRecipeLogic.setImportItemsSupplier(() -> this.itemImportInventory)
+                .setExportItemsSupplier(() -> this.itemExportInventory)
+                .setImportFluidsSupplier(() -> this.fluidImportInventory)
+                .setExportFluidsSupplier(() -> this.steamOutputTank)
+                .setParallelSupplier(this::getParallel)
                 .setActive(this::replaceFireboxAsActive);
         this.reinitializeStructurePattern();
     }
