@@ -11,6 +11,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -137,10 +138,8 @@ public class EnderCoverItem extends AbstractEnderCover<LargeItemStackHandler> {
         int capacity = value.getCapacity();
         int amount = !empty ? item.getCount() : 0;
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
-                .appendText("§b ")
-                .appendText(String.valueOf(amount))
-                .appendText(" §r/§b ")
-                .appendText(String.valueOf(capacity))));
+                .appendText("\n")
+                .appendText(I18n.translateToLocalFormatted("machine.universal.item.stored", amount, capacity))));
     }
 
     @Override

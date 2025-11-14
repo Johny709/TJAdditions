@@ -103,12 +103,10 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
                 super.readUpdateInfo(id, buffer);
                 if (id == 1) {
                     this.energyStored = buffer.readLong();
-                }
-                if (id == 2) {
+                } else if (id == 2) {
                     this.energyCapacity = buffer.readLong();
                 }
             }
-
         }.setProgressBar(BAR_STEEL, BAR_HEAT, VERTICAL));
     }
 

@@ -22,8 +22,9 @@ public class EnderCoverBehaviour implements IItemBehaviour {
 
     @Override
     public void addInformation(ItemStack itemStack, List<String> lines) {
-        lines.add(I18n.format("metaitem.ender_cover.transfer", transferRate));
-        lines.add(I18n.format("metaitem.ender_cover.capacity", capacity));
+        lines.add(I18n.format("metaitem.ender_cover.description"));
+        lines.add(I18n.format("metaitem.ender_cover.transfer", this.transferRate));
+        lines.add(I18n.format("metaitem.ender_cover.capacity", this.capacity));
     }
 
     public enum EnderCoverType {

@@ -106,10 +106,8 @@ public class EnderCoverFluid extends AbstractEnderCover<FluidTank> {
         int capacity = value.getCapacity();
         int amount = !empty ? fluid.amount : 0;
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
-                .appendText("§b ")
-                .appendText(amount + "L")
-                .appendText(" §r/§b ")
-                .appendText(capacity + "L")));
+                .appendText("\n")
+                .appendText(I18n.translateToLocalFormatted("gregtech.fluid.amount", amount, capacity))));
     }
 
     @Override
