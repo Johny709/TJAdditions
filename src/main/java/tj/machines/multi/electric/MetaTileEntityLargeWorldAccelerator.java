@@ -22,6 +22,7 @@ import tj.gui.uifactory.PlayerHolder;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.gui.widgets.TJClickButtonWidget;
 import tj.gui.widgets.TJTextFieldWidget;
+import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.items.TJMetaItems;
 import tj.machines.AcceleratorBlacklist;
 import tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
@@ -34,7 +35,6 @@ import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.block.machines.BlockMachine;
-import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
@@ -122,7 +122,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
                     .energyInput(this.energyContainer.getEnergyStored() >= this.workableHandler.getEnergyPerTick(), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInput(hasEnoughFluid(this.fluidConsumption), UUMatter.getFluid(this.fluidConsumption))
+                    .fluidInput(hasEnoughFluid(this.workableHandler.getFluidConsumption()), UUMatter.getFluid(this.workableHandler.getFluidConsumption()))
                     .custom(text -> text.add(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
                             : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
                             : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
@@ -131,7 +131,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     private void addDisplayLinkedEntities(List<ITextComponent> textList) {
-        textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + this.searchResults + "§r/§e" + this.entityLinkName.length + "§r)"));
+        textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + this.searchResults + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)"));
     }
 
     private void addDisplayLinkedEntities2(List<ITextComponent> textList) {
@@ -171,23 +171,17 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
         tabBuilder.addTab("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab -> {
-            ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
-                @Override
-                public boolean isWidgetClickable(Widget widget) {
-                    return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-                }
-            };
-            scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedEntities2, 0xFFFFFF)
-                    .addClickHandler(this::handleLinkedDisplayClick)
-                    .setMaxWidthLimit(1000));
             linkedEntitiesDisplayTab.addWidget(new AdvancedTextWidget(10, -20, this::addDisplayLinkedEntities, 0xFFFFFF));
-            linkedEntitiesDisplayTab.addWidget(scrollWidget);
+            linkedEntitiesDisplayTab.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
+                    .addTextWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedEntities2, 0xFFFFFF)
+                            .addClickHandler(this::handleLinkedDisplayClick)
+                            .setMaxWidthLimit(1000)));
             linkedEntitiesDisplayTab.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
                     .setTooltipText("machine.universal.case_sensitive"));
             linkedEntitiesDisplayTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
                     .setTooltipText("machine.universal.spaces"));
             linkedEntitiesDisplayTab.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
-            linkedEntitiesDisplayTab.addWidget(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
+            linkedEntitiesDisplayTab.addWidget(new TJClickButtonWidget(172, 112, 18, 18, "", this.workableHandler::onClear)
                     .setTooltipText("machine.universal.toggle.clear")
                     .setButtonTexture(BUTTON_CLEAR_GRID));
             linkedEntitiesDisplayTab.addWidget(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
@@ -201,13 +195,13 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     protected void mainDisplayTab(WidgetGroup widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
+        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), this.workableHandler::setTickSpeed)
                 .setTooltipText("machine.universal.tick.speed")
                 .setTooltipFormat(this.workableHandler::getTickSpeedFormat)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
-        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setReset)
+        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", this.workableHandler::onIncrement));
+        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", this.workableHandler::onDecrement));
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
@@ -222,10 +216,10 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             String[] remove = componentData.split(":");
             int i = Integer.parseInt(remove[1]);
             int index = workableHandler.getLinkData().getInteger("I");
-            this.linkData.setInteger("I", index + 1);
-            this.entityLinkBlockPos[i] = null;
-            this.entityLinkName[i] = null;
-            this.updateEnergyPerTick();
+            this.workableHandler.getLinkData().setInteger("I", index + 1);
+            this.workableHandler.getEntityLinkBlockPos()[i] = null;
+            this.workableHandler.getEntityLinkName()[i] = null;
+            this.workableHandler.updateEnergyPerTick();
 
         } else if (componentData.startsWith("rename")) {
             String[] rename = componentData.split(":");
@@ -302,38 +296,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        String tileMode = "null";
-        switch (this.workableHandler.getAcceleratorMode()) {
-            case RANDOM_TICK:
-                this.workableHandler.setAcceleratorMode(TILE_ENTITY);
-                this.energyMultiplier = 1;
-                this.entityLinkName = new String[this.tier];
-                this.entityLinkBlockPos = new BlockPos[this.tier];
-                tileMode = "gregtech.machine.world_accelerator.mode.tile";
-                break;
-             case TILE_ENTITY:
-                 this.workableHandler.setAcceleratorMode(GT_TILE_ENTITY);
-                 this.energyMultiplier = 64;
-                 this.entityLinkName = new String[1];
-                 this.entityLinkBlockPos = new BlockPos[1];
-                 tileMode = "tj.multiblock.large_world_accelerator.mode.GT";
-                 break;
-            case GT_TILE_ENTITY:
-                this.workableHandler.setAcceleratorMode(RANDOM_TICK);
-                this.energyMultiplier = 1;
-                this.entityLinkName = new String[this.tier];
-                this.entityLinkBlockPos = new BlockPos[this.tier];
-                tileMode = "gregtech.machine.world_accelerator.mode.entity";
-        }
-        this.energyPerTick = (long) (Math.pow(4, this.tier) * 8) * this.energyMultiplier;
-        if (this.linkData != null) {
-            this.linkData.setInteger("Size", this.entityLinkBlockPos.length);
-            this.linkData.setInteger("I", this.entityLinkBlockPos.length);
-        }
-        if (this.getWorld().isRemote) {
-            playerIn.sendStatusMessage(new TextComponentTranslation(tileMode), false);
-        }
-        return true;
+        return this.workableHandler.onScrewDriverClick(playerIn, hand, facing, hitResult);
     }
 
     @Override
@@ -343,23 +306,23 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public int getPosSize() {
-        return this.entityLinkBlockPos.length;
+        return this.workableHandler.getEntityLinkBlockPos().length;
     }
 
     @Override
     public BlockPos getPos(int i) {
-        return this.entityLinkBlockPos[i];
+        return this.workableHandler.getEntityLinkBlockPos()[i];
     }
 
     @Override
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
         name = this.checkDuplicateNames(name, 1);
-        this.entityLinkName[index] = name;
-        this.entityLinkBlockPos[index] = pos;
+        this.workableHandler.getEntityLinkName()[index] = name;
+        this.workableHandler.getEntityLinkBlockPos()[index] = pos;
     }
 
     private String checkDuplicateNames(String name, int count) {
-        if (!Arrays.asList(this.entityLinkName).contains(name))
+        if (!Arrays.asList(this.workableHandler.getEntityLinkName()).contains(name))
             return name;
         if (count > 1) {
             String[] split = name.split(" ");
@@ -427,8 +390,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
-            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
         if (capability == TJCapabilities.CAPABILITY_LINK_POS)
             return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)

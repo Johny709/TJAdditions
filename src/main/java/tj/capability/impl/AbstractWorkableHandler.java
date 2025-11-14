@@ -20,15 +20,15 @@ import java.util.function.*;
 
 public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<R>> extends MTETrait implements IWorkable {
 
-    protected Supplier<IItemHandlerModifiable> importItems;
-    protected Supplier<IItemHandlerModifiable> exportItems;
-    protected Supplier<IFluidHandler> importFluids;
-    protected Supplier<IFluidHandler> exportFluids;
-    protected Supplier<IEnergyContainer> importEnergy;
+    protected Supplier<IItemHandlerModifiable> importItemsSupplier;
+    protected Supplier<IItemHandlerModifiable> exportItemsSupplier;
+    protected Supplier<IFluidHandler> importFluidsSupplier;
+    protected Supplier<IFluidHandler> exportFluidsSupplier;
+    protected Supplier<IEnergyContainer> importEnergySupplier;
     protected IntFunction<IItemHandlerModifiable> inputBus;
-    protected LongSupplier maxVoltage;
-    protected IntSupplier tier;
-    protected IntSupplier parallel;
+    protected LongSupplier maxVoltageSupplier;
+    protected IntSupplier tierSupplier;
+    protected IntSupplier parallelSupplier;
     private BooleanConsumer activeConsumer;
     protected boolean isWorking = true;
     protected boolean isActive;
@@ -59,42 +59,42 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     /**
-     * @param importItems Item input supplier
+     * @param importItemsSupplier Item input supplier
      */
-    public R setImportItems(Supplier<IItemHandlerModifiable> importItems) {
-        this.importItems = importItems;
+    public R setImportItemsSupplier(Supplier<IItemHandlerModifiable> importItemsSupplier) {
+        this.importItemsSupplier = importItemsSupplier;
         return (R) this;
     }
 
     /**
-     * @param exportItems Item output supplier
+     * @param exportItemsSupplier Item output supplier
      */
-    public R setExportItems(Supplier<IItemHandlerModifiable> exportItems) {
-        this.exportItems = exportItems;
+    public R setExportItemsSupplier(Supplier<IItemHandlerModifiable> exportItemsSupplier) {
+        this.exportItemsSupplier = exportItemsSupplier;
         return (R) this;
     }
 
     /**
-     * @param importFluids Fluid input supplier
+     * @param importFluidsSupplier Fluid input supplier
      */
-    public R setImportFluids(Supplier<IFluidHandler> importFluids) {
-        this.importFluids = importFluids;
+    public R setImportFluidsSupplier(Supplier<IFluidHandler> importFluidsSupplier) {
+        this.importFluidsSupplier = importFluidsSupplier;
         return (R) this;
     }
 
     /**
-     * @param exportFluids Fluid output supplier
+     * @param exportFluidsSupplier Fluid output supplier
      */
-    public R setExportFluids(Supplier<IFluidHandler> exportFluids) {
-        this.exportFluids = exportFluids;
+    public R setExportFluidsSupplier(Supplier<IFluidHandler> exportFluidsSupplier) {
+        this.exportFluidsSupplier = exportFluidsSupplier;
         return (R) this;
     }
 
     /**
-     * @param importEnergy Energy Input supplier
+     * @param importEnergySupplier Energy Input supplier
      */
-    public R setImportEnergy(Supplier<IEnergyContainer> importEnergy) {
-        this.importEnergy = importEnergy;
+    public R setImportEnergySupplier(Supplier<IEnergyContainer> importEnergySupplier) {
+        this.importEnergySupplier = importEnergySupplier;
         return (R) this;
     }
 
@@ -107,26 +107,26 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     /**
-     * @param maxVoltage Voltage long supplier
+     * @param maxVoltageSupplier Voltage long supplier
      */
-    public R setMaxVoltage(LongSupplier maxVoltage) {
-        this.maxVoltage = maxVoltage;
+    public R setMaxVoltageSupplier(LongSupplier maxVoltageSupplier) {
+        this.maxVoltageSupplier = maxVoltageSupplier;
         return (R) this;
     }
 
     /**
-     * @param tier tier int supplier
+     * @param tierSupplier tier int supplier
      */
-    public R setTier(IntSupplier tier) {
-        this.tier = tier;
+    public R setTierSupplier(IntSupplier tierSupplier) {
+        this.tierSupplier = tierSupplier;
         return (R) this;
     }
 
     /**
-     * @param parallel amount of parallels int supplier
+     * @param parallelSupplier amount of parallels int supplier
      */
-    public R setParallel(IntSupplier parallel) {
-        this.parallel = parallel;
+    public R setParallelSupplier(IntSupplier parallelSupplier) {
+        this.parallelSupplier = parallelSupplier;
         return (R) this;
     }
 
@@ -214,8 +214,8 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     protected void progressRecipe(int progress) {
-        if (this.importEnergy.get().getEnergyStored() >= this.energyPerTick) {
-            this.importEnergy.get().removeEnergy(this.energyPerTick);
+        if (this.importEnergySupplier.get().getEnergyStored() >= this.energyPerTick) {
+            this.importEnergySupplier.get().removeEnergy(this.energyPerTick);
             this.progress++;
         } else if (this.progress > 1)
             this.progress--;
@@ -229,7 +229,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
-        long voltage = this.maxVoltage.getAsLong();
+        long voltage = this.maxVoltageSupplier.getAsLong();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
             duration /= multiplier;
@@ -240,12 +240,12 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     public boolean hasEnoughFluid(FluidStack fluid, int amount) {
-        FluidStack fluidStack = this.importFluids.get().drain(fluid, false);
+        FluidStack fluidStack = this.importFluidsSupplier.get().drain(fluid, false);
         return fluidStack != null && fluidStack.amount == amount || amount == 0;
     }
 
     public boolean canOutputFluid(FluidStack fluid, int amount) {
-        int fluidStack = this.exportFluids.get().fill(fluid, false);
+        int fluidStack = this.exportFluidsSupplier.get().fill(fluid, false);
         return fluidStack == amount || amount == 0;
     }
 
@@ -336,15 +336,25 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
         return this.maxProgress;
     }
 
+    public void setMaxProgress(int maxProgress) {
+        this.maxProgress = maxProgress;
+        this.metaTileEntity.markDirty();
+    }
+
     public double getProgressPercent() {
         return this.getMaxProgress() == 0 ? 0.0 : this.getProgress() / (this.getMaxProgress() * 1.0);
     }
 
     public boolean hasNotEnoughEnergy() {
-        return this.isActive && this.importEnergy.get().getEnergyStored() < this.energyPerTick;
+        return this.isActive && this.importEnergySupplier.get().getEnergyStored() < this.energyPerTick;
     }
 
-    public long getEUt() {
+    public void setEnergyPerTick(long energyPerTick) {
+        this.energyPerTick = energyPerTick;
+        this.metaTileEntity.markDirty();
+    }
+
+    public long getEnergyPerTick() {
         return this.energyPerTick;
     }
 

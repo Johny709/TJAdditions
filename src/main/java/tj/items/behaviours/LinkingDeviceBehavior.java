@@ -105,7 +105,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                                         break;
                                     }
                                 }
-                            };
+                            }
                         } else player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                         return EnumActionResult.SUCCESS;
                     }
@@ -251,25 +251,29 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                         .setTextResponder((s, id) -> promptNBT.setInteger("world", Integer.parseInt(s)))
                         .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("world")))
                         .setTooltipText("metaitem.linking.device.set.world")
-                        .setUpdateOnTyping(true))
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(9))
                 .widget(new NewTextFieldWidget<>(4, 54, 166, 18, true)
                         .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                         .setTextResponder((s, id) -> promptNBT.setInteger("x", Integer.parseInt(s)))
                         .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("x")))
                         .setTooltipText("metaitem.linking.device.set.x")
-                        .setUpdateOnTyping(true))
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(9))
                 .widget(new NewTextFieldWidget<>(4, 74, 166, 18, true)
                         .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                         .setTextResponder((s, id) -> promptNBT.setInteger("y", Integer.parseInt(s)))
                         .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("y")))
                         .setTooltipText("metaitem.linking.device.set.y")
-                        .setUpdateOnTyping(true))
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(9))
                 .widget(new NewTextFieldWidget<>(4, 94, 166, 18, true)
                         .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                         .setTextResponder((s, id) -> promptNBT.setInteger("z", Integer.parseInt(s)))
                         .setTextSupplier(() -> String.valueOf(promptNBT.getInteger("z")))
                         .setTooltipText("metaitem.linking.device.set.z")
-                        .setUpdateOnTyping(true))
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(9))
                 .widget(new ToggleButtonWidget(4, 114, 166, 18, TOGGLE_BUTTON_BACK, () -> false, (bool) -> {
                     if (this.inRange(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player))
                         this.setPos(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player);
