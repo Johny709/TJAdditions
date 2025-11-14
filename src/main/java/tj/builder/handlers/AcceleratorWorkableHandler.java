@@ -21,7 +21,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
-import org.apache.commons.lang3.ArrayUtils;
 import tj.capability.LinkEvent;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.machines.AcceleratorBlacklist;
@@ -193,7 +192,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
         for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
             if (this.entityLinkBlockPos[i] != null) {
                 NBTTagCompound tag = new NBTTagCompound();
-                tag.setInteger("Index", i);
+                tag.setInteger("index", i);
                 tag.setDouble("x", this.entityLinkBlockPos[i].getX());
                 tag.setDouble("y", this.entityLinkBlockPos[i].getY());
                 tag.setDouble("z", this.entityLinkBlockPos[i].getZ());
@@ -220,7 +219,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
         NBTTagList linkList = compound.getTagList("links", Constants.NBT.TAG_COMPOUND);
         for (NBTBase nbtBase : linkList) {
             NBTTagCompound tag = (NBTTagCompound) nbtBase;
-            int i = tag.getInteger("Index");
+            int i = tag.getInteger("index");
             this.entityLinkBlockPos[i] = new BlockPos(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
             this.entityLinkName[i] = tag.getString("name");
         }
@@ -231,6 +230,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
     public void updateEnergyPerTick() {
         long count = Arrays.stream(this.entityLinkBlockPos).filter(Objects::nonNull).count();
         this.energyPerTick = (long) ((Math.pow(4, this.tier) * 8) * this.energyMultiplier) * count;
+        this.metaTileEntity.markDirty();
     }
 
     public void setLinkedEntitiesPos(MetaTileEntity metaTileEntity) {
@@ -252,10 +252,6 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
 
     public String[] getEntityLinkName() {
         return this.entityLinkName;
-    }
-
-    public String[] getTickSpeedFormat() {
-        return ArrayUtils.toArray(String.valueOf(this.maxProgress));
     }
 
     public void onIncrement(Widget.ClickData clickData) {
@@ -287,6 +283,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
 
     public void setLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
+        this.metaTileEntity.markDirty();
     }
 
     public AcceleratorMode getAcceleratorMode() {

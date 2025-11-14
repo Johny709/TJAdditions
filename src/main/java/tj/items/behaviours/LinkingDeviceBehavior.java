@@ -313,6 +313,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
             ((LinkPos) linkedGTTE).setPos(promptNBT.getString("name"), pos, player, player.getEntityWorld(), promptNBT.getInteger("index"));
             ((LinkPos) linkedGTTE).setLinkData(nbt);
             player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success")
+                    .appendText("\n")
                     .appendSibling(new TextComponentTranslation("metaitem.linking.device.message.remaining"))
                     .appendSibling(new TextComponentString(" " + nbt.getInteger("I"))));
         } else player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.fail"));

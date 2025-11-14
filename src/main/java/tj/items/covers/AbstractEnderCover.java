@@ -199,11 +199,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                     .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                     .setTooltipText("machine.universal.search.settings")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true), widgetGroup -> {
-                                    widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-                                    widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
-                                    return this.addSearchTextWidgets(widgetGroup, patternFlags, 0);
-                            }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
+                                    .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 0)).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
@@ -363,21 +359,13 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                                 .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                                 .setTooltipText("machine.universal.search.settings")
                                                 .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                .useToggleTexture(true), innerWidgetGroup -> {
-                                            innerWidgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-                                            innerWidgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
-                                            return this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2);
-                                        }));
+                                                .useToggleTexture(true), innerWidgetGroup -> this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2)));
                                 return false;
                             }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
                                     .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                     .setTooltipText("machine.universal.search.settings")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true), widgetGroup -> {
-                                widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-                                widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
-                                return this.addSearchTextWidgets(widgetGroup, patternFlags, 1);
-                            });
+                                    .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 1));
                     tab.addWidget(clickPopUpWidget);
                 });
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
@@ -388,6 +376,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     }
 
     private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
+        widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+        widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags[i]))), 0x404040));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][0] = pressed ? Pattern.UNIX_LINES : 0)
