@@ -545,6 +545,7 @@ metaitem.linking.device.message.link=Link Established From: §e%s§r %nWorld: §
 metaitem.linking.device.message.link.continue=Continue Linking From: §e%s§r %nWorld: §6%s §r(§6%d§r) %nPosition: §7{§rX: §b%d§r Y: §b%d§r Z: §b%d§7}
 metaitem.linking.device.message.unlink=Link Disbanded From:
 metaitem.linking.device.message.success=Linking Successful
+metaitem.linking.device.message.fail=Linking Failed
 metaitem.linking.device.message.occupied=Already Link With: %s
 metaitem.linking.device.message.far=Link Is Too Far Away
 metaitem.linking.device.message.nolink=Cannot Link From Null Entity!

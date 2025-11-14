@@ -1,8 +1,10 @@
 package tj.event;
 
 import gregtech.api.metatileentity.MetaTileEntity;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
+@Cancelable
 public class MTELinkEvent extends Event {
 
     private final MetaTileEntity transmitter;
@@ -11,6 +13,11 @@ public class MTELinkEvent extends Event {
     public MTELinkEvent(MetaTileEntity transmitter, MetaTileEntity receiver) {
         this.transmitter = transmitter;
         this.receiver = receiver;
+    }
+
+    @Override
+    public boolean isCancelable() {
+        return true;
     }
 
     /**

@@ -105,8 +105,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                                         break;
                                     }
                                 }
-                            }
-                            MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE));
+                            };
                         } else player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.no_remaining"));
                         return EnumActionResult.SUCCESS;
                     }
@@ -274,6 +273,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                 .widget(new ToggleButtonWidget(4, 114, 166, 18, TOGGLE_BUTTON_BACK, () -> false, (bool) -> {
                     if (this.inRange(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player))
                         this.setPos(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player);
+                    player.closeScreen();
                 })).label(60, 120, "metaitem.linking.device.set.position")
                 .build(holder, player);
     }
@@ -302,16 +302,15 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         WorldServer getWorld = nbt.hasKey("DimensionID") ? DimensionManager.getWorld(nbt.getInteger("DimensionID")) : (WorldServer) world;
         MetaTileEntity linkedGTTE = BlockMachine.getMetaTileEntity(getWorld, new BlockPos(x, y, z));
         MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, pos);
-        int linkI = nbt.hasKey("I") ? nbt.getInteger("I") : 0;
-        nbt.setInteger("I", linkI - 1);
-        world.getChunk(pos);
-        if (linkedGTTE instanceof LinkPos) {
+        if (linkedGTTE instanceof LinkPos && !MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE))) {
+            int linkI = nbt.getInteger("I");
+            nbt.setInteger("I", linkI - 1);
+            world.getChunk(pos);
             ((LinkPos) linkedGTTE).setPos(promptNBT.getString("name"), pos, player, player.getEntityWorld(), promptNBT.getInteger("index"));
             ((LinkPos) linkedGTTE).setLinkData(nbt);
-        }
-        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success"));
-        player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.remaining")
-                .appendSibling(new TextComponentString(" " + nbt.getInteger("I"))));
-        MinecraftForge.EVENT_BUS.post(new MTELinkEvent(linkedGTTE, targetGTTE));
+            player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.success")
+                    .appendSibling(new TextComponentTranslation("metaitem.linking.device.message.remaining"))
+                    .appendSibling(new TextComponentString(" " + nbt.getInteger("I"))));
+        } else player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.fail"));
     }
 }
