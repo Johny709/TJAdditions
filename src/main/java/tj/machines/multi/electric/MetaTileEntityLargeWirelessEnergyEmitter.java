@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
+import net.minecraft.item.Item;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
@@ -16,10 +17,12 @@ import tj.capability.LinkEvent;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
 import tj.gui.TJGuiTextures;
-import tj.gui.uifactory.PlayerHolder;
+import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJClickButtonWidget;
 import tj.gui.widgets.TJTextFieldWidget;
+import tj.gui.widgets.impl.ClickPopUpWidget;
+import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.TJMetaItems;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
@@ -67,14 +70,14 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import static tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
-import static tj.gui.TJGuiTextures.SPACES_BUTTON;
 import static gregicadditions.GAMaterials.Talonite;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
@@ -133,66 +136,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     }
 
-    private void addDisplayLinkedEntitiesText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + this.searchResults + "§r/§e" + this.entityLinkName.length + "§r)"));
-    }
-
-    private void addDisplayLinkedEntitiesText2(List<ITextComponent> textList) {
-        int searchResults = 0;
-        for (int i = 0; i < this.workableHandler.getEntityLinkName().length; i++) {
-            String name = this.workableHandler.getEntityLinkName()[i] != null ? this.workableHandler.getEntityLinkName()[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
-            String result = name, result2 = name;
-
-            if (!this.isCaseSensitive) {
-                result = result.toLowerCase();
-                result2 = result2.toUpperCase();
-            }
-
-            if (!this.hasSpaces) {
-                result = result.replace(" ", "");
-                result2 = result2.replace(" ", "");
-            }
-
-            if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
-                continue;
-
-            BlockPos pos = this.workableHandler.getEntityLinkBlockPos()[i] != null ? this.workableHandler.getEntityLinkBlockPos()[i] : TJValues.DUMMY_POS;
-            WorldServer world = DimensionManager.getWorld(this.workableHandler.getEntityLinkWorld()[i]);
-            TileEntity getTileEntity = world != null ? world.getTileEntity(pos) : null;
-            MetaTileEntity getMetaTileEntity = world != null ? BlockMachine.getMetaTileEntity(world, pos) : null;
-            boolean isTileEntity = getTileEntity != null;
-            boolean isMetaTileEntity = getMetaTileEntity != null;
-            IEnergyStorage RFContainer = isTileEntity ? getTileEntity.getCapability(ENERGY, null) : null;
-            long RFStored = RFContainer != null ? RFContainer.getEnergyStored() : 0;
-            long RFCapacity = RFContainer != null ? RFContainer.getMaxEnergyStored() : 0;
-            IEnergyContainer EUContainer = isMetaTileEntity ? getMetaTileEntity.getCapability(CAPABILITY_ENERGY_CONTAINER, null) : null;
-            long EUStored = EUContainer != null ? EUContainer.getEnergyStored() : 0;
-            long EUCapacity = EUContainer != null ? EUContainer.getEnergyCapacity() : 0;
-
-            textList.add(new TextComponentString(": [§a" + (++searchResults) + "§r] ")
-                    .appendSibling(new TextComponentString(name)).setStyle(new Style()
-                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity)))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimension() : 0)))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ()))))))
-                    .appendText("\n")
-                    .appendSibling(new TextComponentTranslation("machine.universal.energy.amps", this.workableHandler.getEntityEnergyAmps()[i])
-                            .appendText(" ")
-                            .appendSibling(withButton(new TextComponentString("[+]"), "increment:" + i))
-                            .appendText(" ")
-                            .appendSibling(withButton(new TextComponentString("[-]"), "decrement:" + i)))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + name)));
-
-        }
-        this.searchResults = searchResults;
-    }
-
     @Override
     protected int getExtended() {
         return 18;
@@ -201,30 +144,58 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
+        int[] searchResults = new int[1];
+        int[] patternFlags = new int[9];
+        String[] search = {""};
         tabBuilder.addTab("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab -> {
-            ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
-                @Override
-                public boolean isWidgetClickable(Widget widget) {
-                    return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-                }
-            };
-            scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, this::addDisplayLinkedEntitiesText2, 0xFFFFFF)
-                    .addClickHandler(this::handleLinkedDisplayClick)
-                    .setMaxWidthLimit(1000));
-            linkedEntitiesDisplayTab.addWidget(new AdvancedTextWidget(10, -20, this::addDisplayLinkedEntitiesText, 0xFFFFFF));
-            linkedEntitiesDisplayTab.addWidget(scrollWidget);
-            linkedEntitiesDisplayTab.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
-                    .setTooltipText("machine.universal.case_sensitive"));
-            linkedEntitiesDisplayTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
-                    .setTooltipText("machine.universal.spaces"));
-            linkedEntitiesDisplayTab.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
-            linkedEntitiesDisplayTab.addWidget(new TJClickButtonWidget(172, 112, 18, 18, "", this::onClear)
-                    .setTooltipText("machine.universal.toggle.clear")
-                    .setButtonTexture(BUTTON_CLEAR_GRID));
-            linkedEntitiesDisplayTab.addWidget(new TJTextFieldWidget(12, 117, 157, 18, false, this::getSearchPrompt, this::setSearchPrompt)
-                    .setTextLength(256)
-                    .setBackgroundText("machine.universal.search")
-                    .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
+            NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
+                    .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                    .setBackgroundText("machine.universal.toggle.rename.entry")
+                    .setTooltipText("machine.universal.toggle.rename.entry")
+                    .setTextResponder(this::renameLink)
+                    .setMaxStringLength(256);
+            TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, this.addDisplayLinkedEntitiesText(searchResults, patternFlags, search), 0xFFFFFF)
+                    .addClickHandler(this.handleLinkedDisplayClick(textFieldWidgetRename));
+            textWidget.setMaxWidthLimit(1024);
+            linkedEntitiesDisplayTab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                    .addPopup(widgetGroup -> {
+                        widgetGroup.addWidget(new AdvancedTextWidget(10, -20, (textList) -> textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)")), 0xFFFFFF));
+                        widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
+                                .addTextWidget(textWidget));
+                        widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(12, 117, 157, 18)
+                                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                .setBackgroundText("machine.universal.search")
+                                .setTextResponder((s, id) -> search[0] = s)
+                                .setTextSupplier(() -> search[0])
+                                .setMaxStringLength(256));
+                        return true;
+                    }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
+                            .setDisplayText("machine.universal.cancel")
+                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                            .setButtonSupplier(() -> false)
+                            .useToggleTexture(true))
+                    .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
+                            .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
+                            .setDisplayText("machine.universal.ok")
+                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                            .setButtonSupplier(() -> false)
+                            .useToggleTexture(true))
+                    .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                        widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
+                        widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                        widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
+                            int index = textFieldWidgetRename.getTextId().lastIndexOf(";");
+                            String entry = textFieldWidgetRename.getTextId().substring(0, index);
+                            textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
+                        }, 0x404040));
+                        widgetGroup.addWidget(textFieldWidgetRename);
+                        return false;
+                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)
+                            .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
+                            .setTooltipText("machine.universal.search.settings")
+                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                            .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags)));
         });
     }
 
@@ -242,42 +213,168 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
-    protected void handleLinkedDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
-        if (componentData.equals("leftPage") && this.pageIndex > 0) {
-            this.pageIndex -= this.pageSize;
+    private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[] patternFlags) {
+        widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+        widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
+        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags))), 0x404040));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[0] = pressed ? Pattern.UNIX_LINES : 0)
+                .setDisplayText("string.regex.pattern.unix_lines.flag")
+                .setTooltipText("string.regex.pattern.unix_lines")
+                .setButtonSupplier(() -> patternFlags[0] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[1] = pressed ? Pattern.CASE_INSENSITIVE : 0)
+                .setDisplayText("string.regex.pattern.case_insensitive.flag")
+                .setTooltipText("string.regex.pattern.case_insensitive")
+                .setButtonSupplier(() -> patternFlags[1] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[2] = pressed ? Pattern.COMMENTS : 0)
+                .setDisplayText("string.regex.pattern.comments.flag")
+                .setButtonSupplier(() -> patternFlags[2] != 0)
+                .setTooltipText("string.regex.pattern.comments")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[3] = pressed ? Pattern.MULTILINE : 0)
+                .setDisplayText("string.regex.pattern.multiline.flag")
+                .setTooltipText("string.regex.pattern.multiline")
+                .setButtonSupplier(() -> patternFlags[3] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[4] = pressed ? Pattern.LITERAL : 0)
+                .setDisplayText("string.regex.pattern.literal.flag")
+                .setButtonSupplier(() -> patternFlags[4] != 0)
+                .setTooltipText("string.regex.pattern.literal")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[5] = pressed ? Pattern.DOTALL : 0)
+                .setDisplayText("string.regex.pattern.dotall.flag")
+                .setButtonSupplier(() -> patternFlags[5] != 0)
+                .setTooltipText("string.regex.pattern.dotall")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[6] = pressed ? Pattern.UNICODE_CASE : 0)
+                .setDisplayText("string.regex.pattern.unicode_case.flag")
+                .setTooltipText("string.regex.pattern.unicode_case")
+                .setButtonSupplier(() -> patternFlags[6] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[7] = pressed ? Pattern.CANON_EQ : 0)
+                .setDisplayText("string.regex.pattern.canon_eq.flag")
+                .setButtonSupplier(() -> patternFlags[7] != 0)
+                .setTooltipText("string.regex.pattern.canon_eq")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[8] = pressed ? Pattern.UNICODE_CHARACTER_CLASS : 0)
+                .setDisplayText("string.regex.pattern.unicode_character_class.flag")
+                .setTooltipText("string.regex.pattern.unicode_character_class")
+                .setButtonSupplier(() -> patternFlags[8] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        return false;
+    }
 
-        } else if (componentData.equals("rightPage") && this.pageIndex < this.workableHandler.getEntityLinkBlockPos().length - this.pageSize) {
-            this.pageIndex += this.pageSize;
-
-        } else  if (componentData.startsWith("increment")) {
-            String[] increment = componentData.split(":");
-            int i = Integer.parseInt(increment[1]);
-            this.workableHandler.getEntityEnergyAmps()[i] = MathHelper.clamp(this.workableHandler.getEntityEnergyAmps()[i] + 1, 0, 256);
-            this.workableHandler.updateTotalEnergyPerTick();
-
-        } else if (componentData.startsWith("decrement")) {
-            String[] decrement = componentData.split(":");
-            int i = Integer.parseInt(decrement[1]);
-            this.workableHandler.getEntityEnergyAmps()[i] = MathHelper.clamp(this.workableHandler.getEntityEnergyAmps()[i] - 1, 0, 256);
-            this.workableHandler.updateTotalEnergyPerTick();
-
-        } else if (componentData.startsWith("remove")) {
-            String[] remove = componentData.split(":");
-            int i = Integer.parseInt(remove[1]);
-            int j = this.workableHandler.getLinkData().getInteger("I");
-            this.workableHandler.getLinkData().setInteger("I", j + 1);
-            this.workableHandler.getEntityLinkName()[i] = null;
-            this.workableHandler.getEntityLinkBlockPos()[i] = null;
-            this.workableHandler.getEntityLinkWorld()[i] = Integer.MIN_VALUE;
-            this.workableHandler.getEntityEnergyAmps()[i] = 0;
-            this.workableHandler.updateTotalEnergyPerTick();
-
-        } else if (componentData.startsWith("rename")) {
-            String[] rename = componentData.split(":");
-            this.renamePrompt = rename[1];
-            PlayerHolder holder = new PlayerHolder(player, this);
-            holder.openUI();
+    private int getFlags(int[] flags) {
+        int flag = 0;
+        for (int i : flags) {
+            flag |= i;
         }
+        return flag;
+    }
+
+    private Consumer<List<ITextComponent>> addDisplayLinkedEntitiesText(int[] searchResults, int[] flags, String[] search) {
+        return (textList) -> {
+            int results = 0;
+            for (int i = 0; i < this.workableHandler.getEntityLinkName().length; i++) {
+                String name = this.workableHandler.getEntityLinkName()[i] != null ? this.workableHandler.getEntityLinkName()[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
+
+                if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(flags)).matcher(name).find())
+                    continue;
+
+                BlockPos pos = this.workableHandler.getEntityLinkBlockPos()[i] != null ? this.workableHandler.getEntityLinkBlockPos()[i] : TJValues.DUMMY_POS;
+                WorldServer world = DimensionManager.getWorld(this.workableHandler.getEntityLinkWorld()[i]);
+                TileEntity getTileEntity = world != null ? world.getTileEntity(pos) : null;
+                MetaTileEntity getMetaTileEntity = world != null ? BlockMachine.getMetaTileEntity(world, pos) : null;
+                boolean isTileEntity = getTileEntity != null;
+                boolean isMetaTileEntity = getMetaTileEntity != null;
+                IEnergyStorage RFContainer = isTileEntity ? getTileEntity.getCapability(ENERGY, null) : null;
+                long RFStored = RFContainer != null ? RFContainer.getEnergyStored() : 0;
+                long RFCapacity = RFContainer != null ? RFContainer.getMaxEnergyStored() : 0;
+                IEnergyContainer EUContainer = isMetaTileEntity ? getMetaTileEntity.getCapability(CAPABILITY_ENERGY_CONTAINER, null) : null;
+                long EUStored = EUContainer != null ? EUContainer.getEnergyStored() : 0;
+                long EUCapacity = EUContainer != null ? EUContainer.getEnergyCapacity() : 0;
+
+                textList.add(new TextComponentString(": [§a" + (++searchResults[0]) + "§r] ")
+                        .appendSibling(new TextComponentString(name)).setStyle(new Style()
+                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
+                                        .appendText("\n")
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", isMetaTileEntity ? EUStored : RFStored, isMetaTileEntity ? EUCapacity : RFCapacity)))
+                                        .appendText("\n")
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", world != null ? world.provider.getDimensionType().getName() : "N/A", world != null ? world.provider.getDimension() : 0)))
+                                        .appendText("\n")
+                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ()))))))
+                        .appendText("\n")
+                        .appendSibling(new TextComponentTranslation("machine.universal.energy.amps", this.workableHandler.getEntityEnergyAmps()[i])
+                                .appendText(" ")
+                                .appendSibling(withButton(new TextComponentString("[+]"), "increment:" + i))
+                                .appendText(" ")
+                                .appendSibling(withButton(new TextComponentString("[-]"), "decrement:" + i)))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + name + ";" + i)));
+
+            }
+            searchResults[0] = results;
+        };
+    }
+
+    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handleLinkedDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
+        return (componentData, textId, clickData, player) -> {
+            String[] component = componentData.split(":");
+            switch (component[0]) {
+                case "leftPage":
+                    if (this.pageIndex > 0)
+                        this.pageIndex -= this.pageSize;
+                    break;
+                case "rightPage":
+                    if (this.pageIndex < this.workableHandler.getEntityLinkBlockPos().length - this.pageSize)
+                        this.pageIndex += this.pageSize;
+                    break;
+                case "increment":
+                    int i = Integer.parseInt(component[1]);
+                    this.workableHandler.getEntityEnergyAmps()[i] = MathHelper.clamp(this.workableHandler.getEntityEnergyAmps()[i] + 1, 0, 256);
+                    this.workableHandler.updateTotalEnergyPerTick();
+                    break;
+                case "decrement":
+                    int i1 = Integer.parseInt(component[1]);
+                    this.workableHandler.getEntityEnergyAmps()[i1] = MathHelper.clamp(this.workableHandler.getEntityEnergyAmps()[i1] - 1, 0, 256);
+                    this.workableHandler.updateTotalEnergyPerTick();
+                    break;
+                case "remove":
+                    int i2 = Integer.parseInt(component[1]);
+                    int j = this.workableHandler.getLinkData().getInteger("I");
+                    this.workableHandler.getLinkData().setInteger("I", j + 1);
+                    this.workableHandler.getEntityLinkName()[i2] = null;
+                    this.workableHandler.getEntityLinkBlockPos()[i2] = null;
+                    this.workableHandler.getEntityLinkWorld()[i2] = Integer.MIN_VALUE;
+                    this.workableHandler.getEntityEnergyAmps()[i2] = 0;
+                    this.workableHandler.updateTotalEnergyPerTick();
+                    break;
+                case "@Popup":
+                    textFieldWidget.setTextId(component[1]);
+                    break;
+            }
+        };
     }
 
     @Override
@@ -354,6 +451,12 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.workableHandler.isActive());
+    }
+
+    private void renameLink(String name, String id) {
+        int index = id.lastIndexOf(";");
+        index = Integer.parseInt(id.substring(index + 1));
+        this.workableHandler.getEntityLinkName()[index] = name;
     }
 
     @Override
