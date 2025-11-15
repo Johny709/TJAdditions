@@ -196,6 +196,11 @@ public class TeleporterWorkableHandler extends AbstractWorkableHandler<Teleporte
         this.metaTileEntity.markDirty();
     }
 
+    public void setReset(boolean reset) {
+        this.posMap.clear();
+        this.linkData.setInteger("I", 1);
+    }
+
     public void setLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
         this.metaTileEntity.markDirty();

@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 import tj.util.PlayerWorldIDData;
@@ -73,7 +74,8 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
                 continue;
 
             if (this.metaTileEntity.getWorld().provider.getDimension() != linkedPlayer.world.provider.getDimension()) {
-                if (this.importFluidsSupplier.get().drain(Nitrogen.getPlasma(this.fluidConsumption), true).amount != this.fluidConsumption)
+                FluidStack fluidStack = this.importFluidsSupplier.get().drain(Nitrogen.getPlasma(this.fluidConsumption), true);
+                if (fluidStack == null || fluidStack.amount != this.fluidConsumption)
                     continue;
             }
 

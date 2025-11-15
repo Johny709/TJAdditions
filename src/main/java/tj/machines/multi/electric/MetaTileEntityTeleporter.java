@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
+import net.minecraft.item.Item;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.TeleporterWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -12,9 +13,8 @@ import tj.capability.IParallelController;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
 import tj.gui.TJGuiTextures;
-import tj.gui.uifactory.PlayerHolder;
+import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJClickButtonWidget;
 import tj.gui.widgets.TJTextFieldWidget;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
@@ -64,15 +64,16 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import tj.gui.widgets.impl.ClickPopUpWidget;
+import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import static tj.gui.TJGuiTextures.CASE_SENSITIVE_BUTTON;
-import static tj.gui.TJGuiTextures.SPACES_BUTTON;
 import static tj.textures.TJTextures.FUSION_MK2;
 import static tj.textures.TJTextures.TELEPORTER_OVERLAY;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -90,7 +91,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     private final TeleporterWorkableHandler workableHandler = new TeleporterWorkableHandler(this);
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
-    private NBTTagCompound linkData;
     private int tier;
 
     public MetaTileEntityTeleporter(ResourceLocation metaTileEntityId) {
@@ -182,58 +182,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
-    protected int getExtended() {
-        return 18;
-    }
-
-    @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
-        super.addTabs(tabBuilder);
-        tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, this::addPosDisplayText, this::addPosDisplayText2, this::getSearchPrompt, this::setSearchPrompt, this::onClear));
-        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, this::addQueueDisplayText, this::addQueueDisplayText2, this::getQueuePrompt, this::setQueuePrompt, this::onClear2));
-    }
-
-    @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
-        super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, this::getTickSpeed, this::setTickSpeed)
-                .setTooltipText("machine.universal.tick.speed")
-                .setTooltipFormat(this::getTickSpeedFormat)
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", this::onIncrement));
-        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", this::onDecrement));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::setReset)
-                .setTooltipText("machine.universal.toggle.reset"));
-    }
-
-    private void addScrollWidgets(WidgetGroup widgetGroup, Consumer<List<ITextComponent>> displayText, Consumer<List<ITextComponent>> displayText2, Supplier<String> searchSupplier, Consumer<String> searchResponder, Consumer<Widget.ClickData> onClear) {
-        ScrollableListWidget scrollWidget = new ScrollableListWidget(10, -8, 178, 117) {
-            @Override
-            public boolean isWidgetClickable(Widget widget) {
-                return true; // this ScrollWidget will only add one widget so checks are unnecessary if position changes.
-            }
-        };
-        scrollWidget.addWidget(new TJAdvancedTextWidget(0, 0, displayText2, 0xFFFFFF)
-                .addClickHandler(this::handlePosDisplayClick)
-                .setMaxWidthLimit(1000));
-        widgetGroup.addWidget(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
-        widgetGroup.addWidget(scrollWidget);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CASE_SENSITIVE_BUTTON, this::isCaseSensitive, this::setCaseSensitive)
-                .setTooltipText("machine.universal.case_sensitive"));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, SPACES_BUTTON, this::hasSpaces, this::setSpaces)
-                .setTooltipText("machine.universal.spaces"));
-        widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
-        widgetGroup.addWidget(new TJClickButtonWidget(172, 112, 18, 18, "", onClear)
-                .setTooltipText("machine.universal.toggle.clear")
-                .setButtonTexture(BUTTON_CLEAR_GRID));
-        widgetGroup.addWidget(new TJTextFieldWidget(12, 117, 157, 18, false, searchSupplier, searchResponder)
-                .setTextLength(256)
-                .setBackgroundText("machine.universal.search")
-                .setValidator(str -> Pattern.compile(".*").matcher(str).matches()));
-    }
-
-    @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (this.isStructureFormed()) {
@@ -274,173 +222,268 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         }
     }
 
-    private void addPosDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + this.searchResults + "§r/§e" + this.posMap.size() + "§r)"));
+    @Override
+    protected int getExtended() {
+        return 18;
     }
 
-    private void addPosDisplayText2(List<ITextComponent> textList) {
-        int count = 0, searchResults = 0;
-        for (Map.Entry<String, Pair<Integer, BlockPos>> posEntry : this.posMap.entrySet()) {
-            String key = posEntry.getKey();
-            String result = key, result2 = key;
-
-            if (!this.isCaseSensitive) {
-                result = result.toLowerCase();
-                result2 = result2.toUpperCase();
-            }
-
-            if (!this.hasSpaces) {
-                result = result.replace(" ", "");
-                result2 = result2.replace(" ", "");
-            }
-
-            if (!result.isEmpty() && !result.contains(this.searchPrompt) && !result2.contains(this.searchPrompt))
-                continue;
-
-            World world = DimensionManager.getWorld(posEntry.getValue().getLeft());
-            String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
-            int worldID = posEntry.getValue().getLeft();
-
-            BlockPos pos = posEntry.getValue().getValue();
-
-            String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
-            String select = "select:" + key;
-            String remove = "remove:" + key;
-            String rename = "rename:" + key;
-
-            ITextComponent keyPos = new TextComponentString(": [§a" + (++count) + "§r] " + key + "§r")
-                    .appendText("\n")
-                    .appendSibling(withButton(new TextComponentString("[TP]"), tp))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), select))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove))
-                    .appendText(" ")
-                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), rename));
-
-            ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
-                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
-                    .appendText("\n")
-                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ())));
-
-            keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
-            textList.add(keyPos);
-            searchResults++;
-        }
-        this.searchResults = searchResults;
+    @Override
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        super.addTabs(tabBuilder);
+        int[][] searchResults = new int[2][1];
+        int[][] patternFlags = new int[2][9];
+        String[][] search = {{""}, {""}};
+        tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + search[0][0] + "§r/§e" + this.workableHandler.getPosMap().size() + "§r)")), this.addPosDisplayText(searchResults[0], patternFlags[0], search[0]), patternFlags[0], search[0]));
+        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + search[1][0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)")), this.addPosDisplayText(searchResults[1], patternFlags[1], search[1]), patternFlags[1], search[1]));
     }
 
-    private void addQueueDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + this.queueCount + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)"));
+    @Override
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
+        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
+                .setTooltipText("machine.universal.tick.speed")
+                .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
+        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
+                .setTooltipText("machine.universal.toggle.reset"));
     }
 
-    private void addQueueDisplayText2(List<ITextComponent> textList) {
-        int count = 0, queueCount = 0;
-        for (Triple<Entity, Integer, BlockPos> queueEntry : this.workableHandler.getQueueTeleport()) {
-            String key = queueEntry.getLeft().getName();
-            String result = key, result2 = key;
-
-            if (!this.isCaseSensitive) {
-                result = result.toLowerCase();
-                result2 = result2.toUpperCase();
-            }
-
-            if (!this.hasSpaces) {
-                result = result.replace(" ", "");
-                result2 = result2.replace(" ", "");
-            }
-
-            if (!result.isEmpty() && !result.contains(this.queuePrompt) && !result2.contains(this.queuePrompt))
-                continue;
-
-            BlockPos pos = queueEntry.getRight();
-            World world = DimensionManager.getWorld(queueEntry.getMiddle());
-            String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
-            int worldID = queueEntry.getMiddle();
-
-            String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
-
-            ITextComponent keyPos = new TextComponentString("[§e" + (++count) + "§r] " + key + "§r");
-
-            ITextComponent blockPos = new TextComponentString(count + ": " + key + "\n")
-                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
-                    .appendText("\n")
-                    .appendSibling(new TextComponentString(position));
-
-            keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
-            textList.add(keyPos);
-            queueCount++;
-        }
-        this.queueCount = queueCount;
+    private void addScrollWidgets(WidgetGroup tab, Consumer<List<ITextComponent>> displayText, Consumer<List<ITextComponent>> displayText2, int[] patternFlags, String[] search) {
+        NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setBackgroundText("machine.universal.toggle.rename.entry")
+                .setTooltipText("machine.universal.toggle.rename.entry")
+                .setTextResponder(this.workableHandler::renameLink)
+                .setMaxStringLength(256);
+        TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, displayText2, 0xFFFFFF)
+                .addClickHandler(this.handlePosDisplayClick(textFieldWidgetRename));
+        textWidget.setMaxWidthLimit(1024);
+        tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
+                    widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
+                            .addTextWidget(textWidget));
+                    widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
+                    widgetGroup.addWidget(new NewTextFieldWidget<>(12, 117, 157, 18)
+                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                            .setBackgroundText("machine.universal.search")
+                            .setTextResponder((s, id) -> search[0] = s)
+                            .setTextSupplier(() -> search[0])
+                            .setMaxStringLength(256));
+                    return true;
+                }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
+                        .setDisplayText("machine.universal.cancel")
+                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                        .setButtonSupplier(() -> false)
+                        .useToggleTexture(true))
+                .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
+                        .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
+                        .setDisplayText("machine.universal.ok")
+                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                        .setButtonSupplier(() -> false)
+                        .useToggleTexture(true))
+                .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                    widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
+                    widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                    widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
+                        int index = textFieldWidgetRename.getTextId().lastIndexOf(";");
+                        String entry = textFieldWidgetRename.getTextId().substring(0, index);
+                        textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
+                    }, 0x404040));
+                    widgetGroup.addWidget(textFieldWidgetRename);
+                    return false;
+                }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)
+                        .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
+                        .setTooltipText("machine.universal.search.settings")
+                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                        .useToggleTexture(true), widgetGroup-> this.addSearchTextWidgets(widgetGroup, patternFlags)));
     }
 
-    private void handlePosDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
-        if (componentData.startsWith("tp")) {
-            String[] world = componentData.split("w");
-            String[] pos = world[1].split("x");
-            String[] x = pos[1].split("y");
-            String[] yz = x[1].split("z");
-
-            int worldID = Integer.parseInt(pos[0]);
-            int posX = Integer.parseInt(x[0]);
-            int posY = Integer.parseInt(yz[0]);
-            int posZ = Integer.parseInt(yz[1]);
-
-            if (DimensionManager.getWorld(worldID) == null) {
-                DimensionManager.initDimension(worldID);
-                DimensionManager.keepDimensionLoaded(worldID, true);
-            }
-
-            BlockPos blockPos = new BlockPos(posX, posY, posZ);
-            player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.queue", player.getName())));
-            this.workableHandler.getQueueTeleport().add(new ImmutableTriple<>(player, worldID, blockPos));
-
-        } else if (componentData.startsWith("select")) {
-            String[] selectedPos = componentData.split(":");
-            this.selectedPosName = selectedPos[1];
-
-        } else if (componentData.startsWith("remove")) {
-            String[] selectedName = componentData.split(":");
-            this.posMap.remove(selectedName[1]);
-
-        } else if (componentData.startsWith("rename")) {
-            String[] rename = componentData.split(":");
-            this.renamePrompt = rename[1];
-            PlayerHolder playerHolder = new PlayerHolder(player, this);
-            playerHolder.openUI();
-        }
-    }
-
-    private String[] getTickSpeedFormat() {
-        return ArrayUtils.toArray(String.valueOf(this.maxProgress));
-    }
-
-    private void onIncrement(Widget.ClickData clickData) {
-        this.maxProgress = MathHelper.clamp(this.maxProgress * 2, 1, Integer.MAX_VALUE);
-        this.markDirty();
-    }
-
-    private void onDecrement(Widget.ClickData clickData) {
-        this.maxProgress = MathHelper.clamp(this.maxProgress / 2, 1, Integer.MAX_VALUE);
-        this.markDirty();
-    }
-
-    private String getTickSpeed() {
-        return String.valueOf(this.maxProgress);
-    }
-
-    private void setTickSpeed(String maxProgress) {
-        this.maxProgress = maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress);
-        this.markDirty();
-    }
-
-    private boolean isReset() {
+    private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[] patternFlags) {
+        widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+        widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
+        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags))), 0x404040));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[0] = pressed ? Pattern.UNIX_LINES : 0)
+                .setDisplayText("string.regex.pattern.unix_lines.flag")
+                .setTooltipText("string.regex.pattern.unix_lines")
+                .setButtonSupplier(() -> patternFlags[0] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[1] = pressed ? Pattern.CASE_INSENSITIVE : 0)
+                .setDisplayText("string.regex.pattern.case_insensitive.flag")
+                .setTooltipText("string.regex.pattern.case_insensitive")
+                .setButtonSupplier(() -> patternFlags[1] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[2] = pressed ? Pattern.COMMENTS : 0)
+                .setDisplayText("string.regex.pattern.comments.flag")
+                .setButtonSupplier(() -> patternFlags[2] != 0)
+                .setTooltipText("string.regex.pattern.comments")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[3] = pressed ? Pattern.MULTILINE : 0)
+                .setDisplayText("string.regex.pattern.multiline.flag")
+                .setTooltipText("string.regex.pattern.multiline")
+                .setButtonSupplier(() -> patternFlags[3] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[4] = pressed ? Pattern.LITERAL : 0)
+                .setDisplayText("string.regex.pattern.literal.flag")
+                .setButtonSupplier(() -> patternFlags[4] != 0)
+                .setTooltipText("string.regex.pattern.literal")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[5] = pressed ? Pattern.DOTALL : 0)
+                .setDisplayText("string.regex.pattern.dotall.flag")
+                .setButtonSupplier(() -> patternFlags[5] != 0)
+                .setTooltipText("string.regex.pattern.dotall")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[6] = pressed ? Pattern.UNICODE_CASE : 0)
+                .setDisplayText("string.regex.pattern.unicode_case.flag")
+                .setTooltipText("string.regex.pattern.unicode_case")
+                .setButtonSupplier(() -> patternFlags[6] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[7] = pressed ? Pattern.CANON_EQ : 0)
+                .setDisplayText("string.regex.pattern.canon_eq.flag")
+                .setButtonSupplier(() -> patternFlags[7] != 0)
+                .setTooltipText("string.regex.pattern.canon_eq")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
+                .setToggleButtonResponder((pressed, s) -> patternFlags[8] = pressed ? Pattern.UNICODE_CHARACTER_CLASS : 0)
+                .setDisplayText("string.regex.pattern.unicode_character_class.flag")
+                .setTooltipText("string.regex.pattern.unicode_character_class")
+                .setButtonSupplier(() -> patternFlags[8] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
         return false;
     }
 
-    private void setReset(boolean reset) {
-        this.posMap.clear();
-        this.linkData.setInteger("I", this.getPosSize());
+    private Consumer<List<ITextComponent>> addPosDisplayText(int[] searchResults, int[] flags, String[] search) {
+        return (textList) -> {
+            int results = 0;
+            for (Map.Entry<String, Pair<Integer, BlockPos>> posEntry : this.workableHandler.getPosMap().entrySet()) {
+                String key = posEntry.getKey();
+
+                if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(flags)).matcher(key).find())
+                    continue;
+
+                World world = DimensionManager.getWorld(posEntry.getValue().getLeft());
+                String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
+                int worldID = posEntry.getValue().getLeft();
+
+                BlockPos pos = posEntry.getValue().getValue();
+
+                String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
+                String select = "select:" + key;
+                String remove = "remove:" + key;
+                String rename = "@Popup:" + key;
+
+                ITextComponent keyPos = new TextComponentString(": [§a" + (++results) + "§r] " + key + "§r")
+                        .appendText("\n")
+                        .appendSibling(withButton(new TextComponentString("[TP]"), tp))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), select))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), rename));
+
+                ITextComponent blockPos = new TextComponentString(rename + ": " + key + "\n")
+                        .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
+                        .appendText("\n")
+                        .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ())));
+
+                keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
+                textList.add(keyPos);
+            }
+            searchResults[0] = results;
+        };
+    }
+
+    private Consumer<List<ITextComponent>> addQueueDisplayText(int[] searchResults, int[] flags, String[] search) {
+        return (textList) -> {
+            int results = 0;
+            for (Triple<Entity, Integer, BlockPos> queueEntry : this.workableHandler.getQueueTeleport()) {
+                String key = queueEntry.getLeft().getName();
+
+                if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(flags)).matcher(key).find())
+                    continue;
+
+                BlockPos pos = queueEntry.getRight();
+                World world = DimensionManager.getWorld(queueEntry.getMiddle());
+                String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
+                int worldID = queueEntry.getMiddle();
+
+                String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
+
+                ITextComponent keyPos = new TextComponentString("[§e" + (++results) + "§r] " + key + "§r");
+
+                ITextComponent blockPos = new TextComponentString(results + ": " + key + "\n")
+                        .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
+                        .appendText("\n")
+                        .appendSibling(new TextComponentString(position));
+
+                keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
+                textList.add(keyPos);
+            }
+            searchResults[0] = results;
+        };
+    }
+
+    private int getFlags(int[] flags) {
+        int flag = 0;
+        for (int i : flags) {
+            flag |= i;
+        }
+        return flag;
+    }
+
+    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handlePosDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
+        return (componentData, textId, clickData, player) -> {
+            String[] component = componentData.split(":");
+            switch (component[0]) {
+                case "tp":
+                    String[] world = componentData.split("w");
+                    String[] pos = world[1].split("x");
+                    String[] x = pos[1].split("y");
+                    String[] yz = x[1].split("z");
+
+                    int worldID = Integer.parseInt(pos[0]);
+                    int posX = Integer.parseInt(x[0]);
+                    int posY = Integer.parseInt(yz[0]);
+                    int posZ = Integer.parseInt(yz[1]);
+
+                    if (DimensionManager.getWorld(worldID) == null) {
+                        DimensionManager.initDimension(worldID);
+                        DimensionManager.keepDimensionLoaded(worldID, true);
+                    }
+
+                    BlockPos blockPos = new BlockPos(posX, posY, posZ);
+                    player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.queue", player.getName())));
+                    this.workableHandler.getQueueTeleport().add(new ImmutableTriple<>(player, worldID, blockPos));
+                    break;
+                case "select": this.workableHandler.setSelectedPosName(component[1]);
+                    break;
+                case "remove": this.workableHandler.getPosMap().remove(component[1]);
+                    break;
+                case "@Popup": textFieldWidget.setTextId(component[1]);
+                    break;
+            }
+        };
     }
 
     @Override
@@ -502,7 +545,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         name = this.checkDuplicateNames(name, 1);
         int worldID = world.provider.getDimension();
         this.workableHandler.getPosMap().put(name, new ImmutablePair<>(worldID, pos));
-        this.linkData.setInteger("I", 1);
+        this.workableHandler.getLinkData().setInteger("I", 1);
         this.markDirty();
     }
 

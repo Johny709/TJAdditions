@@ -74,8 +74,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         this.workableHandler.setImportItemsSupplier(this::getImportItems)
                 .setExportItemsSupplier(this::getExportItems)
                 .setImportFluidsSupplier(this::getImportFluids)
-                .setToolInventory(() -> this.toolInventory)
-                .setFertilizerInventory(() -> this.fertilizerInventory)
+                .setToolInventory(this::getToolInventory)
+                .setFertilizerInventory(this::getFertilizerInventory)
                 .setImportEnergySupplier(this::getEnergyContainer)
                 .setMaxVoltageSupplier(this::getMaxVoltage)
                 .setTierSupplier(this::getTier)
@@ -172,5 +172,13 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+    }
+
+    private IItemHandlerModifiable getToolInventory() {
+        return this.toolInventory;
+    }
+
+    private IItemHandlerModifiable getFertilizerInventory() {
+        return this.fertilizerInventory;
     }
 }

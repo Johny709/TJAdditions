@@ -147,7 +147,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         int[] searchResults = new int[1];
         int[] patternFlags = new int[9];
         String[] search = {""};
-        tabBuilder.addTab("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), linkedEntitiesDisplayTab -> {
+        tabBuilder.addTab("tj.multiblock.tab.linked_entities_display", TJMetaItems.LINKING_DEVICE.getStackForm(), tab -> {
             NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                     .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                     .setBackgroundText("machine.universal.toggle.rename.entry")
@@ -157,7 +157,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, this.addDisplayLinkedEntities(searchResults, patternFlags, search), 0xFFFFFF)
                     .addClickHandler(this.handleLinkedDisplayClick(textFieldWidgetRename));
             textWidget.setMaxWidthLimit(1024);
-            linkedEntitiesDisplayTab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+            tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                     .addPopup(widgetGroup -> {
                         widgetGroup.addWidget(new AdvancedTextWidget(10, -20, (textList) -> textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)")), 0xFFFFFF));
                         widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
