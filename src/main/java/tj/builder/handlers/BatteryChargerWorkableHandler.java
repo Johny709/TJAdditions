@@ -251,6 +251,7 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
 
     public void setLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
+        this.metaTileEntity.markDirty();
     }
 
     public NBTTagCompound getLinkData() {

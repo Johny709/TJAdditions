@@ -3,18 +3,16 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import gregtech.api.metatileentity.MTETrait;
 import tj.builder.WidgetTabBuilder;
+import tj.builder.handlers.TeleporterWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IParallelController;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
 import tj.gui.TJGuiTextures;
-import tj.gui.uifactory.IPlayerUI;
 import tj.gui.uifactory.PlayerHolder;
-import tj.gui.widgets.OnTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.gui.widgets.TJClickButtonWidget;
 import tj.gui.widgets.TJTextFieldWidget;
@@ -24,18 +22,14 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.IWorkable;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.MetaTileEntityUIFactory;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -48,16 +42,10 @@ import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -66,12 +54,9 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
@@ -99,31 +84,20 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FL
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 
-public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, IWorkable, LinkPos, IPlayerUI {
+public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, LinkPos {
 
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private final TeleporterWorkableHandler workableHandler = new TeleporterWorkableHandler(this);
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
     private NBTTagCompound linkData;
-    private long energyDrain;
     private int tier;
-    private boolean isActive;
-    private int progress;
-    private int maxProgress = 20;
-    private String selectedPosName;
-    private String searchPrompt = "";
-    private String queuePrompt = "";
-    private String renamePrompt = "";
-    private boolean isCaseSensitive;
-    private boolean hasSpaces;
-    private int searchResults;
-    private int queueCount;
-    private final Object2ObjectMap<String, Pair<Integer, BlockPos>> posMap = new Object2ObjectOpenHashMap<>();
-    private final Queue<Triple<Entity, Integer, BlockPos>> markEntitiesToTransport = new ArrayDeque<>();
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private static final Random random = new Random();
 
     public MetaTileEntityTeleporter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
+        this.workableHandler.setImportEnergySupplier(this::getEnergyContainer)
+                .setImportFluidsSupplier(this::getInputFluidHandler)
+                .setTierSupplier(this::getTier);
     }
 
     @Override
@@ -138,119 +112,13 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
     protected void updateFormedValid() {
-        if (!this.isWorkingEnabled || this.getNumProblems() >= 6 || this.maxProgress < 1) {
-            if (this.isActive)
-                this.setActive(false);
-            return;
-        }
-
-        if (this.progress > 0 && !this.isActive)
-            this.setActive(true);
-
-        if (this.progress >= this.maxProgress) {
-            this.calculateMaintenance(this.maxProgress);
-            this.progress = 0;
-            if (this.isActive)
-                this.setActive(false);
-            if (!this.markEntitiesToTransport.isEmpty())
-                this.transportEntity();
-        }
-
-        if (this.progress <= 0) {
-            this.progress = 1;
-            if (!this.isActive)
-                this.setActive(true);
-            Pair<Integer, BlockPos> worldPos = this.posMap.get(this.selectedPosName);
-            if (worldPos != null && this.markEntitiesToTransport.isEmpty()) {
-                int worldID = worldPos.getLeft();
-                World world = DimensionManager.getWorld(worldID);
-                if (world == null) {
-                    DimensionManager.initDimension(worldID);
-                    DimensionManager.keepDimensionLoaded(worldID, true);
-                }
-                if (world != null) {
-                    BlockPos targetPos = worldPos.getValue();
-                    BlockPos pos = this.getPos().up();
-                    int x = pos.getX();
-                    int y = pos.getY();
-                    int z = pos.getZ();
-                    ClassInheritanceMultiMap<Entity>[] entityLists = this.getWorld().getChunk(pos).getEntityLists();
-                    for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
-                        for (Entity entity : entities) {
-                            BlockPos entityPos = entity.getPosition();
-                            int entityX = entityPos.getX();
-                            int entityY = entityPos.getY();
-                            int entityZ = entityPos.getZ();
-                            if (entityX == x && entityY == y && entityZ == z)
-                                this.markEntitiesToTransport.add(new ImmutableTriple<>(entity, worldID, targetPos));
-                        }
-                    }
-                }
-            }
-        } else {
-            this.progress++;
-        }
-    }
-
-    private void transportEntity() {
-        Triple<Entity, Integer, BlockPos> entityPos = this.markEntitiesToTransport.poll();
-        Entity entity = entityPos.getLeft();
-        WorldServer world = DimensionManager.getWorld(entityPos.getMiddle());
-        if (entity == null || world == null)
-            return;
-        BlockPos pos = entityPos.getRight();
-        int worldID = world.provider.getDimension();
-        long energyX = Math.abs(pos.getX() - this.getPos().getX()) * 1000L;
-        long energyY = Math.abs(pos.getY() - this.getPos().getY()) * 1000L;
-        long energyZ = Math.abs(pos.getZ() - this.getPos().getZ()) * 1000L;
-        boolean interDimensional = false;
-        if (worldID != this.getWorld().provider.getDimension()) {
-            interDimensional = true;
-            energyX = Math.abs(pos.getX() * 1000);
-            energyY = Math.abs(pos.getY() * 1000);
-            energyZ = Math.abs(pos.getZ() * 1000);
-        }
-
-        long totalEnergyConsumption = 1000000 + energyX + energyY + energyZ;
-        if (!hasEnoughEnergy(totalEnergyConsumption)) {
-            entity.sendMessage(new TextComponentString(I18n.translateToLocal("gregtech.multiblock.not_enough_energy") + "\n" + I18n.translateToLocal("tj.multiblock.teleporter.fail")));
-            return;
-        }
-        this.energyContainer.removeEnergy(totalEnergyConsumption);
-        this.generateParticles(this.getWorld(), entity, this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
-
-        if (interDimensional) {
-            entity.setWorld(world);
-            entity.changeDimension(worldID, new Teleporter(world) {
-                @Override
-                public void placeEntity(World world, Entity entity, float yaw) {
-                    entity.setLocationAndAngles(pos.getX(), pos.getY(), pos.getZ(), entity.rotationYaw, 0.0F);
-                    entity.motionX = 0.0D;
-                    entity.motionY = 0.0D;
-                    entity.motionZ = 0.0D;
-                }
-            });
-        } else {
-            entity.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
-        }
-        this.generateParticles(world, entity, pos.getX(), pos.getY(), pos.getZ());
-        entity.sendMessage(new TextComponentTranslation("tj.multiblock.teleporter.success"));
-
-        DimensionManager.keepDimensionLoaded(worldID, false);
-    }
-
-    private void generateParticles(World world, Entity entity, int posX, int posY, int posZ) {
-        for (int j = 0; j < 128; ++j) {
-            double d6 = (double) j / 127.0D;
-            float f = (random.nextFloat() - 0.5F) * 0.2F;
-            float f1 = (random.nextFloat() - 0.5F) * 0.2F;
-            float f2 = (random.nextFloat() - 0.5F) * 0.2F;
-            double d3 = (double) posX + (posX - (double) posX) * d6 + (random.nextDouble() - 0.5D) * (double) entity.width * 2.0D;
-            double d4 = (double) posY + (posY - (double) posY) * d6 + random.nextDouble() * (double) entity.height;
-            double d5 = (double) posZ + (posZ - (double) posZ) * d6 + (random.nextDouble() - 0.5D) * (double) entity.width * 2.0D;
-            world.spawnParticle(EnumParticleTypes.PORTAL, d3, d4, d5, f, f1, f2);
-        }
+        this.workableHandler.update();
     }
 
     private boolean hasEnoughEnergy(long amount) {
@@ -275,7 +143,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             this.invalidateStructure();
             return;
         }
-        this.energyDrain = (long) (Math.pow(4, this.tier) * 8);
         this.energyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.inputFluidHandler = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
     }
@@ -308,9 +175,10 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TELEPORTER_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.isActive);
+        TELEPORTER_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.workableHandler.isActive());
     }
 
     @Override
@@ -369,7 +237,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (this.isStructureFormed()) {
-            Pair<Integer, BlockPos> selectedPos = this.posMap.get(this.selectedPosName);
+            Pair<Integer, BlockPos> selectedPos = this.workableHandler.getPosMap().get(this.workableHandler.getSelectedPosName());
             World world;
             int worldID;
             BlockPos pos;
@@ -401,9 +269,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                             text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
                             text.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
                         }
-                    })
-                    .energyInput(hasEnoughEnergy(distanceEU), distanceEU, this.maxProgress)
-                    .isWorking(this.isWorkingEnabled, this.isActive, this.progress, this.maxProgress);
+                    }).energyInput(hasEnoughEnergy(distanceEU), distanceEU, this.workableHandler.getMaxProgress())
+                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
         }
     }
 
@@ -464,12 +331,12 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private void addQueueDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + this.queueCount + "§r/§e" + this.markEntitiesToTransport.size() + "§r)"));
+        textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + this.queueCount + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)"));
     }
 
     private void addQueueDisplayText2(List<ITextComponent> textList) {
         int count = 0, queueCount = 0;
-        for (Triple<Entity, Integer, BlockPos> queueEntry : this.markEntitiesToTransport) {
+        for (Triple<Entity, Integer, BlockPos> queueEntry : this.workableHandler.getQueueTeleport()) {
             String key = queueEntry.getLeft().getName();
             String result = key, result2 = key;
 
@@ -526,7 +393,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
             BlockPos blockPos = new BlockPos(posX, posY, posZ);
             player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.queue", player.getName())));
-            this.markEntitiesToTransport.add(new ImmutableTriple<>(player, worldID, blockPos));
+            this.workableHandler.getQueueTeleport().add(new ImmutableTriple<>(player, worldID, blockPos));
 
         } else if (componentData.startsWith("select")) {
             String[] selectedPos = componentData.split(":");
@@ -542,36 +409,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             PlayerHolder playerHolder = new PlayerHolder(player, this);
             playerHolder.openUI();
         }
-    }
-
-    @Override
-    public ModularUI createUI(PlayerHolder holder, EntityPlayer player) {
-        ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 80);
-        builder.widget(new ImageWidget(10, 10, 156, 18, DISPLAY));
-        OnTextFieldWidget onTextFieldWidget = new OnTextFieldWidget(15, 15, 151, 18, false, this::getRename, this::setRename);
-        onTextFieldWidget.setTooltipText("machine.universal.set.name");
-        onTextFieldWidget.setBackgroundText("machine.universal.set.name");
-        onTextFieldWidget.setTextLength(256);
-        onTextFieldWidget.setValidator(str -> Pattern.compile(".*").matcher(str).matches());
-        builder.widget(onTextFieldWidget);
-        builder.widget(new TJClickButtonWidget(10, 38, 156, 18, "OK", onTextFieldWidget::onResponder)
-                .setClickHandler(this::onPlayerPressed));
-        return builder.build(holder, player);
-    }
-
-    private String getRename() {
-        return this.renamePrompt;
-    }
-
-    private void setRename(String name) {
-        name = this.checkDuplicateNames(name, 1);
-        Pair<Integer, BlockPos> pos = this.posMap.get(this.renamePrompt);
-        this.posMap.remove(this.renamePrompt);
-        this.posMap.put(name, pos);
-    }
-
-    private void onPlayerPressed(Widget.ClickData clickData, EntityPlayer player) {
-        MetaTileEntityUIFactory.INSTANCE.openUI(getHolder(), (EntityPlayerMP) player);
     }
 
     private String[] getTickSpeedFormat() {
@@ -597,50 +434,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.markDirty();
     }
 
-    private String getSearchPrompt() {
-        return this.searchPrompt;
-    }
-
-    private void setSearchPrompt(String searchPrompt) {
-        this.searchPrompt = searchPrompt;
-        this.markDirty();
-    }
-
-    private String getQueuePrompt() {
-        return this.queuePrompt;
-    }
-
-    private void setQueuePrompt(String queuePrompt) {
-        this.queuePrompt = queuePrompt;
-        this.markDirty();
-    }
-
-    private void onClear(Widget.ClickData clickData) {
-        this.setSearchPrompt("");
-    }
-
-    private void onClear2(Widget.ClickData clickData) {
-        this.setQueuePrompt("");
-    }
-
-    private boolean isCaseSensitive() {
-        return this.isCaseSensitive;
-    }
-
-    private void setCaseSensitive(Boolean isCaseSensitive) {
-        this.isCaseSensitive = isCaseSensitive;
-        this.markDirty();
-    }
-
-    private boolean hasSpaces() {
-        return this.hasSpaces;
-    }
-
-    private void setSpaces(Boolean hasSpaces) {
-        this.hasSpaces = hasSpaces;
-        this.markDirty();
-    }
-
     private boolean isReset() {
         return false;
     }
@@ -650,96 +443,10 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.linkData.setInteger("I", this.getPosSize());
     }
 
-    protected void setActive(boolean active) {
-        this.isActive = active;
-        if (!getWorld().isRemote) {
-            this.writeCustomData(1, buf -> buf.writeBoolean(active));
-            this.markDirty();
-        }
-    }
-
-    @Override
-    public void receiveCustomData(int dataId, PacketBuffer buf) {
-        super.receiveCustomData(dataId, buf);
-        if (dataId == 1)
-            this.isActive = buf.readBoolean();
-    }
-
-    @Override
-    public void writeInitialSyncData(PacketBuffer buf) {
-        super.writeInitialSyncData(buf);
-        buf.writeBoolean(this.isActive);
-        buf.writeInt(this.maxProgress);
-    }
-
-    @Override
-    public void receiveInitialSyncData(PacketBuffer buf) {
-        super.receiveInitialSyncData(buf);
-        this.isActive = buf.readBoolean();
-        this.maxProgress = buf.readInt();
-    }
-
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        NBTTagList posList = new NBTTagList();
-        for (Map.Entry<String, Pair<Integer, BlockPos>> posEntry : this.posMap.entrySet()) {
-            String name = posEntry.getKey();
-            int worldID = posEntry.getValue().getLeft();
-            int x = posEntry.getValue().getRight().getX();
-            int y = posEntry.getValue().getRight().getY();
-            int z = posEntry.getValue().getRight().getZ();
-
-            NBTTagCompound posTag = new NBTTagCompound();
-            posTag.setString("Name", name);
-            posTag.setInteger("WorldID", worldID);
-            posTag.setInteger("X", x);
-            posTag.setInteger("Y", y);
-            posTag.setInteger("Z", z);
-            posList.appendTag(posTag);
-        }
-        data.setTag("PosList", posList);
-        data.setBoolean("Active", this.isActive);
-        data.setBoolean("CaseSensitive", this.isCaseSensitive);
-        data.setBoolean("HasSpaces", this.hasSpaces);
-        data.setInteger("Progress", this.progress);
-        data.setInteger("MaxProgress", this.maxProgress);
-        if (this.selectedPosName != null)
-            data.setString("SelectedPos", this.selectedPosName);
-        if (this.linkData != null)
-            data.setTag("Link.XYZ", this.linkData);
-        return data;
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.isActive = data.getBoolean("Active");
-        this.isCaseSensitive = data.getBoolean("CaseSensitive");
-        this.hasSpaces = data.getBoolean("HasSpaces");
-        this.maxProgress = data.hasKey("MaxProgress") ? data.getInteger("MaxProgress") : 20;
-        this.progress = data.getInteger("Progress");
-        this.selectedPosName = data.getString("SelectedPos");
-        if (data.hasKey("Link.XYZ"))
-            this.linkData = data.getCompoundTag("Link.XYZ");
-        if (!data.hasKey("PosList"))
-            return;
-        NBTTagList posList = data.getTagList("PosList", Constants.NBT.TAG_COMPOUND);
-        for (NBTBase compound : posList) {
-            NBTTagCompound tag = (NBTTagCompound) compound;
-            String name = tag.getString("Name");
-            int worldID = tag.getInteger("WorldID");
-            BlockPos pos = new BlockPos(tag.getInteger("X"), tag.getInteger("Y"), tag.getInteger("Z"));
-            this.posMap.put(name, new ImmutablePair<>(worldID, pos));
-        }
-    }
-
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
-        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
-            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
         if (capability == TJCapabilities.CAPABILITY_LINK_POS)
             return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
         return super.getCapability(capability, side);
@@ -757,12 +464,12 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public long getMaxEUt() {
-        return this.energyDrain;
+        return this.workableHandler.getEnergyPerTick();
     }
 
     @Override
     public long getTotalEnergyConsumption() {
-        return this.energyDrain;
+        return this.workableHandler.getEnergyPerTick();
     }
 
     @Override
@@ -794,12 +501,13 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     public void setPos(String name, BlockPos pos, EntityPlayer player, World world, int index) {
         name = this.checkDuplicateNames(name, 1);
         int worldID = world.provider.getDimension();
-        this.posMap.put(name, new ImmutablePair<>(worldID, pos));
+        this.workableHandler.getPosMap().put(name, new ImmutablePair<>(worldID, pos));
         this.linkData.setInteger("I", 1);
+        this.markDirty();
     }
 
     private String checkDuplicateNames(String name, int count) {
-        if (!this.posMap.containsKey(name))
+        if (!this.workableHandler.getPosMap().containsKey(name))
             return name;
         if (count > 1) {
             String[] split = name.split(" ");
@@ -822,21 +530,33 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     public NBTTagCompound getLinkData() {
-        return this.linkData;
+        return this.workableHandler.getLinkData();
     }
 
     @Override
     public void setLinkData(NBTTagCompound linkData) {
-        this.linkData = linkData;
+        this.workableHandler.setLinkData(linkData);
     }
 
     @Override
-    public int getProgress() {
-        return this.progress;
+    public void setWorkingEnabled(boolean isActivationAllowed) {
+        this.workableHandler.setWorkingEnabled(isActivationAllowed);
     }
 
     @Override
-    public int getMaxProgress() {
-        return this.maxProgress;
+    public boolean isWorkingEnabled() {
+        return this.workableHandler.isWorkingEnabled();
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private IMultipleTankHandler getInputFluidHandler() {
+        return this.inputFluidHandler;
+    }
+
+    public int getTier() {
+        return this.tier;
     }
 }

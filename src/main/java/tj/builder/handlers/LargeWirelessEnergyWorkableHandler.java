@@ -218,6 +218,7 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
 
     public void setLinkData(NBTTagCompound linkData) {
         this.linkData = linkData;
+        this.metaTileEntity.markDirty();
     }
 
     public NBTTagCompound getLinkData() {

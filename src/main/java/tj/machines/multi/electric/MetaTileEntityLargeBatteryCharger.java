@@ -626,6 +626,16 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         return super.getCapability(capability, side);
     }
 
+    @Override
+    public void setWorkingEnabled(boolean isActivationAllowed) {
+        this.workableHandler.setWorkingEnabled(isActivationAllowed);
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.workableHandler.isWorkingEnabled();
+    }
+
     private IItemHandlerModifiable getImportItemHandler() {
         return this.importItemHandler;
     }

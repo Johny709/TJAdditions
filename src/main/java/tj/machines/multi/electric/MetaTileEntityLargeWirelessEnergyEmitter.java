@@ -564,7 +564,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @Override
     public void setLinkData(NBTTagCompound linkData) {
         this.workableHandler.setLinkData(linkData);
-        this.markDirty();
     }
 
     @Override
