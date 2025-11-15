@@ -179,7 +179,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
                 this.entityLinkBlockPos = new BlockPos[this.tierSupplier.getAsInt()];
                 tileMode = "gregtech.machine.world_accelerator.mode.entity";
         }
-        this.energyPerTick = (long) (Math.pow(4, this.tierSupplier.getAsInt()) * 8) * this.energyMultiplier;
+        this.updateEnergyPerTick();
         if (this.linkData != null) {
             this.linkData.setInteger("Size", this.entityLinkBlockPos.length);
             this.linkData.setInteger("I", this.entityLinkBlockPos.length);

@@ -107,7 +107,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         this.transferType = transferType;
         this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
                 .setImportEnergySupplier(this::getInputEnergyContainer)
-                .setTierSupplier(this::getTier);
+                .setTierSupplier(this::getTier)
+                .setResetEnergy(false);
         this.reinitializeStructurePattern();
     }
 
@@ -531,6 +532,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         this.workableHandler.getEntityLinkWorld()[index] = world.provider.getDimension();
         this.workableHandler.getEntityEnergyAmps()[index] = 1;
         this.workableHandler.getEntityLinkBlockPos()[index] = pos;
+        this.workableHandler.updateTotalEnergyPerTick();
     }
 
     private String checkDuplicateNames(String name, int count) {

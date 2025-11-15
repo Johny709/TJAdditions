@@ -36,6 +36,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     protected boolean wasActiveAndNeedsUpdate;
     protected boolean isDistinct;
     protected boolean hasProblem;
+    protected boolean resetEnergy = true;
     protected long energyPerTick;
     protected int progress;
     protected int maxProgress;
@@ -88,6 +89,14 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
      */
     public R setExportFluidsSupplier(Supplier<IFluidHandler> exportFluidsSupplier) {
         this.exportFluidsSupplier = exportFluidsSupplier;
+        return (R) this;
+    }
+
+    /**
+     * @param resetEnergy toggle to reset energy consumption when recipe is done.
+     */
+    public R setResetEnergy(boolean resetEnergy) {
+        this.resetEnergy = resetEnergy;
         return (R) this;
     }
 
@@ -179,7 +188,8 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
         if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
-                this.energyPerTick = 0;
+                if (this.resetEnergy)
+                    this.energyPerTick = 0;
                 if (this.hasProblem)
                     this.setProblem(false);
             } else {
@@ -223,8 +233,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     protected void progressRecipe(int progress) {
-        if (this.importEnergySupplier.get().getEnergyStored() >= this.energyPerTick) {
-            this.importEnergySupplier.get().removeEnergy(this.energyPerTick);
+        if (this.importEnergySupplier.get().removeEnergy(this.energyPerTick) == -this.energyPerTick) {
             this.progress++;
         } else if (this.progress > 1)
             this.progress--;

@@ -36,6 +36,7 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
 
     public LargeWirelessEnergyWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
+        this.maxProgress = 1;
     }
 
     @Override
@@ -69,6 +70,11 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
     @Override
     protected boolean startRecipe() {
         return true;
+    }
+
+    @Override
+    protected void progressRecipe(int progress) {
+        this.progress++;
     }
 
     @Override

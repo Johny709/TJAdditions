@@ -98,7 +98,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         super(metaTileEntityId);
         this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
                 .setImportEnergySupplier(this::getEnergyContainer)
-                .setTierSupplier(this::getTier);
+                .setTierSupplier(this::getTier)
+                .setResetEnergy(false);
     }
 
     @Override
@@ -130,7 +131,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                     .custom(text -> text.add(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
                             : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
                             : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
-                    .isWorking(this.isWorkingEnabled, this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
         }
     }
 
@@ -353,7 +354,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     protected void updateFormedValid() {
-        if (getOffsetTimer() > 100)
+        if (this.getOffsetTimer() > 100)
             this.workableHandler.update();
     }
 
@@ -443,6 +444,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         name = this.checkDuplicateNames(name, 1);
         this.workableHandler.getEntityLinkName()[index] = name;
         this.workableHandler.getEntityLinkBlockPos()[index] = pos;
+        this.workableHandler.updateEnergyPerTick();
     }
 
     private String checkDuplicateNames(String name, int count) {
