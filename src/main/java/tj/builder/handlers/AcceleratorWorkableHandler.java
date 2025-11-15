@@ -40,26 +40,26 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
     private int energyMultiplier = 1;
     private int fluidConsumption;
     private int area;
-    private int tier;
     private String[] entityLinkName;
     private BlockPos[] entityLinkBlockPos;
     private NBTTagCompound linkData;
 
     public AcceleratorWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
+        this.maxProgress = 1;
+        this.isWorking = false;
     }
 
     @Override
     public AcceleratorWorkableHandler initialize(int busCount) {
-        this.tier = this.tierSupplier.getAsInt();
         this.area = (this.tierSupplier.getAsInt() * 2) + 1;
-        this.gtAcceleratorTier = this.tier - GAValues.UHV;
+        this.gtAcceleratorTier = this.tierSupplier.getAsInt() - GAValues.UHV;
         if (this.acceleratorMode == AcceleratorMode.GT_TILE_ENTITY) {
             this.entityLinkName = this.entityLinkName != null ? this.entityLinkName : new String[1];
             this.entityLinkBlockPos = this.entityLinkBlockPos != null ? this.entityLinkBlockPos : new BlockPos[1];
         } else {
-            this.entityLinkName = this.entityLinkName != null ? Arrays.copyOf(this.entityLinkName, this.tier) : new String[this.tier];
-            this.entityLinkBlockPos = this.entityLinkBlockPos != null ? Arrays.copyOf(this.entityLinkBlockPos, this.tier) : new BlockPos[this.tier];
+            this.entityLinkName = this.entityLinkName != null ? Arrays.copyOf(this.entityLinkName, this.tierSupplier.getAsInt()) : new String[this.tierSupplier.getAsInt()];
+            this.entityLinkBlockPos = this.entityLinkBlockPos != null ? Arrays.copyOf(this.entityLinkBlockPos, this.tierSupplier.getAsInt()) : new BlockPos[this.tierSupplier.getAsInt()];
         }
         this.fluidConsumption = (int) Math.pow(4, this.gtAcceleratorTier - 1) * 1000;
         this.setLinkedEntitiesPos(this.metaTileEntity);
@@ -71,6 +71,11 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
             this.linkData.setInteger("I", remaining);
         }
         return this;
+    }
+
+    @Override
+    protected boolean startRecipe() {
+        return true;
     }
 
     @Override
@@ -91,7 +96,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
                         horror = clazz.isInstance(targetTE);
                     }
                     if (targetTE instanceof ITickable && (!horror || !world.isRemote)) {
-                        IntStream.range(0, (int) Math.pow(2, this.tier)).forEach(value -> ((ITickable) targetTE).update());
+                        IntStream.range(0, (int) Math.pow(2, this.tierSupplier.getAsInt())).forEach(value -> ((ITickable) targetTE).update());
                     }
                 }
                 break;
@@ -120,13 +125,13 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
                         if (((MetaTileEntityAcceleratorAnchorPoint) targetGTTE).isRedStonePowered())
                             continue;
                     }
-                    BlockPos upperConner = blockPos.north(this.tier).east(this.tier);
+                    BlockPos upperConner = blockPos.north(this.tierSupplier.getAsInt()).east(this.tierSupplier.getAsInt());
                     for (int x = 0; x < this.area; x++) {
                         BlockPos row = upperConner.south(x);
                         for (int y = 0; y < this.area; y++) {
                             BlockPos cell = row.west(y);
                             IBlockState targetBlock = world.getBlockState(cell);
-                            IntStream.range(0, (int) Math.pow(2, this.tier)).forEach(value -> {
+                            IntStream.range(0, (int) Math.pow(2, this.tierSupplier.getAsInt())).forEach(value -> {
                                 if (world.rand.nextInt(100) == 0) {
                                     if (targetBlock.getBlock().getTickRandomly()) {
                                         targetBlock.getBlock().randomTick(world, cell, targetBlock, world.rand);
@@ -156,8 +161,8 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
             case RANDOM_TICK:
                 this.acceleratorMode = TILE_ENTITY;
                 this.energyMultiplier = 1;
-                this.entityLinkName = new String[this.tier];
-                this.entityLinkBlockPos = new BlockPos[this.tier];
+                this.entityLinkName = new String[this.tierSupplier.getAsInt()];
+                this.entityLinkBlockPos = new BlockPos[this.tierSupplier.getAsInt()];
                 tileMode = "gregtech.machine.world_accelerator.mode.tile";
                 break;
             case TILE_ENTITY:
@@ -170,11 +175,11 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
             case GT_TILE_ENTITY:
                 this.acceleratorMode = RANDOM_TICK;
                 this.energyMultiplier = 1;
-                this.entityLinkName = new String[this.tier];
-                this.entityLinkBlockPos = new BlockPos[this.tier];
+                this.entityLinkName = new String[this.tierSupplier.getAsInt()];
+                this.entityLinkBlockPos = new BlockPos[this.tierSupplier.getAsInt()];
                 tileMode = "gregtech.machine.world_accelerator.mode.entity";
         }
-        this.energyPerTick = (long) (Math.pow(4, this.tier) * 8) * this.energyMultiplier;
+        this.energyPerTick = (long) (Math.pow(4, this.tierSupplier.getAsInt()) * 8) * this.energyMultiplier;
         if (this.linkData != null) {
             this.linkData.setInteger("Size", this.entityLinkBlockPos.length);
             this.linkData.setInteger("I", this.entityLinkBlockPos.length);
@@ -229,7 +234,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
 
     public void updateEnergyPerTick() {
         long count = Arrays.stream(this.entityLinkBlockPos).filter(Objects::nonNull).count();
-        this.energyPerTick = (long) ((Math.pow(4, this.tier) * 8) * this.energyMultiplier) * count;
+        this.energyPerTick = (long) ((Math.pow(4, this.tierSupplier.getAsInt()) * 8) * this.energyMultiplier) * count;
         this.metaTileEntity.markDirty();
     }
 

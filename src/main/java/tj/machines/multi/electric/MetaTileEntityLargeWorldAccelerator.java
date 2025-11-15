@@ -96,9 +96,9 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     public MetaTileEntityLargeWorldAccelerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportFluidsSupplier(() -> this.importFluidHandler)
-                .setImportEnergySupplier(() -> this.energyContainer)
-                .setTierSupplier(() -> this.tier);
+        this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
+                .setImportEnergySupplier(this::getEnergyContainer)
+                .setTierSupplier(this::getTier);
     }
 
     @Override
@@ -529,5 +529,17 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public boolean isWorkingEnabled() {
         return this.workableHandler.isWorkingEnabled();
+    }
+
+    private IMultipleTankHandler getImportFluidHandler() {
+        return importFluidHandler;
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return energyContainer;
+    }
+
+    public int getTier() {
+        return tier;
     }
 }

@@ -25,6 +25,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     protected Supplier<IFluidHandler> importFluidsSupplier;
     protected Supplier<IFluidHandler> exportFluidsSupplier;
     protected Supplier<IEnergyContainer> importEnergySupplier;
+    protected Supplier<IEnergyContainer> exportEnergySupplier;
     protected IntFunction<IItemHandlerModifiable> inputBus;
     protected LongSupplier maxVoltageSupplier;
     protected IntSupplier tierSupplier;
@@ -95,6 +96,14 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
      */
     public R setImportEnergySupplier(Supplier<IEnergyContainer> importEnergySupplier) {
         this.importEnergySupplier = importEnergySupplier;
+        return (R) this;
+    }
+
+    /**
+     * @param exportEnergySupplier Energy Output supplier
+     */
+    public R setExportEnergySupplier(Supplier<IEnergyContainer> exportEnergySupplier) {
+        this.exportEnergySupplier = exportEnergySupplier;
         return (R) this;
     }
 

@@ -10,7 +10,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.energy.IEnergyStorage;
 
 public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLargeWirelessEnergyEmitter {
 
@@ -19,7 +18,8 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     public MetaTileEntityLargeWirelessEnergyReceiver(ResourceLocation metaTileEntityId, TransferType transferType) {
         super(metaTileEntityId, transferType);
         this.transferType = transferType;
-        reinitializeStructurePattern();
+        this.workableHandler.setExportEnergySupplier(this::getOutputEnergyContainer);
+        this.reinitializeStructurePattern();
     }
 
     @Override
@@ -30,28 +30,6 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     @Override
     protected boolean hasEnoughEnergy(long amount) {
         return true;
-    }
-
-    @Override
-    protected void transferRF(int energyToAdd, IEnergyStorage RFContainer) {
-        if (RFContainer == null)
-            return;
-        long energyRemainingToFill = (this.outputEnergyContainer.getEnergyCapacity() - this.outputEnergyContainer.getEnergyStored());
-        if (this.outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-            int energyExtracted = RFContainer.extractEnergy((int) Math.min(Integer.MAX_VALUE, Math.min(energyToAdd * 4L, energyRemainingToFill)), false);
-            this.outputEnergyContainer.addEnergy(energyExtracted / 4);
-        }
-    }
-
-    @Override
-    protected void transferEU(long energyToAdd, IEnergyContainer EUContainer) {
-        if (EUContainer == null)
-            return;
-        long energyRemainingToFill = this.outputEnergyContainer.getEnergyCapacity() - this.outputEnergyContainer.getEnergyStored();
-        if (this.outputEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-            long energyExtracted = EUContainer.removeEnergy(energyToAdd);
-            this.outputEnergyContainer.addEnergy(Math.abs(energyExtracted));
-        }
     }
 
     @Override
@@ -73,5 +51,9 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     @Override
     public long getEnergyCapacity() {
         return this.outputEnergyContainer.getEnergyCapacity();
+    }
+
+    private IEnergyContainer getOutputEnergyContainer() {
+        return this.outputEnergyContainer;
     }
 }
