@@ -1,7 +1,5 @@
 package tj.builder.handlers;
 
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.GAMultiblockCasing2;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -187,6 +185,13 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
         }
         if (data.hasKey("link.XYZ"))
             this.linkData = data.getCompoundTag("link.XYZ");
+    }
+
+    public void renameLink(String name, String id) {
+        int index = id.lastIndexOf(";");
+        index = Integer.parseInt(id.substring(index + 1));
+        this.entityLinkName[index] = name;
+        this.metaTileEntity.markDirty();
     }
 
     public void updateTotalEnergyPerTick() {

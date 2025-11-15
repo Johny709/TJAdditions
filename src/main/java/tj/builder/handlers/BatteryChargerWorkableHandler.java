@@ -178,6 +178,13 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
         }
     }
 
+    public void renameLink(String name, String id) {
+        int index = id.lastIndexOf(";");
+        index = Integer.parseInt(id.substring(index + 1));
+        this.entityLinkName[index] = name;
+        this.metaTileEntity.markDirty();
+    }
+
     public void updateTotalEnergyPerTick() {
         int dimensionID = this.metaTileEntity.getWorld().provider.getDimension();
         this.linkedWorldsCount = (int) Arrays.stream(this.entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
@@ -186,7 +193,6 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
         long amps = slots + Arrays.stream(this.linkedPlayers).filter(Objects::nonNull).count();
         this.totalEnergyPerTick = (long) (Math.pow(4, this.tierSupplier.getAsInt()) * 8) * amps;
     }
-
 
     public void setReset(boolean reset) {
         Arrays.fill(this.linkedPlayers, null);

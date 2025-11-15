@@ -153,7 +153,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                     .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                     .setBackgroundText("machine.universal.toggle.rename.entry")
                     .setTooltipText("machine.universal.toggle.rename.entry")
-                    .setTextResponder(this::renameLink)
+                    .setTextResponder(this.workableHandler::renameLink)
                     .setMaxStringLength(256);
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, this.addDisplayLinkedEntitiesText(searchResults, patternFlags, search), 0xFFFFFF)
                     .addClickHandler(this.handleLinkedDisplayClick(textFieldWidgetRename));
@@ -452,12 +452,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.workableHandler.isActive());
-    }
-
-    private void renameLink(String name, String id) {
-        int index = id.lastIndexOf(";");
-        index = Integer.parseInt(id.substring(index + 1));
-        this.workableHandler.getEntityLinkName()[index] = name;
     }
 
     @Override

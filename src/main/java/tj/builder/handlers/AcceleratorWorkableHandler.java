@@ -3,7 +3,6 @@ package tj.builder.handlers;
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.GAValues;
 import gregtech.api.block.machines.BlockMachine;
-import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.pipenet.block.material.TileEntityMaterialPipeBase;
@@ -17,7 +16,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
@@ -232,6 +230,13 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
             this.linkData = compound.getCompoundTag("link.XYZ");
     }
 
+    public void renameLink(String name, String id) {
+        int index = id.lastIndexOf(";");
+        index = Integer.parseInt(id.substring(index + 1));
+        this.entityLinkName[index] = name;
+        this.metaTileEntity.markDirty();
+    }
+
     public void updateEnergyPerTick() {
         long count = Arrays.stream(this.entityLinkBlockPos).filter(Objects::nonNull).count();
         this.energyPerTick = (long) ((Math.pow(4, this.tierSupplier.getAsInt()) * 8) * this.energyMultiplier) * count;
@@ -257,21 +262,6 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
 
     public String[] getEntityLinkName() {
         return this.entityLinkName;
-    }
-
-    public void onIncrement(Widget.ClickData clickData) {
-        this.maxProgress = MathHelper.clamp(this.maxProgress * 2, 1, Integer.MAX_VALUE);
-        this.metaTileEntity.markDirty();
-    }
-
-    public void onDecrement(Widget.ClickData clickData) {
-        this.maxProgress = MathHelper.clamp(this.maxProgress / 2, 1, Integer.MAX_VALUE);
-        this.metaTileEntity.markDirty();
-    }
-
-    public void setTickSpeed(String maxProgress) {
-        this.maxProgress = maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress);
-        this.metaTileEntity.markDirty();
     }
 
     public void setReset(boolean reset) {

@@ -6,6 +6,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.item.Item;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
@@ -151,7 +152,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                     .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                     .setBackgroundText("machine.universal.toggle.rename.entry")
                     .setTooltipText("machine.universal.toggle.rename.entry")
-                    .setTextResponder(this::renameLink)
+                    .setTextResponder(this.workableHandler::renameLink)
                     .setMaxStringLength(256);
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, this.addDisplayLinkedEntities(searchResults, patternFlags, search), 0xFFFFFF)
                     .addClickHandler(this.handleLinkedDisplayClick(textFieldWidgetRename));
@@ -202,12 +203,12 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     protected void mainDisplayTab(WidgetGroup widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), this.workableHandler::setTickSpeed)
+        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
                 .setTooltipText("machine.universal.tick.speed")
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", this.workableHandler::onIncrement));
-        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", this.workableHandler::onDecrement));
+        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
         widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
@@ -416,12 +417,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         return this.workableHandler.onScrewDriverClick(playerIn, hand, facing, hitResult);
-    }
-
-    private void renameLink(String name, String id) {
-        int index = id.lastIndexOf(";");
-        index = Integer.parseInt(id.substring(index + 1));
-        this.workableHandler.getEntityLinkName()[index] = name;
     }
 
     @Override
