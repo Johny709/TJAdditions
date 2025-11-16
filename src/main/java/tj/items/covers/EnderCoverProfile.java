@@ -46,6 +46,7 @@ public class EnderCoverProfile<V> {
 
     public void removeEntry(String key) {
         Set<AbstractEnderCover<V>> set = this.covers.remove(key);
+        this.entries.remove(key);
         for (AbstractEnderCover<V> cover : set) {
             cover.setLastEntry(null);
             cover.setHandler(null);
@@ -74,21 +75,23 @@ public class EnderCoverProfile<V> {
     }
 
     public void editChannel(String key) {
-        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet())
+        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet()) {
             for (AbstractEnderCover<V> cover : entry.getValue()) {
                 cover.setChannel(key);
                 cover.markAsDirty();
             }
+        }
     }
 
     public void removeChannel() {
-        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet())
+        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet()) {
             for (AbstractEnderCover<V> cover : entry.getValue()) {
                 cover.setLastEntry(null);
                 cover.setHandler(null);
                 cover.setChannel(null);
                 cover.markAsDirty();
             }
+        }
     }
 
     public void setPublic(boolean isPublic) {

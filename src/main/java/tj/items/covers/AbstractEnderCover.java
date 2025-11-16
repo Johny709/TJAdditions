@@ -58,6 +58,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     protected String channel;
     protected String lastEntry;
+    protected String displayName;
     protected UUID ownerId;
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
@@ -91,6 +92,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     public EnumActionResult onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, CuboidRayTraceResult hitResult) {
         if (this.ownerId == null) {
             this.ownerId = playerIn.getUniqueID();
+            this.displayName = playerIn.getDisplayNameString();
         }
         if (!playerIn.world.isRemote) {
             this.openUI((EntityPlayerMP) playerIn);
@@ -290,7 +292,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setTextSupplier(() -> search[1])
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
-                                widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.ownerId));
+                                widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.displayName));
                                 return true;
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")

@@ -452,6 +452,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         this.inputEnergyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.outputEnergyContainer = new EnergyContainerList(this.getAbilities(OUTPUT_ENERGY));
         this.tier = context.getOrDefault("CellType", CellCasing.CellType.CELL_EV).getTier();
+        this.workableHandler.initialize(0);
     }
 
     private boolean hasEnoughFluid(int amount) {

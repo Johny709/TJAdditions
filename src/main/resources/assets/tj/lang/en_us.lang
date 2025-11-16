@@ -355,7 +355,7 @@ tj.multiblock.large_crafter.slots=Amount of slots for encoding recipes: §b%d
 tj.multiblock.drilling_rig.voltage=Requires §d%s§7 voltage or higher. Overclocks up to §d%s§7.
 tj.multiblock.drilling_rig.tooltip.drilling_mud=Consumes §6%,dL§7 Drilling Mud and outputs §c%,dL§7 Used Drilling Mud per second.
 
-tj.multiblock.teleporter.selected.world=Selected World: §6%,d§r (§6%,d§r)
+tj.multiblock.teleporter.selected.world=Selected World: §6%s§7 (§6%,d§7)
 tj.multiblock.teleporter.selected.pos=Selected Pos: X: §b%,d§r Y: §b%,d§r Z: §b%,d§r
 tj.multiblock.teleporter.queue=Queued §6%s§r for teleportation
 tj.multiblock.teleporter.success=Teleport Successful
@@ -684,7 +684,7 @@ machine.universal.toggle.current.channel=Current Channel
 machine.universal.linked.entity.null=Not linked
 machine.universal.linked.entity.empty=Null
 machine.universal.linked.entity.radius=Radius: §e%.1f§rx§e%.1f§r
-machine.universal.linked.dimension=Dimension: §6%s§r (§6%s§r)
+machine.universal.linked.dimension=Dimension: §6%s§7 (§6%,d§7)
 machine.universal.linked.pos=Position: §7{§rX: §b%s§r Y: §b%s§r Z: §b%s§7}
 machine.universal.linked.add=[Add]
 machine.universal.linked.remove=[Remove]

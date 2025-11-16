@@ -4,6 +4,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -107,7 +108,7 @@ public class TeleporterWorkableHandler extends AbstractWorkableHandler<Teleporte
         }
 
         long totalEnergyConsumption = 1000000 + energyX + energyY + energyZ;
-        if (this.importEnergySupplier.get().removeEnergy(totalEnergyConsumption) == -totalEnergyConsumption) {
+        if (this.importEnergySupplier.get().removeEnergy(totalEnergyConsumption) != -totalEnergyConsumption) {
             entity.sendMessage(new TextComponentString(I18n.translateToLocal("gregtech.multiblock.not_enough_energy") + "\n" + I18n.translateToLocal("tj.multiblock.teleporter.fail")));
             return;
         }
@@ -125,7 +126,8 @@ public class TeleporterWorkableHandler extends AbstractWorkableHandler<Teleporte
                 }
             });
         } else entity.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
-
+        if (entity instanceof EntityPlayer)
+            ((EntityPlayer) entity).closeScreen();
         this.generateParticles(world, entity, pos.getX(), pos.getY(), pos.getZ());
         entity.sendMessage(new TextComponentTranslation("tj.multiblock.teleporter.success"));
 

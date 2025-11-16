@@ -142,6 +142,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         }
         this.energyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.inputFluidHandler = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
+        this.workableHandler.initialize(0);
     }
 
     @Override
@@ -230,8 +231,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         int[][] searchResults = new int[2][1];
         int[][] patternFlags = new int[2][9];
         String[][] search = {{""}, {""}};
-        tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + search[0][0] + "§r/§e" + this.workableHandler.getPosMap().size() + "§r)")), this.addPosDisplayText(searchResults[0], patternFlags[0], search[0]), patternFlags[0], search[0]));
-        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + search[1][0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)")), this.addQueueDisplayText(searchResults[1], patternFlags[1], search[1]), patternFlags[1], search[1]));
+        tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + searchResults[0][0] + "§r/§e" + this.workableHandler.getPosMap().size() + "§r)")), this.addPosDisplayText(searchResults[0], patternFlags[0], search[0]), patternFlags[0], search[0]));
+        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + searchResults[1][0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)")), this.addQueueDisplayText(searchResults[1], patternFlags[1], search[1]), patternFlags[1], search[1]));
     }
 
     @Override
@@ -381,7 +382,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
                 BlockPos pos = posEntry.getValue().getValue();
 
-                String tp = "tp" + "w" + worldID + "x" + pos.getX() + "y" + pos.getY() + "z" + pos.getZ();
+                String tp = "tp:" + pos.getX() + ":" + pos.getY() + ":" + pos.getZ() + ":" + worldID;
                 String select = "select:" + key;
                 String remove = "remove:" + key;
                 String rename = "@Popup:" + key;
@@ -396,7 +397,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), rename));
 
-                ITextComponent blockPos = new TextComponentString(rename + ": " + key + "\n")
+                ITextComponent blockPos = new TextComponentString(key + "\n")
                         .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
                         .appendText("\n")
                         .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ())));
@@ -451,15 +452,10 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             String[] component = componentData.split(":");
             switch (component[0]) {
                 case "tp":
-                    String[] world = componentData.split("w");
-                    String[] pos = world[1].split("x");
-                    String[] x = pos[1].split("y");
-                    String[] yz = x[1].split("z");
-
-                    int worldID = Integer.parseInt(pos[0]);
-                    int posX = Integer.parseInt(x[0]);
-                    int posY = Integer.parseInt(yz[0]);
-                    int posZ = Integer.parseInt(yz[1]);
+                    int posX = Integer.parseInt(component[1]);
+                    int posY = Integer.parseInt(component[2]);
+                    int posZ = Integer.parseInt(component[3]);
+                    int worldID = Integer.parseInt(component[4]);
 
                     if (DimensionManager.getWorld(worldID) == null) {
                         DimensionManager.initDimension(worldID);
