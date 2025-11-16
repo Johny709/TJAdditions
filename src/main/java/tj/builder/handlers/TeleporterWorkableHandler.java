@@ -34,6 +34,7 @@ public class TeleporterWorkableHandler extends AbstractWorkableHandler<Teleporte
     private static final Random random = new Random();
     private final Object2ObjectMap<String, Pair<Integer, BlockPos>> posMap = new Object2ObjectOpenHashMap<>();
     private final Queue<Triple<Entity, Integer, BlockPos>> queueTeleport = new ArrayDeque<>();
+    private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
     private NBTTagCompound linkData;
     private String selectedPosName;
 
@@ -66,18 +67,15 @@ public class TeleporterWorkableHandler extends AbstractWorkableHandler<Teleporte
             }
             if (world != null) {
                 BlockPos targetPos = worldPos.getValue();
-                BlockPos pos = this.metaTileEntity.getPos().up();
-                int x = pos.getX();
-                int y = pos.getY();
-                int z = pos.getZ();
-                ClassInheritanceMultiMap<Entity>[] entityLists = this.metaTileEntity.getWorld().getChunk(pos).getEntityLists();
+                this.pos.setPos(this.metaTileEntity.getPos().getX(), this.metaTileEntity.getPos().getY() + 1, this.metaTileEntity.getPos().getZ());
+                ClassInheritanceMultiMap<Entity>[] entityLists = this.metaTileEntity.getWorld().getChunk(this.pos).getEntityLists();
                 for (ClassInheritanceMultiMap<Entity> entities : entityLists) {
                     for (Entity entity : entities) {
                         BlockPos entityPos = entity.getPosition();
                         int entityX = entityPos.getX();
                         int entityY = entityPos.getY();
                         int entityZ = entityPos.getZ();
-                        if (entityX == x && entityY == y && entityZ == z)
+                        if (entityX == this.pos.getX() && entityY == this.pos.getY() && entityZ == this.pos.getZ())
                             this.queueTeleport.add(new ImmutableTriple<>(entity, worldID, targetPos));
                     }
                 }

@@ -33,6 +33,7 @@ import static tj.builder.handlers.AcceleratorWorkableHandler.AcceleratorMode.*;
 
 public class AcceleratorWorkableHandler extends AbstractWorkableHandler<AcceleratorWorkableHandler> {
 
+    private final BlockPos.MutableBlockPos cell = new BlockPos.MutableBlockPos();
     private AcceleratorMode acceleratorMode = AcceleratorMode.RANDOM_TICK;
     private int gtAcceleratorTier;
     private int energyMultiplier = 1;
@@ -115,7 +116,8 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
                 break;
 
             case RANDOM_TICK:
-                for (BlockPos blockPos : this.entityLinkBlockPos) {
+                for (int i = 0; i < this.entityLinkBlockPos.length; i++) {
+                    BlockPos blockPos = this.entityLinkBlockPos[i];
                     if (blockPos == null)
                         continue;
                     MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, blockPos);
@@ -123,12 +125,10 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
                         if (((MetaTileEntityAcceleratorAnchorPoint) targetGTTE).isRedStonePowered())
                             continue;
                     }
-                    BlockPos upperConner = blockPos.north(this.tierSupplier.getAsInt()).east(this.tierSupplier.getAsInt());
+                    this.cell.setPos(blockPos.getX() - this.tierSupplier.getAsInt(), blockPos.getY() - this.tierSupplier.getAsInt(), blockPos.getZ());
                     for (int x = 0; x < this.area; x++) {
-                        BlockPos row = upperConner.south(x);
                         for (int y = 0; y < this.area; y++) {
-                            BlockPos cell = row.west(y);
-                            IBlockState targetBlock = world.getBlockState(cell);
+                            IBlockState targetBlock = world.getBlockState(this.cell.setPos(this.cell.getX() + x, this.cell.getY() + y, this.cell.getZ()));
                             IntStream.range(0, (int) Math.pow(2, this.tierSupplier.getAsInt())).forEach(value -> {
                                 if (world.rand.nextInt(100) == 0) {
                                     if (targetBlock.getBlock().getTickRandomly()) {

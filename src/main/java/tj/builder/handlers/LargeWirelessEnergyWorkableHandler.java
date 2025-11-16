@@ -13,6 +13,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
 import tj.capability.impl.AbstractWorkableHandler;
 
 import java.util.Arrays;
@@ -82,7 +83,8 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
                 continue;
             if (this.metaTileEntity.getWorld().provider.getDimension() != this.entityLinkWorld[i]) {
                 int fluidToConsume = this.fluidConsumption / this.linkedWorldsCount;
-                if (this.importFluidsSupplier.get().drain(Nitrogen.getPlasma(fluidToConsume), true).amount != fluidToConsume)
+                FluidStack fluidStack = this.importFluidsSupplier.get().drain(Nitrogen.getPlasma(fluidToConsume), true);
+                if (fluidStack == null || fluidStack.amount != fluidToConsume)
                     continue;
             }
             WorldServer world = DimensionManager.getWorld(this.entityLinkWorld[i]);

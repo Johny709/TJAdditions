@@ -121,10 +121,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         this.workableHandler.update();
     }
 
-    private boolean hasEnoughEnergy(long amount) {
-        return this.energyContainer.getEnergyStored() >= amount;
-    }
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
@@ -217,7 +213,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                             text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
                             text.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
                         }
-                    }).energyInput(hasEnoughEnergy(distanceEU), distanceEU, this.workableHandler.getMaxProgress())
+                    }).energyInput(this.energyContainer.getEnergyStored() >= distanceEU, distanceEU, this.workableHandler.getMaxProgress())
                     .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
         }
     }
@@ -234,7 +230,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         int[][] patternFlags = new int[2][9];
         String[][] search = {{""}, {""}};
         tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + search[0][0] + "§r/§e" + this.workableHandler.getPosMap().size() + "§r)")), this.addPosDisplayText(searchResults[0], patternFlags[0], search[0]), patternFlags[0], search[0]));
-        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + search[1][0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)")), this.addPosDisplayText(searchResults[1], patternFlags[1], search[1]), patternFlags[1], search[1]));
+        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + search[1][0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)")), this.addQueueDisplayText(searchResults[1], patternFlags[1], search[1]), patternFlags[1], search[1]));
     }
 
     @Override
@@ -288,11 +284,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                     widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                     widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
-                    widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
-                        int index = textFieldWidgetRename.getTextId().lastIndexOf(";");
-                        String entry = textFieldWidgetRename.getTextId().substring(0, index);
-                        textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
-                    }, 0x404040));
+                    widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
                     widgetGroup.addWidget(textFieldWidgetRename);
                     return false;
                 }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)

@@ -128,7 +128,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     .voltageIn(this.inputEnergyContainer)
                     .voltageTier(this.tier)
                     .energyStored(this.getEnergyStored(), this.getEnergyCapacity())
-                    .energyInput(this.hasEnoughEnergy(this.workableHandler.getEnergyPerTick()), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                    .energyInput(this.inputEnergyContainer.getEnergyStored() >= this.workableHandler.getEnergyPerTick(), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
                     .fluidInput(this.hasEnoughFluid(this.workableHandler.getFluidConsumption()), Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()))
                     .custom(text -> {
                         text.add(new TextComponentTranslation("machine.universal.item.output.transfer")
@@ -450,10 +450,6 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         this.inputEnergyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.outputEnergyContainer = new EnergyContainerList(this.getAbilities(OUTPUT_ENERGY));
         this.tier = context.getOrDefault("CellType", CellCasing.CellType.CELL_EV).getTier();
-    }
-
-    protected boolean hasEnoughEnergy(long amount) {
-        return this.inputEnergyContainer.getEnergyStored() >= amount;
     }
 
     private boolean hasEnoughFluid(int amount) {
