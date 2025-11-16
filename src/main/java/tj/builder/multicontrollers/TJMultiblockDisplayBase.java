@@ -11,6 +11,8 @@ import gregtech.api.capability.IControllable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.unification.OreDictUnifier;
@@ -34,11 +36,10 @@ import tj.capability.IMuffler;
 import tj.gui.TJHorizontoalTabListRenderer;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
@@ -116,6 +117,11 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
      */
     public boolean hasProblems() {
         return this.maintenance_problems < 63;
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size() == 1;
     }
 
     /**

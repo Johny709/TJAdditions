@@ -22,6 +22,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.impl.AbstractWorkableHandler;
 
 import java.util.ArrayDeque;
@@ -81,6 +82,8 @@ public class TeleporterWorkableHandler extends AbstractWorkableHandler<Teleporte
                 }
             }
         }
+        if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
+            ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         return true;
     }
 

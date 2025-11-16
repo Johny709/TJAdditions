@@ -573,13 +573,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
         //noinspection SuspiciousMethodCalls
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        //noinspection SuspiciousMethodCalls
-        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
 
-        return maintenanceCount == 1 &&
-                itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
+        return itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
                 fluidInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinFluidInputs() &&
-                abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
+                abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override

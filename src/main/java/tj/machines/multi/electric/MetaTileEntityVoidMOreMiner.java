@@ -83,12 +83,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
         int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
-        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
 
-        return maintenanceCount == 1 &&
-                fluidInputsCount >= 1 &&
-                fluidOutputsCount >= 1 &&
-                abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
+        return fluidInputsCount >= 1 && fluidOutputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override

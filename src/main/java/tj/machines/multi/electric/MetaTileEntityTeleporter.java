@@ -118,7 +118,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     @Override
     protected void updateFormedValid() {
-        this.workableHandler.update();
+        if (!(((this.getProblems() >> 5) & 1) == 0))
+            this.workableHandler.update();
     }
 
     @Override

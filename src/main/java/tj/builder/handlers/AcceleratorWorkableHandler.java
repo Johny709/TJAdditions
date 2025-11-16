@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
+import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.LinkEvent;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.machines.AcceleratorBlacklist;
@@ -69,7 +70,7 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
             this.linkData.setInteger("Size", this.entityLinkBlockPos.length);
             this.linkData.setInteger("I", remaining);
         }
-        return this;
+        return super.initialize(busCount);
     }
 
     @Override
@@ -102,13 +103,13 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
 
             case GT_TILE_ENTITY:
                 if (this.gtAcceleratorTier < 1) {
-                    return true;
+                    break;
                 }
                 if (this.importFluidsSupplier.get().drain(UUMatter.getFluid(this.fluidConsumption), true).amount == this.fluidConsumption) {
                     if (this.entityLinkBlockPos[0] != null) {
                         MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, this.entityLinkBlockPos[0]);
                         if (targetGTTE == null || targetGTTE instanceof AcceleratorBlacklist) {
-                            return true;
+                            break;
                         }
                         IntStream.range(0, (int) Math.pow(4, this.gtAcceleratorTier)).forEach(value -> targetGTTE.update());
                     }
@@ -140,6 +141,8 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
                     }
                 }
         }
+        if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
+            ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         return true;
     }
 

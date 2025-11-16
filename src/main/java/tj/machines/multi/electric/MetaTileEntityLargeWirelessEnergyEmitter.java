@@ -385,7 +385,8 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     @Override
     protected void updateFormedValid() {
-        this.workableHandler.update();
+        if (!(((this.getProblems() >> 5) & 1) == 0))
+            this.workableHandler.update();
     }
 
     protected boolean hasEnoughEnergy(long amount) {

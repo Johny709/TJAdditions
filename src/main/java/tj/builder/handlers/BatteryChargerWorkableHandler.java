@@ -11,6 +11,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
+import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 import tj.util.PlayerWorldIDData;
@@ -33,7 +34,6 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
     private String[] entityLinkName;
     private long totalEnergyPerTick;
     private int[] entityLinkWorld;
-    private int linkedWorldsCount;
     private int fluidConsumption;
     private NBTTagCompound linkData;
 
@@ -123,6 +123,8 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
             IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
             this.transferEU(this.energyPerTick, EUContainer, this.transferMode, stack, this.transferToOutput);
         }
+        if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
+            ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         return true;
     }
 
@@ -189,8 +191,8 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
 
     public void updateTotalEnergyPerTick() {
         int dimensionID = this.metaTileEntity.getWorld().provider.getDimension();
-        this.linkedWorldsCount = (int) Arrays.stream(this.entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
-        this.fluidConsumption = 10 * this.linkedWorldsCount;
+        int linkedWorldsCount = (int) Arrays.stream(this.entityLinkWorld).filter(id -> id != dimensionID && id != Integer.MIN_VALUE).count();
+        this.fluidConsumption = 10 * linkedWorldsCount;
         int slots = this.importItemsSupplier.get().getSlots();
         long amps = slots + Arrays.stream(this.linkedPlayers).filter(Objects::nonNull).count();
         this.totalEnergyPerTick = (long) (Math.pow(4, this.tierSupplier.getAsInt()) * 8) * amps;

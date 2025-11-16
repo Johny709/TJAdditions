@@ -111,10 +111,9 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
         boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
         boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
-        int maintenanceCount = abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size();
         int mufflerCount = abilities.getOrDefault(MUFFLER_HATCH, Collections.emptyList()).size();
 
-        return maintenanceCount == 1 && mufflerCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput);
+        return mufflerCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override

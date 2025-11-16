@@ -98,12 +98,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
-        return maintenanceCount == 1 &&
-                abilities.containsKey(IMPORT_ITEMS) &&
-                abilities.containsKey(EXPORT_ITEMS) &&
-                abilities.containsKey(IMPORT_FLUIDS) &&
-                abilities.containsKey(INPUT_ENERGY);
+        return abilities.containsKey(IMPORT_ITEMS) && abilities.containsKey(EXPORT_ITEMS) && abilities.containsKey(IMPORT_FLUIDS) && abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override

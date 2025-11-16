@@ -327,9 +327,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
         int itemOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList())
                 .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        return itemOutputsCount >= 1 &&
-                fluidInputsCount >= 1 &&
-                abilities.containsKey(MultiblockAbility.INPUT_ENERGY);
+        return itemOutputsCount >= 1 && fluidInputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override

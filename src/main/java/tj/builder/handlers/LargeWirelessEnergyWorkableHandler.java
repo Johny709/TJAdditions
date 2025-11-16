@@ -1,5 +1,6 @@
 package tj.builder.handlers;
 
+import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -14,6 +15,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
+import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.impl.AbstractWorkableHandler;
 
 import java.util.Arrays;
@@ -40,7 +42,6 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
 
     @Override
     public LargeWirelessEnergyWorkableHandler initialize(int mode) {
-        super.initialize(mode);
         this.mode = (byte) mode;
         int linkAmount = this.tierSupplier.getAsInt() * 2;
         this.entityLinkName = this.entityLinkName != null ? Arrays.copyOf(this.entityLinkName, linkAmount) : new String[linkAmount];
@@ -63,7 +64,7 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
             this.linkData.setInteger("Size", this.entityLinkBlockPos.length);
             this.linkData.setInteger("I", remaining);
         }
-        return this;
+        return super.initialize(mode);
     }
 
     @Override
@@ -104,6 +105,8 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
                 IEnergyContainer EUContainer = metaTileEntity.getCapability(CAPABILITY_ENERGY_CONTAINER, null);
                 this.transferEU(energyToAdd, EUContainer);
             }
+            if (this.metaTileEntity instanceof TJMultiblockDisplayBase)
+                ((TJMultiblockDisplayBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         }
         return true;
     }
