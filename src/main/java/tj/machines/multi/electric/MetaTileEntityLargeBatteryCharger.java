@@ -174,7 +174,8 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                                 .setBackgroundText("machine.universal.search")
                                 .setTextResponder((s, id) -> search[0] = s)
                                 .setTextSupplier(() -> search[0])
-                                .setMaxStringLength(256));
+                                .setMaxStringLength(256)
+                                .setUpdateOnTyping(true));
                         return true;
                     }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                             .setDisplayText("machine.universal.cancel")
@@ -197,7 +198,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                         }, 0x404040));
                         widgetGroup.addWidget(textFieldWidgetRename);
                         return false;
-                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)
+                    }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                             .setTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)

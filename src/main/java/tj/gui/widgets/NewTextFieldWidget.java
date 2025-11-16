@@ -66,13 +66,17 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
         return (R) this;
     }
 
+    /**
+     * Set to register a response every time a key has been typed in the textbox. Pairs very well with {@link #setTextSupplier(Supplier)}
+     * @param updateOnType toggle update
+     */
     public R setUpdateOnTyping(boolean updateOnType) {
         this.updateOnType = updateOnType;
         return (R) this;
     }
 
     /**
-     * Set the supplier that updates the textbox. If the string inside the supplier is null, then its treated as an empty string.
+     * Set the supplier that updates the textbox. If the string inside the supplier is null, then its treated as an empty string. Pairs very well with {@link #setUpdateOnTyping(boolean)}
      * @param textSupplier supplier
      */
     public R setTextSupplier(Supplier<String> textSupplier) {
