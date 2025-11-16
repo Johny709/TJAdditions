@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.item.Item;
+import net.minecraft.util.text.Style;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.TeleporterWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -74,6 +75,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import static net.minecraft.util.text.TextFormatting.GRAY;
+import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.textures.TJTextures.FUSION_MK2;
 import static tj.textures.TJTextures.TELEPORTER_OVERLAY;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -386,12 +389,12 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                 String select = "select:" + key;
                 String remove = "remove:" + key;
                 String rename = "@Popup:" + key;
-
-                ITextComponent keyPos = new TextComponentString(": [§a" + (++results) + "§r] " + key + "§r")
+                ITextComponent keyPos = new TextComponentString(": [§a" + (++results) + "§r] " + key + "§r" + (key.equals(this.workableHandler.getSelectedPosName()) ? " §a<<<" : ""))
                         .appendText("\n")
                         .appendSibling(withButton(new TextComponentString("[TP]"), tp))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.select"), select))
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select")
+                                .setStyle(new Style().setColor(key.equals(this.workableHandler.getSelectedPosName()) ? GRAY : YELLOW)), select))
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), remove))
                         .appendText(" ")
@@ -425,7 +428,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
                 String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
 
-                ITextComponent keyPos = new TextComponentString("[§e" + (++results) + "§r] " + key + "§r");
+                ITextComponent keyPos = new TextComponentString(": [§a" + (++results) + "§r] " + key);
 
                 ITextComponent blockPos = new TextComponentString(results + ": " + key + "\n")
                         .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))

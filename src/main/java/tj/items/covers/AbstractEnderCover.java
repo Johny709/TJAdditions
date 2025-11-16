@@ -619,7 +619,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(patternFlags[0])).matcher(text).find())
                     continue;
 
-                ITextComponent keyEntry = new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
+                ITextComponent keyEntry = new TextComponentString(": [§a" + (++count) + "§r] " + text + (text.equals(this.lastEntry) ? " §a<<<" : ""))
                         .appendText("\n")
                         .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.lastEntry) ? GRAY : YELLOW)), "select:entry:" + text))
                         .appendText(" ")
@@ -643,7 +643,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 if (!search[1].isEmpty() && !Pattern.compile(search[1], this.getFlags(patternFlags[1])).matcher(text).find())
                     continue;
 
-                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text + "§r")
+                textList.add(new TextComponentString(": [§a" + (++count) + "§r] " + text + (text.equals(this.channel) ? " §a<<<" : ""))
                         .appendText("\n")
                         .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
                         .appendText(" ")
@@ -667,7 +667,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 if (!search[2].isEmpty() && !Pattern.compile(search[2], this.getFlags(patternFlags[2])).matcher(text).find())
                     continue;
                 boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
-                textList.add(new TextComponentString("[§e" + (++count) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
+                textList.add(new TextComponentString(": [§a" + (++count) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
                         .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
                         .appendText(" ")
                         .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
