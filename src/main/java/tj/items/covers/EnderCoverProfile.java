@@ -3,6 +3,7 @@ package tj.items.covers;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import tj.capability.IEnderNotifiable;
 
 import java.util.*;
 
@@ -10,7 +11,7 @@ public class EnderCoverProfile<V> {
 
     private final UUID owner;
     private final Set<UUID> allowedUsers = new HashSet<>();
-    private final Map<String, Set<AbstractEnderCover<V>>> covers = new Object2ObjectOpenHashMap<>();
+    private final Map<String, Set<IEnderNotifiable<V>>> notifyMap = new Object2ObjectOpenHashMap<>();
     private final Map<String, V> entries;
     private boolean isPublic = true;
 
@@ -19,7 +20,7 @@ public class EnderCoverProfile<V> {
         this.entries = entries;
         this.allowedUsers.add(this.owner);
         for (String key : entries.keySet())
-            this.covers.put(key, new HashSet<>());
+            this.notifyMap.put(key, new HashSet<>());
     }
 
     public static <V> EnderCoverProfile<V> fromNBT(NBTTagCompound nbt, Map<String, V> entries) {
@@ -30,14 +31,14 @@ public class EnderCoverProfile<V> {
         return enderCoverProfile;
     }
 
-    public void addCoverToEntry(String key, AbstractEnderCover<V> cover) {
-        Set<AbstractEnderCover<V>> set = this.covers.get(key);
+    public void addToNotifiable(String key, IEnderNotifiable<V> notifiable) {
+        Set<IEnderNotifiable<V>> set = this.notifyMap.get(key);
         if (set != null)
-            set.add(cover);
+            set.add(notifiable);
     }
 
-    public void removeCoverFromEntry(String key, AbstractEnderCover<V> cover) {
-        this.covers.getOrDefault(key, new HashSet<>()).remove(cover);
+    public void removeFromNotifiable(String key, IEnderNotifiable<V> notifiable) {
+        this.notifyMap.getOrDefault(key, new HashSet<>()).remove(notifiable);
     }
 
     public boolean containsEntry(String key) {
@@ -45,51 +46,51 @@ public class EnderCoverProfile<V> {
     }
 
     public void removeEntry(String key) {
-        Set<AbstractEnderCover<V>> set = this.covers.remove(key);
+        Set<IEnderNotifiable<V>> set = this.notifyMap.remove(key);
         this.entries.remove(key);
-        for (AbstractEnderCover<V> cover : set) {
-            cover.setLastEntry(null);
-            cover.setHandler(null);
-            cover.markAsDirty();
+        for (IEnderNotifiable<V> notifiable : set) {
+            notifiable.setEntry(null);
+            notifiable.setHandler(null);
+            notifiable.markToDirty();
         }
     }
 
     public void editEntry(String key, V handler) {
-        for (AbstractEnderCover<V> cover : this.covers.get(key))
+        for (IEnderNotifiable<V> cover : this.notifyMap.get(key))
             cover.setHandler(handler);
     }
 
     public void editEntry(String oldKey, String newKey) {
-        Set<AbstractEnderCover<V>> set = this.covers.remove(oldKey);
+        Set<IEnderNotifiable<V>> set = this.notifyMap.remove(oldKey);
         this.entries.put(newKey, this.entries.remove(oldKey));
-        this.covers.put(newKey, set);
-        for (AbstractEnderCover<V> cover : set) {
-            cover.setLastEntry(newKey);
-            cover.markAsDirty();
+        this.notifyMap.put(newKey, set);
+        for (IEnderNotifiable<V> notifiable : set) {
+            notifiable.setEntry(newKey);
+            notifiable.markToDirty();
         }
     }
 
     public void addEntry(String key, V handler) {
         this.entries.putIfAbsent(key, handler);
-        this.covers.putIfAbsent(key, new HashSet<>());
+        this.notifyMap.putIfAbsent(key, new HashSet<>());
     }
 
     public void editChannel(String key) {
-        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet()) {
-            for (AbstractEnderCover<V> cover : entry.getValue()) {
-                cover.setChannel(key);
-                cover.markAsDirty();
+        for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
+            for (IEnderNotifiable<V> notifiable : entry.getValue()) {
+                notifiable.setChannel(key);
+                notifiable.markToDirty();
             }
         }
     }
 
     public void removeChannel() {
-        for (Map.Entry<String, Set<AbstractEnderCover<V>>> entry : this.covers.entrySet()) {
-            for (AbstractEnderCover<V> cover : entry.getValue()) {
-                cover.setLastEntry(null);
-                cover.setHandler(null);
-                cover.setChannel(null);
-                cover.markAsDirty();
+        for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
+            for (IEnderNotifiable<V> notifiable : entry.getValue()) {
+                notifiable.setEntry(null);
+                notifiable.setHandler(null);
+                notifiable.setChannel(null);
+                notifiable.markToDirty();
             }
         }
     }

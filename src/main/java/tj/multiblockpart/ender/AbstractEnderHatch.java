@@ -1,14 +1,12 @@
-package tj.items.covers;
+package tj.multiblockpart.ender;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
-import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import gregtech.api.capability.IControllable;
-import gregtech.api.cover.CoverBehavior;
-import gregtech.api.cover.CoverWithUI;
-import gregtech.api.cover.ICoverable;
+import gregicadditions.machines.overrides.GATieredMetaTileEntity;
+import gregtech.api.capability.GregtechTileCapabilities;
+import gregtech.api.capability.IWorkable;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
@@ -21,7 +19,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
@@ -29,33 +29,44 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
-import tj.gui.widgets.*;
+import tj.gui.widgets.NewTextFieldWidget;
+import tj.gui.widgets.PopUpWidget;
+import tj.gui.widgets.TJAdvancedTextWidget;
+import tj.gui.widgets.TJClickButtonWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.items.covers.EnderCoverProfile;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.*;
+import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.tab.HorizontalTabListRenderer.HorizontalStartCorner.LEFT;
 import static gregtech.api.gui.widgets.tab.HorizontalTabListRenderer.VerticalLocation.TOP;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.gui.TJGuiTextures.*;
+import static tj.gui.TJGuiTextures.LIST_OVERLAY;
 
-public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable, IEnderNotifiable<V> {
+public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity implements IWorkable, IEnderNotifiable<V> {
 
     protected String channel;
     protected String lastEntry;
@@ -67,49 +78,28 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     protected int transferRate;
     protected V handler;
 
-    public AbstractEnderCover(ICoverable coverHolder, EnumFacing attachedSide) {
-        super(coverHolder, attachedSide);
+    public AbstractEnderHatch(ResourceLocation metaTileEntityId, int tier) {
+        super(metaTileEntityId, tier);
     }
 
     @Override
-    public void renderCover(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
-        int oldBaseColor = renderState.baseColour;
-        int oldAlphaOverride = renderState.alphaOverride;
-
-        renderState.baseColour = getPortalColor() << 8;
-        renderState.alphaOverride = 0xFF;
-        this.getOverlay().renderSided(attachedSide, renderState, translation, pipeline);
-
-        renderState.baseColour = TJValues.VC[getTier()] << 8;
-        TJTextures.INSIDE_OVERLAY_BASE.renderSided(attachedSide, renderState, translation, pipeline);
-
-        renderState.baseColour = oldBaseColor;
-        renderState.alphaOverride = oldAlphaOverride;
-        TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(attachedSide, renderState, translation, pipeline);
-    }
-
-    @Override
-    public EnumActionResult onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, CuboidRayTraceResult hitResult) {
-        if (this.ownerId == null) {
-            this.ownerId = playerIn.getUniqueID();
-            this.displayName = playerIn.getDisplayNameString();
-        }
-        if (!playerIn.world.isRemote) {
-            this.openUI((EntityPlayerMP) playerIn);
-        }
-        return EnumActionResult.SUCCESS;
-    }
+    protected void reinitializeEnergyContainer() {}
 
     protected int getPortalColor() {
         return 0xffffff;
     }
 
-    protected int getTier() {
-        return 0;
-    }
-
     protected String getName() {
         return "Null";
+    }
+
+    @Override
+    public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
+        if (this.ownerId == null) {
+            this.ownerId = playerIn.getUniqueID();
+            this.displayName = playerIn.getDisplayNameString();
+        }
+        return super.onRightClick(playerIn, hand, facing, hitResult);
     }
 
     @Nonnull
@@ -135,7 +125,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getName()))
-                .addTab(this.getName(), this.getPickItem(), tab -> {
+                .addTab(this.getName(), this.getStackForm(), tab -> {
                     NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.entry")
@@ -374,7 +364,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .bindPlayerInventory(player.inventory, 181)
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
-                .build(this, player);
+                .build(this.getHolder(), player);
     }
 
     private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
@@ -473,7 +463,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     private void setTransferRate(String amount, String id) {
         this.transferRate = Math.min(Integer.parseInt(amount), this.maxTransferRate);
-        this.markAsDirty();
+        this.markDirty();
     }
 
     public String getTransferRate() {
@@ -482,30 +472,30 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     private void onIncrement(Widget.ClickData clickData) {
         this.transferRate = MathHelper.clamp(this.transferRate * 2, 1, this.maxTransferRate);
-        this.markAsDirty();
+        this.markDirty();
     }
 
     private void onDecrement(Widget.ClickData clickData) {
         this.transferRate = MathHelper.clamp(this.transferRate / 2, 1, this.maxTransferRate);
-        this.markAsDirty();
+        this.markDirty();
     }
 
     private void setPumpMode(CoverPump.PumpMode pumpMode) {
         this.pumpMode = pumpMode;
-        this.markAsDirty();
+        this.markDirty();
     }
 
     private void setPublic(boolean isPublic, String uuid) {
         if (this.getEnderProfile().getOwner() != null && this.getEnderProfile().getOwner().equals(UUID.fromString(uuid))) {
             this.getEnderProfile().setPublic(isPublic);
-            this.markAsDirty();
+            this.markDirty();
         }
     }
 
     private void addChannel(String key, String uuid) {
         if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid))) {
             this.getPlayerMap().putIfAbsent(key, new EnderCoverProfile<>(this.ownerId, new Object2ObjectOpenHashMap<>()));
-            this.markAsDirty();
+            this.markDirty();
         }
     }
 
@@ -517,14 +507,14 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         if (profile != null && profile.getOwner() != null && profile.getOwner().equals(UUID.fromString(uuid))) {
             this.getEnderProfile().editChannel(key);
             this.getPlayerMap().put(key, this.getPlayerMap().remove(entry));
-            this.markAsDirty();
+            this.markDirty();
         }
     }
 
     private void removeChannel(String key, String uuid) {
         if (this.getEnderProfile().getOwner() != null && this.getEnderProfile().getOwner().equals(UUID.fromString(uuid))) {
             this.getPlayerMap().remove(key).removeChannel();
-            this.markAsDirty();
+            this.markDirty();
         }
     }
 
@@ -540,7 +530,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     @Override
     public void setChannel(String channel) {
         this.channel = channel;
-        this.markAsDirty();
+        this.markDirty();
     }
 
     private void setEntry(String key, String uuid) {
@@ -555,14 +545,14 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     private void addEntry(String key, String uuid) {
         if (key != null && (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid)))) {
             this.getEnderProfile().addEntry(key, this.createHandler());
-            this.markAsDirty();
+            this.markDirty();
         }
     }
 
     private void onClear(Widget.ClickData clickData) {
         if (this.getEnderProfile().containsEntry(this.lastEntry)) {
             this.getEnderProfile().editEntry(this.lastEntry, this.createHandler());
-            this.markAsDirty();
+            this.markDirty();
         }
     }
 
@@ -579,7 +569,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     private void removeEntry(String key, String uuid) {
         if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid))) {
             this.getEnderProfile().removeEntry(key);
-            this.markAsDirty();
+            this.markDirty();
         }
     }
 
@@ -591,7 +581,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     @Override
     public void setEntry(String lastEntry) {
         this.lastEntry = lastEntry;
-        this.markAsDirty();
+        this.markDirty();
     }
 
     private void handlePlayerDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
@@ -683,9 +673,29 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     protected abstract void addEntryText(ITextComponent keyEntry, String key, V value);
 
     @Override
-    public void readUpdateData(int id, PacketBuffer packetBuffer) {
-       if (id == 2) {
-           this.ownerId = packetBuffer.readUniqueId();
+    @SideOnly(Side.CLIENT)
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        int oldBaseColor = renderState.baseColour;
+        int oldAlphaOverride = renderState.alphaOverride;
+
+        renderState.baseColour = getPortalColor() << 8;
+        renderState.alphaOverride = 0xFF;
+        this.getOverlay().renderSided(this.frontFacing, renderState, translation, pipeline);
+
+        renderState.baseColour = TJValues.VC[getTier()] << 8;
+        TJTextures.INSIDE_OVERLAY_BASE.renderSided(this.frontFacing, renderState, translation, pipeline);
+
+        renderState.baseColour = oldBaseColor;
+        renderState.alphaOverride = oldAlphaOverride;
+        TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(this.frontFacing, renderState, translation, pipeline);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 2) {
+            this.ownerId = buf.readUniqueId();
         }
     }
 
@@ -697,13 +707,15 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     }
 
     @Override
-    public void readInitialSyncData(PacketBuffer packetBuffer) {
-        if (packetBuffer.readBoolean())
-            this.ownerId = packetBuffer.readUniqueId();
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        if (buf.readBoolean())
+            this.ownerId = buf.readUniqueId();
     }
 
+
     @Override
-    public void writeToNBT(NBTTagCompound data) {
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setInteger("pumpMode", this.pumpMode.ordinal());
         data.setBoolean("isWorking", this.isWorkingEnabled);
@@ -714,6 +726,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
             data.setUniqueId("ownerId", this.ownerId);
         if (this.lastEntry != null)
             data.setString("lastEntry", this.lastEntry);
+        return data;
     }
 
     @Override
@@ -734,8 +747,10 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     }
 
     @Override
-    public void markToDirty() {
-        this.markAsDirty();
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
+            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
+        return super.getCapability(capability, side);
     }
 
     @Override
@@ -746,6 +761,11 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     @Override
     public void setWorkingEnabled(boolean isWorkingEnabled) {
         this.isWorkingEnabled = isWorkingEnabled;
-        this.markAsDirty();
+        this.markDirty();
+    }
+
+    @Override
+    public void markToDirty() {
+        this.markDirty();
     }
 }
