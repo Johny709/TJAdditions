@@ -66,8 +66,6 @@ public class EnderCoverProfile<V> {
 
     public boolean setEntry(String key, String lastEntry, String id, IEnderNotifiable<V> notifiable) {
         UUID uuid = UUID.fromString(id);
-        if (!this.entries.containsKey(key))
-            return false;
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[2] != 1))
             return false;
         this.removeFromNotifiable(lastEntry, notifiable);
@@ -113,7 +111,7 @@ public class EnderCoverProfile<V> {
     }
 
     public boolean editChannel(String key, UUID uuid) {
-        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
+        if (this.owner == null || (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
             return false;
         for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
             for (IEnderNotifiable<V> notifiable : entry.getValue()) {
@@ -124,10 +122,10 @@ public class EnderCoverProfile<V> {
         return true;
     }
 
-    public void removeChannel(String id) {
+    public boolean removeChannel(String id) {
         UUID uuid = UUID.fromString(id);
-        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
-            return;
+        if (this.owner == null || (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
+            return false;
         for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
             for (IEnderNotifiable<V> notifiable : entry.getValue()) {
                 notifiable.setEntry(null);
@@ -136,6 +134,7 @@ public class EnderCoverProfile<V> {
                 notifiable.markToDirty();
             }
         }
+        return true;
     }
 
     public void setPublic(boolean isPublic) {
@@ -187,7 +186,7 @@ public class EnderCoverProfile<V> {
         this.isPublic = compound.getBoolean("public");
         NBTTagList userList = compound.getTagList("userList", 10);
         for (int i = 0; i < userList.tagCount(); i++) {
-            NBTTagList permissionList = userList.getCompoundTagAt(i).getTagList("permissionList", 3);
+            NBTTagList permissionList = userList.getCompoundTagAt(i).getTagList("permissionList", 4);
             long[] permissions = new long[permissionList.tagCount()];
             for (int j = 0; j < permissionList.tagCount(); j++) {
                 permissions[j] = ((NBTTagLong) permissionList.get(j)).getLong();

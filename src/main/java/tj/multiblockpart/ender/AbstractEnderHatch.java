@@ -118,6 +118,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         int[] searchResults = new int[3];
         int[][] patternFlags = new int[3][9];
         String[] search = new String[]{"", "", ""};
+        String[] playerName = {""};
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
                 .addWidget(new LabelWidget(30, 4, this.getMetaFullName()))
@@ -331,21 +332,30 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                     .setBackgroundTextures(LIST_OVERLAY)
                                     .useToggleTexture(true), widgetGroup -> {
                                 widgetGroup.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
-                                        .addPopup(innerWidgetGroup -> {
-                                            innerWidgetGroup.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
-                                            innerWidgetGroup.addWidget(new ImageWidget(3, 25, 176, 80, DISPLAY));
-                                            innerWidgetGroup.addWidget(new ImageWidget(30, 106, 115, 18, DISPLAY));
-                                            innerWidgetGroup.addWidget(new ScrollableTextWidget(3, 25, 185, 80)
-                                                    .addTextWidget(new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
-                                                            .addClickHandler(this::handlePlayerDisplayClick)));
-                                            innerWidgetGroup.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.allowed_players", this.channel))), 0x404040));
-                                            innerWidgetGroup.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
-                                                    .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                                                    .setTextResponder((result, id) -> search[2] = result)
-                                                    .setBackgroundText("machine.universal.search")
-                                                    .setTextSupplier(() -> search[2])
-                                                    .setMaxStringLength(256)
-                                                    .setUpdateOnTyping(true));
+                                        .addPopup(widgetGroup1 -> {
+                                            TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
+                                                    .addClickHandler(this.handlePlayerDisplayClick(playerName));
+                                            widgetGroup1.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                                                    .addPopup(widgetGroup2 -> {
+                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
+                                                        widgetGroup2.addWidget(new ImageWidget(3, 25, 176, 80, DISPLAY));
+                                                        widgetGroup2.addWidget(new ImageWidget(30, 106, 115, 18, DISPLAY));
+                                                        widgetGroup2.addWidget(new ScrollableTextWidget(3, 25, 185, 80)
+                                                                .addTextWidget(playerTextWidget));
+                                                        widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.allowed_players", this.channel))), 0x404040));
+                                                        widgetGroup2.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
+                                                                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                                                .setTextResponder((result, id) -> search[2] = result)
+                                                                .setBackgroundText("machine.universal.search")
+                                                                .setTextSupplier(() -> search[2])
+                                                                .setMaxStringLength(256)
+                                                                .setUpdateOnTyping(true));
+                                                      return true;
+                                                    }).addPopup(0, 25, 182, 80, playerTextWidget, false, widgetGroup2 -> {
+                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                                                        widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.edit_permission", playerName[0]))), 0x404040));
+                                                        return false;
+                                                    }));
                                             return true;
                                         }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18)
                                                 .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
@@ -448,14 +458,107 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                     break;
                 case "remove":
                     if (components[1].equals("entry"))
-                        this.removeEntry(components[2], player.getUniqueID().toString());
+                        this.getEnderProfile().removeEntry(components[2], player.getUniqueID().toString());
                     else this.removeChannel(components[2], player.getUniqueID().toString());
                     break;
-                case "@Popup":
-                    textFieldWidget.setTextId(components[1] + ":" + player.getUniqueID());
+                case "@Popup": textFieldWidget.setTextId(components[1] + ":" + player.getUniqueID());
+                    break;
             }
         };
     }
+
+    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handlePlayerDisplayClick(String[] playerName) {
+        return (componentData, textId, clickData, player) -> {
+            String[] component = componentData.split(":");
+            UUID uuid = UUID.fromString(component[1]);
+            if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getOwner().equals(uuid))
+                return;
+            switch (component[0]) {
+                case "Add": this.getEnderProfile().getAllowedUsers().put(uuid, new long[]{0, 0, 0, 0, 0, 0});
+                    break;
+                case "Remove": this.getEnderProfile().getAllowedUsers().remove(uuid);
+                    break;
+                case "@Popup": playerName[0] = component[2];
+                    break;
+            }
+        };
+    }
+
+    private int getFlags(int[] flags) {
+        int flag = 0;
+        for (int i : flags) {
+            flag |= i;
+        }
+        return flag;
+    }
+
+    private Consumer<List<ITextComponent>> addEntryDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
+        return (textList) -> {
+            int results = 0;
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.entries") + "§r(§e" + searchResults[0] + "§r/§e" + this.getEnderProfile().getEntries().size() + "§r)"));
+            for (Map.Entry<String, V> entry : this.getEnderProfile().getEntries().entrySet()) {
+                String text = entry.getKey();
+                if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(patternFlags[0])).matcher(text).find())
+                    continue;
+
+                ITextComponent keyEntry = new TextComponentString(": [§a" + (++results) + "§r] " + text + (text.equals(this.lastEntry) ? " §a<<<" : ""))
+                        .appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.lastEntry) ? GRAY : YELLOW)), "select:entry:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text));
+                textList.add(keyEntry);
+                this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
+            }
+            searchResults[0] = results;
+        };
+    }
+
+    private Consumer<List<ITextComponent>> addChannelDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
+        return (textList) -> {
+            int results = 0;
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.channels") + "§r(§e" + searchResults[1] + "§r/§e" + this.getPlayerMap().size() + "§r)"));
+            for (Map.Entry<String, EnderCoverProfile<V>> entry : this.getPlayerMap().entrySet()) {
+                String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
+                if (!search[1].isEmpty() && !Pattern.compile(search[1], this.getFlags(patternFlags[1])).matcher(text).find())
+                    continue;
+
+                textList.add(new TextComponentString(": [§a" + (++results) + "§r] " + text + (text.equals(this.channel) ? " §a<<<" : ""))
+                        .appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
+            }
+            searchResults[1] = results;
+        };
+    }
+
+    private Consumer<List<ITextComponent>> addPlayerDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
+        return (textList) -> {
+            int results = 0;
+            List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
+            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.players") + "§r(§e" + searchResults[2] + "§r/§e" + playerList.size() + "§r)"));
+            for (EntityPlayer player : playerList) {
+                String text = player.getDisplayNameString();
+                if (!search[2].isEmpty() && !Pattern.compile(search[2], this.getFlags(patternFlags[2])).matcher(text).find())
+                    continue;
+                boolean contains = this.getEnderProfile().getAllowedUsers().containsKey(player.getUniqueID());
+                textList.add(new TextComponentString(": [§a" + (++results) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
+                        .appendText(" ")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID()))
+                        .appendText(" ")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.edit"), "@Popup:" + player.getUniqueID() + ":" + text)));
+            }
+            searchResults[2] = results;
+        };
+    }
+
+    protected abstract void addEntryText(ITextComponent keyEntry, String key, V value);
 
     private String[] getTooltipFormat() {
         return ArrayUtils.toArray(getTransferRate());
@@ -504,15 +607,17 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         String uuid = id.substring(index + 1);
         String oldKey = id.substring(0, index);
         EnderCoverProfile<V> profile = this.getPlayerMap().get(oldKey);
-        if (profile != null && profile.getOwner() != null && this.getEnderProfile().editChannel(key, UUID.fromString(uuid))) {
+        if (profile != null && profile.editChannel(key, UUID.fromString(uuid))) {
             this.getPlayerMap().put(key, this.getPlayerMap().remove(oldKey));
             this.markDirty();
         }
     }
 
     private void removeChannel(String key, String uuid) {
-        this.getPlayerMap().remove(key).removeChannel(uuid);
-        this.markDirty();
+        if (this.getPlayerMap().get(key).removeChannel(uuid)) {
+            this.getPlayerMap().remove(key);
+            this.markDirty();
+        }
     }
 
     private void setChannel(String key, String id) {
@@ -550,11 +655,6 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         this.markDirty();
     }
 
-    private void removeEntry(String key, String uuid) {
-        this.getEnderProfile().removeEntry(key, uuid);
-        this.markDirty();
-    }
-
     @Override
     public void setHandler(V handler) {
         this.handler = handler;
@@ -565,94 +665,6 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         this.lastEntry = lastEntry;
         this.markDirty();
     }
-
-    private void handlePlayerDisplayClick(String componentData, String textId, Widget.ClickData clickData, EntityPlayer player) {
-        String[] component = componentData.split(":");
-        UUID uuid = UUID.fromString(component[1]);
-        if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getOwner().equals(uuid))
-            return;
-        if (component[0].equals("Add"))
-            this.getEnderProfile().getAllowedUsers().put(uuid, new long[]{0, 0, 0, 0, 0, 0});
-        else if (component[0].equals("Remove"))
-            this.getEnderProfile().getAllowedUsers().remove(uuid);
-    }
-
-    private int getFlags(int[] flags) {
-        int flag = 0;
-        for (int i : flags) {
-            flag |= i;
-        }
-        return flag;
-    }
-
-    private Consumer<List<ITextComponent>> addEntryDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
-        return (textList) -> {
-            int count = 0, results = 0;
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.entries") + "§r(§e" + searchResults[0] + "§r/§e" + this.getEnderProfile().getEntries().size() + "§r)"));
-            for (Map.Entry<String, V> entry : this.getEnderProfile().getEntries().entrySet()) {
-                String text = entry.getKey();
-                if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(patternFlags[0])).matcher(text).find())
-                    continue;
-
-                ITextComponent keyEntry = new TextComponentString(": [§a" + (++count) + "§r] " + text + (text.equals(this.lastEntry) ? " §a<<<" : ""))
-                        .appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.lastEntry) ? GRAY : YELLOW)), "select:entry:" + text))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text));
-                textList.add(keyEntry);
-                this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
-                results++;
-            }
-            searchResults[0] = results;
-        };
-    }
-
-    private Consumer<List<ITextComponent>> addChannelDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
-        return (textList) -> {
-            int count = 0, results = 0;
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.channels") + "§r(§e" + searchResults[1] + "§r/§e" + this.getPlayerMap().size() + "§r)"));
-            for (Map.Entry<String, EnderCoverProfile<V>> entry : this.getPlayerMap().entrySet()) {
-                String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
-                if (!search[1].isEmpty() && !Pattern.compile(search[1], this.getFlags(patternFlags[1])).matcher(text).find())
-                    continue;
-
-                textList.add(new TextComponentString(": [§a" + (++count) + "§r] " + text + (text.equals(this.channel) ? " §a<<<" : ""))
-                        .appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
-                        .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
-                results++;
-            }
-            searchResults[1] = results;
-        };
-    }
-
-    private Consumer<List<ITextComponent>> addPlayerDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
-        return (textList) -> {
-            int count = 0, results = 0;
-            List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
-            textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.players") + "§r(§e" + searchResults[2] + "§r/§e" + playerList.size() + "§r)"));
-            for (EntityPlayer player : playerList) {
-                String text = player.getDisplayNameString();
-                if (!search[2].isEmpty() && !Pattern.compile(search[2], this.getFlags(patternFlags[2])).matcher(text).find())
-                    continue;
-                boolean contains = this.getEnderProfile().getAllowedUsers().containsKey(player.getUniqueID());
-                textList.add(new TextComponentString(": [§a" + (++count) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
-                        .appendText(" ")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID())));
-                results++;
-            }
-            searchResults[2] = results;
-        };
-    }
-
-    protected abstract void addEntryText(ITextComponent keyEntry, String key, V value);
 
     @Override
     @SideOnly(Side.CLIENT)
