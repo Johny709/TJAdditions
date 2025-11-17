@@ -126,7 +126,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.entry")
                             .setTooltipText("machine.universal.toggle.rename.entry")
-                            .setTextResponder(this::renameEntry)
+                            .setTextResponder(this.getEnderProfile()::editEntry)
                             .setMaxStringLength(256);
                     NewTextFieldWidget<?> textFieldWidgetEntry = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -175,9 +175,13 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                         .setTooltipText("machine.universal.toggle.increment.disabled"));
                                 widgetGroup.addWidget(new TJClickButtonWidget(7, 15, 18, 18, "-", this::onDecrement)
                                         .setTooltipText("machine.universal.toggle.decrement.disabled"));
-                                widgetGroup.addWidget(new TJClickButtonWidget(-20, 38, 18, 18, "", this::onClear)
+                                widgetGroup.addWidget(new TJToggleButtonWidget(-20, 38, 18, 18)
                                         .setTooltipText("machine.universal.toggle.clear")
-                                        .setButtonTexture(BUTTON_CLEAR_GRID));
+                                        .setButtonId(player.getUniqueID().toString())
+                                        .setBackgroundTextures(BUTTON_CLEAR_GRID)
+                                        .setToggleButtonResponder(this::onClear)
+                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                        .useToggleTexture(true));
                                 widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                                 widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                                         .setTooltipText("machine.universal.toggle.run.mode"));
@@ -439,7 +443,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
             switch (components[0]) {
                 case "select":
                     if (components[1].equals("entry"))
-                        this.setEntry(components[2], textId);
+                        this.setEntry(components[2], player.getUniqueID().toString());
                     else this.setChannel(components[2], player.getUniqueID().toString());
                     break;
                 case "remove":
@@ -489,7 +493,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
     }
 
     private void addChannel(String key, String uuid) {
-        if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid))) {
+        if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().containsKey(UUID.fromString(uuid))) {
             this.getPlayerMap().putIfAbsent(key, new EnderCoverProfile<>(this.ownerId, new Object2ObjectOpenHashMap<>()));
             this.markDirty();
         }
@@ -497,26 +501,24 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
 
     private void renameChannel(String key, String id) {
         int index = id.lastIndexOf(":");
-        String entry = id.substring(0, index);
         String uuid = id.substring(index + 1);
-        EnderCoverProfile<V> profile = this.getPlayerMap().get(entry);
-        if (profile != null && profile.getOwner() != null && profile.getOwner().equals(UUID.fromString(uuid))) {
-            this.getEnderProfile().editChannel(key);
-            this.getPlayerMap().put(key, this.getPlayerMap().remove(entry));
+        String oldKey = id.substring(0, index);
+        EnderCoverProfile<V> profile = this.getPlayerMap().get(oldKey);
+        if (profile != null && profile.getOwner() != null && this.getEnderProfile().editChannel(key, UUID.fromString(uuid))) {
+            this.getPlayerMap().put(key, this.getPlayerMap().remove(oldKey));
             this.markDirty();
         }
     }
 
     private void removeChannel(String key, String uuid) {
-        if (this.getEnderProfile().getOwner() != null && this.getEnderProfile().getOwner().equals(UUID.fromString(uuid))) {
-            this.getPlayerMap().remove(key).removeChannel();
-            this.markDirty();
-        }
+        this.getPlayerMap().remove(key).removeChannel(uuid);
+        this.markDirty();
     }
 
-    private void setChannel(String key, String uuid) {
+    private void setChannel(String key, String id) {
         EnderCoverProfile<?> profile = this.getPlayerMap().getOrDefault(key, this.getPlayerMap().get(null));
-        if (!key.equals(this.channel) && (profile.isPublic() || profile.getOwner().toString().equals(uuid))) {
+        UUID uuid = UUID.fromString(id);
+        if (!key.equals(this.channel) && (profile.isPublic() || profile.getAllowedUsers().get(uuid) != null && profile.getAllowedUsers().get(uuid)[3] == 1)) {
             this.getEnderProfile().removeFromNotifiable(this.lastEntry, this);
             this.setChannel(key);
             this.getEnderProfile().addToNotifiable(this.lastEntry, this);
@@ -530,9 +532,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
     }
 
     private void setEntry(String key, String uuid) {
-        if (this.getEnderProfile().containsEntry(key) && !key.equals(this.lastEntry) && (this.getEnderProfile().isPublic() || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid)))) {
-            this.getEnderProfile().removeFromNotifiable(this.lastEntry, this);
-            this.getEnderProfile().addToNotifiable(key, this);
+        if (this.getEnderProfile().setEntry(key, this.lastEntry, uuid, this)) {
             this.handler = this.getEnderProfile().getEntries().get(key);
             this.setEntry(key);
             if (this.controller != null)
@@ -541,34 +541,18 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
     }
 
     private void addEntry(String key, String uuid) {
-        if (key != null && (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid)))) {
-            this.getEnderProfile().addEntry(key, this.createHandler());
-            this.markDirty();
-        }
+        this.getEnderProfile().addEntry(key, uuid, this.createHandler());
+        this.markDirty();
     }
 
-    private void onClear(Widget.ClickData clickData) {
-        if (this.getEnderProfile().containsEntry(this.lastEntry)) {
-            this.getEnderProfile().editEntry(this.lastEntry, this.createHandler());
-            this.markDirty();
-        }
-    }
-
-    private void renameEntry(String key, String id) {
-        int index = id.lastIndexOf(":");
-        String entry = id.substring(0, index);
-        String uuid = id.substring(index + 1);
-        if (this.getEnderProfile().containsEntry(entry) && (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid)))) {
-            this.getEnderProfile().editEntry(entry, key);
-            this.setEntry(key);
-        }
+    private void onClear(boolean toggle, String uuid) {
+        this.getEnderProfile().editEntry(this.lastEntry, uuid, this.createHandler());
+        this.markDirty();
     }
 
     private void removeEntry(String key, String uuid) {
-        if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getAllowedUsers().contains(UUID.fromString(uuid))) {
-            this.getEnderProfile().removeEntry(key);
-            this.markDirty();
-        }
+        this.getEnderProfile().removeEntry(key, uuid);
+        this.markDirty();
     }
 
     @Override
@@ -588,7 +572,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getOwner().equals(uuid))
             return;
         if (component[0].equals("Add"))
-            this.getEnderProfile().getAllowedUsers().add(uuid);
+            this.getEnderProfile().getAllowedUsers().put(uuid, new long[]{0, 0, 0, 0, 0, 0});
         else if (component[0].equals("Remove"))
             this.getEnderProfile().getAllowedUsers().remove(uuid);
     }
@@ -657,7 +641,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                 String text = player.getDisplayNameString();
                 if (!search[2].isEmpty() && !Pattern.compile(search[2], this.getFlags(patternFlags[2])).matcher(text).find())
                     continue;
-                boolean contains = this.getEnderProfile().getAllowedUsers().contains(player.getUniqueID());
+                boolean contains = this.getEnderProfile().getAllowedUsers().containsKey(player.getUniqueID());
                 textList.add(new TextComponentString(": [§a" + (++count) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
                         .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
                         .appendText(" ")

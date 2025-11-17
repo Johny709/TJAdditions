@@ -3,6 +3,7 @@ package tj.items.covers;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLong;
 import tj.capability.IEnderNotifiable;
 
 import java.util.*;
@@ -10,15 +11,24 @@ import java.util.*;
 public class EnderCoverProfile<V> {
 
     private final UUID owner;
-    private final Set<UUID> allowedUsers = new HashSet<>();
+    /**
+     * Permission Index:
+     * 0 -> can see entries: true = 1 / false = 0
+     * 1 -> can modify entries: true = 1 / false = 0
+     * 2 -> can use entries: true = 1 / false = 0
+     * 3 -> can see channels: true = 1 / false = 0
+     * 4 -> can modify channels: true = 1 / false = 0
+     * 5 -> max throughput: 0 - max long
+     */
+    private final Map<UUID, long[]> allowedUsers = new Object2ObjectOpenHashMap<>();
     private final Map<String, Set<IEnderNotifiable<V>>> notifyMap = new Object2ObjectOpenHashMap<>();
-    private final Map<String, V> entries;
+    private final Map<String, V> entries = new Object2ObjectOpenHashMap<>();
     private boolean isPublic = true;
 
     public EnderCoverProfile(UUID owner, Map<String, V> entries) {
         this.owner = owner;
-        this.entries = entries;
-        this.allowedUsers.add(this.owner);
+        this.entries.putAll(entries);
+        this.allowedUsers.put(this.owner, new long[]{1, 1, 1, 1, 1, Long.MAX_VALUE});
         for (String key : entries.keySet())
             this.notifyMap.put(key, new HashSet<>());
     }
@@ -41,11 +51,10 @@ public class EnderCoverProfile<V> {
         this.notifyMap.getOrDefault(key, new HashSet<>()).remove(notifiable);
     }
 
-    public boolean containsEntry(String key) {
-        return this.entries.containsKey(key);
-    }
-
-    public void removeEntry(String key) {
+    public void removeEntry(String key, String id) {
+        UUID uuid = UUID.fromString(id);
+        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
+            return;
         Set<IEnderNotifiable<V>> set = this.notifyMap.remove(key);
         this.entries.remove(key);
         for (IEnderNotifiable<V> notifiable : set) {
@@ -55,12 +64,35 @@ public class EnderCoverProfile<V> {
         }
     }
 
-    public void editEntry(String key, V handler) {
+    public boolean setEntry(String key, String lastEntry, String id, IEnderNotifiable<V> notifiable) {
+        UUID uuid = UUID.fromString(id);
+        if (!this.entries.containsKey(key))
+            return false;
+        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[2] != 1))
+            return false;
+        this.removeFromNotifiable(lastEntry, notifiable);
+        this.addToNotifiable(key, notifiable);
+        return true;
+    }
+
+    public void editEntry(String key, String id, V handler) {
+        UUID uuid = UUID.fromString(id);
+        if (!this.entries.containsKey(key))
+            return;
+        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
+            return;
         for (IEnderNotifiable<V> cover : this.notifyMap.get(key))
             cover.setHandler(handler);
     }
 
-    public void editEntry(String oldKey, String newKey) {
+    public void editEntry(String newKey, String id) {
+        int index = id.lastIndexOf(":");
+        String oldKey = id.substring(0, index);
+        UUID uuid = UUID.fromString(id.substring(index + 1));
+        if (!this.entries.containsKey(oldKey))
+            return;
+        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
+            return;
         Set<IEnderNotifiable<V>> set = this.notifyMap.remove(oldKey);
         this.entries.put(newKey, this.entries.remove(oldKey));
         this.notifyMap.put(newKey, set);
@@ -70,21 +102,32 @@ public class EnderCoverProfile<V> {
         }
     }
 
-    public void addEntry(String key, V handler) {
+    public void addEntry(String key, String id, V handler) {
+        UUID uuid = UUID.fromString(id);
+        if (key == null)
+            return;
+        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
+            return;
         this.entries.putIfAbsent(key, handler);
         this.notifyMap.putIfAbsent(key, new HashSet<>());
     }
 
-    public void editChannel(String key) {
+    public boolean editChannel(String key, UUID uuid) {
+        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
+            return false;
         for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
             for (IEnderNotifiable<V> notifiable : entry.getValue()) {
                 notifiable.setChannel(key);
                 notifiable.markToDirty();
             }
         }
+        return true;
     }
 
-    public void removeChannel() {
+    public void removeChannel(String id) {
+        UUID uuid = UUID.fromString(id);
+        if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
+            return;
         for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
             for (IEnderNotifiable<V> notifiable : entry.getValue()) {
                 notifiable.setEntry(null);
@@ -112,17 +155,22 @@ public class EnderCoverProfile<V> {
         return this.owner;
     }
 
-    public Set<UUID> getAllowedUsers() {
+    public Map<UUID, long[]> getAllowedUsers() {
         return this.allowedUsers;
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         NBTTagCompound compound = new NBTTagCompound();
         NBTTagList userList = new NBTTagList();
-        for (UUID id : this.allowedUsers) {
-            if (id != null) {
+        for (Map.Entry<UUID, long[]> entry : this.allowedUsers.entrySet()) {
+            if (entry.getKey() != null) {
                 NBTTagCompound compound1 = new NBTTagCompound();
-                compound1.setUniqueId("user", id);
+                NBTTagList permissionList = new NBTTagList();
+                for (long permission : entry.getValue()) {
+                    permissionList.appendTag(new NBTTagLong(permission));
+                }
+                compound1.setUniqueId("user", entry.getKey());
+                compound1.setTag("permissionList", permissionList);
                 userList.appendTag(compound1);
             }
         }
@@ -139,7 +187,12 @@ public class EnderCoverProfile<V> {
         this.isPublic = compound.getBoolean("public");
         NBTTagList userList = compound.getTagList("userList", 10);
         for (int i = 0; i < userList.tagCount(); i++) {
-            this.allowedUsers.add(userList.getCompoundTagAt(i).getUniqueId("user"));
+            NBTTagList permissionList = userList.getCompoundTagAt(i).getTagList("permissionList", 3);
+            long[] permissions = new long[permissionList.tagCount()];
+            for (int j = 0; j < permissionList.tagCount(); j++) {
+                permissions[j] = ((NBTTagLong) permissionList.get(j)).getLong();
+            }
+            this.allowedUsers.put(userList.getCompoundTagAt(i).getUniqueId("user"), permissions);
         }
     }
 }
