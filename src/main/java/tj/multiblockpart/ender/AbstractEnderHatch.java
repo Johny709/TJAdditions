@@ -4,13 +4,15 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.machines.overrides.GATieredMetaTileEntity;
+import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.capability.GregtechTileCapabilities;
-import gregtech.api.capability.IWorkable;
+import gregtech.api.capability.IControllable;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.HorizontalTabListRenderer;
+import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.covers.CoverPump;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -66,7 +68,7 @@ import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJGuiTextures.LIST_OVERLAY;
 
-public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity implements IWorkable, IEnderNotifiable<V> {
+public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultiblockPart implements IControllable, IMultiblockAbilityPart<T>, IEnderNotifiable<V> {
 
     protected String channel;
     protected String lastEntry;
@@ -74,6 +76,7 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
     protected UUID ownerId;
     protected boolean isWorkingEnabled;
     protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
+    private MultiblockControllerBase controller;
     protected int maxTransferRate;
     protected int transferRate;
     protected V handler;
@@ -82,15 +85,8 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
         super(metaTileEntityId, tier);
     }
 
-    @Override
-    protected void reinitializeEnergyContainer() {}
-
     protected int getPortalColor() {
         return 0xffffff;
-    }
-
-    protected String getName() {
-        return "Null";
     }
 
     @Override
@@ -124,8 +120,8 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
         String[] search = new String[]{"", "", ""};
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
-                .addWidget(new LabelWidget(30, 4, this.getName()))
-                .addTab(this.getName(), this.getStackForm(), tab -> {
+                .addWidget(new LabelWidget(30, 4, this.getMetaFullName()))
+                .addTab(this.getMetaFullName(), this.getStackForm(), tab -> {
                     NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.entry")
@@ -539,6 +535,8 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
             this.getEnderProfile().addToNotifiable(key, this);
             this.handler = this.getEnderProfile().getEntries().get(key);
             this.setEntry(key);
+            if (this.controller != null)
+                this.controller.invalidateStructure();
         }
     }
 
@@ -683,7 +681,7 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
         renderState.alphaOverride = 0xFF;
         this.getOverlay().renderSided(this.frontFacing, renderState, translation, pipeline);
 
-        renderState.baseColour = TJValues.VC[getTier()] << 8;
+        renderState.baseColour = TJValues.VC[this.getTier()] << 8;
         TJTextures.INSIDE_OVERLAY_BASE.renderSided(this.frontFacing, renderState, translation, pipeline);
 
         renderState.baseColour = oldBaseColor;
@@ -701,6 +699,7 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
 
     @Override
     public void writeInitialSyncData(PacketBuffer packetBuffer) {
+        super.writeInitialSyncData(packetBuffer);
         packetBuffer.writeBoolean(this.ownerId != null);
         if (this.ownerId != null)
             packetBuffer.writeUniqueId(this.ownerId);
@@ -748,8 +747,8 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
-            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
+        if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE)
+            return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
         return super.getCapability(capability, side);
     }
 
@@ -767,5 +766,20 @@ public abstract class AbstractEnderHatch<V> extends GATieredMetaTileEntity imple
     @Override
     public void markToDirty() {
         this.markDirty();
+    }
+
+    @Override
+    public boolean isAttachedToMultiBlock() {
+        return false;
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controller) {
+        this.controller = controller;
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controller) {
+        this.controller = null;
     }
 }

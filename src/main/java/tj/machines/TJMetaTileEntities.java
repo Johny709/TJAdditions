@@ -14,6 +14,7 @@ import tj.machines.multi.electric.*;
 import tj.machines.multi.parallel.*;
 import tj.machines.multi.steam.*;
 import tj.machines.singleblock.*;
+import tj.multiblockpart.ender.MetaTileEntityEnderEnergyHatch;
 import tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
 import tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
 import tj.multiblockpart.utility.*;
@@ -121,6 +122,8 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityTJSteamHatch[] STEAM_INPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
     public static final MetaTileEntityTJSteamHatch[] STEAM_OUTPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
     public static final MetaTileEntityCrafterHatch[] CRAFTER_HATCHES = new MetaTileEntityCrafterHatch[14];
+    public static final MetaTileEntityEnderEnergyHatch[] ENDER_ENERGY_INPUT_HATCHES = new MetaTileEntityEnderEnergyHatch[14];
+    public static final MetaTileEntityEnderEnergyHatch[] ENDER_ENERGY_OUTPUT_HATCHES = new MetaTileEntityEnderEnergyHatch[14];
 
     public static void init() {
 
@@ -262,9 +265,12 @@ public class TJMetaTileEntities {
             STEAM_OUTPUT_FLUID_HATCH[i] = GregTechAPI.registerMetaTileEntity(steamHatchID++, new MetaTileEntityTJSteamHatch(TJId("steam_output_hatch." + GAValues.VN[tier]), tier, true));
         }
 
-        for (int i = 0, tier = 1; i < CRAFTER.length; i++, tier++) {
+        for (int i = 0, tier = 1; i < CRAFTER.length; i++, tier++) // occupies range 6026 - 6039
             CRAFTER_HATCHES[i] = GregTechAPI.registerMetaTileEntity(6026 + i, new MetaTileEntityCrafterHatch(TJId("crafter_hatch." + GAValues.VN[tier]), tier));
-        }
+        for (int i = 0, tier = 1; i < ENDER_ENERGY_INPUT_HATCHES.length; i++, tier++) // occupies ID range 6040 - 6053
+            ENDER_ENERGY_INPUT_HATCHES[i] = GregTechAPI.registerMetaTileEntity(6040 + i, new MetaTileEntityEnderEnergyHatch(TJId("ender_energy_input_hatch_" + GAValues.VN[tier]), tier, false));
+        for (int i = 0, tier = 1; i < ENDER_ENERGY_OUTPUT_HATCHES.length; i++, tier++) // occupies ID range 6054 - 6067
+            ENDER_ENERGY_OUTPUT_HATCHES[i] = GregTechAPI.registerMetaTileEntity(6054 + i, new MetaTileEntityEnderEnergyHatch(TJId("ender_energy_output_hatch_" + GAValues.VN[tier]), tier, true));
 
         int energyHatchID = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
