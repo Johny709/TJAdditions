@@ -5,6 +5,10 @@ import gregtech.api.gui.resources.SizedTextureArea;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -18,6 +22,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
     private boolean useToggleTexture;
     private boolean isPressed;
+    private String baseDisplayText;
+    private String activeDisplayText;
     private TextureArea toggleTexture;
     private TextureArea activeTexture;
     private TextureArea baseTexture;
@@ -57,7 +63,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     }
 
     /**
-     * Set texture for button with an On-Off state.
+     * Set texture for button with an On-Off state. {@link #useToggleTexture(boolean)} must be set to true.
      * @param toggleTexture toggle button texture
      */
     public TJToggleButtonWidget setToggleTexture(TextureArea toggleTexture) {
@@ -66,20 +72,24 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     }
 
     /**
-     * The texture shown when the button is pressed.
-     * @param activeTexture active button texture
+     * {@link #useToggleTexture(boolean)} must be set to false.
+     * @param baseTexture The texture shown when the button is pressed.
+     * @param activeTexture The texture shown when the button is pressed.
      */
-    public TJToggleButtonWidget setActiveTexture(TextureArea activeTexture) {
+    public TJToggleButtonWidget setActiveTexture(TextureArea baseTexture, TextureArea activeTexture) {
+        this.baseTexture = baseTexture;
         this.activeTexture = activeTexture;
         return this;
     }
 
     /**
-     * The texture shown when the button is not pressed.
-     * @param baseTexture base button texture
+     * This will attempt to translate the text if they're a lang string.
+     * @param baseDisplayText The text shown when the button is not pressed.
+     * @param activeDisplayText The text shown when the button is pressed.
      */
-    public TJToggleButtonWidget setBaseTexture(TextureArea baseTexture) {
-        this.baseTexture = baseTexture;
+    public TJToggleButtonWidget setToggleDisplayText(String baseDisplayText, String activeDisplayText) {
+        this.baseDisplayText = baseDisplayText;
+        this.activeDisplayText = activeDisplayText;
         return this;
     }
 
@@ -96,6 +106,14 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
             ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.isPressed ? 0.5 : 0.0, 0.5);
         } else {
             this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
+        }
+        if (this.baseDisplayText != null && this.activeDisplayText != null) {
+            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            String text = I18n.format(this.isPressed ? this.activeDisplayText : this.baseDisplayText);
+            fontRenderer.drawString(text,
+                    this.getPosition().getX() + this.getSize().getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
+                    this.getPosition().getY() + this.getSize().getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
         super.drawInBackground(mouseX, mouseY, context);
     }

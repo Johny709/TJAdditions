@@ -117,6 +117,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
     public ModularUI createUI(EntityPlayer player) {
         int[] searchResults = new int[3];
         int[][] patternFlags = new int[3][9];
+        long[][] permissions = new long[1][6];
         String[] search = new String[]{"", "", ""};
         String[] playerName = {""};
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
@@ -334,7 +335,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                 widgetGroup.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                                         .addPopup(widgetGroup1 -> {
                                             TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
-                                                    .addClickHandler(this.handlePlayerDisplayClick(playerName));
+                                                    .addClickHandler(this.handlePlayerDisplayClick(playerName, permissions));
                                             widgetGroup1.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                                                     .addPopup(widgetGroup2 -> {
                                                         widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
@@ -351,9 +352,51 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                                                 .setMaxStringLength(256)
                                                                 .setUpdateOnTyping(true));
                                                       return true;
-                                                    }).addPopup(0, 25, 182, 80, playerTextWidget, false, widgetGroup2 -> {
-                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 80, BORDERED_BACKGROUND));
+                                                    }).addPopup(0, 0, 182, 82, playerTextWidget, false, widgetGroup2 -> {
+                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 82, BORDERED_BACKGROUND));
                                                         widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.edit_permission", playerName[0]))), 0x404040));
+                                                        widgetGroup2.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
+                                                                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                                                                .setToggleButtonResponder((toggle, id) -> permissions[0][0] = toggle ? 1 : 0)
+                                                                .setTooltipText("metaitem.ender_cover.permission.0")
+                                                                .setButtonSupplier(() -> permissions[0][0] != 0)
+                                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                                .useToggleTexture(true));
+                                                        widgetGroup2.addWidget(new TJToggleButtonWidget(91, 25, 88, 18)
+                                                                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                                                                .setToggleButtonResponder((toggle, id) -> permissions[0][1] = toggle ? 1 : 0)
+                                                                .setTooltipText("metaitem.ender_cover.permission.1")
+                                                                .setButtonSupplier(() -> permissions[0][1] != 0)
+                                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                                .useToggleTexture(true));
+                                                        widgetGroup2.addWidget(new TJToggleButtonWidget(3, 43, 88, 18)
+                                                                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                                                                .setToggleButtonResponder((toggle, id) -> permissions[0][2] = toggle ? 1 : 0)
+                                                                .setTooltipText("metaitem.ender_cover.permission.2")
+                                                                .setButtonSupplier(() -> permissions[0][2] != 0)
+                                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                                .useToggleTexture(true));
+                                                        widgetGroup2.addWidget(new TJToggleButtonWidget(91, 43, 88, 18)
+                                                                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                                                                .setToggleButtonResponder((toggle, id) -> permissions[0][3] = toggle ? 1 : 0)
+                                                                .setTooltipText("metaitem.ender_cover.permission.3")
+                                                                .setButtonSupplier(() -> permissions[0][3] != 0)
+                                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                                .useToggleTexture(true));
+                                                        widgetGroup2.addWidget(new TJToggleButtonWidget(3, 61, 88, 18)
+                                                                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                                                                .setToggleButtonResponder((toggle, id) -> permissions[0][4] = toggle ? 1 : 0)
+                                                                .setTooltipText("metaitem.ender_cover.permission.4")
+                                                                .setButtonSupplier(() -> permissions[0][4] != 0)
+                                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                                .useToggleTexture(true));
+                                                        widgetGroup2.addWidget(new ImageWidget(91, 61, 88, 18, DISPLAY));
+                                                        widgetGroup2.addWidget(new NewTextFieldWidget<>(93, 66, 88, 13)
+                                                                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                                                                .setTextResponder((text, id) -> permissions[0][5] = Long.parseLong(text))
+                                                                .setTextSupplier(() -> String.valueOf(permissions[0][5]))
+                                                                .setTooltipText("metaitem.ender_cover.permission.5")
+                                                                .setUpdateOnTyping(true));
                                                         return false;
                                                     }));
                                             return true;
@@ -467,18 +510,18 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         };
     }
 
-    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handlePlayerDisplayClick(String[] playerName) {
+    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handlePlayerDisplayClick(String[] playerName, long[][] permissions) {
         return (componentData, textId, clickData, player) -> {
             String[] component = componentData.split(":");
             UUID uuid = UUID.fromString(component[1]);
-            if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getOwner().equals(uuid))
-                return;
             switch (component[0]) {
                 case "Add": this.getEnderProfile().getAllowedUsers().put(uuid, new long[]{0, 0, 0, 0, 0, 0});
                     break;
                 case "Remove": this.getEnderProfile().getAllowedUsers().remove(uuid);
                     break;
-                case "@Popup": playerName[0] = component[2];
+                case "@Popup":
+                    playerName[0] = component[2];
+                    permissions[0] = this.getEnderProfile().getAllowedUsers().get(uuid);
                     break;
             }
         };
