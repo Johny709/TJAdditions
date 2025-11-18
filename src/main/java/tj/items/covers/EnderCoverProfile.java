@@ -15,10 +15,11 @@ public class EnderCoverProfile<V> {
      * Permission Index:
      * 0 -> can see entries: true = 1 / false = 0
      * 1 -> can modify entries: true = 1 / false = 0
-     * 2 -> can use entries: true = 1 / false = 0
+     * 2 -> can use entry: true = 1 / false = 0
      * 3 -> can see channels: true = 1 / false = 0
      * 4 -> can modify channels: true = 1 / false = 0
-     * 5 -> max throughput: 0 - max long
+     * 5 -> can use channel: true = 1 / false = 0
+     * 6 -> max throughput: 0 - max long
      */
     private final Map<UUID, long[]> allowedUsers = new Object2ObjectOpenHashMap<>();
     private final Map<String, Set<IEnderNotifiable<V>>> notifyMap = new Object2ObjectOpenHashMap<>();
@@ -28,7 +29,7 @@ public class EnderCoverProfile<V> {
     public EnderCoverProfile(UUID owner, Map<String, V> entries) {
         this.owner = owner;
         this.entries.putAll(entries);
-        this.allowedUsers.put(this.owner, new long[]{1, 1, 1, 1, 1, Long.MAX_VALUE});
+        this.allowedUsers.put(this.owner, new long[]{1, 1, 1, 1, 1, 1, Long.MAX_VALUE});
         for (String key : entries.keySet())
             this.notifyMap.put(key, new HashSet<>());
     }

@@ -131,8 +131,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     public ModularUI createUI(EntityPlayer player) {
         int[] searchResults = new int[3];
         int[][] patternFlags = new int[3][9];
-        long[][] permissions = new long[1][6];
-        String[] search = new String[]{"", "", ""};
+        long[][] permissions = new long[1][7];
+        String[] search = {"", "", ""};
         String[] playerName = {""};
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
@@ -366,8 +366,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                                                 .setMaxStringLength(256)
                                                                 .setUpdateOnTyping(true));
                                                         return true;
-                                                    }).addPopup(0, 0, 182, 82, playerTextWidget, false, widgetGroup2 -> {
-                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 82, BORDERED_BACKGROUND));
+                                                    }).addPopup(0, 0, 182, 100, playerTextWidget, false, widgetGroup2 -> {
+                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 100, BORDERED_BACKGROUND));
                                                         widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.edit_permission", playerName[0]))), 0x404040));
                                                         widgetGroup2.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
                                                                 .setToggleDisplayText("machine.universal.false", "machine.universal.true")
@@ -404,12 +404,18 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                                                 .setButtonSupplier(() -> permissions[0][4] != 0)
                                                                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                                 .useToggleTexture(true));
-                                                        widgetGroup2.addWidget(new ImageWidget(91, 61, 88, 18, DISPLAY));
-                                                        widgetGroup2.addWidget(new NewTextFieldWidget<>(93, 66, 88, 13)
-                                                                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                                                                .setTextResponder((text, id) -> permissions[0][5] = Long.parseLong(text))
-                                                                .setTextSupplier(() -> String.valueOf(permissions[0][5]))
+                                                        widgetGroup2.addWidget(new TJToggleButtonWidget(91, 61, 88, 18).setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                                                                .setToggleButtonResponder((toggle, id) -> permissions[0][5] = toggle ? 1 : 0)
                                                                 .setTooltipText("metaitem.ender_cover.permission.5")
+                                                                .setButtonSupplier(() -> permissions[0][5] != 0)
+                                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                                .useToggleTexture(true));
+                                                        widgetGroup2.addWidget(new ImageWidget(3, 79, 176, 18, DISPLAY));
+                                                        widgetGroup2.addWidget(new NewTextFieldWidget<>(5, 84, 174, 13)
+                                                                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                                                                .setTextResponder((text, id) -> permissions[0][6] = Long.parseLong(text))
+                                                                .setTextSupplier(() -> String.valueOf(permissions[0][6]))
+                                                                .setTooltipText("metaitem.ender_cover.permission.6")
                                                                 .setUpdateOnTyping(true));
                                                         return false;
                                                     }));
@@ -529,7 +535,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
             String[] component = componentData.split(":");
             UUID uuid = UUID.fromString(component[1]);
             switch (component[0]) {
-                case "Add": this.getEnderProfile().getAllowedUsers().put(uuid, new long[]{0, 0, 0, 0, 0, 0});
+                case "Add": this.getEnderProfile().getAllowedUsers().put(uuid, new long[]{0, 0, 0, 0, 0, 0, 0});
                     break;
                 case "Remove": this.getEnderProfile().getAllowedUsers().remove(uuid);
                     break;
@@ -609,7 +615,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                         .appendText(" ")
                         .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID()))
                         .appendText(" ")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.edit"), "@Popup:" + player.getUniqueID() + ":" + text)));
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.edit").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "@Popup:" + player.getUniqueID() + ":" + text)));
             }
             searchResults[2] = results;
         };
