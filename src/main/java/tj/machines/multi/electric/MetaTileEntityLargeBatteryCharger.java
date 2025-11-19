@@ -188,7 +188,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .setButtonSupplier(() -> false)
                             .useToggleTexture(true))
-                    .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                    .addPopup(0, 61, 182, 60, textWidget, "@Popup", false, widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                         widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                         widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {

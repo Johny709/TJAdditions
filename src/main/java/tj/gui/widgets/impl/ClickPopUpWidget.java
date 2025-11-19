@@ -12,6 +12,8 @@ import java.util.function.Predicate;
 
 public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
 
+    private String componentData;
+
     public ClickPopUpWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
     }
@@ -23,10 +25,11 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
      * @param width width of widget group.
      * @param height height of widget group.
      * @param textWidget text widget to activate this popup upon certain click conditions.
+     * @param componentData string prefix to activate this popup.
      * @param add set to add this text widget to this widget group
      * @param widgets widgets to add.
      */
-    public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
+    public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, String componentData, boolean add, Predicate<WidgetGroup> widgets) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
         textWidget.setTextId(String.valueOf(this.selectedIndex))
@@ -38,12 +41,13 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
         this.addWidget(widgetGroup);
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
+        this.componentData = componentData;
         return this;
     }
 
     private void handleDisplayClick(String componentData, String textId, ClickData clickData, EntityPlayer player) {
         String[] component = componentData.split(":");
-        if (component[0].equals("@Popup"))
+        if (component[0].equals(this.componentData))
             this.handleButtonPress(textId);
     }
 }

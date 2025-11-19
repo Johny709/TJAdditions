@@ -138,6 +138,18 @@ public class EnderCoverProfile<V> {
         return true;
     }
 
+    public boolean addUser(UUID uuid, UUID owner) {
+        if (this.allowedUsers.get(owner) != null && this.allowedUsers.get(owner)[4] == 1 && !this.allowedUsers.containsKey(uuid)) {
+            this.allowedUsers.put(uuid, new long[]{0, 0, 0, 0, 0, 0, 0});
+            return true;
+        } else return false;
+    }
+
+    public void removeUser(UUID uuid, UUID owner) {
+        if (this.allowedUsers.get(owner) != null && this.allowedUsers.get(owner)[4] == 1)
+            this.allowedUsers.remove(uuid);
+    }
+
     public void setPublic(boolean isPublic) {
         if (this.owner != null)
             this.isPublic = isPublic;

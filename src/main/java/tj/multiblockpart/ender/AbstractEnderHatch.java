@@ -204,7 +204,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                            .addPopup(0, 61, 182, 60, textWidget, "@Popup", false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
@@ -297,7 +297,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                            .addPopup(0, 61, 182, 60, textWidget, "@Popup", false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
@@ -352,7 +352,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                                                 .setMaxStringLength(256)
                                                                 .setUpdateOnTyping(true));
                                                       return true;
-                                                    }).addPopup(0, 0, 182, 100, playerTextWidget, false, widgetGroup2 -> {
+                                                    }).addPopup(0, 0, 182, 100, playerTextWidget, "@Popup", false, widgetGroup2 -> {
                                                         widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 100, BORDERED_BACKGROUND));
                                                         widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.edit_permission", playerName[0]))), 0x404040));
                                                         widgetGroup2.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
@@ -520,14 +520,18 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         return (componentData, textId, clickData, player) -> {
             String[] component = componentData.split(":");
             UUID uuid = UUID.fromString(component[1]);
+            if (this.getEnderProfile().getOwner() == null || uuid.equals(player.getUniqueID()))
+                return;
             switch (component[0]) {
-                case "Add": this.getEnderProfile().getAllowedUsers().put(uuid, new long[]{0, 0, 0, 0, 0, 0});
+                case "Add": this.getEnderProfile().addUser(uuid, player.getUniqueID());
                     break;
-                case "Remove": this.getEnderProfile().getAllowedUsers().remove(uuid);
+                case "Remove": this.getEnderProfile().removeUser(uuid, player.getUniqueID());
                     break;
                 case "@Popup":
-                    playerName[0] = component[2];
-                    permissions[0] = this.getEnderProfile().getAllowedUsers().get(uuid);
+                    if (this.getEnderProfile().getAllowedUsers().get(uuid) != null && this.getEnderProfile().getAllowedUsers().get(uuid)[4] == 1 & this.getEnderProfile().getAllowedUsers().containsKey(uuid)) {
+                        playerName[0] = component[2];
+                        permissions[0] = this.getEnderProfile().getAllowedUsers().get(uuid);
+                    }
                     break;
             }
         };
