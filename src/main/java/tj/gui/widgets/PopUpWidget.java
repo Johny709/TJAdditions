@@ -84,13 +84,13 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
     @Override
     public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
-        AbstractWidgetGroup widgetGroup = (AbstractWidgetGroup) this.widgetMap.get(this.selectedIndex).getRight();
+        AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
         return widgetGroup.getPhantomTargets(ingredient);
     }
 
     @Override
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        AbstractWidgetGroup widgetGroup = (AbstractWidgetGroup) this.widgetMap.get(this.selectedIndex).getRight();
+        AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
         return widgetGroup.getIngredientOverMouse(mouseX, mouseY);
     }
 

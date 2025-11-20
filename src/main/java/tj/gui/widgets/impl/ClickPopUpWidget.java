@@ -4,14 +4,20 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumActionResult;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.TJAdvancedTextWidget;
+import tj.util.predicates.QuadActionResultPredicate;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
 
+    private final Int2ObjectMap<QuadActionResultPredicate<String, String, ClickData, EntityPlayer>> textConditions = new Int2ObjectOpenHashMap<>();
     private String componentData;
 
     public ClickPopUpWidget(int x, int y, int width, int height) {
@@ -45,9 +51,37 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
         return this;
     }
 
+    /**
+     * if this predicate returns false, then this will activate the fail popup instead. call this before {@link #addFailPopup(int, int, int, int, Consumer)} method.
+     * @param textCondition (componentData, textId, clickData, player) ->
+     */
+    public ClickPopUpWidget addPopupCondition(QuadActionResultPredicate<String, String, ClickData, EntityPlayer> textCondition) {
+        this.textConditions.put(this.selectedIndex, textCondition);
+        return this;
+    }
+
+    /**
+     * Activates this popup if the conditions have failed. this won't do anything if {@link #addPopupCondition(QuadActionResultPredicate)} is not defined. bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, TJAdvancedTextWidget, String, boolean, Predicate)} methods
+     * @param x X offset of widget group.
+     * @param y Y offset of widget group.
+     * @param width width of widget group
+     * @param height height of widget group.
+     */
+    public ClickPopUpWidget addFailPopup(int x, int y, int width, int height, Consumer<WidgetGroup> widgets) {
+        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+        widgets.accept(widgetGroup);
+        this.addWidget(widgetGroup);
+        this.widgetMap.put(this.selectedIndex++, Pair.of(false, widgetGroup));
+        return this;
+    }
+
     private void handleDisplayClick(String componentData, String textId, ClickData clickData, EntityPlayer player) {
         String[] component = componentData.split(":");
-        if (component[0].equals(this.componentData))
+        int index = Integer.parseInt(textId) + 1;
+        if (!component[0].equals(this.componentData) || this.textConditions.get(index) != null && this.textConditions.get(index).test(componentData, textId, clickData, player) == EnumActionResult.PASS)
+            return;
+        if (this.textConditions.get(index) == null || this.textConditions.get(index).test(componentData, textId, clickData, player) == EnumActionResult.SUCCESS)
             this.handleButtonPress(textId);
+        else this.handleButtonPress(String.valueOf(index));
     }
 }

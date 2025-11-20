@@ -9,7 +9,6 @@ import tj.gui.widgets.ButtonWidget;
 import tj.gui.widgets.PopUpWidget;
 
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidget<T> {
 

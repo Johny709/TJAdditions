@@ -145,9 +145,11 @@ public class EnderCoverProfile<V> {
         } else return false;
     }
 
-    public void removeUser(UUID uuid, UUID owner) {
-        if (this.allowedUsers.get(owner) != null && this.allowedUsers.get(owner)[4] == 1)
+    public boolean removeUser(UUID uuid, UUID owner) {
+        if (this.allowedUsers.get(owner) != null && this.allowedUsers.get(owner)[4] == 1) {
             this.allowedUsers.remove(uuid);
+            return true;
+        } else return false;
     }
 
     public void setPublic(boolean isPublic) {

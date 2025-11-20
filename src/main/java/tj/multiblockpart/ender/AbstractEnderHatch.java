@@ -21,6 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -50,6 +51,7 @@ import tj.items.covers.EnderCoverProfile;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.consumers.QuadConsumer;
+import tj.util.predicates.QuadActionResultPredicate;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -334,8 +336,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                     .useToggleTexture(true), widgetGroup -> {
                                 widgetGroup.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                                         .addPopup(widgetGroup1 -> {
-                                            TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
-                                                    .addClickHandler(this.handlePlayerDisplayClick(playerName, permissions));
+                                            TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                                             widgetGroup1.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                                                     .addPopup(widgetGroup2 -> {
                                                         widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
@@ -404,6 +405,8 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                                                 .setTooltipText("metaitem.ender_cover.permission.6")
                                                                 .setUpdateOnTyping(true));
                                                         return false;
+                                                    }).addPopupCondition(this.handlePlayerDisplayClick(playerName, permissions)).addFailPopup(0, 61, 182, 60, widgetGroup2 -> {
+                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                                     }));
                                             return true;
                                         }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18)
@@ -516,24 +519,23 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         };
     }
 
-    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handlePlayerDisplayClick(String[] playerName, long[][] permissions) {
+    private QuadActionResultPredicate<String, String, Widget.ClickData, EntityPlayer> handlePlayerDisplayClick(String[] playerName, long[][] permissions) {
         return (componentData, textId, clickData, player) -> {
             String[] component = componentData.split(":");
             UUID uuid = UUID.fromString(component[1]);
             if (this.getEnderProfile().getOwner() == null || uuid.equals(player.getUniqueID()))
-                return;
+                return EnumActionResult.FAIL;
             switch (component[0]) {
-                case "Add": this.getEnderProfile().addUser(uuid, player.getUniqueID());
-                    break;
-                case "Remove": this.getEnderProfile().removeUser(uuid, player.getUniqueID());
-                    break;
+                case "Add": return this.getEnderProfile().addUser(uuid, player.getUniqueID()) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
+                case "Remove": return this.getEnderProfile().removeUser(uuid, player.getUniqueID()) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
                 case "@Popup":
                     if (this.getEnderProfile().getAllowedUsers().get(uuid) != null && this.getEnderProfile().getAllowedUsers().get(uuid)[4] == 1 & this.getEnderProfile().getAllowedUsers().containsKey(uuid)) {
                         playerName[0] = component[2];
                         permissions[0] = this.getEnderProfile().getAllowedUsers().get(uuid);
-                    }
-                    break;
+                        return EnumActionResult.SUCCESS;
+                    } else return EnumActionResult.FAIL;
             }
+            return EnumActionResult.PASS;
         };
     }
 
