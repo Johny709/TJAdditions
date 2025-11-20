@@ -650,6 +650,7 @@ metaitem.ender_cover.private.disabled=Cover Access: PRIVATE
 metaitem.ender_cover.private.enabled=Cover Access: PUBLIC
 metaitem.ender_cover.allowed_players=Add players allowed in channel:%n%s
 metaitem.ender_cover.edit_permission=Edit permissions for player:%n%s
+metaitem.ender_cover.operation_false=Unable to do operation
 metaitem.ender_cover.permission.0=Can see entries
 metaitem.ender_cover.permission.1=Can modify entries
 metaitem.ender_cover.permission.2=can use entries

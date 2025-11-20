@@ -29,6 +29,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
 
     /**
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
+     * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
      * @param x X offset of widget group.
      * @param y Y offset of widget group.
      * @param width width of widget group.
@@ -54,6 +55,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
 
     /**
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
+     * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
      * @param button button widget to activate this popup.
      * @param widgets widgets to add.
      */

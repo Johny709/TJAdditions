@@ -418,8 +418,13 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                                                 .setTooltipText("metaitem.ender_cover.permission.6")
                                                                 .setUpdateOnTyping(true));
                                                         return false;
-                                                    }).addPopupCondition(this.handlePlayerDisplayClick(playerName, permissions)).addFailPopup(0, 61, 182, 60, widgetGroup2 -> {
-                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
+                                                    }).addClosingButton(new TJToggleButtonWidget(3, 39, 176, 18)
+                                                            .setDisplayText("machine.universal.ok")
+                                                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                                            .useToggleTexture(true))
+                                                    .addPopupCondition(this.handlePlayerDisplayClick(playerName, permissions)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
+                                                        widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                                                        widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                                                     }));
                                             return true;
                                         }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18)
@@ -547,8 +552,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                         permissions[0] = this.getEnderProfile().getAllowedUsers().get(uuid);
                         return EnumActionResult.SUCCESS;
                     } else return EnumActionResult.FAIL;
+                default: return EnumActionResult.PASS;
             }
-            return EnumActionResult.PASS;
         };
     }
 

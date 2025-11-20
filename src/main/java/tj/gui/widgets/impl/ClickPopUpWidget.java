@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumActionResult;
 import org.apache.commons.lang3.tuple.Pair;
+import tj.gui.widgets.ButtonWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.util.predicates.QuadActionResultPredicate;
 
@@ -26,6 +27,7 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
 
     /**
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
+     * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
      * @param x X offset of widget group.
      * @param y Y offset of widget group.
      * @param width width of widget group.
@@ -61,7 +63,9 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
     }
 
     /**
-     * Activates this popup if the conditions have failed. this won't do anything if {@link #addPopupCondition(QuadActionResultPredicate)} is not defined. bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, TJAdvancedTextWidget, String, boolean, Predicate)} methods
+     * Activates this popup if the conditions have failed. this won't do anything if {@link #addPopupCondition(QuadActionResultPredicate)} is not defined.
+     * bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, TJAdvancedTextWidget, String, boolean, Predicate)} methods.
+     * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
      * @param x X offset of widget group.
      * @param y Y offset of widget group.
      * @param width width of widget group
@@ -70,7 +74,10 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
     public ClickPopUpWidget addFailPopup(int x, int y, int width, int height, Consumer<WidgetGroup> widgets) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         widgets.accept(widgetGroup);
+        for (Widget widget : this.pendingWidgets)
+            widgetGroup.addWidget(widget);
         this.addWidget(widgetGroup);
+        this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++, Pair.of(false, widgetGroup));
         return this;
     }
@@ -78,9 +85,11 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
     private void handleDisplayClick(String componentData, String textId, ClickData clickData, EntityPlayer player) {
         String[] component = componentData.split(":");
         int index = Integer.parseInt(textId) + 1;
-        if (!component[0].equals(this.componentData) || this.textConditions.get(index) != null && this.textConditions.get(index).test(componentData, textId, clickData, player) == EnumActionResult.PASS)
+        EnumActionResult actionResult = null;
+        boolean contains = this.textConditions.get(index) != null;
+        if (!component[0].equals(this.componentData) || contains && (actionResult = this.textConditions.get(index).test(componentData, textId, clickData, player)) == EnumActionResult.PASS)
             return;
-        if (this.textConditions.get(index) == null || this.textConditions.get(index).test(componentData, textId, clickData, player) == EnumActionResult.SUCCESS)
+        if (!contains || actionResult == EnumActionResult.SUCCESS)
             this.handleButtonPress(textId);
         else this.handleButtonPress(String.valueOf(index));
     }
