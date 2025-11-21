@@ -138,25 +138,13 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
         final NBTTagCompound compound = playerStack.getTagCompound();
         ItemStackHandler toolboxInventory = new FilteredItemStackHandler(null, 18) {
             @Override
-            @Nonnull
-            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-                stack = super.insertItem(slot, stack, simulate);
-                if (!simulate)
-                    compound.setTag("inventory", this.serializeNBT());
-                return stack;
-            }
-            @Override
-            @Nonnull
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                ItemStack stack = super.extractItem(slot, amount, simulate);
-                if (!simulate)
-                    compound.setTag("inventory", this.serializeNBT());
-                return stack;
+            protected void onContentsChanged(int slot) {
+                compound.setTag("inventory", this.serializeNBT());
             }
         }.setItemStackPredicate((slot, stack) -> GAMetaItems.INSULATING_TAPE.isItemEqual(stack) || stack.getItem() instanceof ToolMetaItem<?>);
         WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 20));
         for (int i = 0; i < toolboxInventory.getSlots(); i++) {
-            widgetGroup.addWidget(new TJSlotWidget(toolboxInventory, i, 18 * (i % 9), 18 * (i / 9))
+            widgetGroup.addWidget(new TJSlotWidget<>(toolboxInventory, i, 18 * (i % 9), 18 * (i / 9))
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.defaultBuilder()

@@ -418,7 +418,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                                                 .setTooltipText("metaitem.ender_cover.permission.6")
                                                                 .setUpdateOnTyping(true));
                                                         return false;
-                                                    }).addClosingButton(new TJToggleButtonWidget(3, 39, 176, 18)
+                                                    }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
                                                             .setDisplayText("machine.universal.ok")
                                                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                             .useToggleTexture(true))
