@@ -40,7 +40,6 @@ import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
-import tj.util.consumers.QuadConsumer;
 import tj.util.predicates.QuadActionResultPredicate;
 
 import javax.annotation.Nonnull;
@@ -152,8 +151,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setTextId(player.getUniqueID().toString())
                             .setTextResponder(this::addEntry)
                             .setMaxStringLength(256);
-                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addEntryDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
-                            .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
+                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addEntryDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
@@ -208,7 +206,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                     .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                     .setTooltipText("machine.universal.search.settings")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 0)).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
+                                    .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 0))
+                            .addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
@@ -219,7 +218,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 60, textWidget, "@Popup", false, widgetGroup -> {
+                            .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
@@ -229,6 +228,13 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 }, 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetRename);
                                 return false;
+                            }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
+                                    .setDisplayText("machine.universal.ok")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .useToggleTexture(true))
+                            .addPopupCondition(this.handleDisplayClick(textFieldWidgetRename)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
+                                widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                                widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -266,8 +272,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setTextId(player.getUniqueID().toString())
                             .setTextResponder(this::addChannel)
                             .setMaxStringLength(256);
-                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF)
-                            .addClickHandler(this.handleDisplayClick(textFieldWidgetRename));
+                    TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
                     ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
@@ -312,7 +317,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
-                            .addPopup(0, 61, 182, 60, textWidget, "@Popup", false, widgetGroup -> {
+                            .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                                 widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                                 widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
@@ -322,6 +327,13 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 }, 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetRename);
                                 return false;
+                            }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
+                                    .setDisplayText("machine.universal.ok")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .useToggleTexture(true))
+                            .addPopupCondition(this.handleDisplayClick(textFieldWidgetRename)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
+                                widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                                widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -366,7 +378,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                                                 .setMaxStringLength(256)
                                                                 .setUpdateOnTyping(true));
                                                         return true;
-                                                    }).addPopup(0, 0, 182, 100, playerTextWidget, "@Popup", false, widgetGroup2 -> {
+                                                    }).addPopup(0, 0, 182, 100, playerTextWidget, false, widgetGroup2 -> {
                                                         widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 100, BORDERED_BACKGROUND));
                                                         widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.edit_permission", playerName[0]))), 0x404040));
                                                         widgetGroup2.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
@@ -517,22 +529,21 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return false;
     }
 
-    private QuadConsumer<String, String, Widget.ClickData, EntityPlayer> handleDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
+    private QuadActionResultPredicate<String, String, Widget.ClickData, EntityPlayer> handleDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
         return (componentData, textId, clickData, player) -> {
             String[] components = componentData.split(":");
             switch (components[0]) {
                 case "select":
                     if (components[1].equals("entry"))
-                        this.setEntry(components[2], player.getUniqueID().toString());
-                    else this.setChannel(components[2], player.getUniqueID().toString());
-                    break;
+                        return this.setEntry(components[2], player.getUniqueID().toString()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
+                    else return this.setChannel(components[2], player.getUniqueID().toString()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
                 case "remove":
                     if (components[1].equals("entry"))
-                        this.getEnderProfile().removeEntry(components[2], player.getUniqueID().toString());
-                    else this.removeChannel(components[2], player.getUniqueID().toString());
-                    break;
-                case "@Popup": textFieldWidget.setTextId(components[1] + ":" + player.getUniqueID());
-                    break;
+                        return this.getEnderProfile().removeEntry(components[2], player.getUniqueID().toString()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
+                    else return this.removeChannel(components[2], player.getUniqueID().toString()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
+                case "rename": textFieldWidget.setTextId(components[1] + ":" + player.getUniqueID());
+                    return EnumActionResult.SUCCESS;
+                default: return EnumActionResult.PASS;
             }
         };
     }
@@ -544,9 +555,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
             if (this.getEnderProfile().getOwner() == null || uuid.equals(player.getUniqueID()))
                 return EnumActionResult.FAIL;
             switch (component[0]) {
-                case "Add": return this.getEnderProfile().addUser(uuid, player.getUniqueID()) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
-                case "Remove": return this.getEnderProfile().removeUser(uuid, player.getUniqueID()) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
-                case "@Popup":
+                case "add": return this.getEnderProfile().addUser(uuid, player.getUniqueID()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
+                case "remove": return this.getEnderProfile().removeUser(uuid, player.getUniqueID()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
+                case "edit":
                     if (this.getEnderProfile().getAllowedUsers().get(uuid) != null && this.getEnderProfile().getAllowedUsers().get(uuid)[4] == 1 & this.getEnderProfile().getAllowedUsers().containsKey(uuid)) {
                         playerName[0] = component[2];
                         permissions[0] = this.getEnderProfile().getAllowedUsers().get(uuid);
@@ -580,7 +591,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:entry:" + text))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text));
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + text));
                 textList.add(keyEntry);
                 this.addEntryText(keyEntry, entry.getKey(), entry.getValue());
             }
@@ -603,7 +614,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                         .appendText(" ")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "@Popup:" + text))
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:" + text))
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
             }
             searchResults[1] = results;
@@ -621,11 +632,11 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                     continue;
                 boolean contains = this.getEnderProfile().getAllowedUsers().containsKey(player.getUniqueID());
                 textList.add(new TextComponentString(": [§a" + (++results) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "Add:" + player.getUniqueID()))
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "add:" + player.getUniqueID()))
                         .appendText(" ")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "Remove:" + player.getUniqueID()))
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "remove:" + player.getUniqueID()))
                         .appendText(" ")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.edit").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "@Popup:" + player.getUniqueID() + ":" + text)));
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.edit").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "edit:" + player.getUniqueID() + ":" + text)));
             }
             searchResults[2] = results;
         };
@@ -686,21 +697,23 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         }
     }
 
-    private void removeChannel(String key, String uuid) {
+    private boolean removeChannel(String key, String uuid) {
         if (this.getPlayerMap().get(key).removeChannel(uuid)) {
             this.getPlayerMap().remove(key);
             this.markAsDirty();
-        }
+            return true;
+        } else return false;
     }
 
-    private void setChannel(String key, String id) {
+    private boolean setChannel(String key, String id) {
         EnderCoverProfile<?> profile = this.getPlayerMap().getOrDefault(key, this.getPlayerMap().get(null));
         UUID uuid = UUID.fromString(id);
         if (!key.equals(this.channel) && (profile.isPublic() || profile.getAllowedUsers().get(uuid) != null && profile.getAllowedUsers().get(uuid)[3] == 1)) {
             this.getEnderProfile().removeFromNotifiable(this.lastEntry, this);
             this.setChannel(key);
             this.getEnderProfile().addToNotifiable(this.lastEntry, this);
-        }
+            return true;
+        } else return false;
     }
 
     @Override
@@ -709,11 +722,12 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         this.markAsDirty();
     }
 
-    private void setEntry(String key, String uuid) {
+    private boolean setEntry(String key, String uuid) {
         if (this.getEnderProfile().setEntry(key, this.lastEntry, uuid, this)) {
             this.handler = this.getEnderProfile().getEntries().get(key);
             this.setEntry(key);
-        }
+            return true;
+        } else return false;
     }
 
     private void addEntry(String key, String uuid) {

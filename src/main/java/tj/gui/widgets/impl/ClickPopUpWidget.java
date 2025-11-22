@@ -19,7 +19,6 @@ import java.util.function.Predicate;
 public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
 
     private final Int2ObjectMap<QuadActionResultPredicate<String, String, ClickData, EntityPlayer>> textConditions = new Int2ObjectOpenHashMap<>();
-    private String componentData;
 
     public ClickPopUpWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -33,11 +32,10 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
      * @param width width of widget group.
      * @param height height of widget group.
      * @param textWidget text widget to activate this popup upon certain click conditions.
-     * @param componentData string prefix to activate this popup.
      * @param add set to add this text widget to this widget group
      * @param widgets widgets to add.
      */
-    public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, String componentData, boolean add, Predicate<WidgetGroup> widgets) {
+    public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         boolean visible = widgets.test(widgetGroup);
         textWidget.setTextId(String.valueOf(this.selectedIndex))
@@ -49,7 +47,6 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
         this.addWidget(widgetGroup);
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
-        this.componentData = componentData;
         return this;
     }
 
@@ -64,7 +61,7 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
 
     /**
      * Activates this popup if the conditions have failed. this won't do anything if {@link #addPopupCondition(QuadActionResultPredicate)} is not defined.
-     * bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, TJAdvancedTextWidget, String, boolean, Predicate)} methods.
+     * bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, TJAdvancedTextWidget, boolean, Predicate)} methods.
      * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
      * @param x X offset of widget group.
      * @param y Y offset of widget group.
@@ -83,11 +80,10 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
     }
 
     private void handleDisplayClick(String componentData, String textId, ClickData clickData, EntityPlayer player) {
-        String[] component = componentData.split(":");
         int index = Integer.parseInt(textId) + 1;
         EnumActionResult actionResult = null;
         boolean contains = this.textConditions.get(index) != null;
-        if (!component[0].equals(this.componentData) || contains && (actionResult = this.textConditions.get(index).test(componentData, textId, clickData, player)) == EnumActionResult.PASS)
+        if (contains && (actionResult = this.textConditions.get(index).test(componentData, textId, clickData, player)) == EnumActionResult.PASS)
             return;
         if (!contains || actionResult == EnumActionResult.SUCCESS)
             this.handleButtonPress(textId);

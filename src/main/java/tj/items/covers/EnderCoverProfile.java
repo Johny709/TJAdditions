@@ -52,10 +52,10 @@ public class EnderCoverProfile<V> {
         this.notifyMap.getOrDefault(key, new HashSet<>()).remove(notifiable);
     }
 
-    public void removeEntry(String key, String id) {
+    public boolean removeEntry(String key, String id) {
         UUID uuid = UUID.fromString(id);
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
-            return;
+            return false;
         Set<IEnderNotifiable<V>> set = this.notifyMap.remove(key);
         this.entries.remove(key);
         for (IEnderNotifiable<V> notifiable : set) {
@@ -63,6 +63,7 @@ public class EnderCoverProfile<V> {
             notifiable.setHandler(null);
             notifiable.markToDirty();
         }
+        return true;
     }
 
     public boolean setEntry(String key, String lastEntry, String id, IEnderNotifiable<V> notifiable) {
