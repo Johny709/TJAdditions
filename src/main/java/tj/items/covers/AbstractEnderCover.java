@@ -153,7 +153,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addEntryDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
-                    ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
+                    tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
@@ -248,6 +248,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 38, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.entry")
+                                    .setButtonId("entry:" + player.getUniqueID())
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                     .useToggleTexture(true)
                                     .setDisplayText("O"), widgetGroup -> {
@@ -256,8 +257,14 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.entry")), 0x404040));
                                 widgetGroup.addWidget(textFieldWidgetEntry);
                                 return false;
-                            }).passPopup(this::addToPopUpWidget);
-                    tab.addWidget(clickPopUpWidget);
+                            }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
+                                    .setDisplayText("machine.universal.ok")
+                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                    .useToggleTexture(true))
+                            .addPopupCondition(this::handleButtonClick).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
+                                widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                                widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
+                            }).passPopup(this::addToPopUpWidget));
                 }).addTab("tj.multiblock.tab.channels", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76), tab -> {
                     NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -274,7 +281,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
-                    ClickPopUpWidget clickPopUpWidget = new ClickPopUpWidget(0, 0, 0, 0)
+                    tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
@@ -449,8 +456,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                     .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                     .setTooltipText("machine.universal.search.settings")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 1));
-                    tab.addWidget(clickPopUpWidget);
+                                    .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 1)));
                 });
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
                 .bindPlayerInventory(player.inventory, 181)
@@ -529,6 +535,13 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return false;
     }
 
+    private EnumActionResult handleButtonClick(String buttonId) {
+        String[] id = buttonId.split(":");
+        if (id[0].equals("entry") && this.getEnderProfile().hasPermission(UUID.fromString(id[1]), 1))
+            return EnumActionResult.SUCCESS;
+        else return EnumActionResult.FAIL;
+    }
+
     private QuadActionResultPredicate<String, String, Widget.ClickData, EntityPlayer> handleDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
         return (componentData, textId, clickData, player) -> {
             String[] components = componentData.split(":");
@@ -541,8 +554,11 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                     if (components[1].equals("entry"))
                         return this.getEnderProfile().removeEntry(components[2], player.getUniqueID().toString()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
                     else return this.removeChannel(components[2], player.getUniqueID().toString()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
-                case "rename": textFieldWidget.setTextId(components[1] + ":" + player.getUniqueID());
-                    return EnumActionResult.SUCCESS;
+                case "rename":
+                    if (this.getEnderProfile().hasPermission(player.getUniqueID(), components[1].equals("entry") ? 1 : 4)) {
+                        textFieldWidget.setTextId(components[1] + ":" + player.getUniqueID());
+                        return EnumActionResult.SUCCESS;
+                    } else return EnumActionResult.FAIL;
                 default: return EnumActionResult.PASS;
             }
         };

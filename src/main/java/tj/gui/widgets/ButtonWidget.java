@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
 
@@ -85,14 +86,21 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     }
 
     /**
-     * Set buttonId that will be used to determine response type. Null will be treated as empty string. A Long version type of buttonId is available if only numbers are passed in.
+     * Set buttonId that will be used to determine response type. Null will be treated as empty string.
      * @param buttonId button
      */
     public R setButtonId(String buttonId) {
         this.buttonId = buttonId;
-        try {
-            this.buttonIdAsLong = Long.parseLong(buttonId);
-        } catch (NumberFormatException ignored) {}
+
+        return (R) this;
+    }
+
+    /**
+     * Appends extra string to the end of current buttonId.
+     * @param buttonId button
+     */
+    public R appendButtonId(UnaryOperator<String> buttonId) {
+        this.buttonId = buttonId.apply(this.buttonId);
         return (R) this;
     }
 
@@ -129,6 +137,11 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
      */
     public R setDisplayTextColor(int textColor) {
         this.textColor = textColor;
+        return (R) this;
+    }
+
+    public R setButtonIdAsLong(long buttonIdAsLong) {
+        this.buttonIdAsLong = buttonIdAsLong;
         return (R) this;
     }
 

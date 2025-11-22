@@ -52,6 +52,10 @@ public class EnderCoverProfile<V> {
         this.notifyMap.getOrDefault(key, new HashSet<>()).remove(notifiable);
     }
 
+    public boolean hasPermission(UUID uuid, int permission) {
+        return this.owner == null || this.allowedUsers.get(uuid) != null && this.allowedUsers.get(uuid)[permission] == 1;
+    }
+
     public boolean removeEntry(String key, String id) {
         UUID uuid = UUID.fromString(id);
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))

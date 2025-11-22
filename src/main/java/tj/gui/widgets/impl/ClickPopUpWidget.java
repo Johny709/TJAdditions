@@ -59,26 +59,6 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
         return this;
     }
 
-    /**
-     * Activates this popup if the conditions have failed. this won't do anything if {@link #addPopupCondition(QuadActionResultPredicate)} is not defined.
-     * bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, TJAdvancedTextWidget, boolean, Predicate)} methods.
-     * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
-     * @param x X offset of widget group.
-     * @param y Y offset of widget group.
-     * @param width width of widget group
-     * @param height height of widget group.
-     */
-    public ClickPopUpWidget addFailPopup(int x, int y, int width, int height, Consumer<WidgetGroup> widgets) {
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
-        widgets.accept(widgetGroup);
-        for (Widget widget : this.pendingWidgets)
-            widgetGroup.addWidget(widget);
-        this.addWidget(widgetGroup);
-        this.pendingWidgets.clear();
-        this.widgetMap.put(this.selectedIndex++, Pair.of(false, widgetGroup));
-        return this;
-    }
-
     private void handleDisplayClick(String componentData, String textId, ClickData clickData, EntityPlayer player) {
         int index = Integer.parseInt(textId) + 1;
         EnumActionResult actionResult = null;
