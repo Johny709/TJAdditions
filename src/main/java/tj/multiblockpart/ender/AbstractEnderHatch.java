@@ -173,10 +173,20 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                         .setTextSupplier(() -> search[0])
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
-                                widgetGroup.addWidget(new TJClickButtonWidget(151, 15, 18, 18, "+", this::onIncrement)
-                                        .setTooltipText("machine.universal.toggle.increment.disabled"));
-                                widgetGroup.addWidget(new TJClickButtonWidget(7, 15, 18, 18, "-", this::onDecrement)
-                                        .setTooltipText("machine.universal.toggle.decrement.disabled"));
+                                widgetGroup.addWidget(new TJToggleButtonWidget(151, 15, 18, 18)
+                                        .setTooltipText("machine.universal.toggle.increment.disabled")
+                                        .setButtonResponder(this::onIncrement)
+                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                        .setButtonSupplier(() -> false)
+                                        .useToggleTexture(true)
+                                        .setDisplayText("+"));
+                                widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18)
+                                        .setTooltipText("machine.universal.toggle.decrement.disabled")
+                                        .setButtonResponder(this::onDecrement)
+                                        .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                        .setButtonSupplier(() -> false)
+                                        .useToggleTexture(true)
+                                        .setDisplayText("-"));
                                 widgetGroup.addWidget(new TJToggleButtonWidget(-20, 38, 18, 18)
                                         .setTooltipText("machine.universal.toggle.clear")
                                         .setButtonId(player.getUniqueID().toString())
@@ -660,13 +670,13 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         return String.valueOf(this.transferRate);
     }
 
-    private void onIncrement(Widget.ClickData clickData) {
-        this.transferRate = MathHelper.clamp(this.transferRate * 2, 1, this.maxTransferRate);
+    private void onIncrement(String id) {
+        this.transferRate = (int) MathHelper.clamp(this.transferRate * 2, 1, Math.min(this.maxTransferRate, this.getEnderProfile().maxThroughPut(UUID.fromString(id))));
         this.markDirty();
     }
 
-    private void onDecrement(Widget.ClickData clickData) {
-        this.transferRate = MathHelper.clamp(this.transferRate / 2, 1, this.maxTransferRate);
+    private void onDecrement(String id) {
+        this.transferRate = (int) MathHelper.clamp(this.transferRate / 2, 1, Math.min(this.maxTransferRate, this.getEnderProfile().maxThroughPut(UUID.fromString(id))));
         this.markDirty();
     }
 

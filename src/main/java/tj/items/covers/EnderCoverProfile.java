@@ -19,7 +19,7 @@ public class EnderCoverProfile<V> {
      * 3 -> can see channels: true = 1 / false = 0
      * 4 -> can modify channels: true = 1 / false = 0
      * 5 -> can use channel: true = 1 / false = 0
-     * 6 -> max throughput: 0 - max long
+     * 6 -> max throughput: 1 - max long
      */
     private final Map<UUID, long[]> allowedUsers = new Object2ObjectOpenHashMap<>();
     private final Map<String, Set<IEnderNotifiable<V>>> notifyMap = new Object2ObjectOpenHashMap<>();
@@ -68,6 +68,10 @@ public class EnderCoverProfile<V> {
             notifiable.markToDirty();
         }
         return true;
+    }
+
+    public long maxThroughPut(UUID uuid) {
+        return this.allowedUsers.get(uuid) != null ? this.getAllowedUsers().get(uuid)[6] : 1;
     }
 
     public boolean setEntry(String key, String lastEntry, String id, IEnderNotifiable<V> notifiable) {
