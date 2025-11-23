@@ -11,6 +11,11 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import net.minecraft.util.ResourceLocation;
 
+import java.util.List;
+import java.util.Map;
+
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.OUTPUT_ENERGY;
+
 public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLargeWirelessEnergyEmitter {
 
     private IEnergyContainer outputEnergyContainer;
@@ -28,6 +33,11 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     }
 
     @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.containsKey(OUTPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+    }
+
+    @Override
     protected boolean hasEnoughEnergy(long amount) {
         return true;
     }
@@ -35,7 +45,7 @@ public class MetaTileEntityLargeWirelessEnergyReceiver extends MetaTileEntityLar
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.outputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.OUTPUT_ENERGY));
+        this.outputEnergyContainer = new EnergyContainerList(getAbilities(OUTPUT_ENERGY));
     }
 
     @Override

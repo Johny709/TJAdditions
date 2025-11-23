@@ -75,6 +75,7 @@ import tj.util.consumers.QuadConsumer;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -121,6 +122,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.large_wireless_energy_emitter.description"));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return (this.transferType != TransferType.INPUT || abilities.containsKey(INPUT_ENERGY)) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override

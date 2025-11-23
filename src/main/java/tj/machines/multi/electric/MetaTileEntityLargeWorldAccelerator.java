@@ -76,9 +76,11 @@ import tj.util.consumers.QuadConsumer;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 import static tj.builder.handlers.AcceleratorWorkableHandler.AcceleratorMode.*;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -86,7 +88,7 @@ import static gregtech.api.unification.material.Materials.UUMatter;
 
 public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this);
 
     private IMultipleTankHandler importFluidHandler;
@@ -116,6 +118,11 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         tooltip.add("§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.entity") + "§r§e§l -> §r§7" + I18n.format("tj.multiblock.world_accelerator.mode.entity.description"));
         tooltip.add("§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.tile") + "§r§e§l -> §r§7" + I18n.format("tj.multiblock.world_accelerator.mode.tile.description"));
         tooltip.add("§f§n" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT") + "§r§e§l -> §r§7" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT.description"));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override
@@ -371,7 +378,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         FieldGenCasing.CasingType fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV);
         EmitterCasing.CasingType emitter = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV);
         this.tier = Math.min(fieldGen.getTier(), emitter.getTier());
-        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.energyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
         this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.workableHandler.initialize(1);
     }

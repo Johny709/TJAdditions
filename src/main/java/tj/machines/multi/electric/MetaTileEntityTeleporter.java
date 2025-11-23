@@ -115,6 +115,11 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+    }
+
+    @Override
     protected boolean shouldUpdate(MTETrait trait) {
         return false;
     }
