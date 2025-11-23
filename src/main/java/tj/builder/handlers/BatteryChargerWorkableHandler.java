@@ -42,7 +42,6 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
         this.maxProgress = 1;
     }
 
-
     @Override
     public BatteryChargerWorkableHandler initialize(int busCount) {
         this.linkedPlayers = this.linkedPlayers != null ? Arrays.copyOf(this.linkedPlayers, this.tierSupplier.getAsInt()) : new EntityPlayer[this.tierSupplier.getAsInt()];
@@ -146,17 +145,16 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
         if (transferMode == INPUT) {
             int energyRemainingToFill = RFContainer.getMaxEnergyStored() - RFContainer.getEnergyStored();
             if (RFContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-                int energyInserted = RFContainer.receiveEnergy(Math.min(Integer.MAX_VALUE, energyRemainingToFill >= energyToAdd ? (energyToAdd * 4) : energyRemainingToFill), false);
-                this.importEnergySupplier.get().removeEnergy(energyInserted / 4);
-            } else if (ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty())
-                ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, false);
+                int energyInserted = Math.min(energyToAdd, energyRemainingToFill);
+                RFContainer.receiveEnergy((int) Math.abs(this.importEnergySupplier.get().removeEnergy(energyInserted / 4) * 4), false);
+            }
         } else {
-            long energyRemainingToFill = (this.importEnergySupplier.get().getEnergyCapacity() - this.importEnergySupplier.get().getEnergyStored());
-            if (this.importEnergySupplier.get().getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyRemainingToFill = (this.exportEnergySupplier.get().getEnergyCapacity() - this.exportEnergySupplier.get().getEnergyStored());
+            if (this.exportEnergySupplier.get().getEnergyStored() < 1 || energyRemainingToFill != 0) {
                 int energyExtracted = RFContainer.extractEnergy((int) Math.min(Integer.MAX_VALUE, Math.min(energyToAdd * 4L, energyRemainingToFill)), false);
                 this.exportEnergySupplier.get().addEnergy(energyExtracted / 4);
             }
-            if (RFContainer.getEnergyStored() < 1 && ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty())
+            if (transferToOutput && RFContainer.getEnergyStored() < 1 && ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty())
                 ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, false);
         }
     }
@@ -167,17 +165,16 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
         if (transferMode == INPUT) {
             long energyRemainingToFill = EUContainer.getMaxCharge() - EUContainer.getCharge();
             if (EUContainer.getCharge() < 1 || energyRemainingToFill != 0) {
-                long energyInserted = EUContainer.charge(Math.min(energyRemainingToFill, energyToAdd), this.tierSupplier.getAsInt(), true, false);
-                this.importEnergySupplier.get().removeEnergy(Math.abs(energyInserted));
-            } else if (ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty())
-                ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, false);
-        } else {
-            long energyRemainingToFill = this.importEnergySupplier.get().getEnergyCapacity() - this.importEnergySupplier.get().getEnergyStored();
-            if (this.importEnergySupplier.get().getEnergyStored() < 1 || energyRemainingToFill != 0) {
-                long energyExtracted = EUContainer.discharge(Math.min(energyRemainingToFill, energyToAdd), this.tierSupplier.getAsInt(), true, true,false);
-                this.importEnergySupplier.get().addEnergy(energyExtracted);
+                long energyInserted = Math.min(energyRemainingToFill, energyToAdd);
+                EUContainer.charge(Math.abs(this.importEnergySupplier.get().removeEnergy(energyInserted)), this.tierSupplier.getAsInt(), true, false);
             }
-            if (EUContainer.getCharge() < 1 && ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty())
+        } else {
+            long energyRemainingToFill = this.exportEnergySupplier.get().getEnergyCapacity() - this.exportEnergySupplier.get().getEnergyStored();
+            if (this.exportEnergySupplier.get().getEnergyStored() < 1 || energyRemainingToFill != 0) {
+                long energyExtracted = EUContainer.discharge(Math.min(energyRemainingToFill, energyToAdd), this.tierSupplier.getAsInt(), true, true,false);
+                this.exportEnergySupplier.get().addEnergy(energyExtracted);
+            }
+            if (transferToOutput && EUContainer.getCharge() < 1 && ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty())
                 ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, false);
         }
     }
