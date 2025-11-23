@@ -91,7 +91,7 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
             }
 
             for (int j = 0; j < linkedPlayer.inventory.mainInventory.size(); j++) {
-                ItemStack stack = linkedPlayer.inventory.offHandInventory.get(j);
+                ItemStack stack = linkedPlayer.inventory.mainInventory.get(j);
                 if (stack.isEmpty())
                     continue;
                 IEnergyStorage RFContainer = stack.getCapability(ENERGY, null);

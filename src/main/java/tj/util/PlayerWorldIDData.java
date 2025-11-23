@@ -1,6 +1,7 @@
 package tj.util;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -10,50 +11,48 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 import java.util.UUID;
 
 public class PlayerWorldIDData extends WorldSavedData {
 
-    private final Map<UUID, Integer> PLAYER_WORLD_ID_MAP = new Object2ObjectOpenHashMap<>();
+    private final Object2IntOpenHashMap<UUID> playerId = new Object2IntOpenHashMap<>();
     private static PlayerWorldIDData INSTANCE;
 
     public PlayerWorldIDData(String name) {
         super(name);
-        INSTANCE = this;
     }
 
     public static PlayerWorldIDData getINSTANCE() {
         return INSTANCE;
     }
 
-    public Map<UUID, Integer> getPlayerWorldIdMap() {
-        return PLAYER_WORLD_ID_MAP;
+    public Object2IntMap<UUID> getPlayerWorldIdMap() {
+        return this.playerId;
     }
 
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
         NBTTagList playerWorldIDList = new NBTTagList();
-        for (Map.Entry<UUID, Integer> player : PLAYER_WORLD_ID_MAP.entrySet()) {
+        for (Object2IntMap.Entry<UUID> player : this.playerId.object2IntEntrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
-            playerCompound.setUniqueId("UUID", player.getKey());
-            playerCompound.setInteger("WorldID", player.getValue());
+            playerCompound.setUniqueId("uuid", player.getKey());
+            playerCompound.setInteger("worldId", player.getIntValue());
             playerWorldIDList.appendTag(playerCompound);
         }
 
-        nbt.setTag("PlayerWorldIDList", playerWorldIDList);
+        nbt.setTag("playerList", playerWorldIDList);
         return nbt;
     }
 
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound nbt) {
-        NBTTagList playerWorldIDList = nbt.getTagList("PlayerWorldIDList", Constants.NBT.TAG_COMPOUND);
+        NBTTagList playerWorldIDList = nbt.getTagList("playerList", Constants.NBT.TAG_COMPOUND);
         for (NBTBase compound : playerWorldIDList) {
             NBTTagCompound tag = (NBTTagCompound) compound;
-            UUID uuid = tag.getUniqueId("UUID");
-            int worldID = tag.getInteger("WorldID");
-            PLAYER_WORLD_ID_MAP.put(uuid, worldID);
+            UUID uuid = tag.getUniqueId("uuid");
+            int worldID = tag.getInteger("worldId");
+            this.playerId.put(uuid, worldID);
         }
     }
 
