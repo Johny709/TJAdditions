@@ -71,7 +71,7 @@ public class EnderCoverProfile<V> {
     }
 
     public long maxThroughPut(UUID uuid) {
-        return this.allowedUsers.get(uuid) != null ? this.getAllowedUsers().get(uuid)[6] : 1;
+        return this.owner == null ? Long.MAX_VALUE : this.allowedUsers.get(uuid) != null ? this.getAllowedUsers().get(uuid)[6] : 1;
     }
 
     public boolean setEntry(String key, String lastEntry, String id, IEnderNotifiable<V> notifiable) {

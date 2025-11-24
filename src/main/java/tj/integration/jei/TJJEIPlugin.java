@@ -2,7 +2,6 @@ package tj.integration.jei;
 
 import gregicadditions.Gregicality;
 import gregtech.api.GregTechAPI;
-import gregtech.api.gui.impl.ModularUIGui;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
@@ -13,9 +12,6 @@ import mezz.jei.api.ingredients.VanillaTypes;
 import net.minecraft.util.ResourceLocation;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.recipe.GTRecipeTransferGuiHandler;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static tj.machines.TJMetaTileEntities.INFINITE_FLUID_DRILL;
 

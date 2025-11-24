@@ -347,4 +347,24 @@ public class RecipeInit {
             ModHandler.addShapelessRecipe("fusion_casing" + fusionCasing[i].getTranslationKey(), fusionCasing[i], TJMetaBlocks.FUSION_GLASS.getItemVariant(fusionGlass[i]));
         }
     }
+
+    public static ItemStack getEnergyHatch(int tier, boolean isOutput) {
+        switch (tier) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[tier].getStackForm() : MetaTileEntities.ENERGY_INPUT_HATCH[tier].getStackForm();
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13: return isOutput ? GATileEntities.ENERGY_OUTPUT[tier - 9].getStackForm() : GATileEntities.ENERGY_INPUT[tier - 9].getStackForm();
+            case 14: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[9].getStackForm() : MetaTileEntities.ENERGY_INPUT_HATCH[9].getStackForm();
+            default: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[0].getStackForm() : MetaTileEntities.ENERGY_INPUT_HATCH[0].getStackForm();
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package tj.recipes;
 
 import gregtech.api.items.metaitem.MetaItem;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.TJMetaBlocks;
@@ -1086,6 +1087,36 @@ public class AssemblyLineRecipes {
                     .outputs(TURBINE_UPGRADES[i].getStackForm())
                     .EUt(GAValues.VA[i + GAValues.UHV])
                     .duration(1500)
+                    .buildAndRegister();
+        }
+        ItemStack sodiumPotassiumCell = LARGE_FLUID_CELL_STEEL.getStackForm(), sodiumPotassiumCell2 = LARGE_FLUID_CELL_TUNGSTEN_STEEL.getStackForm();
+        NBTTagCompound cellCompound = new NBTTagCompound(), cellCompound2 = new NBTTagCompound(), fluidCompound = new NBTTagCompound(), fluidCompound2 = new NBTTagCompound();
+        fluidCompound.setString("FluidName", "sodium_potassium_alloy");
+        fluidCompound.setInteger("Amount", 64000);
+        cellCompound.setTag("Fluid", fluidCompound);
+        sodiumPotassiumCell.setTagCompound(cellCompound);
+        fluidCompound2.setString("FluidName", "sodium_potassium_alloy");
+        fluidCompound2.setInteger("Amount", 256000);
+        cellCompound2.setTag("Fluid", fluidCompound2);
+        sodiumPotassiumCell2.setTagCompound(cellCompound2);
+
+        for (int i = 0, count = 1; i < ENDER_ENERGY_INPUT_HATCHES.length; i++, count++) {
+            ItemStack stack = i > 7 ? sodiumPotassiumCell2 : sodiumPotassiumCell;
+            stack.setCount(count - (i > 7 ? 7 : 0));
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(4608), Lubricant.getFluid(16000), EnderPearl.getFluid(1440), EnderEye.getFluid(1440))
+                    .inputs(stack, UHPIC.getStackForm(16), RecipeInit.getEnergyHatch(i + 1, false), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(), EMITTER_UHV.getStackForm(), SENSOR_UHV.getStackForm())
+                    .input(OrePrefix.circuit, UEV, 2)
+                    .outputs(ENDER_ENERGY_INPUT_HATCHES[i].getStackForm())
+                    .duration(1000).EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1]))
+                    .buildAndRegister();
+
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(4608), Lubricant.getFluid(16000), EnderPearl.getFluid(1440), EnderEye.getFluid(1440))
+                    .inputs(stack, UHPIC.getStackForm(16), RecipeInit.getEnergyHatch(i + 1, true), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(), EMITTER_UHV.getStackForm(), SENSOR_UHV.getStackForm())
+                    .input(OrePrefix.circuit, UEV, 2)
+                    .outputs(ENDER_ENERGY_OUTPUT_HATCHES[i].getStackForm())
+                    .duration(1000).EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1]))
                     .buildAndRegister();
         }
     }
