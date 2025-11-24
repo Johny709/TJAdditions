@@ -45,6 +45,16 @@ public class EnderEnergyHandler implements IEnergyContainer {
     }
 
     @Override
+    public long addEnergy(long energyToAdd) {
+        return this.basicEnergyHandler.addEnergy(energyToAdd);
+    }
+
+    @Override
+    public long removeEnergy(long energyToRemove) {
+        return this.basicEnergyHandler.removeEnergy(energyToRemove);
+    }
+
+    @Override
     public long changeEnergy(long l) {
         return this.basicEnergyHandler.changeEnergy(l);
     }

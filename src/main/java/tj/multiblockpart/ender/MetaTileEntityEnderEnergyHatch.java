@@ -1,5 +1,6 @@
 package tj.multiblockpart.ender;
 
+import gregtech.api.GTValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ProgressWidget;
@@ -14,6 +15,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJValues;
 import tj.builder.handlers.BasicEnergyHandler;
 import tj.builder.handlers.EnderEnergyHandler;
 import tj.items.covers.EnderCoverProfile;
@@ -21,6 +26,7 @@ import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.EnderWorldData;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,16 +47,31 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
         super(metaTileEntityId, tier);
         this.capacity = (long) (Math.pow(4, tier) * 1000);
         this.isOutput = isOutput;
-        this.maxTransferRate = (int) Math.min(Math.pow(4, tier) * 8, Integer.MAX_VALUE);
+        this.maxTransferRate = (int) Math.min(Math.pow(4, tier) * 16, Integer.MAX_VALUE);
         this.transferRate = this.maxTransferRate;
         this.enderEnergyHandler.setInputAmps(this.isOutput ? 0 : 2)
-                .setOutputAmps(this.isOutput ? 2 : 0)
+                .setOutputAmps(this.isOutput ? 4 : 0)
                 .setVoltage((long) (Math.pow(4, tier) * 8));
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityEnderEnergyHatch(this.metaTileEntityId, this.getTier(), this.isOutput);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        String tierName = GTValues.VN[this.getTier()];
+        if (this.isOutput) {
+            tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_out", this.enderEnergyHandler.getOutputVoltage(), TJValues.VCC[this.getTier()], tierName));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_out_till", this.enderEnergyHandler.getOutputAmperage()));
+        } else {
+            tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_in", this.enderEnergyHandler.getInputVoltage(), TJValues.VCC[this.getTier()], tierName));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_in_till", this.enderEnergyHandler.getInputAmperage()));
+        }
+        tooltip.add(I18n.format("gregtech.universal.enabled"));
     }
 
     @Override

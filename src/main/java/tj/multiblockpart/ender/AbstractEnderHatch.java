@@ -32,6 +32,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -43,7 +44,6 @@ import tj.capability.IEnderNotifiable;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.PopUpWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJClickButtonWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.gui.widgets.impl.ScrollableTextWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
@@ -53,6 +53,7 @@ import tj.textures.TJTextures;
 import tj.util.predicates.QuadActionResultPredicate;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -84,6 +85,12 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
 
     public AbstractEnderHatch(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(net.minecraft.client.resources.I18n.format("metaitem.ender_cover.description"));
     }
 
     protected int getPortalColor() {
@@ -723,15 +730,15 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         UUID uuid = UUID.fromString(id);
         if (!key.equals(this.channel) && (profile.isPublic() || profile.getAllowedUsers().get(uuid) != null && profile.getAllowedUsers().get(uuid)[3] == 1)) {
             this.getEnderProfile().removeFromNotifiable(this.lastEntry, this);
-            this.setChannel(key);
+            this.setFrequency(key);
             this.getEnderProfile().addToNotifiable(this.lastEntry, this);
             return true;
         } else return false;
     }
 
     @Override
-    public void setChannel(String channel) {
-        this.channel = channel;
+    public void setFrequency(String frequency) {
+        this.channel = frequency;
         this.markDirty();
     }
 
