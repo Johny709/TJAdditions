@@ -24,6 +24,8 @@ public class TooltipHelper {
     }
 
     public static String blinkingText(Color color, int ticks, String locale, Object... params) {
+        if (FMLClientHandler.instance().getWorldClient() == null)
+            return color + I18n.format(locale, params);
         return (FMLClientHandler.instance().getWorldClient().getTotalWorldTime() % ticks < ticks / 2 ? color : "") + I18n.format(locale, params);
     }
 
