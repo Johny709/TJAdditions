@@ -1,5 +1,6 @@
 package tj.integration.jei.multi;
 
+import gregicadditions.GAConfig;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GACryostatCasing;
@@ -10,6 +11,7 @@ import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
@@ -73,7 +75,11 @@ public class MegaFusionInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{" "};
+        return new String[]{I18n.format("tj.multiblock.mega_fusion.description"),
+                I18n.format("tj.multiblock.mega_fusion.coil_duration", GAConfig.multis.advFusion.coilDurationDiscount),
+                I18n.format("tj.multiblock.mega_fusion.coolant_increase", GAConfig.multis.advFusion.vacuumCoolantIncrease),
+                I18n.format("tj.multiblock.mega_fusion.energy_decrease", GAConfig.multis.advFusion.vacuumEnergyDecrease),
+                I18n.format("tj.multiblock.mega_fusion.output_increase", GAConfig.multis.advFusion.divertorOutputIncrease)};
     }
 
     @Override
