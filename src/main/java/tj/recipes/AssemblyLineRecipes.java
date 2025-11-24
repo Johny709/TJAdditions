@@ -1119,5 +1119,17 @@ public class AssemblyLineRecipes {
                     .duration(1000).EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1]))
                     .buildAndRegister();
         }
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(57600), Lubricant.getFluid(64000), Bohrium.getFluid(57600), Adamantium.getFluid(57600))
+                .inputs(ADVANCED_FUSION_REACTOR.getStackForm(64), ADVANCED_FUSION_REACTOR.getStackForm(64), ADVANCED_FUSION_REACTOR.getStackForm(64), ADVANCED_FUSION_REACTOR.getStackForm(64), UHPIC_WAFER.getStackForm(64), UHPIC_WAFER.getStackForm(64), FIELD_GENERATOR_UHV.getStackForm(64), EMITTER_UHV.getStackForm(64), SENSOR_UHV.getStackForm(64))
+                .input(OrePrefix.circuit, UEV, 64)
+                .input(OrePrefix.wireGtHex, UHVSuperconductor, 64)
+                .input(OrePrefix.gear, Bohrium, 16)
+                .input(OrePrefix.gear, Adamantium, 16)
+                .input(OrePrefix.plateDense, Mendelevium.getMaterial(), 7)
+                .outputs(MEGA_FUSION.getStackForm())
+                .duration(2000).EUt(GAValues.VA[10])
+                .buildAndRegister();
     }
 }
