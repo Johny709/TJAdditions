@@ -289,6 +289,15 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
             this.currentString = text;
             this.writeUpdateInfo(1, buffer -> buffer.writeString(this.currentString));
         }
+        if (this.formatSupplier != null) {
+            String[] formatArgs = this.formatSupplier.get();
+            this.writeUpdateInfo(3, buffer -> {
+                buffer.writeInt(formatArgs.length);
+                for (String format : formatArgs) {
+                    buffer.writeString(format);
+                }
+            });
+        }
     }
 
     @Override
@@ -299,6 +308,11 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
             this.textField.setText(this.currentString);
         } else if (id == 2) {
             this.textId = buffer.readString(Short.MAX_VALUE);
+        } else if (id == 3) {
+            int size = buffer.readInt();
+            for (int i = 0; i < size; i++) {
+                this.format[i] =  buffer.readString(Short.MAX_VALUE);
+            }
         }
     }
 

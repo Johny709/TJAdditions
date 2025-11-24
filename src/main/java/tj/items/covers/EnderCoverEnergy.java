@@ -39,7 +39,7 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
         this.tier = tier;
         this.energyContainer = this.coverHolder.getCapability(CAPABILITY_ENERGY_CONTAINER, null);
         this.capacity = (long) (Math.pow(4, tier) * 1000);
-        this.maxTransferRate = (int) Math.min(Math.pow(4, tier) * 8, Integer.MAX_VALUE);
+        this.maxTransferRate = (int) Math.min(Math.pow(4, tier) * 16, Integer.MAX_VALUE);
         this.transferRate = this.maxTransferRate;
     }
 
@@ -147,8 +147,10 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
     private void exportEnergy(BasicEnergyHandler enderEnergyContainer) {
         long energyRemainingToFill = this.energyContainer.getEnergyCapacity() - this.energyContainer.getEnergyStored();
         if (this.energyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-            long energyExtracted = enderEnergyContainer.removeEnergy(Math.min(energyRemainingToFill, this.transferRate));
-            this.energyContainer.acceptEnergyFromNetwork(this.attachedSide, Math.abs(energyExtracted), 1);
+            long energyExtracted = Math.abs(enderEnergyContainer.removeEnergy(Math.min(energyRemainingToFill, this.transferRate)));
+            if (energyExtracted > this.energyContainer.getInputVoltage() * 2)
+                this.energyContainer.acceptEnergyFromNetwork(this.attachedSide, energyExtracted, 1);
+            else this.energyContainer.addEnergy(energyExtracted);
         }
     }
 }

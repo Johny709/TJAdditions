@@ -226,7 +226,8 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         if (id == 2) {
-            for (int i = 0; i < buffer.readInt(); i++) {
+            int size = buffer.readInt();
+            for (int i = 0; i < size; i++) {
                this.format[i] =  buffer.readString(Short.MAX_VALUE);
             }
         }
