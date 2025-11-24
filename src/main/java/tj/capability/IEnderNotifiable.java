@@ -6,7 +6,7 @@ public interface IEnderNotifiable<V> {
 
     void setHandler(V handler);
 
-    void setChannel(String channel);
+    void setFrequency(String frequency);
 
-    void setEntry(String entry);
+    void setChannel(String entry);
 }

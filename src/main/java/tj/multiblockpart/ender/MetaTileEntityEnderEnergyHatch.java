@@ -1,6 +1,6 @@
 package tj.multiblockpart.ender;
 
-import gregtech.api.GTValues;
+import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ProgressWidget;
@@ -63,7 +63,7 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        String tierName = GTValues.VN[this.getTier()];
+        String tierName = GAValues.VN[this.getTier()];
         if (this.isOutput) {
             tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_out", this.enderEnergyHandler.getOutputVoltage(), TJValues.VCC[this.getTier()], tierName));
             tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_out_till", this.enderEnergyHandler.getOutputAmperage()));
@@ -136,7 +136,7 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     }
 
     @Override
-    protected void addEntryText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
+    protected void addChannelText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                 new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", value.getStored(), value.getCapacity()))));
     }
@@ -158,8 +158,8 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     }
 
     @Override
-    public void setEntry(String lastEntry) {
-        super.setEntry(lastEntry);
+    public void setChannel(String lastEntry) {
+        super.setChannel(lastEntry);
         this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : DUMMY_ENERGY);
     }
 

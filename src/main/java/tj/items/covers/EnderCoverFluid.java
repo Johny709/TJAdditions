@@ -99,7 +99,7 @@ public class EnderCoverFluid extends AbstractEnderCover<FluidTank> {
     }
 
     @Override
-    protected void addEntryText(ITextComponent keyEntry, String key, FluidTank value) {
+    protected void addChannelText(ITextComponent keyEntry, String key, FluidTank value) {
         FluidStack fluid = value.getFluid();
         boolean empty = fluid == null;
         String name = !empty ? fluid.getUnlocalizedName() : I18n.translateToLocal("metaitem.fluid_cell.empty");

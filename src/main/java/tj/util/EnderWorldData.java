@@ -47,83 +47,83 @@ public class EnderWorldData extends WorldSavedData {
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
-        NBTTagList fluidMap = new NBTTagList();
+        NBTTagList fluidFrequencies = new NBTTagList();
         for (Map.Entry<String, EnderCoverProfile<FluidTank>> playerEntry : this.fluidTankPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
-            NBTTagList fluidList = new NBTTagList();
-            for (Map.Entry<String, FluidTank> entry : playerEntry.getValue().getEntries().entrySet()) {
+            NBTTagList fluidChannels = new NBTTagList();
+            for (Map.Entry<String, FluidTank> entry : playerEntry.getValue().getChannels().entrySet()) {
                 NBTTagCompound compound = new NBTTagCompound();
                 compound.setString("key", entry.getKey());
                 compound.setLong("capacity", entry.getValue().getCapacity());
                 entry.getValue().writeToNBT(compound);
-                fluidList.appendTag(compound);
+                fluidChannels.appendTag(compound);
             }
             if (playerEntry.getKey() != null)
                 playerCompound.setString("id", playerEntry.getKey());
-            playerCompound.setTag("fluidList", fluidList);
+            playerCompound.setTag("fluidChannels", fluidChannels);
             playerEntry.getValue().writeToNBT(playerCompound);
-            fluidMap.appendTag(playerCompound);
+            fluidFrequencies.appendTag(playerCompound);
         }
-        NBTTagList itemMap = new NBTTagList();
+        NBTTagList itemFrequencies = new NBTTagList();
         for (Map.Entry<String, EnderCoverProfile<LargeItemStackHandler>> playerEntry : this.itemChestPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
-            NBTTagList itemList = new NBTTagList();
-            for (Map.Entry<String, LargeItemStackHandler> entry : playerEntry.getValue().getEntries().entrySet()) {
+            NBTTagList itemChannels = new NBTTagList();
+            for (Map.Entry<String, LargeItemStackHandler> entry : playerEntry.getValue().getChannels().entrySet()) {
                 NBTTagCompound compound = new NBTTagCompound();
                 compound.setString("key", entry.getKey());
                 compound.setLong("capacity", entry.getValue().getCapacity());
                 compound.setTag("stack", entry.getValue().serializeNBT());
-                itemList.appendTag(compound);
+                itemChannels.appendTag(compound);
             }
             if (playerEntry.getKey() != null)
                 playerCompound.setString("id", playerEntry.getKey());
-            playerCompound.setTag("itemList", itemList);
+            playerCompound.setTag("itemChannels", itemChannels);
             playerEntry.getValue().writeToNBT(playerCompound);
-            itemMap.appendTag(playerCompound);
+            itemFrequencies.appendTag(playerCompound);
         }
-        NBTTagList energyMap = new NBTTagList();
+        NBTTagList energyFrequencies = new NBTTagList();
         for (Map.Entry<String, EnderCoverProfile<BasicEnergyHandler>> playerEntry : this.energyContainerPlayerMap.entrySet()) {
             NBTTagCompound playerCompound = new NBTTagCompound();
-            NBTTagList energyList = new NBTTagList();
-            for (Map.Entry<String, BasicEnergyHandler> entry : playerEntry.getValue().getEntries().entrySet()) {
+            NBTTagList energyChannels = new NBTTagList();
+            for (Map.Entry<String, BasicEnergyHandler> entry : playerEntry.getValue().getChannels().entrySet()) {
                 NBTTagCompound compound = new NBTTagCompound();
                 compound.setString("key", entry.getKey());
                 entry.getValue().writeToNBT(compound);
-                energyList.appendTag(compound);
+                energyChannels.appendTag(compound);
             }
             if (playerEntry.getKey() != null)
                 playerCompound.setString("id", playerEntry.getKey());
-            playerCompound.setTag("energyList", energyList);
+            playerCompound.setTag("energyChannels", energyChannels);
             playerEntry.getValue().writeToNBT(playerCompound);
-            energyMap.appendTag(playerCompound);
+            energyFrequencies.appendTag(playerCompound);
         }
-        nbt.setTag("fluidMap", fluidMap);
-        nbt.setTag("itemMap", itemMap);
-        nbt.setTag("energyMap", energyMap);
+        nbt.setTag("fluidFrequencies", fluidFrequencies);
+        nbt.setTag("itemFrequencies", itemFrequencies);
+        nbt.setTag("energyFrequencies", energyFrequencies);
         return nbt;
     }
 
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound nbt) {
-        NBTTagList fluidMap = nbt.getTagList("fluidMap", 10);
-        for (int i = 0; i < fluidMap.tagCount(); i++) {
-            NBTTagCompound playerCompound = fluidMap.getCompoundTagAt(i);
-            NBTTagList fluidList = playerCompound.getTagList("fluidList", 10);
+        NBTTagList fluidFrequencies = nbt.getTagList("fluidFrequencies", 10);
+        for (int i = 0; i < fluidFrequencies.tagCount(); i++) {
+            NBTTagCompound playerCompound = fluidFrequencies.getCompoundTagAt(i);
+            NBTTagList fluidChannels = playerCompound.getTagList("fluidChannels", 10);
             Map<String, FluidTank> fluidTankMap = new Object2ObjectOpenHashMap<>();
-            for (int j = 0; j < fluidList.tagCount(); j++) {
-                NBTTagCompound compound = fluidList.getCompoundTagAt(j);
+            for (int j = 0; j < fluidChannels.tagCount(); j++) {
+                NBTTagCompound compound = fluidChannels.getCompoundTagAt(j);
                 fluidTankMap.put(compound.getString("key"), new FluidTank(compound.getInteger("capacity")).readFromNBT(compound));
             }
             String id = playerCompound.hasKey("id") ? playerCompound.getString("id") : null;
             this.fluidTankPlayerMap.put(id, EnderCoverProfile.fromNBT(playerCompound, fluidTankMap));
         }
-        NBTTagList itemMap = nbt.getTagList("itemMap", 10);
-        for (int i = 0; i < itemMap.tagCount(); i++) {
-            NBTTagCompound playerCompound = itemMap.getCompoundTagAt(i);
-            NBTTagList itemList = playerCompound.getTagList("itemList", 10);
+        NBTTagList itemFrequencies = nbt.getTagList("itemFrequencies", 10);
+        for (int i = 0; i < itemFrequencies.tagCount(); i++) {
+            NBTTagCompound playerCompound = itemFrequencies.getCompoundTagAt(i);
+            NBTTagList itemChannels = playerCompound.getTagList("itemChannels", 10);
             Map<String, LargeItemStackHandler> itemChestMap = new Object2ObjectOpenHashMap<>();
-            for (int j = 0; j < itemList.tagCount(); j++) {
-                NBTTagCompound compound = itemList.getCompoundTagAt(j);
+            for (int j = 0; j < itemChannels.tagCount(); j++) {
+                NBTTagCompound compound = itemChannels.getCompoundTagAt(j);
                 LargeItemStackHandler itemStackHandler = new LargeItemStackHandler(1, compound.getInteger("capacity"));
                 itemStackHandler.deserializeNBT(compound.getCompoundTag("stack"));
                 itemChestMap.put(compound.getString("key"), itemStackHandler);
@@ -131,13 +131,13 @@ public class EnderWorldData extends WorldSavedData {
             String id = playerCompound.hasKey("id") ? playerCompound.getString("id") : null;
             this.itemChestPlayerMap.put(id, EnderCoverProfile.fromNBT(playerCompound, itemChestMap));
         }
-        NBTTagList energyMap = nbt.getTagList("energyMap", 10);
-        for (int i = 0; i < energyMap.tagCount(); i++) {
-            NBTTagCompound playerCompound = energyMap.getCompoundTagAt(i);
-            NBTTagList energyList = playerCompound.getTagList("energyList", 10);
+        NBTTagList energyFrequencies = nbt.getTagList("energyFrequencies", 10);
+        for (int i = 0; i < energyFrequencies.tagCount(); i++) {
+            NBTTagCompound playerCompound = energyFrequencies.getCompoundTagAt(i);
+            NBTTagList energyChannels = playerCompound.getTagList("energyChannels", 10);
             Map<String, BasicEnergyHandler> energyContainerMap = new Object2ObjectOpenHashMap<>();
-            for (int j = 0; j < energyList.tagCount(); j++) {
-                NBTTagCompound compound = energyList.getCompoundTagAt(j);
+            for (int j = 0; j < energyChannels.tagCount(); j++) {
+                NBTTagCompound compound = energyChannels.getCompoundTagAt(j);
                 BasicEnergyHandler energyHandler = new BasicEnergyHandler(0);
                 energyHandler.readFromNBT(compound);
                 energyContainerMap.put(compound.getString("key"), energyHandler);

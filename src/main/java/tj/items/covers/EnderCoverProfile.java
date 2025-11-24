@@ -23,14 +23,14 @@ public class EnderCoverProfile<V> {
      */
     private final Map<UUID, long[]> allowedUsers = new Object2ObjectOpenHashMap<>();
     private final Map<String, Set<IEnderNotifiable<V>>> notifyMap = new Object2ObjectOpenHashMap<>();
-    private final Map<String, V> entries = new Object2ObjectOpenHashMap<>();
+    private final Map<String, V> channels = new Object2ObjectOpenHashMap<>();
     private boolean isPublic = true;
 
-    public EnderCoverProfile(UUID owner, Map<String, V> entries) {
+    public EnderCoverProfile(UUID owner, Map<String, V> channels) {
         this.owner = owner;
-        this.entries.putAll(entries);
+        this.channels.putAll(channels);
         this.allowedUsers.put(this.owner, new long[]{1, 1, 1, 1, 1, 1, Long.MAX_VALUE});
-        for (String key : entries.keySet())
+        for (String key : channels.keySet())
             this.notifyMap.put(key, new HashSet<>());
     }
 
@@ -56,14 +56,14 @@ public class EnderCoverProfile<V> {
         return this.owner == null || this.allowedUsers.get(uuid) != null && this.allowedUsers.get(uuid)[permission] == 1;
     }
 
-    public boolean removeEntry(String key, String id) {
+    public boolean removeChannel(String key, String id) {
         UUID uuid = UUID.fromString(id);
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
             return false;
         Set<IEnderNotifiable<V>> set = this.notifyMap.remove(key);
-        this.entries.remove(key);
+        this.channels.remove(key);
         for (IEnderNotifiable<V> notifiable : set) {
-            notifiable.setEntry(null);
+            notifiable.setChannel(null);
             notifiable.setHandler(null);
             notifiable.markToDirty();
         }
@@ -74,7 +74,7 @@ public class EnderCoverProfile<V> {
         return this.owner == null ? Long.MAX_VALUE : this.allowedUsers.get(uuid) != null ? this.getAllowedUsers().get(uuid)[6] : 1;
     }
 
-    public boolean setEntry(String key, String lastEntry, String id, IEnderNotifiable<V> notifiable) {
+    public boolean setChannel(String key, String lastEntry, String id, IEnderNotifiable<V> notifiable) {
         UUID uuid = UUID.fromString(id);
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[2] != 1))
             return false;
@@ -83,9 +83,9 @@ public class EnderCoverProfile<V> {
         return true;
     }
 
-    public void editEntry(String key, String id, V handler) {
+    public void editChannel(String key, String id, V handler) {
         UUID uuid = UUID.fromString(id);
-        if (!this.entries.containsKey(key))
+        if (!this.channels.containsKey(key))
             return;
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
             return;
@@ -93,54 +93,54 @@ public class EnderCoverProfile<V> {
             cover.setHandler(handler);
     }
 
-    public void editEntry(String newKey, String id) {
+    public void editChannel(String newKey, String id) {
         int index = id.lastIndexOf(":");
         String oldKey = id.substring(0, index);
         UUID uuid = UUID.fromString(id.substring(index + 1));
-        if (!this.entries.containsKey(oldKey))
+        if (!this.channels.containsKey(oldKey))
             return;
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
             return;
         Set<IEnderNotifiable<V>> set = this.notifyMap.remove(oldKey);
-        this.entries.put(newKey, this.entries.remove(oldKey));
+        this.channels.put(newKey, this.channels.remove(oldKey));
         this.notifyMap.put(newKey, set);
         for (IEnderNotifiable<V> notifiable : set) {
-            notifiable.setEntry(newKey);
+            notifiable.setChannel(newKey);
             notifiable.markToDirty();
         }
     }
 
-    public void addEntry(String key, String id, V handler) {
+    public void addChannel(String key, String id, V handler) {
         UUID uuid = UUID.fromString(id);
         if (key == null)
             return;
         if (this.owner != null && (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[1] != 1))
             return;
-        this.entries.putIfAbsent(key, handler);
+        this.channels.putIfAbsent(key, handler);
         this.notifyMap.putIfAbsent(key, new HashSet<>());
     }
 
-    public boolean editChannel(String key, UUID uuid) {
+    public boolean editFrequency(String key, UUID uuid) {
         if (this.owner == null || (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
             return false;
         for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
             for (IEnderNotifiable<V> notifiable : entry.getValue()) {
-                notifiable.setChannel(key);
+                notifiable.setFrequency(key);
                 notifiable.markToDirty();
             }
         }
         return true;
     }
 
-    public boolean removeChannel(String id) {
+    public boolean removeFrequency(String id) {
         UUID uuid = UUID.fromString(id);
         if (this.owner == null || (this.allowedUsers.get(uuid) == null || this.allowedUsers.get(uuid)[4] != 1))
             return false;
         for (Map.Entry<String, Set<IEnderNotifiable<V>>> entry : this.notifyMap.entrySet()) {
             for (IEnderNotifiable<V> notifiable : entry.getValue()) {
-                notifiable.setEntry(null);
-                notifiable.setHandler(null);
                 notifiable.setChannel(null);
+                notifiable.setHandler(null);
+                notifiable.setFrequency(null);
                 notifiable.markToDirty();
             }
         }
@@ -166,8 +166,8 @@ public class EnderCoverProfile<V> {
             this.isPublic = isPublic;
     }
 
-    public Map<String, V> getEntries() {
-        return this.entries;
+    public Map<String, V> getChannels() {
+        return this.channels;
     }
 
     public boolean isPublic() {

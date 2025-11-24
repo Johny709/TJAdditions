@@ -131,7 +131,7 @@ public class EnderCoverItem extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected void addEntryText(ITextComponent keyEntry, String key, LargeItemStackHandler value) {
+    protected void addChannelText(ITextComponent keyEntry, String key, LargeItemStackHandler value) {
         ItemStack item = value.getStackInSlot(0);
         boolean empty = item.isEmpty();
         String name = !empty ? item.getTranslationKey() + ".name" : net.minecraft.util.text.translation.I18n.translateToLocal("metaitem.fluid_cell.empty");

@@ -120,7 +120,7 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
     }
 
     @Override
-    protected void addEntryText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
+    protected void addChannelText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                 new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", value.getStored(), value.getCapacity()))));
     }
