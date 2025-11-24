@@ -5,6 +5,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.fluids.FluidRegistry;
+import tj.blocks.AdvEnergyPortCasings;
 import tj.blocks.EnergyPortCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.TJMetaBlocks;
@@ -27,6 +28,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.Objects;
 
+import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
 import static tj.machines.TJMetaTileEntities.*;
@@ -34,7 +36,6 @@ import static gregicadditions.GAMaterials.*;
 import static gregicadditions.item.GAMetaItems.*;
 import static gregicadditions.machines.GATileEntities.*;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
-import static gregtech.api.unification.material.MarkerMaterials.Tier.Master;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.items.MetaItems.*;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
@@ -94,6 +95,14 @@ public class AssemblerRecipes {
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(RecipeInit.getEnergyHatch(9, false), UHPIC.getStackForm(8))
+                .input(OrePrefix.circuit, Infinite)
+                .input(OrePrefix.plateDense, Seaborgium, 8)
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UHV))
+                .duration(200).EUt(GAValues.VA[9])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(MetaTileEntities.ENERGY_INPUT_HATCH[7].getStackForm())
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(2))
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
@@ -101,6 +110,14 @@ public class AssemblerRecipes {
                 .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_ZPM))
                 .duration(200)
                 .EUt(GAValues.VA[7])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(RecipeInit.getEnergyHatch(10, false), UHPIC.getStackForm(8))
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.plateDense, Bohrium, 8)
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
+                .duration(200).EUt(GAValues.VA[10])
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
@@ -114,6 +131,14 @@ public class AssemblerRecipes {
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(RecipeInit.getEnergyHatch(11, false), UHPIC.getStackForm(8))
+                .input(OrePrefix.circuit, UIV)
+                .input(OrePrefix.plateDense, Adamantium, 8)
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UIV))
+                .duration(200).EUt(GAValues.VA[11])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(ENERGY_INPUT[0].getStackForm())
                 .inputs(GAMetaItems.UHPIC.getStackForm(4))
                 .input(OrePrefix.circuit, UEV)
@@ -124,6 +149,14 @@ public class AssemblerRecipes {
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(RecipeInit.getEnergyHatch(12, false), UHPIC.getStackForm(8))
+                .input(OrePrefix.circuit, UMV)
+                .input(OrePrefix.plateDense, Vibranium, 8)
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UMV))
+                .duration(200).EUt(GAValues.VA[12])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(ENERGY_INPUT[1].getStackForm())
                 .inputs(UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UIV)
@@ -131,6 +164,14 @@ public class AssemblerRecipes {
                 .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
                 .duration(200)
                 .EUt(GAValues.VA[10])
+                .buildAndRegister();
+
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(RecipeInit.getEnergyHatch(13, false), UHPIC.getStackForm(8))
+                .input(OrePrefix.circuit, UXV)
+                .input(OrePrefix.plateDense, HeavyQuarkDegenerateMatter, 8)
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UVX))
+                .duration(200).EUt(GAValues.VA[13])
                 .buildAndRegister();
 
         ASSEMBLER_RECIPES.recipeBuilder()
