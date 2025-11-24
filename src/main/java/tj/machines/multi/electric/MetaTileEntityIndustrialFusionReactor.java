@@ -5,7 +5,10 @@ import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GAFusionCasing;
+import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import gregicadditions.utils.GALog;
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -14,11 +17,13 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeBuilder;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipeproperties.FusionEUToStartProperty;
 import gregtech.api.render.ICubeRenderer;
@@ -41,8 +46,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.TJValues;
@@ -51,7 +58,6 @@ import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.handlers.IFusionProvider;
-import tj.builder.handlers.IndustrialFusionRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import tj.capability.IHeatInfo;
@@ -89,7 +95,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, RecipeMaps.FUSION_RECIPES);
-        this.recipeMapWorkable = new IndustrialFusionRecipeLogic(this, TJConfig.industrialFusionReactor.eutPercentage, TJConfig.industrialFusionReactor.durationPercentage, 100, 1, false);
+        this.recipeMapWorkable = new IndustrialFusionRecipeLogic(this, TJConfig.industrialFusionReactor.eutPercentage, TJConfig.industrialFusionReactor.durationPercentage, 100, 1);
         this.tier = tier;
         switch (tier) {
             case 6:
@@ -475,5 +481,96 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         if (capability == TJCapabilities.CAPABILITY_HEAT)
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    private static class IndustrialFusionRecipeLogic extends LargeSimpleRecipeMapMultiblockController.LargeSimpleMultiblockRecipeLogic {
+
+        private final int EUtPercentage;
+        private final int durationPercentage;
+        private final IFusionProvider fusionReactor;
+
+        public IndustrialFusionRecipeLogic(RecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
+            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
+            this.fusionReactor = (IFusionProvider) tileEntity;
+            this.EUtPercentage = EUtPercentage;
+            this.durationPercentage = durationPercentage;
+            this.recipeMap = tileEntity.recipeMap;
+            this.allowOverclocking = false;
+        }
+
+        @Override
+        protected void completeRecipe() {
+            super.completeRecipe();
+            this.fusionReactor.setRecipe(0L, null);
+        }
+
+        @Override
+        protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
+            int EUt;
+            int duration;
+            int minMultiplier = Integer.MAX_VALUE;
+            long recipeEnergy = Math.max(160_000_000, matchingRecipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L));
+
+            this.fusionReactor.setRecipe(recipeEnergy, matchingRecipe);
+            Map<String, Integer> countFluid = new HashMap<>();
+            if (!matchingRecipe.getFluidInputs().isEmpty()) {
+
+                this.findFluid(countFluid, fluidInputs);
+                minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, matchingRecipe, this.fusionReactor.getParallels() * this.fusionReactor.getBatchMode().getAmount()));
+            }
+
+            if (minMultiplier == Integer.MAX_VALUE) {
+                GALog.logger.error("Cannot calculate ratio of items for large multiblocks");
+                return null;
+            }
+            EUt = matchingRecipe.getEUt();
+            duration = matchingRecipe.getDuration();
+
+            float tierDiff = fusionOverclockMultiplier(this.fusionReactor.getEnergyToStart(), recipeEnergy);
+
+            List<FluidStack> newFluidInputs = new ArrayList<>();
+            List<FluidStack> outputF = new ArrayList<>();
+            multiplyInputsAndOutputs(newFluidInputs, outputF, matchingRecipe, minMultiplier);
+
+            RecipeBuilder<?> newRecipe = this.recipeMap.recipeBuilder();
+
+            newRecipe.fluidInputs(newFluidInputs)
+                    .fluidOutputs(outputF)
+                    .EUt((int) Math.max(1, ((EUt * this.EUtPercentage * minMultiplier / 100.0) * tierDiff) / this.fusionReactor.getBatchMode().getAmount()))
+                    .duration((int) Math.max(1, ((duration * (this.durationPercentage / 100.0)) / tierDiff) * this.fusionReactor.getBatchMode().getAmount()));
+
+            return newRecipe.build().getResult();
+        }
+
+        private void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
+            for (FluidStack fluidS : recipe.getFluidInputs()) {
+                FluidStack newFluid = new FluidStack(fluidS.getFluid(), fluidS.amount * multiplier);
+                newFluidInputs.add(newFluid);
+            }
+            for (FluidStack fluid : recipe.getFluidOutputs()) {
+                int fluidNum = fluid.amount * multiplier;
+                FluidStack fluidCopy = fluid.copy();
+                fluidCopy.amount = fluidNum;
+                outputF.add(fluidCopy);
+            }
+        }
+
+        private float fusionOverclockMultiplier(long energyToStart, long recipeEnergy) {
+            recipeEnergy = Math.max(160_000_000, recipeEnergy);
+            long recipeEnergyOld = recipeEnergy;
+            float OCMultiplier = 1;
+            while (recipeEnergy <= energyToStart) {
+                if (recipeEnergy != recipeEnergyOld)
+                    OCMultiplier *= recipeEnergy > 640_000_000 ? 4 : 2.8F;
+                recipeEnergy *= 2;
+            }
+            return OCMultiplier;
+        }
+
+        @Override
+        protected void setActive(boolean active) {
+            this.fusionReactor.replaceEnergyPortsAsActive(active);
+            super.setActive(active);
+        }
     }
 }

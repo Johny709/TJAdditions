@@ -97,7 +97,7 @@ public class AssemblerRecipes {
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(9, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, Infinite)
-                .input(OrePrefix.plateDense, Seaborgium, 8)
+                .input(OrePrefix.plateDense, Seaborgium, 7)
                 .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UHV))
                 .duration(200).EUt(GAValues.VA[9])
                 .buildAndRegister();
@@ -115,7 +115,7 @@ public class AssemblerRecipes {
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(10, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UEV)
-                .input(OrePrefix.plateDense, Bohrium, 8)
+                .input(OrePrefix.plateDense, Bohrium, 7)
                 .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
                 .duration(200).EUt(GAValues.VA[10])
                 .buildAndRegister();
@@ -133,7 +133,7 @@ public class AssemblerRecipes {
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(11, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UIV)
-                .input(OrePrefix.plateDense, Adamantium, 8)
+                .input(OrePrefix.plateDense, Adamantium, 7)
                 .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UIV))
                 .duration(200).EUt(GAValues.VA[11])
                 .buildAndRegister();
@@ -151,7 +151,7 @@ public class AssemblerRecipes {
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(12, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UMV)
-                .input(OrePrefix.plateDense, Vibranium, 8)
+                .input(OrePrefix.plateDense, Vibranium, 7)
                 .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UMV))
                 .duration(200).EUt(GAValues.VA[12])
                 .buildAndRegister();
