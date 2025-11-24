@@ -28,7 +28,6 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeBuilder;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -51,10 +50,11 @@ import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
 import tj.builder.handlers.IFusionProvider;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
-import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 import tj.textures.TJTextures;
 import tj.util.TooltipHelper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
@@ -64,12 +64,13 @@ import static gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReac
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControllerBase implements IFusionProvider {
+public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockControllerBase implements IFusionProvider {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final Set<BlockPos> activeStates = new HashSet<>();
     private IEnergyContainer inputEnergyContainers;
     private Recipe recipe;
+    private boolean initialized;
     private long energyToStart;
     private long heat;
     private long maxHeat;
@@ -80,7 +81,7 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
     private int divertorTier;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, 100, 100, 100, 16, new RecipeMap[]{GARecipeMaps.ADV_FUSION_RECIPES});
+        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, 100, 100, 100, 16);
         this.recipeMapWorkable = new MegaFusionRecipeLogic(this, 100, 100, 100, 1);
     }
 
@@ -128,6 +129,11 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
             long remainingHeat = this.maxHeat - this.heat;
             long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainers.getInputAmperage() * this.inputEnergyContainers.getInputVoltage());
             this.heat += Math.abs(this.energyContainer.removeEnergy(energyToRemove));
+        }
+        if (this.getOffsetTimer() > 20 && !this.initialized) {
+            this.initialized = true;
+            this.writeCustomData(10, buffer -> buffer.writeInt(this.tier));
+            this.markDirty();
         }
     }
 
@@ -274,38 +280,26 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
         this.inputFluidInventory = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
         this.outputFluidInventory = new FluidTankList(true, this.getAbilities(EXPORT_FLUIDS));
         this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier + GAValues.UV], 0, 0, 0);
-        this.writeCustomData(10, buffer -> buffer.writeInt(this.tier + GAValues.UV));
-        this.markDirty();
+        this.initialized = false;
+    }
+
+    @Nonnull
+    @Override
+    protected OrientedOverlayRenderer getFrontOverlay() {
+        return ClientHandler.FUSION_REACTOR_OVERLAY;
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         switch (this.tier) {
-            case 9: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
-            case 10: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
-            case 11: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
-            case 12: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
-            case 13: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
-            case 14: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
+            case 1: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
+            case 2: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
+            case 3: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
+            case 4: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
+            case 5: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
+            case 6: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
             default: return ClientHandler.FUSION_TEXTURE;
         }
-    }
-
-    @Override
-    public OrientedOverlayRenderer getRecipeMapOverlay(int i) {
-        return ClientHandler.FUSION_REACTOR_OVERLAY;
-    }
-
-    @Override
-    public void writeInitialSyncData(PacketBuffer buf) {
-        super.writeInitialSyncData(buf);
-        buf.writeInt(this.tier);
-    }
-
-    @Override
-    public void receiveInitialSyncData(PacketBuffer buf) {
-        super.receiveInitialSyncData(buf);
-        this.tier = buf.readInt();
     }
 
     @Override
@@ -320,7 +314,6 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
          super.writeToNBT(data);
-         data.setInteger("tier", this.tier);
          data.setLong("heat", this.heat);
          data.setLong("maxHeat", this.maxHeat);
          return data;
@@ -329,7 +322,6 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.tier = data.getInteger("tier");
         this.heat = data.getLong("heat");
         this.maxHeat = data.getLong("maxHeat");
     }
@@ -371,6 +363,8 @@ public class MetaTileEntityMegaFusion extends TJMultiRecipeMapMultiblockControll
             FluidStack newOutput = matchingRecipe.getFluidOutputs().get(0).copy();
             newOutput.amount = (int) (newOutput.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.divertorOutputIncrease));
             newRecipe.fluidOutputs(newOutput);
+            newRecipe.duration(duration);
+            newRecipe.EUt(EUt);
 
             if (matchingRecipe.getFluidInputs().size() == 3) {
 

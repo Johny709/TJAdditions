@@ -311,7 +311,6 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18)
                                         .setButtonSupplier(() -> this.getEnderProfile().isPublic())
-                                        .setTooltipText("metaitem.ender_cover.private")
                                         .setButtonId(player.getUniqueID().toString())
                                         .setToggleButtonResponder(this::setPublic)
                                         .setToggleTexture(UNLOCK_LOCK)
