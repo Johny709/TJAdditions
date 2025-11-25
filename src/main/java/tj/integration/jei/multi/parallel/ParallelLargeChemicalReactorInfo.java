@@ -5,7 +5,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
-import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -16,12 +15,14 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 import tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
@@ -30,38 +31,36 @@ import static gregtech.api.unification.material.Materials.Steel;
 public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage {
 
     @Override
-    public MultiblockControllerBase getController() {
+    public ParallelRecipeMapMultiblockController getController() {
         return TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
     }
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        for (int shapeInfo = 1; shapeInfo <= 16; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
-            MetaTileEntityParallelLargeChemicalReactor chemicalReactor = TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
-            builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
-                builder.aisle("F###F", "#PPP#", "#PcP#", "#PPP#", "F###F");
-            }
-            shapeInfos.add(builder
-                    .aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
-                    .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC")
-                    .where('S', chemicalReactor, EnumFacing.WEST)
-                    .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
-                    .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
-                    .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
-                    .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
-                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.WEST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                    .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                    .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                    .build());
-        }
-        return shapeInfos;
+        return IntStream.range(1, this.getController().getMaxParallel() + 1)
+                .mapToObj(shapeInfo -> {
+                    GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+                    MetaTileEntityParallelLargeChemicalReactor chemicalReactor = TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
+                    builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
+                    for (int layer = 0; layer < shapeInfo; layer++) {
+                        builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
+                        builder.aisle("F###F", "#PPP#", "#PcP#", "#PPP#", "F###F");
+                    }
+                    return builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
+                            .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC")
+                            .where('S', chemicalReactor, EnumFacing.WEST)
+                            .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
+                            .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
+                            .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
+                            .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
+                            .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.WEST)
+                            .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
+                            .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                            .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
+                            .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                            .build();
+                }).collect(Collectors.toList());
     }
 
     @Override
