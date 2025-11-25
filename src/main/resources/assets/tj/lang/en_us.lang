@@ -85,6 +85,7 @@ tj.machine.large_chisel_workbench.name=Large Chisel Workbench (LCW)
 tj.machine.large_enchanter.name=Large Enchanter (LE)
 tj.machine.large_crafter.name=Large Crafter (LC)
 tj.machine.mega_fusion.name=Mega Fusion (MF)
+tj.machine.ender_battery_tower.name=Ender Battery Tower (EBT)
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II
