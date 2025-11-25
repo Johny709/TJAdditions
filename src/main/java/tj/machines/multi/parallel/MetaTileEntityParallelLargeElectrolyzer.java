@@ -50,8 +50,7 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
 
     public MetaTileEntityParallelLargeElectrolyzer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ELECTROLYZER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeElectrolyzer.eutPercentage,
-                () -> TJConfig.parallelLargeElectrolyzer.durationPercentage, () -> TJConfig.parallelLargeElectrolyzer.chancePercentage, () -> TJConfig.parallelLargeElectrolyzer.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -126,6 +125,11 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeElectrolyzer.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeElectrolyzer.stack;
     }
@@ -133,11 +137,6 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeElectrolyzer.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeElectrolyzer.chancePercentage;
     }
 
     @Override

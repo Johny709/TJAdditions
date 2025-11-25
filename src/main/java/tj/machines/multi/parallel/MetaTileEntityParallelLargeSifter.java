@@ -50,8 +50,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
 
     public MetaTileEntityParallelLargeSifter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_SIFTER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeSifter.eutPercentage,
-                () -> TJConfig.parallelLargeSifter.durationPercentage, () -> TJConfig.parallelLargeSifter.chancePercentage, () -> TJConfig.parallelLargeSifter.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -132,6 +131,11 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeSifter.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeSifter.stack;
     }
@@ -139,11 +143,6 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeSifter.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeSifter.chancePercentage;
     }
 
     @Override

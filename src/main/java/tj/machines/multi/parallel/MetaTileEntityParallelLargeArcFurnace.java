@@ -54,8 +54,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeArcFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ARC_FURNACE_RECIPES, PARALLEL_PLASMA_ARC_FURNACE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeArcFurnace.eutPercentage, () -> TJConfig.parallelLargeArcFurnace.durationPercentage,
-                () -> TJConfig.parallelLargeArcFurnace.chancePercentage, () -> TJConfig.parallelLargeArcFurnace.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
             protected void setupRecipe(Recipe recipe, int i) {
@@ -144,6 +143,11 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeArcFurnace.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeArcFurnace.stack;
     }
@@ -151,11 +155,6 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeArcFurnace.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeArcFurnace.chancePercentage;
     }
 
     @Override

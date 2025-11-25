@@ -52,8 +52,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
 
     public MetaTileEntityParallelCryogenicFreezer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_VACUUM_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelCryogenicFreezer.eutPercentage,
-                () -> TJConfig.parallelCryogenicFreezer.durationPercentage, () -> TJConfig.parallelCryogenicFreezer.chancePercentage, () -> TJConfig.parallelCryogenicFreezer.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
             protected boolean drawEnergy(int recipeEUt) {
@@ -143,8 +142,13 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelCryogenicFreezer.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
-        return TJConfig.advancedParallelChemicalReactor.stack;
+        return TJConfig.parallelCryogenicFreezer.stack;
     }
 
     @Override

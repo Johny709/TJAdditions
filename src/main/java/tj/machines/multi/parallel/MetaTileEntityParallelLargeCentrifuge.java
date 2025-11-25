@@ -51,8 +51,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CENTRIFUGE_RECIPES, PARALLEL_THERMAL_CENTRIFUGE_RECIPES, PARALLEL_GAS_CENTRIFUGE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCentrifuge.eutPercentage,
-                () -> TJConfig.parallelLargeCentrifuge.durationPercentage, () -> TJConfig.parallelLargeCentrifuge.chancePercentage, () -> TJConfig.parallelLargeCentrifuge.stack) {
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
             protected void setupRecipe(Recipe recipe, int i) {
@@ -147,6 +146,11 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeCentrifuge.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeCentrifuge.stack;
     }
@@ -154,11 +158,6 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeCentrifuge.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeCentrifuge.chancePercentage;
     }
 
     @Override

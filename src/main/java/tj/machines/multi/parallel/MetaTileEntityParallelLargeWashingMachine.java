@@ -50,8 +50,7 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeWashingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ORE_WASHER_RECIPES, PARALLEL_CHEMICAL_BATH_RECIPES, PARALLEL_SIMPLE_ORE_WASHER_RECIPES, PARALLEL_AUTOCLAVE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeWashingMachine.eutPercentage,
-                () -> TJConfig.parallelLargeWashingMachine.durationPercentage, () -> TJConfig.parallelLargeWashingMachine.chancePercentage, () -> TJConfig.parallelLargeWashingMachine.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -134,6 +133,11 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeWashingMachine.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeWashingMachine.stack;
     }
@@ -141,11 +145,6 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeWashingMachine.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeWashingMachine.chancePercentage;
     }
 
     @Override

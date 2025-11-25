@@ -50,8 +50,7 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelPlasmaCondenser(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_PLASMA_CONDENSER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelPlasmaCondenser.eutPercentage, () -> TJConfig.parallelPlasmaCondenser.durationPercentage,
-                () -> TJConfig.parallelPlasmaCondenser.chancePercentage, () -> TJConfig.parallelPlasmaCondenser.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -130,6 +129,11 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelPlasmaCondenser.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelPlasmaCondenser.stack;
     }
@@ -137,11 +141,6 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelPlasmaCondenser.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelPlasmaCondenser.chancePercentage;
     }
 
     @Override

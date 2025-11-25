@@ -50,8 +50,7 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
 
     public MetaTileEntityParallelLargeElectromagnet(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_POLARIZER_RECIPES, PARALLEL_ELECTROMAGNETIC_SEPARATOR_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeElectromagnet.eutPercentage, () -> TJConfig.parallelLargeElectromagnet.durationPercentage,
-                () -> TJConfig.parallelLargeElectromagnet.chancePercentage, () -> TJConfig.parallelLargeElectromagnet.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -127,6 +126,11 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeElectromagnet.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeElectromagnet.stack;
     }
@@ -134,11 +138,6 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeElectromagnet.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeElectromagnet.chancePercentage;
     }
 
     @Override

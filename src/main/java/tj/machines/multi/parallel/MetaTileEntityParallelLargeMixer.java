@@ -50,8 +50,7 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
 
     public MetaTileEntityParallelLargeMixer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_LARGE_MIXER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeMixer.eutPercentage, () -> TJConfig.parallelLargeMixer.durationPercentage,
-                () -> TJConfig.parallelLargeMixer.chancePercentage, () -> TJConfig.parallelLargeMixer.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -127,6 +126,11 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeMixer.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeMixer.stack;
     }
@@ -134,11 +138,6 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeMixer.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeMixer.chancePercentage;
     }
 
     @Override

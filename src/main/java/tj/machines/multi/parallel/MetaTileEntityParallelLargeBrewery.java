@@ -52,8 +52,7 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
 
     public MetaTileEntityParallelLargeBrewery(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BREWING_MACHINE_RECIPES, PARALLEL_FERMENTING_RECIPES, PARALLEL_CHEMICAL_DEHYDRATOR_RECIPES, PARALLEL_CRACKING_UNIT_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeBrewery.eutPercentage,
-                () -> TJConfig.parallelLargeBrewery.durationPercentage, () -> TJConfig.parallelLargeBrewery.chancePercentage, () -> TJConfig.parallelLargeBrewery.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -137,6 +136,11 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeBrewery.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeBrewery.stack;
     }
@@ -144,11 +148,6 @@ public class MetaTileEntityParallelLargeBrewery extends ParallelRecipeMapMultibl
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeBrewery.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeBrewery.chancePercentage;
     }
 
     @Override

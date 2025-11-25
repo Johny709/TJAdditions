@@ -53,8 +53,7 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
 
     public MetaTileEntityParallelLargeLaserEngraver(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_LARGE_ENGRAVER_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeLaserEngraver.eutPercentage, () -> TJConfig.parallelLargeLaserEngraver.durationPercentage,
-                () -> TJConfig.parallelLargeLaserEngraver.chancePercentage, () -> TJConfig.parallelLargeLaserEngraver.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -130,6 +129,11 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeLaserEngraver.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeLaserEngraver.stack;
     }
@@ -137,11 +141,6 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeLaserEngraver.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeLaserEngraver.chancePercentage;
     }
 
     @Override

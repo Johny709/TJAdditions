@@ -58,8 +58,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
 
     public MetaTileEntityParallelVolcanus(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
-        this.recipeMapWorkable = new ParallelVolcanusRecipeLogic(this, () -> this.blastFurnaceTemperature, () -> this.pyroConsumeAmount, () -> TJConfig.parallelVolcanus.eutPercentage,
-                () -> TJConfig.parallelVolcanus.durationPercentage, () -> TJConfig.parallelVolcanus.chancePercentage, () -> TJConfig.parallelVolcanus.stack);
+        this.recipeMapWorkable = new ParallelVolcanusRecipeLogic(this, this::getBlastFurnaceTemperature, this::getPyroConsumeAmount, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -145,6 +144,14 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
         return Textures.PRIMITIVE_BLAST_FURNACE_OVERLAY;
     }
 
+    public int getBlastFurnaceTemperature() {
+        return this.blastFurnaceTemperature;
+    }
+
+    public int getPyroConsumeAmount() {
+        return this.pyroConsumeAmount;
+    }
+
     @Override
     public int getEUPercentage() {
         return TJConfig.parallelVolcanus.eutPercentage;
@@ -156,6 +163,11 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelVolcanus.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelVolcanus.stack;
     }
@@ -163,11 +175,6 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelVolcanus.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelVolcanus.chancePercentage;
     }
 
     @Override

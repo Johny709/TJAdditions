@@ -51,8 +51,7 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeCuttingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CUTTER_RECIPES, PARALLEL_LATHE_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCuttingMachine.eutPercentage, () -> TJConfig.parallelLargeCuttingMachine.durationPercentage,
-                () -> TJConfig.parallelLargeCuttingMachine.chancePercentage, () -> TJConfig.parallelLargeCuttingMachine.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -139,6 +138,11 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeCuttingMachine.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeCuttingMachine.stack;
     }
@@ -146,11 +150,6 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeCuttingMachine.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeCuttingMachine.chancePercentage;
     }
 
     @Override

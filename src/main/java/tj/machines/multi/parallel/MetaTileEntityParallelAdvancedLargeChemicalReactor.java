@@ -36,6 +36,7 @@ import tj.util.TooltipHelper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.IntSupplier;
 
 import static tj.TJRecipeMaps.PARALLEL_CHEMICAL_PLANT_RECIPES;
 import static tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
@@ -55,7 +56,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
     public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES, PARALLEL_CHEMICAL_PLANT_RECIPES});
-        this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this);
+        this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -155,6 +156,11 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.advancedParallelChemicalReactor.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.advancedParallelChemicalReactor.stack;
     }
@@ -165,20 +171,14 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     }
 
     @Override
-    public int getChancePercentage() {
-        return TJConfig.advancedParallelChemicalReactor.chancePercentage;
-    }
-
-    @Override
     public RecipeMap<?>[] getRecipeMaps() {
         return GATileEntities.CHEMICAL_PLANT.getRecipeMaps();
     }
 
     private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {
 
-        public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity) {
-            super(tileEntity, () -> TJConfig.advancedParallelChemicalReactor.eutPercentage, () -> TJConfig.advancedParallelChemicalReactor.durationPercentage,
-                    () -> TJConfig.advancedParallelChemicalReactor.chancePercentage, () -> TJConfig.advancedParallelChemicalReactor.stack);
+        public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
+            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
         }
 
         @Override

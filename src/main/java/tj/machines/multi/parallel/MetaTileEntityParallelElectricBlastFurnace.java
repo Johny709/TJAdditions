@@ -52,7 +52,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
 
     public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, () -> this.blastFurnaceTemperature);
+        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -136,6 +136,10 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return Textures.HEAT_PROOF_CASING;
+    }
+
+    public int getBlastFurnaceTemperature() {
+        return this.blastFurnaceTemperature;
     }
 
     @Override

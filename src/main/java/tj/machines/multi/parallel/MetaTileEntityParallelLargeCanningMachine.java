@@ -49,8 +49,7 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeCanningMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CANNER_RECIPES, PARALLEL_FLUID_CANNER_RECIPES, PARALLEL_FLUID_SOLIDIFICATION_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeCanningMachine.eutPercentage, () -> TJConfig.parallelLargeCanningMachine.durationPercentage,
-                () -> TJConfig.parallelLargeCanningMachine.chancePercentage, () -> TJConfig.parallelLargeCanningMachine.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -127,6 +126,11 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeCanningMachine.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeCanningMachine.stack;
     }
@@ -134,11 +138,6 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeCanningMachine.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeCanningMachine.chancePercentage;
     }
 
     @Override

@@ -51,8 +51,7 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
 
     public MetaTileEntityParallelLargeExtractor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_FLUID_EXTRACTION_RECIPES, PARALLEL_EXTRACTOR_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeExtractor.eutPercentage, () -> TJConfig.parallelLargeExtractor.durationPercentage,
-                () -> TJConfig.parallelLargeExtractor.chancePercentage, () -> TJConfig.parallelLargeExtractor.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -127,6 +126,11 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeExtractor.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeExtractor.stack;
     }
@@ -134,11 +138,6 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeExtractor.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeExtractor.chancePercentage;
     }
 
     @Override

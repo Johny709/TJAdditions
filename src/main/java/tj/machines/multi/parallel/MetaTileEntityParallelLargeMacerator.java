@@ -49,8 +49,7 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
 
     public MetaTileEntityParallelLargeMacerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_MACERATOR_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeMacerator.eutPercentage,
-                () -> TJConfig.parallelLargeMacerator.durationPercentage, () -> TJConfig.parallelLargeMacerator.chancePercentage, () -> TJConfig.parallelLargeMacerator.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -125,6 +124,11 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeMacerator.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeMacerator.stack;
     }
@@ -132,11 +136,6 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeMacerator.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeMacerator.chancePercentage;
     }
 
     @Override

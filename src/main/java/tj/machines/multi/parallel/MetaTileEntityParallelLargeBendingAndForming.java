@@ -49,8 +49,7 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
 
     public MetaTileEntityParallelLargeBendingAndForming(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BENDER_RECIPES, PARALLEL_FORMING_PRESS_RECIPES, PARALLEL_CLUSTER_MILL_RECIPES});
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, () -> TJConfig.parallelLargeBendingAndForming.eutPercentage, () -> TJConfig.parallelLargeBendingAndForming.durationPercentage,
-                () -> TJConfig.parallelLargeBendingAndForming.chancePercentage, () -> TJConfig.parallelLargeBendingAndForming.stack);
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -127,6 +126,11 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
     }
 
     @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelLargeBendingAndForming.chancePercentage;
+    }
+
+    @Override
     public int getStack() {
         return TJConfig.parallelLargeBendingAndForming.stack;
     }
@@ -134,11 +138,6 @@ public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipe
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeBendingAndForming.maximumParallel;
-    }
-
-    @Override
-    public int getChancePercentage() {
-        return TJConfig.parallelLargeBendingAndForming.chancePercentage;
     }
 
     @Override

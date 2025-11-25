@@ -57,7 +57,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
 
     public MetaTileEntityParallelAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_ALLOY_RECIPES});
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, () -> this.blastFurnaceTemperature);
+        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
@@ -149,6 +149,10 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
         this.bonusTemperature = Math.max(0, 100 * (energyTier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
+    }
+
+    public int getBlastFurnaceTemperature() {
+        return this.blastFurnaceTemperature;
     }
 
     @Override
