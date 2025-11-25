@@ -38,10 +38,12 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -51,6 +53,8 @@ import tj.blocks.AdvEnergyPortCasings;
 import tj.builder.handlers.IFusionProvider;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
+import tj.capability.IHeatInfo;
+import tj.capability.TJCapabilities;
 import tj.textures.TJTextures;
 import tj.util.TooltipHelper;
 
@@ -64,7 +68,7 @@ import static gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReac
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockControllerBase implements IFusionProvider {
+public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockControllerBase implements IFusionProvider, IHeatInfo {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final Set<BlockPos> activeStates = new HashSet<>();
@@ -324,6 +328,23 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
         super.readFromNBT(data);
         this.heat = data.getLong("heat");
         this.maxHeat = data.getLong("maxHeat");
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_HEAT)
+            return TJCapabilities.CAPABILITY_HEAT.cast(this);
+        return super.getCapability(capability, side);
+    }
+
+    @Override
+    public long heat() {
+        return this.heat;
+    }
+
+    @Override
+    public long maxHeat() {
+        return this.maxHeat;
     }
 
     private class MegaFusionRecipeLogic extends LargeSimpleMultiblockRecipeLogic {
