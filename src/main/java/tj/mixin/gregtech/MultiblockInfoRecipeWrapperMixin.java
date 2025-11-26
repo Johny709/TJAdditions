@@ -3,7 +3,6 @@ package tj.mixin.gregtech;
 import gregicadditions.GAValues;
 import gregtech.api.render.scene.WorldSceneRenderer;
 import gregtech.api.util.BlockInfo;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.ItemStackKey;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockInfoRecipeWrapper;
@@ -58,17 +57,15 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injectMultiblockInfoRecipeWrapper_init(MultiblockInfoPage infoPage, CallbackInfo ci, HashSet<ItemStackKey> drops) {
         if (infoPage instanceof IParallelMultiblockInfoPage) {
+            this.multiLayer = true;
             this.mbPatterns = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(new MultiblockShapeInfo[15]).stream()
                     .map(shapeInfos -> {
-                        GTLog.logger.info("Getting Matching Shapes");
                         MBPattern[] patterns = new MBPattern[15];
                         for (int i = 0; i < patterns.length; i++) {
-                            patterns[i] = this.initializePattern2(shapeInfos[i], drops);
+                            patterns[i] = this.initializePattern_2(shapeInfos[i], drops);
                         }
                         return patterns;
                     }).toArray(MBPattern[][]::new);
-            this.multiLayer = true;
-            GTLog.logger.info("Matching Shapes Done");
         }
     }
 
@@ -130,7 +127,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     }
 
     @Unique
-    private MBPattern initializePattern2(MultiblockShapeInfo shapeInfo, Set<ItemStackKey> blockDrops) {
+    private MBPattern initializePattern_2(MultiblockShapeInfo shapeInfo, Set<ItemStackKey> blockDrops) {
         MultiblockInfoRecipeWrapper wrapper = (MultiblockInfoRecipeWrapper)(Object)this;
         Object2ObjectMap<BlockPos, BlockInfo> blockMap = new Object2ObjectOpenHashMap<>();
         BlockInfo[][][] blocks = shapeInfo.getBlocks();
@@ -148,7 +145,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
         WorldSceneRenderer worldSceneRenderer = new WorldSceneRenderer(blockMap);
         worldSceneRenderer.world.updateEntities();
         Object2ObjectMap<ItemStackKey, PartInfo> partsMap = new Object2ObjectOpenHashMap<>();
-        gatherBlockDrops2(worldSceneRenderer.world, blockMap, blockDrops, partsMap);
+        gatherBlockDrops_2(worldSceneRenderer.world, blockMap, blockDrops, partsMap);
         worldSceneRenderer.setRenderCallback(wrapper);
         worldSceneRenderer.setRenderFilter(this::shouldDisplayBlock2);
         ArrayList<PartInfo> partInfos = new ArrayList<>(partsMap.values());
@@ -168,7 +165,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     }
 
     @Unique
-    private void gatherBlockDrops2(World world, Object2ObjectMap<BlockPos, BlockInfo> blocks, Set<ItemStackKey> drops, Object2ObjectMap<ItemStackKey, PartInfo> partsMap) {
+    private void gatherBlockDrops_2(World world, Object2ObjectMap<BlockPos, BlockInfo> blocks, Set<ItemStackKey> drops, Object2ObjectMap<ItemStackKey, PartInfo> partsMap) {
         NonNullList<ItemStack> dropsList = NonNullList.create();
         for (Object2ObjectMap.Entry<BlockPos, BlockInfo> entry : blocks.object2ObjectEntrySet()) {
             BlockPos pos = entry.getKey();

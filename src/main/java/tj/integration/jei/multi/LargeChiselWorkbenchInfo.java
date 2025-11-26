@@ -16,14 +16,16 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class LargeChiselWorkbenchInfo extends TJMultiblockInfoPage {
+public class LargeChiselWorkbenchInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -31,27 +33,31 @@ public class LargeChiselWorkbenchInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        for (int shapeInfo = 1; shapeInfo < 16; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                String power = layer == 0 ? "CEC" : "CCC";
-                builder.aisle(power, "CCC", "C~C", "C~C");
-                builder.aisle("CCC", "CcC", "###", "CrC");
-            }
-            shapeInfos.add(builder.aisle("CMC", "ISO", "C~C", "C~C")
-                    .where('S', this.getController(), EnumFacing.WEST)
-                    .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
-                    .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
-                    .where('r', GAMetaBlocks.ROBOT_ARM_CASING.getDefaultState())
-                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                    .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                    .build());
-        }
-        return shapeInfos;
+    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
+        return IntStream.range(1, 17)
+                .mapToObj(shapeInfo -> {
+                    GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+                    for (int layer = 0; layer < shapeInfo; layer++) {
+                        String power = layer == 0 ? "CEC" : "CCC";
+                        builder.aisle(power, "CCC", "C~C", "C~C");
+                        builder.aisle("CCC", "CcC", "###", "CrC");
+                    }
+                    return builder.aisle("CMC", "ISO", "C~C", "C~C");
+                }).map(builder -> {
+                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+                    for (int tier = 0; tier < infos.length; tier++) {
+                        infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
+                                .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
+                                .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                                .where('r', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                                .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                                .build();
+                    }
+                    return infos;
+                }).collect(Collectors.toList());
     }
 
     @Override

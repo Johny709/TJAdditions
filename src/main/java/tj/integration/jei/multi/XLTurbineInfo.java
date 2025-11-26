@@ -7,25 +7,26 @@ import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.unification.material.Materials;
-import gregtech.api.util.BlockInfo;
-import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import tj.builder.handlers.XLTurbineWorkableHandler;
+import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 import tj.machines.multi.electric.MetaTileEntityXLTurbine;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class XLTurbineInfo extends MultiblockInfoPage {
+public class XLTurbineInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     public final MetaTileEntityXLTurbine turbine;
 
@@ -39,48 +40,47 @@ public class XLTurbineInfo extends MultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
         MetaTileEntityHolder holderNorth = new MetaTileEntityHolder();
         MetaTileEntityHolder holderSouth = new MetaTileEntityHolder();
         holderNorth.setMetaTileEntity(MetaTileEntities.ROTOR_HOLDER[2]);
-        holderNorth.getMetaTileEntity().setFrontFacing(EnumFacing.NORTH);
         holderSouth.setMetaTileEntity(MetaTileEntities.ROTOR_HOLDER[2]);
-        holderSouth.getMetaTileEntity().setFrontFacing(EnumFacing.SOUTH);
         ItemStack rotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm();
         //noinspection ConstantConditions
         TurbineRotorBehavior.getInstanceFor(rotorStack).setPartMaterial(rotorStack, Materials.Darmstadtium);
         ((MetaTileEntityRotorHolder) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
         ((MetaTileEntityRotorHolder) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            GAMultiblockShapeInfo.Builder shapeInfo = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
-                    .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCECCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
-                    .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
-                    .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
-            for (int j = 0; j <= i; j++) {
-                shapeInfo.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
-                shapeInfo.aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC");
-                shapeInfo.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
-            }
-            shapeInfo.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
-                    .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
-                    .aisle("CCCCCCC", "CCCCCCC", "CCCOCCC", "CCISJCC", "CCCMCCC", "CCCCCCC", "CCCCCCC")
-                    .where('S', this.turbine, EnumFacing.WEST)
-                    .where('C', this.turbine.turbineType.casingState)
-                    .where('R', new BlockInfo(MetaBlocks.MACHINE.getDefaultState(), holderNorth))
-                    .where('T', new BlockInfo(MetaBlocks.MACHINE.getDefaultState(), holderSouth))
-                    .where('E', MetaTileEntities.ENERGY_OUTPUT_HATCH[GTValues.MAX], EnumFacing.EAST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
-                    .where('J', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MAX], EnumFacing.WEST)
-                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-            if (this.turbine.turbineType.hasOutputHatch) {
-                shapeInfo.where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MAX], EnumFacing.WEST);
-            } else {
-                shapeInfo.where('O', this.turbine.turbineType.casingState);
-            }
-            shapeInfos.add(shapeInfo.build());
-        }
-        return shapeInfos;
+        return IntStream.range(0, 7)
+                .mapToObj(shapeInfo -> {
+                    GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+                            .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCECCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
+                            .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
+                            .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
+                    for (int j = 0; j <= shapeInfo; j++) {
+                        builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
+                        builder.aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC");
+                        builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
+                    }
+                    return builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
+                            .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
+                            .aisle("CCCCCCC", "CCCCCCC", "CCCOCCC", "CCISJCC", "CCCMCCC", "CCCCCCC", "CCCCCCC");
+                }).map(builder -> {
+                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+                    for (int tier = 0; tier < infos.length; tier++) {
+                        infos[tier] = builder.where('S', this.turbine, EnumFacing.WEST)
+                                .where('C', this.turbine.turbineType.casingState)
+                                .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
+                                .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
+                                .where('E', this.getEnergyHatch(tier, true), EnumFacing.EAST)
+                                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
+                                .where('J', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MAX], EnumFacing.WEST)
+                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
+                                .where(!this.turbine.turbineType.hasOutputHatch ? 'O' : '#', !this.turbine.turbineType.hasOutputHatch ? this.turbine.turbineType.casingState : Blocks.AIR.getDefaultState())
+                                .build();
+                    }
+                    return infos;
+                }).collect(Collectors.toList());
     }
 
     @Override
