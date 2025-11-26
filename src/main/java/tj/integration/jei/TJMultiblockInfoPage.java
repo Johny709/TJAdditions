@@ -7,6 +7,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
@@ -15,6 +16,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.TJValues;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+
+import java.util.List;
 
 
 public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
@@ -60,6 +63,14 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
             case 14: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[9] : MetaTileEntities.ENERGY_INPUT_HATCH[9];
             default: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[0] : MetaTileEntities.ENERGY_INPUT_HATCH[0];
         }
+    }
+
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
+        return null;
+    }
+
+    public boolean hasLayers() {
+        return false;
     }
 
     @Override

@@ -38,7 +38,7 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
@@ -71,16 +71,26 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage {
                             .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                             .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
                             .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
-                            .where('p', GAMetaBlocks.PUMP_CASING.getDefaultState())
-                            .where('m', GAMetaBlocks.MOTOR_CASING.getDefaultState())
+                            .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                            .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EAST)
+                            .where('E', this.getEnergyHatch(tier, false), EAST)
                             .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], WEST)
                             .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], WEST)
                             .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], WEST)
                             .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
+    }
+
+    @Override
+    public boolean hasLayers() {
+        return true;
     }
 
     @Override

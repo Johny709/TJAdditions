@@ -24,5 +24,8 @@
     "gregtech.TransformerInfoProviderMixin"
   ],
   "server": [],
-  "client": []
+  "client": [
+    "gregtech.MultiblockInfoRecipeWrapperMixin",
+    "gregtech.IMultiblockInfoRecipeWrapperMixin"
+  ]
 }
