@@ -36,33 +36,32 @@ public class ParallelLargeCanningMachineInfo extends TJMultiblockInfoPage implem
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
-        return IntStream.range(1, this.getController().getMaxParallel() + 1)
+    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
+        return IntStream.range(1, 17)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
                     builder.aisle("~~P~~", "~MPE~", "PPPPP", "~CPC~", "~~P~~");
                     for (int layer = 0; layer < shapeInfo; layer++) {
                         builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
                     }
-                    return builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~")
-                            .where('S', this.getController(), WEST)
-                            .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
-                            .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
-                            .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
-                            .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                            .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                            .where('E', this.getEnergyHatch(tier, false), EAST)
-                            .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                            .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                            .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                            .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
-                            .build();
+                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+                    for (int tier = 0; tier < shapes.length; tier++) {
+                        shapes[tier] = builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~")
+                                .where('S', this.getController(), WEST)
+                                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
+                                .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
+                                .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
+                                .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                                .where('E', this.getEnergyHatch(tier, false), EAST)
+                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                                .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                                .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                                .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                                .build();
+                    }
+                    return shapes;
                 }).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        return this.getMatchingShapes(0);
     }
 
     @Override

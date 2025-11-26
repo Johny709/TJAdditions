@@ -38,8 +38,8 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
-        return IntStream.range(1, this.getController().getMaxParallel() + 1)
+    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
+        return IntStream.range(1, 17)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
                     if (!(shapeInfo % 2 == 0)) {
@@ -65,27 +65,26 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
                             new String[]{"C~~~C~IiSOo~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CMECC~C~~~C"} :
                             new String[]{"C~~~C~IiSOo~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CMECC~~~~~~"};
 
-                    return builder.aisle(controller)
-                            .where('S', this.getController(), WEST)
-                            .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
-                            .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
-                            .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
-                            .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
-                            .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                            .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                            .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                            .where('E', this.getEnergyHatch(tier, false), EAST)
-                            .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], WEST)
-                            .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], WEST)
-                            .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], WEST)
-                            .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], WEST)
-                            .build();
+                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+                    for (int tier = 0; tier < infos.length; tier++) {
+                        infos[tier] = builder.aisle(controller)
+                                .where('S', this.getController(), WEST)
+                                .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
+                                .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
+                                .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
+                                .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
+                                .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                                .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                                .where('E', this.getEnergyHatch(tier, false), EAST)
+                                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], WEST)
+                                .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], WEST)
+                                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], WEST)
+                                .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], WEST)
+                                .build();
+                    }
+                    return infos;
                 }).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        return this.getMatchingShapes(0);
     }
 
     @Override

@@ -35,8 +35,8 @@ public class ParallelLargeMixerInfo extends TJMultiblockInfoPage implements IPar
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
-        return IntStream.range(1, this.getController().getMaxParallel() + 1)
+    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
+        return IntStream.range(1, 17)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
                     builder.aisle("~~F~~", "~~F~~", "FFFFF", "~~F~~", "~~F~~");
@@ -48,25 +48,24 @@ public class ParallelLargeMixerInfo extends TJMultiblockInfoPage implements IPar
                         builder.aisle("~CCC~", "C###C", "C#m#C", "C###C", "~CCC~");
                         builder.aisle(entityS, "C###C", "C#m#C", "C###C", "~CCC~");
                     }
-                    return builder.aisle("~iMo~", "CCCCC", "CCCCC", "CCCCC", "~CEC~")
-                            .where('S', this.getController(), WEST)
-                            .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY))
-                            .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
-                            .where('F', MetaBlocks.FRAMES.get(Staballoy).getDefaultState())
-                            .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                            .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                            .where('E', this.getEnergyHatch(tier, false), WEST)
-                            .where('I', MetaTileEntities.ITEM_IMPORT_BUS[2], WEST)
-                            .where('i', GATileEntities.OUTPUT_HATCH_MULTI.get(1), WEST)
-                            .where('O', MetaTileEntities.ITEM_EXPORT_BUS[2], WEST)
-                            .where('o', GATileEntities.INPUT_HATCH_MULTI.get(1), WEST)
-                            .build();
+                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+                    for (int tier = 0; tier < infos.length; tier++) {
+                        infos[tier] = builder.aisle("~iMo~", "CCCCC", "CCCCC", "CCCCC", "~CEC~")
+                                .where('S', this.getController(), WEST)
+                                .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY))
+                                .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
+                                .where('F', MetaBlocks.FRAMES.get(Staballoy).getDefaultState())
+                                .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                                .where('E', this.getEnergyHatch(tier, false), WEST)
+                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[2], WEST)
+                                .where('i', GATileEntities.OUTPUT_HATCH_MULTI.get(1), WEST)
+                                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[2], WEST)
+                                .where('o', GATileEntities.INPUT_HATCH_MULTI.get(1), WEST)
+                                .build();
+                    }
+                    return infos;
                 }).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        return this.getMatchingShapes(0);
     }
 
     @Override

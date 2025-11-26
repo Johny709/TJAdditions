@@ -35,6 +35,9 @@ public interface IMultiblockInfoRecipeWrapperMixin {
     @Accessor("currentRendererPage")
     int getCurrentRenderPage();
 
+    @Accessor("buttonNextPattern")
+    GuiButton getButtonNextPattern();
+
     @Accessor("buttons")
     Map<GuiButton, Runnable> getButtons();
 

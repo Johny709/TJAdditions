@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface IParallelMultiblockInfoPage {
 
-    List<MultiblockShapeInfo> getMatchingShapes(int tier);
+    List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes);
 }

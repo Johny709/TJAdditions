@@ -3,10 +3,13 @@ package tj.mixin.gregtech;
 import gregicadditions.GAValues;
 import gregtech.api.render.scene.WorldSceneRenderer;
 import gregtech.api.util.BlockInfo;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.ItemStackKey;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockInfoRecipeWrapper;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiItemStackGroup;
@@ -29,11 +32,9 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.TJValues;
 import tj.integration.jei.MBPattern;
 import tj.integration.jei.PartInfo;
-import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 
 @Mixin(value = MultiblockInfoRecipeWrapper.class, remap = false)
@@ -46,7 +47,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     private GuiButton buttonVoltage;
 
     @Unique
-    private final MBPattern[][] mbPatterns = new MBPattern[15][];
+    private MBPattern[][] mbPatterns;
 
     @Unique
     private boolean multiLayer;
@@ -57,11 +58,17 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injectMultiblockInfoRecipeWrapper_init(MultiblockInfoPage infoPage, CallbackInfo ci, HashSet<ItemStackKey> drops) {
         if (infoPage instanceof IParallelMultiblockInfoPage) {
-            IntStream.range(0, GAValues.MAX + 1)
-                    .forEach(i -> this.mbPatterns[i] = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(i).stream()
-                            .map(it -> this.initializePattern2(it, drops))
-                            .toArray(MBPattern[]::new));
+            this.mbPatterns = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(new MultiblockShapeInfo[15]).stream()
+                    .map(shapeInfos -> {
+                        GTLog.logger.info("Getting Matching Shapes");
+                        MBPattern[] patterns = new MBPattern[15];
+                        for (int i = 0; i < patterns.length; i++) {
+                            patterns[i] = this.initializePattern2(shapeInfos[i], drops);
+                        }
+                        return patterns;
+                    }).toArray(MBPattern[][]::new);
             this.multiLayer = true;
+            GTLog.logger.info("Matching Shapes Done");
         }
     }
 
@@ -70,13 +77,14 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
         if (this.multiLayer) {
             this.buttonVoltage = new GuiButton(0, border.getWidth() - ((2 * GET_ICON_SIZE()) + GET_RIGHT_PADDING() + 1), 110, GET_ICON_SIZE() + 21, GET_ICON_SIZE(), TJValues.VCC[0] + GAValues.VN[0]);
             getButtons().put(this.buttonVoltage, () -> this.switchVoltagePage(Mouse.isButtonDown(0) ? 1 : Mouse.isButtonDown(1) ? -1 : 0));
+            getButtonNextPattern().enabled = this.mbPatterns.length > 1;
         }
     }
 
     @Inject(method = "getCurrentRenderer", at = @At("HEAD"), cancellable = true)
     private void injectGetCurrentRenderer(CallbackInfoReturnable<WorldSceneRenderer> cir) {
         if (this.multiLayer) {
-            cir.setReturnValue(this.mbPatterns[this.currentVoltagePage][getCurrentRenderPage()].sceneRenderer);
+            cir.setReturnValue(this.mbPatterns[getCurrentRenderPage()][this.currentVoltagePage].sceneRenderer);
             cir.cancel();
         }
     }
@@ -85,7 +93,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     private void injectUpdateParts(CallbackInfo ci) {
         if (this.multiLayer) {
             IGuiItemStackGroup itemStackGroup = getRecipeLayout().getItemStacks();
-            List<ItemStack> parts = this.mbPatterns[this.currentVoltagePage][getCurrentRenderPage()].parts;
+            List<ItemStack> parts = this.mbPatterns[getCurrentRenderPage()][this.currentVoltagePage].parts;
             int limit = Math.min(parts.size(), GET_MAX_PARTS());
             for (int i = 0; i < limit; ++i)
                 itemStackGroup.set(i, parts.get(i));
@@ -97,7 +105,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
 
     @Unique
     private void switchVoltagePage(int amount) {
-        int maxIndex = this.mbPatterns.length - 1;
+        int maxIndex = this.mbPatterns[getCurrentRenderPage()].length - 1;
         int index = Math.max(0, Math.min(maxIndex, this.currentVoltagePage + amount));
         if (index != this.currentVoltagePage) {
             this.currentVoltagePage = index;
@@ -109,7 +117,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     @Unique
     private MBPattern initializePattern2(MultiblockShapeInfo shapeInfo, Set<ItemStackKey> blockDrops) {
         MultiblockInfoRecipeWrapper wrapper = (MultiblockInfoRecipeWrapper)(Object)this;
-        Map<BlockPos, BlockInfo> blockMap = new HashMap<>();
+        Object2ObjectMap<BlockPos, BlockInfo> blockMap = new Object2ObjectOpenHashMap<>();
         BlockInfo[][][] blocks = shapeInfo.getBlocks();
         for (int z = 0; z < blocks.length; z++) {
             BlockInfo[][] aisle = blocks[z];
@@ -124,7 +132,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
         }
         WorldSceneRenderer worldSceneRenderer = new WorldSceneRenderer(blockMap);
         worldSceneRenderer.world.updateEntities();
-        HashMap<ItemStackKey, PartInfo> partsMap = new HashMap<>();
+        Object2ObjectMap<ItemStackKey, PartInfo> partsMap = new Object2ObjectOpenHashMap<>();
         gatherBlockDrops2(worldSceneRenderer.world, blockMap, blockDrops, partsMap);
         worldSceneRenderer.setRenderCallback(wrapper);
         worldSceneRenderer.setRenderFilter(this::shouldDisplayBlock2);
@@ -145,9 +153,9 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     }
 
     @Unique
-    private void gatherBlockDrops2(World world, Map<BlockPos, BlockInfo> blocks, Set<ItemStackKey> drops, Map<ItemStackKey, PartInfo> partsMap) {
+    private void gatherBlockDrops2(World world, Object2ObjectMap<BlockPos, BlockInfo> blocks, Set<ItemStackKey> drops, Object2ObjectMap<ItemStackKey, PartInfo> partsMap) {
         NonNullList<ItemStack> dropsList = NonNullList.create();
-        for (Map.Entry<BlockPos, BlockInfo> entry : blocks.entrySet()) {
+        for (Object2ObjectMap.Entry<BlockPos, BlockInfo> entry : blocks.object2ObjectEntrySet()) {
             BlockPos pos = entry.getKey();
             IBlockState blockState = world.getBlockState(pos);
             NonNullList<ItemStack> blockDrops = NonNullList.create();
