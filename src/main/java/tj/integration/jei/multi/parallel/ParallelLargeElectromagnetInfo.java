@@ -43,11 +43,12 @@ public class ParallelLargeElectromagnetInfo extends TJMultiblockInfoPage impleme
                         builder.aisle("~C~C~", "C#C#C", "G###G", "C#C#C", "~C~C~");
                         builder.aisle("~C~C~", "C#C#C", "GF#FG", "C#C#C", "~C~C~");
                     }
+                    return builder.aisle("~C~C~", "C#C#C", "G###G", "C#C#C", "~C~C~")
+                            .aisle("~~~~~", "~CCC~", "~ISO~", "~CMC~", "~~~~~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("~C~C~", "C#C#C", "G###G", "C#C#C", "~C~C~")
-                                .aisle("~~~~~", "~CCC~", "~ISO~", "~CMC~", "~~~~~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.BABBITT_ALLOY))
                                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.IRIDIUM_GLASS))
                                 .where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[Math.max(0, tier - 1)]))

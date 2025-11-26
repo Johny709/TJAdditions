@@ -44,10 +44,11 @@ public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage implements
                         builder.aisle("~CCC~", "CCcCC", "CCcCC", "CCcCC", "~CCC~");
                         builder.aisle(entityS, "GT#TG", "GP#PG", "GT#TG", "~GGG~");
                     }
+                    return builder.aisle("~IMO~", "CCcCC", "CCcCC", "CCcCC", "~iEo~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("~IMO~", "CCcCC", "CCcCC", "CCcCC", "~iEo~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
                                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                                 .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))

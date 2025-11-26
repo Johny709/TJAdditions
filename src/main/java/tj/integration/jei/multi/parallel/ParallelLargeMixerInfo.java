@@ -48,10 +48,11 @@ public class ParallelLargeMixerInfo extends TJMultiblockInfoPage implements IPar
                         builder.aisle("~CCC~", "C###C", "C#m#C", "C###C", "~CCC~");
                         builder.aisle(entityS, "C###C", "C#m#C", "C###C", "~CCC~");
                     }
+                    return builder.aisle("~iMo~", "CCCCC", "CCCCC", "CCCCC", "~CEC~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("~iMo~", "CCCCC", "CCCCC", "CCCCC", "~CEC~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY))
                                 .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                                 .where('F', MetaBlocks.FRAMES.get(Staballoy).getDefaultState())

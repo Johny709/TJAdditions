@@ -47,10 +47,11 @@ public class ParallelLargeLaserEngraverInfo extends TJMultiblockInfoPage impleme
                         builder.aisle(energ, "CGC", "CCC", "~C~");
                         builder.aisle("CCC", "GcG", "CeC", "CBC");
                     }
+                    return builder.aisle("iMo", "ISO", "CCC", "~C~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("iMo", "ISO", "CCC", "~C~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.LASER_ENGRAVER))
                                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.IRIDIUM_GLASS))
                                 .where('B', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX))

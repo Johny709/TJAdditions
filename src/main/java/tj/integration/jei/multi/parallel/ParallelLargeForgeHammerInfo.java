@@ -42,10 +42,11 @@ public class ParallelLargeForgeHammerInfo extends TJMultiblockInfoPage implement
                         builder.aisle(energ, "~C~", "~~~", "~~~", "~~~");
                         builder.aisle("CCC", "CCC", "C#C", "CPC", "CCC");
                     }
+                    return builder.aisle("ISO", "~M~", "~~~", "~~~", "~~~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("ISO", "~M~", "~~~", "~~~", "~~~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.IRON))
                                 .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
                                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)

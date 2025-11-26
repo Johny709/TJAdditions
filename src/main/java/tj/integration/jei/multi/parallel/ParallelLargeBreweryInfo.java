@@ -49,10 +49,11 @@ public class ParallelLargeBreweryInfo extends TJMultiblockInfoPage implements IP
                         builder.aisle("~CCC~", "~~C~~", "~G~G~", "p~P~p", "~G~G~", "~~C~~");
                         builder.aisle("~CCC~", "~~C~~", "~G~G~", "C~P~C", "~G~G~", "~~C~~");
                     }
+                    return builder.aisle("CCCCC", "F~C~F", "CiSoC", "CIMOC", "CCmCC", "~CCC~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CCCCC", "F~C~F", "CiSoC", "CIMOC", "CCmCC", "~CCC~")
-                                .where('S', getController(), EnumFacing.WEST)
+                        infos[tier] = builder.where('S', getController(), EnumFacing.WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))
                                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
                                 .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))

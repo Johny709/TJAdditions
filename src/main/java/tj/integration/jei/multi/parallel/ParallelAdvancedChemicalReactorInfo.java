@@ -61,14 +61,13 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
                             builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
                         }
                     }
-                    String[] controller = shapeInfo > 1 ?
+                    return builder.aisle(shapeInfo > 1 ?
                             new String[]{"C~~~C~IiSOo~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CMECC~C~~~C"} :
-                            new String[]{"C~~~C~IiSOo~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CMECC~~~~~~"};
-
+                            new String[]{"C~~~C~IiSOo~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CMECC~~~~~~"});
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle(controller)
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
                                 .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                                 .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))

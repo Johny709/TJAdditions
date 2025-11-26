@@ -46,10 +46,11 @@ public class ParallelVolcanusInfo extends TJMultiblockInfoPage implements IParal
                         builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
                         builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
                     }
+                    return builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_N))
                                 .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))

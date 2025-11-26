@@ -33,7 +33,13 @@ public interface IMultiblockInfoRecipeWrapperMixin {
     int GET_RIGHT_PADDING();
 
     @Accessor("currentRendererPage")
+    void setCurrentRenderPage(int currentRenderPage);
+
+    @Accessor("currentRendererPage")
     int getCurrentRenderPage();
+
+    @Accessor("buttonPreviousPattern")
+    GuiButton getButtonPreviousPattern();
 
     @Accessor("buttonNextPattern")
     GuiButton getButtonNextPattern();

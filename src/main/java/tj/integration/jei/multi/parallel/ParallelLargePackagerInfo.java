@@ -42,10 +42,11 @@ public class ParallelLargePackagerInfo extends TJMultiblockInfoPage implements I
                     for (int layer = 0; layer < shapeInfo; layer++) {
                         builder.aisle("CCC", "CcC", "CRC");
                     }
+                    return builder.aisle("IMO", "CSC", "CCC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("IMO", "CSC", "CCC")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HG_1223))
                                 .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                                 .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))

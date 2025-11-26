@@ -44,10 +44,11 @@ public class ParallelLargeCanningMachineInfo extends TJMultiblockInfoPage implem
                     for (int layer = 0; layer < shapeInfo; layer++) {
                         builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
                     }
+                    return builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < shapes.length; tier++) {
-                        shapes[tier] = builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~")
-                                .where('S', this.getController(), WEST)
+                    for (int tier = 0; tier < infos.length; tier++) {
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
@@ -60,7 +61,7 @@ public class ParallelLargeCanningMachineInfo extends TJMultiblockInfoPage implem
                                 .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
                                 .build();
                     }
-                    return shapes;
+                    return infos;
                 }).collect(Collectors.toList());
     }
 

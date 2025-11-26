@@ -50,10 +50,11 @@ public class ParallelLargeCentrifugeInfo extends TJMultiblockInfoPage implements
                         builder.aisle(entityS, "C###C", "G#P#G", "C###C", "~CGC~");
                         builder.aisle("CCCCC", "C###C", "C#P#C", "C###C", "CCCCC");
                     }
+                    return builder.aisle("~IMO~", "CcccC", "CcmcC", "CcccC", "~iEo~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("~IMO~", "CcccC", "CcmcC", "CcccC", "~iEo~")
-                                .where('S', getController(), EnumFacing.WEST)
+                        infos[tier] = builder.where('S', getController(), EnumFacing.WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.RED_STEEL))
                                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))

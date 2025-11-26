@@ -44,11 +44,12 @@ public class ParallelLargeMaceratorInfo extends TJMultiblockInfoPage implements 
                         builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
                         builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
                     }
+                    return builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C")
+                            .aisle("CCCCC", "CMSMC", "CImOC", "CCCCC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C")
-                                .aisle("CCCCC", "CMSMC", "CImOC", "CCCCC")
-                                .where('S', this.getController(), EnumFacing.WEST)
+                        infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
                                 .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                                 .where('B', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))

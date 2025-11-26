@@ -43,12 +43,13 @@ public class ParallelLargeExtractorInfo extends TJMultiblockInfoPage implements 
                         builder.aisle("CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
                         builder.aisle("~PpP~", "P#P#P", "pPPPp", "P#P#P", "~PpP~");
                     }
+                    return builder.aisle("CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC")
+                            .aisle("~PSP~", "P#P#P", "pPPPp", "P#P#P", "~PpP~")
+                            .aisle("CIMOo", "CCCCC", "CCCCC", "CCCCC", "CCECC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC")
-                                .aisle("~PSP~", "P#P#P", "pPPPp", "P#P#P", "~PpP~")
-                                .aisle("CIMOo", "CCCCC", "CCCCC", "CCCCC", "CCECC")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TALONITE))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
                                 .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))

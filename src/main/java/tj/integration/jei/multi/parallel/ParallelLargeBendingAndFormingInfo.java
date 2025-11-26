@@ -44,10 +44,11 @@ public class ParallelLargeBendingAndFormingInfo extends TJMultiblockInfoPage imp
                     for (int layer = 0; layer < shapeInfo; layer++) {
                         builder.aisle("CCCCC", "CmpmC", "CPCPC");
                     }
+                    return builder.aisle("CCMCC", "CISOC", "CPCPC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CCMCC", "CISOC", "CPCPC")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.TITANIUM_STABLE))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
                                 .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))

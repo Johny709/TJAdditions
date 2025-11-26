@@ -49,10 +49,11 @@ public class ParallelLargeWashingMachineInfo extends TJMultiblockInfoPage implem
                         builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
                         builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
                     }
+                    return builder.aisle("CICOC", "CmSmC", "CiMoC", "~CCC~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CICOC", "CmSmC", "CiMoC", "~CCC~")
-                                .where('S', getController(), EnumFacing.WEST)
+                        infos[tier] = builder.where('S', getController(), EnumFacing.WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))
                                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))

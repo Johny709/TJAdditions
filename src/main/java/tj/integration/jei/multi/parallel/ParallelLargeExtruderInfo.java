@@ -45,11 +45,12 @@ public class ParallelLargeExtruderInfo extends TJMultiblockInfoPage implements I
                         builder.aisle("CCCCC", "C#P#C", "~CmC~", "~~C~~");
                         builder.aisle("CCCCC", "CCPCC", "~CmC~", "~~C~~");
                     }
+                    return builder.aisle("CCCCC", "C#P#C", "~CmC~", "~~C~~")
+                            .aisle("CCCCC", "CISOC", "~CMC~", "~~C~~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CCCCC", "C#P#C", "~CmC~", "~~C~~")
-                                .aisle("CCCCC", "CISOC", "~CMC~", "~~C~~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.INCONEL_625))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                                 .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))

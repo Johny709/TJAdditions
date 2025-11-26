@@ -47,11 +47,12 @@ public class ParallelPlasmaCondenserInfo extends TJMultiblockInfoPage implements
                         builder.aisle("~CCC~", "CG#GC", "C#T#C", "CG#GC", "~CCC~");
                         builder.aisle(entityS, "CPTPC", "CTTTC", "CPTPC", "~CCC~");
                     }
+                    return builder.aisle("~iMo~", "CG#GC", "C#T#C", "CG#GC", "~CEC~")
+                            .aisle("~~~~~", "~CCC~", "~CCC~", "~CCC~", "~~~~~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("~iMo~", "CG#GC", "C#T#C", "CG#GC", "~CEC~")
-                                .aisle("~~~~~", "~CCC~", "~CCC~", "~CCC~", "~~~~~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_N))
                                 .where('G', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX))
                                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))

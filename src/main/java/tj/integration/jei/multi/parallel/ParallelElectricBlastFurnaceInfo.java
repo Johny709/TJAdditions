@@ -45,10 +45,11 @@ public class ParallelElectricBlastFurnaceInfo extends TJMultiblockInfoPage imple
                         builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
                         builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
                     }
+                    return builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
                                 .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))

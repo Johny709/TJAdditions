@@ -57,14 +57,14 @@ public class ParallelLargeAssemblerInfo extends TJMultiblockInfoPage implements 
                     aisleA.append("C");
                     aislec.append("C");
                     aisleR.append("C");
-
+                    return builder.aisle("I~CGGG" + aisleG, "CCCGGG" + aisleG, "CCCGGG" + aisleG, "CCCCCC" + aisleC)
+                            .aisle("iMCGGG" + aisleG, "CPC###" + aisleA, "CPPPPP" + aisleP, "CCCCCC" + aisleC)
+                            .aisle("OSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CECCCC" + aisleC)
+                            .aisle("CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC);
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("I~CGGG" + aisleG, "CCCGGG" + aisleG, "CCCGGG" + aisleG, "CCCCCC" + aisleC)
-                                .aisle("iMCGGG" + aisleG, "CPC###" + aisleA, "CPPPPP" + aisleP, "CCCCCC" + aisleC)
-                                .aisle("OSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CECCCC" + aisleC)
-                                .aisle("CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC)
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))

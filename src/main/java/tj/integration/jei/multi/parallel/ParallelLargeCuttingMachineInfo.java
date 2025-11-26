@@ -49,13 +49,13 @@ public class ParallelLargeCuttingMachineInfo extends TJMultiblockInfoPage implem
                             builder.aisle("CcCCCcC", "CmCCCmC", "C#C~C#C");
                         }
                     }
-                    String[] controller = shapeInfo > 1 ?
+                    return builder.aisle(shapeInfo > 1 ?
                             new String[]{"CCiMCCC", "C#ISO#C", "C#C~C#C"} :
-                            new String[]{"~~CiMCC", "~~ISO#C", "~~~~C#C"};
+                            new String[]{"~~CiMCC", "~~ISO#C", "~~~~C#C"});
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle(controller)
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
                                 .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
                                 .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))

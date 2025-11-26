@@ -103,6 +103,21 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
         }
     }
 
+    @Inject(method = "switchRenderPage", at = @At("HEAD"), cancellable = true)
+    private void injectSwitchRenderPage(int amount, CallbackInfo ci) {
+        if (this.multiLayer) {
+            int maxIndex = this.mbPatterns.length - 1;
+            int index = Math.max(0, Math.min(maxIndex, getCurrentRenderPage() + amount));
+            if (index != getCurrentRenderPage()) {
+                setCurrentRenderPage(index);
+                getButtonPreviousPattern().enabled = index > 0;
+                getButtonNextPattern().enabled = index < maxIndex;
+                updateParts();
+            }
+            ci.cancel();
+        }
+    }
+
     @Unique
     private void switchVoltagePage(int amount) {
         int maxIndex = this.mbPatterns[getCurrentRenderPage()].length - 1;

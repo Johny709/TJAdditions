@@ -45,10 +45,11 @@ public class ParallelLargeWiremillInfo extends TJMultiblockInfoPage implements I
                         builder.aisle(energyE, "~CCC~", "~~~~~", "~~~~~", "~~~~~");
                         builder.aisle("CCCCC", "CmGmC", "C###C", "CmGmC", "CCCCC");
                     }
+                    return builder.aisle("CCMCC", "~ISO~", "~~~~~", "~~~~~", "~~~~~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CCMCC", "~ISO~", "~~~~~", "~~~~~", "~~~~~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
                                 .where('G', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX))
                                 .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))

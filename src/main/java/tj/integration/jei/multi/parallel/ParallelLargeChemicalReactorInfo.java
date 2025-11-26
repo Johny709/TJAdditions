@@ -40,17 +40,17 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
         return IntStream.range(1, 17)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
-                    MetaTileEntityParallelLargeChemicalReactor chemicalReactor = TJMetaTileEntities.PARALLEL_CHEMICAL_REACTOR;
                     builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
                     for (int layer = 0; layer < shapeInfo; layer++) {
                         builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
                         builder.aisle("F###F", "#PPP#", "#PcP#", "#PPP#", "F###F");
                     }
+                    return builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
+                            .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
-                                .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC")
-                                .where('S', chemicalReactor, EnumFacing.WEST)
+                        infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
                                 .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
                                 .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                                 .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))

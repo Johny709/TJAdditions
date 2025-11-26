@@ -47,14 +47,15 @@ public class ParallelLargeSifterInfo extends TJMultiblockInfoPage implements IPa
                         builder.aisle("~CCC~", "C###C", "C###C", "C###C", "~CCC~");
                         builder.aisle("~FCF~", "F###F", "C###C", "F###F", "~FCF~");
                     }
+                    return builder.aisle("~CCC~", "C###C", "C###C", "C###C", "~CCC~")
+                            .aisle("CISOC", "PGGGP", "CGGGC", "PGGGP", "CCECC")
+                            .aisle("~CMC~", "C###C", "C###C", "C###C", "~CCC~")
+                            .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~")
+                            .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("~CCC~", "C###C", "C###C", "C###C", "~CCC~")
-                                .aisle("CISOC", "PGGGP", "CGGGC", "PGGGP", "CCECC")
-                                .aisle("~CMC~", "C###C", "C###C", "C###C", "~CCC~")
-                                .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~")
-                                .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~")
-                                .where('S', getController(), WEST)
+                        infos[tier] = builder.where('S', getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.EGLIN_STEEL))
                                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                                 .where('F', MetaBlocks.FRAMES.get(EglinSteel).getDefaultState())

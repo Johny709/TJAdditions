@@ -47,10 +47,11 @@ public class ParallelLargeElectrolyzerInfo extends TJMultiblockInfoPage implemen
                         builder.aisle(energyE, "CCGCC", "CCGCC", "CC#CC");
                         builder.aisle("CCGCC", "CP#MC", "CCGCC", "C###C");
                     }
+                    return builder.aisle("CimoC", "CISOC", "CCGCC", "CC#CC");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("CimoC", "CISOC", "CCGCC", "CC#CC")
-                                .where('S', getController(), EnumFacing.WEST)
+                        infos[tier] = builder.where('S', getController(), EnumFacing.WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.POTIN))
                                 .where('G', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
                                 .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))

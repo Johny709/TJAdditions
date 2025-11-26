@@ -45,10 +45,11 @@ public class ParallelCryogenicFreezerInfo extends TJMultiblockInfoPage implement
                         builder.aisle("~CCC~", "CCCCC", entityP, "CCCCC", "~CCC~");
                         builder.aisle(entityS, "C#P#C", "CPPPC", "C#P#C", energyH);
                     }
+                    return builder.aisle("~iCo~", "CCCCC", "CCCCC", "CCCCC", "~CCC~");
+                }).map(builder -> {
                     MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
                     for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.aisle("~iCo~", "CCCCC", "CCCCC", "CCCCC", "~CCC~")
-                                .where('S', this.getController(), WEST)
+                        infos[tier] = builder.where('S', this.getController(), WEST)
                                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.INCOLOY_MA956))
                                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
