@@ -27,7 +27,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.WEST;
 
 
-public class ParallelPlasmaCondenserInfo extends TJMultiblockInfoPage {
+public class ParallelPlasmaCondenserInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -35,7 +35,7 @@ public class ParallelPlasmaCondenserInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
@@ -53,15 +53,20 @@ public class ParallelPlasmaCondenserInfo extends TJMultiblockInfoPage {
                             .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_N))
                             .where('G', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX))
                             .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
-                            .where('P', GAMetaBlocks.PUMP_CASING.getDefaultState())
+                            .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], WEST)
+                            .where('E', this.getEnergyHatch(tier, false), WEST)
                             .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
                             .where('i', GATileEntities.OUTPUT_HATCH_MULTI.get(0), WEST)
                             .where('O', MetaTileEntities.ITEM_EXPORT_BUS[1], WEST)
                             .where('o', GATileEntities.INPUT_HATCH_MULTI.get(0), WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

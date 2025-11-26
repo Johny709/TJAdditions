@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class ParallelLargeMaceratorInfo extends TJMultiblockInfoPage {
+public class ParallelLargeMaceratorInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -35,7 +35,7 @@ public class ParallelLargeMaceratorInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
@@ -46,17 +46,22 @@ public class ParallelLargeMaceratorInfo extends TJMultiblockInfoPage {
                     }
                     return builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C")
                             .aisle("CCCCC", "CMSMC", "CImOC", "CCCCC")
-                            .where('S', getController(), EnumFacing.WEST)
+                            .where('S', this.getController(), EnumFacing.WEST)
                             .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
                             .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                             .where('B', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                            .where('M', GAMetaBlocks.MOTOR_CASING.getDefaultState())
+                            .where('M', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                             .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
                             .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.EAST)
+                            .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
                             .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

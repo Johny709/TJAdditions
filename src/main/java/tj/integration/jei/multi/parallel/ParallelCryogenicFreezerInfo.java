@@ -26,7 +26,7 @@ import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
 
-public class ParallelCryogenicFreezerInfo extends TJMultiblockInfoPage {
+public class ParallelCryogenicFreezerInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -34,7 +34,7 @@ public class ParallelCryogenicFreezerInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
@@ -50,13 +50,18 @@ public class ParallelCryogenicFreezerInfo extends TJMultiblockInfoPage {
                             .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.INCOLOY_MA956))
                             .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
+                            .where('E', this.getEnergyHatch(tier, false), EAST)
                             .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
                             .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
                             .where('O', MetaTileEntities.ITEM_EXPORT_BUS[1], WEST)
                             .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

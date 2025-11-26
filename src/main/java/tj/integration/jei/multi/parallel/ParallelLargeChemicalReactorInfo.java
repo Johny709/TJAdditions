@@ -28,7 +28,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
 
-public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage {
+public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -36,7 +36,7 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
@@ -54,13 +54,18 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage {
                             .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
                             .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.IV], EnumFacing.WEST)
+                            .where('E', this.getEnergyHatch(tier, false), EnumFacing.WEST)
                             .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                             .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
                             .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
                             .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

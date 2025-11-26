@@ -30,7 +30,7 @@ import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
 
-public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage {
+public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -86,11 +86,6 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         return this.getMatchingShapes(0);
-    }
-
-    @Override
-    public boolean hasLayers() {
-        return true;
     }
 
     @Override

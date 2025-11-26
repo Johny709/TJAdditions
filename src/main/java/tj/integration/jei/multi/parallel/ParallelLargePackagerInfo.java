@@ -26,7 +26,7 @@ import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
 
-public class ParallelLargePackagerInfo extends TJMultiblockInfoPage {
+public class ParallelLargePackagerInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -34,7 +34,7 @@ public class ParallelLargePackagerInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
@@ -45,14 +45,19 @@ public class ParallelLargePackagerInfo extends TJMultiblockInfoPage {
                     return builder.aisle("IMO", "CSC", "CCC")
                             .where('S', this.getController(), WEST)
                             .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HG_1223))
-                            .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
-                            .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getDefaultState())
+                            .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                            .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
+                            .where('E', this.getEnergyHatch(tier, false), EAST)
                             .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
                             .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

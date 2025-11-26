@@ -17,6 +17,7 @@ import net.minecraft.util.text.TextFormatting;
 import tj.TJValues;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -63,14 +64,6 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
             case 14: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[9] : MetaTileEntities.ENERGY_INPUT_HATCH[9];
             default: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[0] : MetaTileEntities.ENERGY_INPUT_HATCH[0];
         }
-    }
-
-    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
-        return null;
-    }
-
-    public boolean hasLayers() {
-        return false;
     }
 
     @Override

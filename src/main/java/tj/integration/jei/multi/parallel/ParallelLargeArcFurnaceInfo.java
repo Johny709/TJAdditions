@@ -25,7 +25,7 @@ import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
 
-public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage {
+public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -33,7 +33,7 @@ public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel())
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
@@ -48,17 +48,22 @@ public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage {
                             .where('S', this.getController(), WEST)
                             .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
                             .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                            .where('P', GAMetaBlocks.PUMP_CASING.getDefaultState())
+                            .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
                             .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                             .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
+                            .where('E', this.getEnergyHatch(tier, false), EAST)
                             .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
                             .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], EAST)
                             .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
                             .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], EAST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

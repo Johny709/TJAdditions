@@ -27,7 +27,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.WEST;
 
 
-public class ParallelLargeMixerInfo extends TJMultiblockInfoPage {
+public class ParallelLargeMixerInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -35,7 +35,7 @@ public class ParallelLargeMixerInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
@@ -53,15 +53,20 @@ public class ParallelLargeMixerInfo extends TJMultiblockInfoPage {
                             .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY))
                             .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                             .where('F', MetaBlocks.FRAMES.get(Staballoy).getDefaultState())
-                            .where('m', GAMetaBlocks.MOTOR_CASING.getDefaultState())
+                            .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], WEST)
+                            .where('E', this.getEnergyHatch(tier, false), WEST)
                             .where('I', MetaTileEntities.ITEM_IMPORT_BUS[2], WEST)
                             .where('i', GATileEntities.OUTPUT_HATCH_MULTI.get(1), WEST)
                             .where('O', MetaTileEntities.ITEM_EXPORT_BUS[2], WEST)
                             .where('o', GATileEntities.INPUT_HATCH_MULTI.get(1), WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

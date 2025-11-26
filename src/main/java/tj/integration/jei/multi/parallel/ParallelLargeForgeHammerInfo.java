@@ -25,7 +25,7 @@ import static net.minecraft.util.EnumFacing.EAST;
 import static net.minecraft.util.EnumFacing.WEST;
 
 
-public class ParallelLargeForgeHammerInfo extends TJMultiblockInfoPage {
+public class ParallelLargeForgeHammerInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
     public ParallelRecipeMapMultiblockController getController() {
@@ -33,7 +33,7 @@ public class ParallelLargeForgeHammerInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public List<MultiblockShapeInfo> getMatchingShapes(int tier) {
         return IntStream.range(1, this.getController().getMaxParallel() + 1)
                 .mapToObj(shapeInfo -> {
                     GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
@@ -45,13 +45,18 @@ public class ParallelLargeForgeHammerInfo extends TJMultiblockInfoPage {
                     return builder.aisle("ISO", "~M~", "~~~", "~~~", "~~~")
                             .where('S', this.getController(), WEST)
                             .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.IRON))
-                            .where('P', GAMetaBlocks.PISTON_CASING.getDefaultState())
+                            .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
                             .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                            .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
+                            .where('E', this.getEnergyHatch(tier, false), EAST)
                             .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
                             .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiblockShapeInfo> getMatchingShapes() {
+        return this.getMatchingShapes(0);
     }
 
     @Override

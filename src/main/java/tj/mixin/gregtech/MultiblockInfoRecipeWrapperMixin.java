@@ -30,6 +30,7 @@ import tj.TJValues;
 import tj.integration.jei.MBPattern;
 import tj.integration.jei.PartInfo;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -55,9 +56,9 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
 
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injectMultiblockInfoRecipeWrapper_init(MultiblockInfoPage infoPage, CallbackInfo ci, HashSet<ItemStackKey> drops) {
-        if (infoPage instanceof TJMultiblockInfoPage && ((TJMultiblockInfoPage) infoPage).hasLayers()) {
+        if (infoPage instanceof IParallelMultiblockInfoPage) {
             IntStream.range(0, GAValues.MAX + 1)
-                    .forEach(i -> this.mbPatterns[i] = ((TJMultiblockInfoPage) infoPage).getMatchingShapes(i).stream()
+                    .forEach(i -> this.mbPatterns[i] = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(i).stream()
                             .map(it -> this.initializePattern2(it, drops))
                             .toArray(MBPattern[]::new));
             this.multiLayer = true;
