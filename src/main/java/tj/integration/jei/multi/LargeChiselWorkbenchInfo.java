@@ -14,6 +14,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.TJConfig;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
@@ -34,7 +35,8 @@ public class LargeChiselWorkbenchInfo extends TJMultiblockInfoPage implements IP
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
         List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             for (int layer = 0; layer < shapeInfo; layer++) {
                 String power = layer == 0 ? "CEC" : "CCC";

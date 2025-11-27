@@ -20,6 +20,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
@@ -39,7 +40,8 @@ public class LargeRockBreakerInfo extends TJMultiblockInfoPage implements IParal
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
         List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        for (int shapeInfo = 0; shapeInfo <= 64; shapeInfo++) {
+        int size = Math.min(TJConfig.machines.maxLayersInJEI, 64);
+        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             builder.aisle("~~VEV~~", "~~VMV~~", "~~VVV~~");
             builder.aisle("FFVVVHH", "FfVGVfH", "FFVVVHH");

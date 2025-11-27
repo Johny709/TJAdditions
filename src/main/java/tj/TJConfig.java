@@ -30,6 +30,11 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public boolean theOneProbeInfoProviderOverrides = true;
 
+        @Config.Name("Max Extendable Layers Shown In JEI")
+        @Config.Comment("Set the maximum amount of layers to be shown in JEI preview of extendable multiblocks")
+        @Config.RequiresMcRestart
+        public int maxLayersInJEI = 16;
+
     }
 
     @Config.Comment("Industrial Fusion Reactor")

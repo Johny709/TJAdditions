@@ -12,6 +12,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
@@ -34,7 +35,8 @@ public class ParallelVacuumFreezerInfo extends TJMultiblockInfoPage implements I
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
         List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
             for (int layer = 0; layer < shapeInfo; layer++) {
                 String entityP = layer == 0 ? "CCCCC" : "CCPCC";
