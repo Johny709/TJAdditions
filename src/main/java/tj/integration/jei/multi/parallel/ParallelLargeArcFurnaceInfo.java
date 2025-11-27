@@ -16,9 +16,8 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
@@ -34,36 +33,36 @@ public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage implements
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
-                    for (int layer = 0; layer < shapeInfo; layer++) {
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
+            for (int layer = 0; layer < shapeInfo; layer++) {
 
-                        String entityS = layer == shapeInfo - 1 ? "~GSG~" : "~GGG~";
+                String entityS = layer == shapeInfo - 1 ? "~GSG~" : "~GGG~";
 
-                        builder.aisle("~CCC~", "CCcCC", "CCcCC", "CCcCC", "~CCC~");
-                        builder.aisle(entityS, "GT#TG", "GP#PG", "GT#TG", "~GGG~");
-                    }
-                    return builder.aisle("~IMO~", "CCcCC", "CCcCC", "CCcCC", "~iEo~");
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), WEST)
-                                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
-                                .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                                .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
-                                .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
-                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                                .where('E', this.getEnergyHatch(tier, false), EAST)
-                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                                .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], EAST)
-                                .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                                .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], EAST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+                builder.aisle("~CCC~", "CCcCC", "CCcCC", "CCcCC", "~CCC~");
+                builder.aisle(entityS, "GT#TG", "GP#PG", "GT#TG", "~GGG~");
+            }
+            builder.aisle("~IMO~", "CCcCC", "CCcCC", "CCcCC", "~iEo~");
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), WEST)
+                        .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
+                        .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
+                        .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
+                        .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                        .where('E', this.getEnergyHatch(tier, false), EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], EAST)
+                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], EAST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override

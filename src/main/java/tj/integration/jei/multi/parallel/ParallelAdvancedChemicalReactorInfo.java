@@ -20,9 +20,8 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
@@ -39,51 +38,51 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
-                    if (!(shapeInfo % 2 == 0)) {
-                        builder.aisle("C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~");
-                        builder.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
-                        builder.aisle("C~~~C~F~~~F~~~~~~", "CPPPPPPPP~~~~~~~~", "CmmmC~~PpP~~~~~~~", "CPPPPPPPP~~~~~~~~", "C~~~C~F~~~F~~~~~~");
-                        builder.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
-                    } else {
-                        builder.aisle("C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C");
-                        builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
-                        builder.aisle("C~~~C~F~~~F~C~~~C", "CPPPPPPPPPPPPPPPC", "CmmmC~~PpP~~CmmmC", "CPPPPPPPPPPPPPPPC", "C~~~C~F~~~F~C~~~C");
-                        builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
-                    }
-                    for (int layer = 1; layer < shapeInfo; layer++) {
-                        if (layer % 2 == 0) {
-                            builder.aisle("C~~~C~F~~~F~C~~~C", "CCCCC~~~P~~~CCCCC", "C~~~C~~PpP~~C~~~C", "CCCCC~~~P~~~CCCCC", "C~~~C~F~~~F~C~~~C");
-                            builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
-                            builder.aisle("C~~~C~F~~~F~C~~~C", "CPPPPPPPPPPPPPPPC", "CmmmC~~PpP~~CmmmC", "CPPPPPPPPPPPPPPPC", "C~~~C~F~~~F~C~~~C");
-                            builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
-                        }
-                    }
-                    return builder.aisle(shapeInfo > 1 ?
-                            new String[]{"C~~~C~IiSOo~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CMECC~C~~~C"} :
-                            new String[]{"C~~~C~IiSOo~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CMECC~~~~~~"});
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), WEST)
-                                .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
-                                .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
-                                .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
-                                .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
-                                .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                                .where('E', this.getEnergyHatch(tier, false), EAST)
-                                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], WEST)
-                                .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], WEST)
-                                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], WEST)
-                                .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], WEST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+            if (!(shapeInfo % 2 == 0)) {
+                builder.aisle("C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~");
+                builder.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
+                builder.aisle("C~~~C~F~~~F~~~~~~", "CPPPPPPPP~~~~~~~~", "CmmmC~~PpP~~~~~~~", "CPPPPPPPP~~~~~~~~", "C~~~C~F~~~F~~~~~~");
+                builder.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
+            } else {
+                builder.aisle("C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C");
+                builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
+                builder.aisle("C~~~C~F~~~F~C~~~C", "CPPPPPPPPPPPPPPPC", "CmmmC~~PpP~~CmmmC", "CPPPPPPPPPPPPPPPC", "C~~~C~F~~~F~C~~~C");
+                builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
+            }
+            for (int layer = 1; layer < shapeInfo; layer++) {
+                if (layer % 2 == 0) {
+                    builder.aisle("C~~~C~F~~~F~C~~~C", "CCCCC~~~P~~~CCCCC", "C~~~C~~PpP~~C~~~C", "CCCCC~~~P~~~CCCCC", "C~~~C~F~~~F~C~~~C");
+                    builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
+                    builder.aisle("C~~~C~F~~~F~C~~~C", "CPPPPPPPPPPPPPPPC", "CmmmC~~PpP~~CmmmC", "CPPPPPPPPPPPPPPPC", "C~~~C~F~~~F~C~~~C");
+                    builder.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
+                }
+            }
+            builder.aisle(shapeInfo > 1 ?
+                    new String[]{"C~~~C~IiSOo~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CMECC~C~~~C"} :
+                    new String[]{"C~~~C~IiSOo~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CMECC~~~~~~"});
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), WEST)
+                        .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
+                        .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
+                        .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
+                        .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
+                        .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                        .where('E', this.getEnergyHatch(tier, false), EAST)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], WEST)
+                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], WEST)
+                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], WEST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override

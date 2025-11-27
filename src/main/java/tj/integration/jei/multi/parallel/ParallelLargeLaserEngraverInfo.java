@@ -21,9 +21,8 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
@@ -39,35 +38,35 @@ public class ParallelLargeLaserEngraverInfo extends TJMultiblockInfoPage impleme
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
-                    for (int layer = 0; layer < shapeInfo; layer++) {
-                        String energ = layer == 0 ? "CEC" : "CCC";
-                        builder.aisle(energ, "CGC", "CCC", "~C~");
-                        builder.aisle("CCC", "GcG", "CeC", "CBC");
-                    }
-                    return builder.aisle("iMo", "ISO", "CCC", "~C~");
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), WEST)
-                                .where('C', GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.LASER_ENGRAVER))
-                                .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.IRIDIUM_GLASS))
-                                .where('B', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX))
-                                .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('e', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                                .where('E', this.getEnergyHatch(tier, false), EAST)
-                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
-                                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                                .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            for (int layer = 0; layer < shapeInfo; layer++) {
+                String energ = layer == 0 ? "CEC" : "CCC";
+                builder.aisle(energ, "CGC", "CCC", "~C~");
+                builder.aisle("CCC", "GcG", "CeC", "CBC");
+            }
+            builder.aisle("iMo", "ISO", "CCC", "~C~");
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), WEST)
+                        .where('C', GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.LASER_ENGRAVER))
+                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.IRIDIUM_GLASS))
+                        .where('B', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX))
+                        .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('e', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                        .where('E', this.getEnergyHatch(tier, false), EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
+                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override

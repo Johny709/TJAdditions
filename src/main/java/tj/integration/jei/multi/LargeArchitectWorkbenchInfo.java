@@ -16,49 +16,49 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.builder.multicontrollers.ExtendableMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class LargeArchitectWorkbenchInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
-    public MultiblockControllerBase getController() {
+    public ExtendableMultiblockController getController() {
         return TJMetaTileEntities.LARGE_ARCHITECT_WORKBENCH;
     }
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
-                    for (int layer = 0; layer < shapeInfo; layer++) {
-                        String power = layer == 0 ? "CEC" : "CCC";
-                        builder.aisle(power, "CCC", "~~~", "~~~");
-                        builder.aisle("CCC", "CcC", "C#C", "CrC");
-                    }
-                    return builder.aisle("CMC", "ISO", "~~~", "~~~");
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
-                                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
-                                .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('r', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                                .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+            for (int layer = 0; layer < shapeInfo; layer++) {
+                String power = layer == 0 ? "CEC" : "CCC";
+                builder.aisle(power, "CCC", "~~~", "~~~");
+                builder.aisle("CCC", "CcC", "C#C", "CrC");
+            }
+            builder.aisle("CMC", "ISO", "~~~", "~~~");
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
+                        .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
+                        .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('r', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                        .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override

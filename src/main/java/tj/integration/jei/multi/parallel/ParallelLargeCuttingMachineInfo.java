@@ -16,9 +16,8 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
@@ -33,41 +32,41 @@ public class ParallelLargeCuttingMachineInfo extends TJMultiblockInfoPage implem
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
-                    if (shapeInfo % 2 == 0) {
-                        builder.aisle("CCCCCCC", "C#CEC#C", "C#C~C#C");
-                        builder.aisle("CcCCCcC", "CmCCCmC", "C#C~C#C");
-                    } else {
-                        builder.aisle("~~CCCCC", "~~CEC#C", "~~~~C#C");
-                        builder.aisle("~~CCCcC", "~~CCCmC", "~~~~C#C");
-                    }
-                    for (int layer = 1; layer < shapeInfo; layer++) {
-                        if (layer % 2 == 0) {
-                            builder.aisle("CCCCCCC", "C#CCC#C", "C#C~C#C");
-                            builder.aisle("CcCCCcC", "CmCCCmC", "C#C~C#C");
-                        }
-                    }
-                    return builder.aisle(shapeInfo > 1 ?
-                            new String[]{"CCiMCCC", "C#ISO#C", "C#C~C#C"} :
-                            new String[]{"~~CiMCC", "~~ISO#C", "~~~~C#C"});
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), WEST)
-                                .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
-                                .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
-                                .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                                .where('E', this.getEnergyHatch(tier, false), EAST)
-                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            if (shapeInfo % 2 == 0) {
+                builder.aisle("CCCCCCC", "C#CEC#C", "C#C~C#C");
+                builder.aisle("CcCCCcC", "CmCCCmC", "C#C~C#C");
+            } else {
+                builder.aisle("~~CCCCC", "~~CEC#C", "~~~~C#C");
+                builder.aisle("~~CCCcC", "~~CCCmC", "~~~~C#C");
+            }
+            for (int layer = 1; layer < shapeInfo; layer++) {
+                if (layer % 2 == 0) {
+                    builder.aisle("CCCCCCC", "C#CCC#C", "C#C~C#C");
+                    builder.aisle("CcCCCcC", "CmCCCmC", "C#C~C#C");
+                }
+            }
+            builder.aisle(shapeInfo > 1 ?
+                    new String[]{"CCiMCCC", "C#ISO#C", "C#C~C#C"} :
+                    new String[]{"~~CiMCC", "~~ISO#C", "~~~~C#C"});
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), WEST)
+                        .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
+                        .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
+                        .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                        .where('E', this.getEnergyHatch(tier, false), EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override

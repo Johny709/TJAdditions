@@ -19,9 +19,8 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
@@ -37,30 +36,30 @@ public class ParallelLargeBendingAndFormingInfo extends TJMultiblockInfoPage imp
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
-                    builder.aisle("CCECC", "CCCCC", "CPCPC");
-                    for (int layer = 0; layer < shapeInfo; layer++) {
-                        builder.aisle("CCCCC", "CmpmC", "CPCPC");
-                    }
-                    return builder.aisle("CCMCC", "CISOC", "CPCPC");
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), WEST)
-                                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.TITANIUM_STABLE))
-                                .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
-                                .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('p', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('M', this.getEnergyHatch(tier, false), WEST)
-                                .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
-                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[2], WEST)
-                                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[2], WEST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            builder.aisle("CCECC", "CCCCC", "CPCPC");
+            for (int layer = 0; layer < shapeInfo; layer++) {
+                builder.aisle("CCCCC", "CmpmC", "CPCPC");
+            }
+            builder.aisle("CCMCC", "CISOC", "CPCPC");
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), WEST)
+                        .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.TITANIUM_STABLE))
+                        .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
+                        .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('p', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('M', this.getEnergyHatch(tier, false), WEST)
+                        .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[2], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[2], WEST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override

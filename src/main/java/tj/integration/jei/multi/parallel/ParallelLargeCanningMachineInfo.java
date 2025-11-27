@@ -19,9 +19,8 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
@@ -37,32 +36,32 @@ public class ParallelLargeCanningMachineInfo extends TJMultiblockInfoPage implem
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
-                    builder.aisle("~~P~~", "~MPE~", "PPPPP", "~CPC~", "~~P~~");
-                    for (int layer = 0; layer < shapeInfo; layer++) {
-                        builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
-                    }
-                    return builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~");
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), WEST)
-                                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
-                                .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
-                                .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
-                                .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                                .where('E', this.getEnergyHatch(tier, false), EAST)
-                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                                .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                                .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                                .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            builder.aisle("~~P~~", "~MPE~", "PPPPP", "~CPC~", "~~P~~");
+            for (int layer = 0; layer < shapeInfo; layer++) {
+                builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
+            }
+            builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~");
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), WEST)
+                        .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
+                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
+                        .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
+                        .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                        .where('E', this.getEnergyHatch(tier, false), EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override

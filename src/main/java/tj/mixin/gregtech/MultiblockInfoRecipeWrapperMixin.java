@@ -57,15 +57,15 @@ public abstract class MultiblockInfoRecipeWrapperMixin implements IMultiblockInf
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injectMultiblockInfoRecipeWrapper_init(MultiblockInfoPage infoPage, CallbackInfo ci, HashSet<ItemStackKey> drops) {
         if (infoPage instanceof IParallelMultiblockInfoPage) {
+            List<MultiblockShapeInfo[]> shapeInfos = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(new MultiblockShapeInfo[15]);
+            this.mbPatterns = new MBPattern[shapeInfos.size()][15];
             this.multiLayer = true;
-            this.mbPatterns = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(new MultiblockShapeInfo[15]).stream()
-                    .map(shapeInfos -> {
-                        MBPattern[] patterns = new MBPattern[15];
-                        for (int i = 0; i < patterns.length; i++) {
-                            patterns[i] = this.initializePattern_2(shapeInfos[i], drops);
-                        }
-                        return patterns;
-                    }).toArray(MBPattern[][]::new);
+            for (int i = 0; i < shapeInfos.size(); i++) {
+                MultiblockShapeInfo[] infos = shapeInfos.get(i);
+                for (int j = 0; j < infos.length; j++) {
+                    this.mbPatterns[i][j] = this.initializePattern_2(infos[j], drops);
+                }
+            }
         }
     }
 

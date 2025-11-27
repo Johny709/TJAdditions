@@ -16,9 +16,8 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.EnumFacing.EAST;
@@ -34,29 +33,29 @@ public class ParallelLargeForgeHammerInfo extends TJMultiblockInfoPage implement
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        return IntStream.range(1, 17)
-                .mapToObj(shapeInfo -> {
-                    GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
-                    for (int layer = 0; layer < shapeInfo; layer++) {
-                        String energ = layer == 0 ? "CEC" : "CCC";
-                        builder.aisle(energ, "~C~", "~~~", "~~~", "~~~");
-                        builder.aisle("CCC", "CCC", "C#C", "CPC", "CCC");
-                    }
-                    return builder.aisle("ISO", "~M~", "~~~", "~~~", "~~~");
-                }).map(builder -> {
-                    MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
-                    for (int tier = 0; tier < infos.length; tier++) {
-                        infos[tier] = builder.where('S', this.getController(), WEST)
-                                .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.IRON))
-                                .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                                .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                                .where('E', this.getEnergyHatch(tier, false), EAST)
-                                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                                .build();
-                    }
-                    return infos;
-                }).collect(Collectors.toList());
+        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo <= this.getController().getMaxParallel(); shapeInfo++) {
+            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            for (int layer = 0; layer < shapeInfo; layer++) {
+                String energ = layer == 0 ? "CEC" : "CCC";
+                builder.aisle(energ, "~C~", "~~~", "~~~", "~~~");
+                builder.aisle("CCC", "CCC", "C#C", "CPC", "CCC");
+            }
+            builder.aisle("ISO", "~M~", "~~~", "~~~", "~~~");
+            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            for (int tier = 0; tier < infos.length; tier++) {
+                infos[tier] = builder.where('S', this.getController(), WEST)
+                        .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.IRON))
+                        .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                        .where('E', this.getEnergyHatch(tier, false), EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
     }
 
     @Override
