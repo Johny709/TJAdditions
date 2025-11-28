@@ -3,7 +3,6 @@ package tj.mixin.gregtech;
 import gregicadditions.GAValues;
 import gregtech.api.render.scene.WorldSceneRenderer;
 import gregtech.api.util.BlockInfo;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.ItemStackKey;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockInfoRecipeWrapper;

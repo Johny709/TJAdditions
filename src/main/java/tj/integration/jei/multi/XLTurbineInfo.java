@@ -22,8 +22,6 @@ import tj.machines.multi.electric.MetaTileEntityXLTurbine;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
