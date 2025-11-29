@@ -15,10 +15,6 @@ import gregtech.api.recipes.RecipeMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
@@ -107,13 +103,8 @@ public abstract class TJRecipeMapMultiblockControllerBase extends RecipeMapMulti
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        if (!isStructureFormed()) {
-            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
-            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
-                    .setStyle(new Style().setColor(TextFormatting.RED)
-                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip))));
-        }
+        MultiblockDisplaysUtility.recipeMapWorkable(textList, this.isStructureFormed(), this.recipeMapWorkable);
+        MultiblockDisplaysUtility.isInvalid(textList, this.isStructureFormed());
     }
 
     protected boolean getToggleMode() {
