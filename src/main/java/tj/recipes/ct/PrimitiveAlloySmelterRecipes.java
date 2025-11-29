@@ -5,6 +5,7 @@ import gregtech.common.items.MetaItems;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import static gregicadditions.GAMaterials.UraniumRadioactive;
 import static tj.TJRecipeMaps.PRIMITIVE_ALLOY_RECIPES;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.api.unification.ore.OrePrefix.*;
@@ -48,7 +49,7 @@ public class PrimitiveAlloySmelterRecipes {
 
         PRIMITIVE_ALLOY_RECIPES.recipeBuilder()
                 .input(ingot, Iron)
-                .input(dust, Uranium)
+                .input(dust, UraniumRadioactive.getMaterial())
                 .outputs(new ItemStack(Item.getByNameOrId("enderio:item_alloy_ingot"), 1, 5))
                 .duration(160)
                 .buildAndRegister();
@@ -61,28 +62,28 @@ public class PrimitiveAlloySmelterRecipes {
 
         PRIMITIVE_ALLOY_RECIPES.recipeBuilder()
                 .input(ingot, Iron)
-                .input(ingot, Uranium)
+                .input(ingot, UraniumRadioactive.getMaterial())
                 .outputs(new ItemStack(Item.getByNameOrId("enderio:item_alloy_ingot"), 1, 5))
                 .duration(160)
                 .buildAndRegister();
 
         PRIMITIVE_ALLOY_RECIPES.recipeBuilder()
                 .input(dust, Iron)
-                .input(dust, Uranium)
+                .input(dust, UraniumRadioactive.getMaterial())
                 .outputs(new ItemStack(Item.getByNameOrId("enderio:item_alloy_ingot"), 1, 5))
                 .duration(160)
                 .buildAndRegister();
 
         PRIMITIVE_ALLOY_RECIPES.recipeBuilder()
                 .input(ingot, Iron)
-                .input(dust, Uranium)
+                .input(dust, UraniumRadioactive.getMaterial())
                 .outputs(new ItemStack(Item.getByNameOrId("enderio:item_alloy_ingot"), 1, 5))
                 .duration(160)
                 .buildAndRegister();
 
         PRIMITIVE_ALLOY_RECIPES.recipeBuilder()
                 .input(ingot, Iron)
-                .input(dust, Uranium)
+                .input(dust, UraniumRadioactive.getMaterial())
                 .outputs(new ItemStack(Item.getByNameOrId("enderio:item_alloy_ingot"), 1, 5))
                 .duration(160)
                 .buildAndRegister();
