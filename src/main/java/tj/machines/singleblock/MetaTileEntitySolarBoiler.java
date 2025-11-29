@@ -8,11 +8,17 @@ import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.function.Consumer;
 
 public class MetaTileEntitySolarBoiler extends MetaTileEntityCoalBoiler {
+
+    private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
     public MetaTileEntitySolarBoiler(ResourceLocation metaTileEntityId, BoilerType boilerType) {
         super(metaTileEntityId, boilerType);
@@ -20,30 +26,40 @@ public class MetaTileEntitySolarBoiler extends MetaTileEntityCoalBoiler {
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntitySolarBoiler(metaTileEntityId, boilerType);
+        return new MetaTileEntitySolarBoiler(this.metaTileEntityId, this.boilerType);
     }
 
     @Override
     protected boolean canBurn() {
-        return getWorld().isDaytime() && getWorld().canBlockSeeSky(getPos().up()) && !getWorld().isRaining();
+        return this.getWorld().isDaytime() && this.canSeeSky() && !this.getWorld().isRaining();
+    }
+
+    private boolean canSeeSky() {
+        this.pos.setPos(this.getPos().getX(), this.getPos().getY() + 1, this.getPos().getZ());
+        for (int i = this.pos.getY(); i <= this.getWorld().getHeight(); this.pos.setPos(this.pos.getX(), ++i, this.pos.getZ())) {
+            if (this.getWorld().getBlockState(this.pos).getBlock() != Blocks.AIR)
+                return false;
+        }
+        return true;
     }
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new ImageWidget(120, 15, 40, 40, isActive() ? boilerType.getSun() : boilerType.getMoon()));
+        widget.accept(new ImageWidget(120, 15, 40, 40, this.isActive() ? this.boilerType.getSun() : this.boilerType.getMoon()));
     }
 
     @Override
     public int getProgress() {
-        return canBurn() ? (int) (getWorld().getWorldTime() % (24000 / Math.pow(2, 0))) : 0;
+        return this.canBurn() ? (int) this.getWorld().getWorldTime() % 24000 : 0;
     }
 
     @Override
     public int getMaxProgress() {
-        return 12000;
+        return 12540;
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.SOLAR_BOILER_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), isActive());
