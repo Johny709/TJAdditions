@@ -56,10 +56,6 @@ public class PlayerWorldIDData extends WorldSavedData {
         }
     }
 
-    public void setDirty() {
-        INSTANCE.markDirty();
-    }
-
     public void setInstance(PlayerWorldIDData instance) {
         INSTANCE = instance;
     }

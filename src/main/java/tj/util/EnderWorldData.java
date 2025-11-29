@@ -147,10 +147,6 @@ public class EnderWorldData extends WorldSavedData {
         }
     }
 
-    public void setDirty() {
-        INSTANCE.markDirty();
-    }
-
     public void setInstance(EnderWorldData instance) {
         INSTANCE = instance;
     }

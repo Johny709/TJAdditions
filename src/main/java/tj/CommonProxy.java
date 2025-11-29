@@ -88,17 +88,17 @@ public class CommonProxy {
     @SubscribeEvent
     public static void onWorldUnload(WorldEvent.Unload event) {
         if (EnderWorldData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
-            EnderWorldData.getINSTANCE().setDirty();
+            EnderWorldData.getINSTANCE().markDirty();
         if (PlayerWorldIDData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
-            PlayerWorldIDData.getINSTANCE().setDirty();
+            PlayerWorldIDData.getINSTANCE().markDirty();
     }
 
     @SubscribeEvent
     public static void onWorldSave(WorldEvent.Save event) {
         if (EnderWorldData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
-            EnderWorldData.getINSTANCE().setDirty();
+            EnderWorldData.getINSTANCE().markDirty();
         if (PlayerWorldIDData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
-            PlayerWorldIDData.getINSTANCE().setDirty();
+            PlayerWorldIDData.getINSTANCE().markDirty();
     }
 
     @SubscribeEvent
