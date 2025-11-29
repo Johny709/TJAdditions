@@ -1,6 +1,8 @@
 package tj;
 
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
 import tj.items.TJMetaItems;
@@ -75,22 +77,28 @@ public class CommonProxy {
 
         if (enderWorldData == null) {
             storage.setData("EnderWorldData", new EnderWorldData("EnderWorldData"));
-        } else enderWorldData.setInstance(enderWorldData);
+        } else if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+            enderWorldData.setInstance(enderWorldData);
         if (playerWorldData == null) {
             storage.setData("PlayerWorldListData", new PlayerWorldIDData("PlayerWorldListData"));
-        } else playerWorldData.setInstance(playerWorldData);
+        } else if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+            playerWorldData.setInstance(playerWorldData);
     }
 
     @SubscribeEvent
     public static void onWorldUnload(WorldEvent.Unload event) {
-        EnderWorldData.getINSTANCE().setDirty();
-        PlayerWorldIDData.getINSTANCE().setDirty();
+        if (EnderWorldData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+            EnderWorldData.getINSTANCE().setDirty();
+        if (PlayerWorldIDData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+            PlayerWorldIDData.getINSTANCE().setDirty();
     }
 
     @SubscribeEvent
     public static void onWorldSave(WorldEvent.Save event) {
-        EnderWorldData.getINSTANCE().setDirty();
-        PlayerWorldIDData.getINSTANCE().setDirty();
+        if (EnderWorldData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+            EnderWorldData.getINSTANCE().setDirty();
+        if (PlayerWorldIDData.getINSTANCE() != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+            PlayerWorldIDData.getINSTANCE().setDirty();
     }
 
     @SubscribeEvent

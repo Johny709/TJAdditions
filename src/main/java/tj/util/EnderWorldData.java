@@ -148,14 +148,10 @@ public class EnderWorldData extends WorldSavedData {
     }
 
     public void setDirty() {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER && INSTANCE != null) {
-            INSTANCE.markDirty();
-        }
+        INSTANCE.markDirty();
     }
 
     public void setInstance(EnderWorldData instance) {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
-            INSTANCE = instance;
-        }
+        INSTANCE = instance;
     }
 }
