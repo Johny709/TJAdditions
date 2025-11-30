@@ -24,10 +24,10 @@ public class TJMetaBlocks {
     public static BlockPipeCasings PIPE_CASING;
     public static BlockFusionCasings FUSION_CASING;
     public static BlockFusionGlass FUSION_GLASS;
+    public static AbilityBlocks ABILITY_BLOCKS;
 
     public static void init() {
         SOLID_CASING = new BlockSolidCasings();
-        SOLID_CASING.setRegistryName("solid_casing");
 
         ENERGY_PORT_CASINGS.add(ENERGY_PORT_CASING = new EnergyPortCasings(2));
         ENERGY_PORT_CASINGS.add(new EnergyPortCasings(4));
@@ -44,13 +44,9 @@ public class TJMetaBlocks {
         ADV_ENERGY_PORT_CASINGS.add(new AdvEnergyPortCasings(256));
 
         PIPE_CASING = new BlockPipeCasings();
-        PIPE_CASING.setRegistryName("pipe_casing");
-
         FUSION_CASING = new BlockFusionCasings();
-        FUSION_CASING.setRegistryName("fusion_casing");
-
         FUSION_GLASS = new BlockFusionGlass();
-        FUSION_GLASS.setRegistryName("fusion_glass");
+        ABILITY_BLOCKS = new AbilityBlocks();
 
     }
 
@@ -60,6 +56,7 @@ public class TJMetaBlocks {
         registerItemModel(PIPE_CASING);
         registerItemModel(FUSION_CASING);
         registerItemModel(FUSION_GLASS);
+        registerItemModel(ABILITY_BLOCKS);
         ENERGY_PORT_CASINGS.forEach(TJMetaBlocks::registerItemModel);
         ADV_ENERGY_PORT_CASINGS.forEach(TJMetaBlocks::registerItemModel);
     }

@@ -13,12 +13,13 @@ public class BlockFusionCasings extends VariantBlock<BlockFusionCasings.FusionTy
 
     public BlockFusionCasings() {
         super(Material.IRON);
-        setHardness(5.0f);
-        setResistance(10.0f);
-        setTranslationKey("fusion_casing");
-        setSoundType(SoundType.METAL);
-        setHarvestLevel("wrench", 2);
-        setDefaultState(getState(FusionType.FUSION_CASING_UHV));
+        this.setHardness(5.0f);
+        this.setResistance(10.0f);
+        this.setTranslationKey("fusion_casing");
+        this.setRegistryName("fusion_casing");
+        this.setSoundType(SoundType.METAL);
+        this.setHarvestLevel("wrench", 2);
+        this.setDefaultState(getState(FusionType.FUSION_CASING_UHV));
     }
 
     @Override

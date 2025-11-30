@@ -14,12 +14,13 @@ public class BlockSolidCasings extends VariantBlock<BlockSolidCasings.SolidCasin
 
     public BlockSolidCasings() {
         super(Material.IRON);
-        setHardness(5.0f);
-        setResistance(10.0f);
-        setTranslationKey("solid_casing");
-        setSoundType(SoundType.METAL);
-        setHarvestLevel("wrench", 2);
-        setDefaultState(getState(SolidCasingType.DRACONIC_CASING));
+        this.setHardness(5.0f);
+        this.setResistance(10.0f);
+        this.setTranslationKey("solid_casing");
+        this.setRegistryName("solid_casing");
+        this.setSoundType(SoundType.METAL);
+        this.setHarvestLevel("wrench", 2);
+        this.setDefaultState(getState(SolidCasingType.DRACONIC_CASING));
     }
 
     @Override

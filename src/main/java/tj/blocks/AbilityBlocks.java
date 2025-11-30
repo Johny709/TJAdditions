@@ -9,19 +9,17 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-import javax.annotation.Nonnull;
+public class AbilityBlocks extends VariantBlock<AbilityBlocks.AbilityType> {
 
-public class BlockPipeCasings extends VariantBlock<BlockPipeCasings.PipeCasingType> {
-
-    public BlockPipeCasings() {
+    public AbilityBlocks() {
         super(Material.IRON);
         this.setHardness(5.0f);
         this.setResistance(10.0f);
-        this.setTranslationKey("pipe_casing");
-        this.setRegistryName("pipe_casing");
+        this.setTranslationKey("ability_block");
+        this.setRegistryName("ability_block");
         this.setSoundType(SoundType.METAL);
         this.setHarvestLevel("wrench", 2);
-        this.setDefaultState(getState(PipeCasingType.STAINLESS_PIPE_CASING));
+        this.setDefaultState(getState(AbilityType.SOLAR_CONNECTOR));
     }
 
     @Override
@@ -29,16 +27,15 @@ public class BlockPipeCasings extends VariantBlock<BlockPipeCasings.PipeCasingTy
         return false;
     }
 
-    public enum PipeCasingType implements IStringSerializable {
-        STAINLESS_PIPE_CASING("stainless_pipe");
+    public enum AbilityType implements IStringSerializable {
+        SOLAR_CONNECTOR("solar_connector");
 
         private final String name;
 
-        PipeCasingType(String name) {
+        AbilityType(String name) {
             this.name = name;
         }
 
-        @Nonnull
         @Override
         public String getName() {
             return this.name;

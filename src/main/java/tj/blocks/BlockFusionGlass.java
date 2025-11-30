@@ -25,12 +25,13 @@ public class BlockFusionGlass extends VariantBlock<BlockFusionGlass.GlassType> {
 
     public BlockFusionGlass() {
         super(Material.IRON);
-        setHardness(5.0f);
-        setResistance(10.0f);
-        setTranslationKey("fusion_glass");
-        setSoundType(SoundType.GLASS);
-        setHarvestLevel("wrench", 2);
-        setDefaultState(getState(GlassType.FUSION_GLASS_LUV));
+        this.setHardness(5.0f);
+        this.setResistance(10.0f);
+        this.setTranslationKey("fusion_glass");
+        this.setRegistryName("fusion_glass");
+        this.setSoundType(SoundType.GLASS);
+        this.setHarvestLevel("wrench", 2);
+        this.setDefaultState(getState(GlassType.FUSION_GLASS_LUV));
     }
 
     @Override
