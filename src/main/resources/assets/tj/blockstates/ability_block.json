@@ -10,7 +10,7 @@
   },
   "variants": {
     "variant": {
-      "solar_connector": {
+      "solar_collector": {
         "textures": {
           "bottom": "gregtech:blocks/casings/solid/machine_casing_solid_steel",
           "top": "gregtech:blocks/generators/boiler/solar/overlay_top",

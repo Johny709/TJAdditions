@@ -86,6 +86,7 @@ tj.machine.large_enchanter.name=Large Enchanter (LE)
 tj.machine.large_crafter.name=Large Crafter (LC)
 tj.machine.mega_fusion.name=Mega Fusion (MF)
 tj.machine.ender_battery_tower.name=Ender Battery Tower (EBT)
+tj.machine.large_solar_boiler.name=Large Solar Boiler (LSB)
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II
@@ -295,6 +296,7 @@ tj.machine.crafter.tooltip=Click on recipe output slot to add to recipe list on 
 
 tj.multiblock.large_boiler.insert_item=Insert Item
 tj.multiblock.large_boiler.insert_burnable.name=Insert Burnable
+tj.multiblock.large_solar_boiler.obstructed=Sky Obstructed
 
 tj.multiblock.extreme_turbine.norotor=No Rotor
 tj.multiblock.extreme_turbine.insertrotor=Insert Rotor

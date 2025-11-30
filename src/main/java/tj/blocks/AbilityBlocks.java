@@ -19,7 +19,7 @@ public class AbilityBlocks extends VariantBlock<AbilityBlocks.AbilityType> {
         this.setRegistryName("ability_block");
         this.setSoundType(SoundType.METAL);
         this.setHarvestLevel("wrench", 2);
-        this.setDefaultState(getState(AbilityType.SOLAR_CONNECTOR));
+        this.setDefaultState(getState(AbilityType.SOLAR_COLLECTOR));
     }
 
     @Override
@@ -28,7 +28,7 @@ public class AbilityBlocks extends VariantBlock<AbilityBlocks.AbilityType> {
     }
 
     public enum AbilityType implements IStringSerializable {
-        SOLAR_CONNECTOR("solar_connector");
+        SOLAR_COLLECTOR("solar_collector");
 
         private final String name;
 
