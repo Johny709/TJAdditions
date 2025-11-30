@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import gregicadditions.GAEnums;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
@@ -178,7 +179,7 @@ public class RecipeInit {
 
         ModHandler.addShapedRecipe("steel_solar_boiler", SOLAR_BOILER[1].getStackForm(), "GGG", "SSS", "PBP",
                 'G', Blocks.GLASS,
-                'S', new UnificationEntry(OrePrefix.plate, Silver),
+                'S', new UnificationEntry(GAEnums.GAOrePrefix.plateDouble, Silver),
                 'P', new UnificationEntry(OrePrefix.pipeMedium, Steel),
                 'B', MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL));
         ModHandler.addShapelessRecipe("steel_coal_boiler", COAL_BOILER[1].getStackForm(), MetaTileEntities.STEAM_BOILER_COAL_STEEL.getStackForm());
@@ -186,7 +187,7 @@ public class RecipeInit {
 
         ModHandler.addShapedRecipe("lv_solar_boiler", SOLAR_BOILER[2].getStackForm(), "GGG", "SSS", "PBP",
                 'G', Blocks.GLASS,
-                'S', new UnificationEntry(OrePrefix.plate, Silver),
+                'S', new UnificationEntry(GAEnums.GAOrePrefix.plateDouble, Silver),
                 'P', new UnificationEntry(OrePrefix.pipeLarge, Steel),
                 'B', MetaTileEntities.HULL[1].getStackForm());
 
