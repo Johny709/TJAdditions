@@ -27,6 +27,8 @@ public class TJGuiTextures {
     public static final TextureArea CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
     public static final TextureArea UNLOCK_LOCK = TextureArea.fullImage("textures/gui/widget/unlock_lock.png");
 
+    public static final TextureArea ENERGY_VOID = TextureArea.fullImage("textures/gui/widget/button_energy_void.png");
+
     public static final TextureArea SUN_BRONZE = TextureArea.fullImage("textures/gui/steam/bronze/boiler_sun_active.png");
     public static final TextureArea SUN_STEEL = TextureArea.fullImage("textures/gui/steam/steel/boiler_sun_active.png");
     public static final TextureArea MOON_BRONZE = TextureArea.fullImage("textures/gui/steam/bronze/boiler_sun.png");

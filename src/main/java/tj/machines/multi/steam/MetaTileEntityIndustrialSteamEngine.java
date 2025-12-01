@@ -8,6 +8,9 @@ import gregicadditions.GAValues;
 import gregtech.api.capability.*;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidFuelInfo;
+import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.render.Textures;
 import net.minecraft.nbt.NBTTagCompound;
@@ -51,6 +54,8 @@ import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -102,7 +107,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
                 .custom(text -> {
                     text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
                             net.minecraft.util.text.translation.I18n.translateToLocal(this.workableHandler.getFuelName()),
-                           this.workableHandler.getMaxProgress() / 20)));
+                            this.workableHandler.getMaxProgress() / 20)));
                     FluidStack fuelStack = this.workableHandler.getFuelStack();
                     int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
@@ -113,9 +118,20 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
                     text.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", efficiency * 100).setStyle(new Style().setColor(AQUA)));
 
-                    if (this.energyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
+                    if (!this.workableHandler.isVoidEnergy() && this.energyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
                         text.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
                 }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+    }
+
+    @Override
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new TJToggleButtonWidget(172, 151, 18, 18)
+                .setToggleButtonResponder(this.workableHandler::setVoidEnergy)
+                .setButtonSupplier(this.workableHandler::isVoidEnergy)
+                .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                .setBackgroundTextures(TJGuiTextures.ENERGY_VOID)
+                .useToggleTexture(true));
     }
 
     @Override
@@ -128,8 +144,15 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
     }
 
     @Override
-    protected void updateFormedValid() {
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
 
+    @Override
+    protected void updateFormedValid() {
+        if (!(((this.getProblems() >> 5) & 1) == 0)) {
+            this.workableHandler.update();
+        }
     }
 
     @Override
@@ -229,6 +252,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         private final FuelRecipeMap recipeMap;
         private FuelRecipe previousRecipe;
         private String fuelName;
+        private boolean voidEnergy;
         private long energyProduced;
         private int consumption;
 
@@ -245,8 +269,10 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         @Override
         protected void progressRecipe(int progress) {
             this.progress++;
-            this.exportEnergySupplier.get().addEnergy(this.energyProduced);
-            this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(this.consumption / 160), true);
+            if (this.voidEnergy || this.exportEnergySupplier.get().getEnergyCanBeInserted() >= this.energyProduced) {
+                this.exportEnergySupplier.get().addEnergy(this.energyProduced);
+                this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(this.consumption / 160), true);
+            }
         }
 
         public FluidStack getFuelStack() {
@@ -364,29 +390,52 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         @Override
         public NBTTagCompound serializeNBT() {
             NBTTagCompound tagCompound = super.serializeNBT();
-            tagCompound.setInteger("Consumption", this.consumption);
-            tagCompound.setString("FuelName", this.fuelName);
-            tagCompound.setLong("Energy", this.energyProduced);
+            tagCompound.setInteger("consumption", this.consumption);
+            tagCompound.setString("fuelName", this.fuelName);
+            tagCompound.setLong("energy", this.energyProduced);
+            tagCompound.setBoolean("voidEnergy", this.voidEnergy);
             return tagCompound;
         }
 
         @Override
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
-            this.consumption = compound.getInteger("Consumption");
-            this.fuelName = compound.getString("FuelName");
-            this.energyProduced = compound.getLong("Energy");
+            this.consumption = compound.getInteger("consumption");
+            this.fuelName = compound.getString("fuelName");
+            this.energyProduced = compound.getLong("energy");
+            this.voidEnergy = compound.getBoolean("voidEnergy");
         }
 
         @Override
         public <T> T getCapability(Capability<T> capability) {
             if (capability == TJCapabilities.CAPABILITY_GENERATOR)
                 return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
+            if (capability == GregtechCapabilities.CAPABILITY_FUELABLE)
+                return GregtechCapabilities.CAPABILITY_FUELABLE.cast(this);
             return super.getCapability(capability);
+        }
+
+        public void setVoidEnergy(boolean voidEnergy, String id) {
+            this.voidEnergy = voidEnergy;
+            this.metaTileEntity.markDirty();
+        }
+
+        public boolean isVoidEnergy() {
+            return this.voidEnergy;
         }
 
         public String getFuelName() {
             return this.fuelName;
+        }
+
+        @Override
+        public long getProduction() {
+            return this.energyProduced;
+        }
+
+        @Override
+        public long getConsumption() {
+            return this.consumption;
         }
 
         @Override
