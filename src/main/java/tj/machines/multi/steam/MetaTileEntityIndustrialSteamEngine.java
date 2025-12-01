@@ -1,9 +1,22 @@
 package tj.machines.multi.steam;
 
-import tj.builder.handlers.TJFuelRecipeLogic;
+import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.vec.Matrix4;
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
+import gregtech.api.capability.*;
+import gregtech.api.capability.impl.EnergyContainerList;
+import gregtech.api.capability.impl.FluidFuelInfo;
+import gregtech.api.recipes.machines.FuelRecipeMap;
+import gregtech.api.render.Textures;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
-import tj.builder.multicontrollers.MultiblockDisplaysUtility;
-import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -12,9 +25,7 @@ import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -36,26 +47,38 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
+import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.IGeneratorInfo;
+import tj.capability.TJCapabilities;
+import tj.capability.impl.AbstractWorkableHandler;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
-public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockControllerBase {
+public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS);
+    private IMultipleTankHandler importFluidHandler;
+    private IMultipleTankHandler exportFluidHandler;
+    private IEnergyContainer energyContainer;
     private float efficiency;
+    private long maxVoltage;
     private int tier;
 
     public MetaTileEntityIndustrialSteamEngine(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.STEAM_TURBINE_FUELS, 0);
+        super(metaTileEntityId);
+        this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
+                .setExportFluidsSupplier(this::getExportFluidHandler)
+                .setExportEnergySupplier(this::getEnergyContainer)
+                .setMaxVoltageSupplier(this::getMaxVoltage)
+                .setTierSupplier(this::getTier);
     }
 
     @Override
@@ -64,6 +87,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.industrial_steam_engine.description"));
@@ -71,56 +95,26 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
 
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
-        if (!isStructureFormed()) {
-            MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
-            return;
-        }
-        TJFuelRecipeLogic recipeLogic = (TJFuelRecipeLogic) workableHandler;
+        super.addDisplayText(textList);
+        if (!isStructureFormed()) return;
         MultiblockDisplayBuilder.start(textList)
                 .custom(text -> {
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", recipeLogic.getConsumption(),
-                            net.minecraft.util.text.translation.I18n.translateToLocal(recipeLogic.getFuelName()),
-                            recipeLogic.getMaxProgress() / 20)));
-                    FluidStack fuelStack = recipeLogic.getFuelStack();
+                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
+                            net.minecraft.util.text.translation.I18n.translateToLocal(this.workableHandler.getFuelName()),
+                           this.workableHandler.getMaxProgress() / 20)));
+                    FluidStack fuelStack = this.workableHandler.getFuelStack();
                     int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
                     ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
                     text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
 
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", recipeLogic.getProduction())));
+                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
 
                     text.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", efficiency * 100).setStyle(new Style().setColor(AQUA)));
 
-                    if (energyContainer.getEnergyCanBeInserted() < recipeLogic.getProduction())
+                    if (this.energyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
                         text.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
-                })
-                .isWorking(recipeLogic.isWorkingEnabled(), recipeLogic.isActive(), recipeLogic.getProgress(), recipeLogic.getMaxProgress());
-    }
-
-    @Override
-    protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        return new TJFuelRecipeLogic(this, recipeMap, () -> energyContainer, () -> importFluidHandler, 0) {
-
-            @Override
-            protected int calculateFuelAmount(FuelRecipe currentRecipe) {
-                return (int) ((super.calculateFuelAmount(currentRecipe) * 2) / ((MetaTileEntityIndustrialSteamEngine) metaTileEntity).getEfficiency());
-            }
-
-            @Override
-            public long getMaxVoltage() {
-                return GTValues.V2[((MetaTileEntityIndustrialSteamEngine) metaTileEntity).getTier()];
-            }
-
-            @Override
-            protected int calculateRecipeDuration(FuelRecipe currentRecipe) {
-                return super.calculateRecipeDuration(currentRecipe) * 2;
-            }
-
-            @Override
-            protected boolean shouldVoidExcessiveEnergy() {
-                return false;
-            }
-        };
+                }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
@@ -133,11 +127,16 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
     }
 
     @Override
+    protected void updateFormedValid() {
+
+    }
+
+    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        fluidTanks.addAll(getAbilities(GregicAdditionsCapabilities.STEAM));
+        fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
 
         int framework = 0, framework2 = 0;
         if (context.get("framework") instanceof GAMultiblockCasing.CasingType) {
@@ -148,9 +147,22 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
         }
         int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        this.energyContainer = new EnergyContainerList(this.getAbilities(MultiblockAbility.OUTPUT_ENERGY));
         this.tier = Math.min(motor, Math.max(framework, framework2));
-        int tier = this.tier - 1;
-        this.efficiency = Math.max(0.1F, (1.0F - (tier / 10.0F)));
+        this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
+        this.efficiency = Math.max(0.1F, (1.0F - (this.tier - 1 / 10.0F)));
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.importFluidHandler = new FluidTankList(true);
+        this.exportFluidHandler = new FluidTankList(true);
+        this.energyContainer = new EnergyContainerList(Collections.emptyList());
+        this.tier = 0;
+        this.maxVoltage = 0;
+        this.efficiency = 0;
     }
 
     @Override
@@ -175,17 +187,221 @@ public class MetaTileEntityIndustrialSteamEngine extends TJFueledMultiblockContr
         return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TUMBAGA);
     }
 
-    public float getEfficiency() {
-        return efficiency;
-    }
-
-    public int getTier() {
-        return tier;
-    }
-
     @Override
-    public ICubeRenderer getBaseTexture(IMultiblockPart iMultiblockPart) {
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return ClientHandler.TUMBAGA_CASING;
     }
 
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive());
+    }
+
+    private IMultipleTankHandler getImportFluidHandler() {
+        return this.importFluidHandler;
+    }
+
+    public IMultipleTankHandler getExportFluidHandler() {
+        return this.exportFluidHandler;
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    public float getEfficiency() {
+        return this.efficiency;
+    }
+
+    public int getTier() {
+        return this.tier;
+    }
+
+    public long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    private static class SteamEngineWorkableHandler extends AbstractWorkableHandler<SteamEngineWorkableHandler> implements IGeneratorInfo, IFuelable {
+
+        private final FuelRecipeMap recipeMap;
+        private FuelRecipe previousRecipe;
+        private String fuelName;
+        private long energyProduced;
+        private int consumption;
+
+        public SteamEngineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap) {
+            super(metaTileEntity);
+            this.recipeMap = recipeMap;
+        }
+
+        @Override
+        protected boolean startRecipe() {
+            return this.tryAcquireNewRecipe();
+        }
+
+        @Override
+        protected void progressRecipe(int progress) {
+            this.progress++;
+
+        }
+
+        public FluidStack getFuelStack() {
+            if (this.previousRecipe == null)
+                return null;
+            FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+            return this.importFluidsSupplier.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+        }
+
+        private boolean tryAcquireNewRecipe() {
+            FluidStack fuelStack = null;
+            for (int i = 0; i < ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTanks(); i++) {
+                IFluidTank tank = ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTankAt(i);
+                FluidStack stack = tank.getFluid();
+                if (stack == null)
+                    continue;
+                if (fuelStack == null)
+                    fuelStack = stack.copy();
+                else if (fuelStack.isFluidEqual(stack)) {
+                    long amount = fuelStack.amount + stack.amount;
+                    fuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
+                }
+            }
+            int fuelAmountUsed = this.tryAcquireNewRecipe(fuelStack);
+            if (fuelAmountUsed > 0) {
+                FluidStack fluidStack = this.importFluidsSupplier.get().drain(fuelAmountUsed, true);
+                this.consumption = fluidStack.amount;
+                this.fuelName = fluidStack.getUnlocalizedName();
+                return true; //recipe is found and ready to use
+            }
+            return false;
+        }
+
+        protected int tryAcquireNewRecipe(FluidStack fluidStack) {
+            FuelRecipe currentRecipe;
+            if (this.previousRecipe != null && this.previousRecipe.matches(this.maxVoltageSupplier.getAsLong(), fluidStack)) {
+                //if previous recipe still matches inputs, try to use it
+                currentRecipe = this.previousRecipe;
+            } else {
+                //else, try searching new recipe for given inputs
+                currentRecipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), fluidStack);
+                //if we found recipe that can be buffered, buffer it
+                if (currentRecipe != null) {
+                    this.previousRecipe = currentRecipe;
+                }
+            }
+            if (currentRecipe != null && checkRecipe(currentRecipe)) {
+                int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
+                if (fluidStack.amount >= fuelAmountToUse) {
+                    this.maxProgress = this.calculateRecipeDuration(currentRecipe);
+                    this.energyProduced = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
+                    return fuelAmountToUse;
+                }
+            }
+            return 0;
+        }
+
+        protected int calculateRecipeDuration(FuelRecipe currentRecipe) {
+            return currentRecipe.getDuration() * 2;
+        }
+
+        protected int calculateFuelAmount(FuelRecipe currentRecipe) {
+            return currentRecipe.getRecipeFluid().amount * getVoltageMultiplier(this.maxVoltageSupplier.getAsLong(), currentRecipe.getMinVoltage());
+        }
+
+        public static int getVoltageMultiplier(long maxVoltage, long minVoltage) {
+            return (int) (maxVoltage / minVoltage);
+        }
+
+        protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
+            return this.maxVoltageSupplier.getAsLong();
+        }
+
+        protected boolean checkRecipe(FuelRecipe recipe) {
+            return true;
+        }
+
+        @Override
+        public Collection<IFuelInfo> getFuels() {
+            final IMultipleTankHandler fluidTanks = (IMultipleTankHandler) this.importFluidsSupplier.get();
+            if (fluidTanks == null)
+                return Collections.emptySet();
+
+            final LinkedHashMap<String, IFuelInfo> fuels = new LinkedHashMap<>();
+            // Fuel capacity is all tanks
+            int fuelCapacity = 0;
+            for (IFluidTank fluidTank : fluidTanks) {
+                fuelCapacity += fluidTank.getCapacity();
+            }
+
+            for (IFluidTank fluidTank : fluidTanks) {
+                final FluidStack tankContents = fluidTank.drain(Integer.MAX_VALUE, false);
+                if (tankContents == null || tankContents.amount <= 0)
+                    continue;
+                int fuelRemaining = tankContents.amount;
+                FuelRecipe recipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), tankContents);
+                if (recipe == null)
+                    continue;
+                int amountPerRecipe = this.calculateFuelAmount(recipe);
+                int duration = this.calculateRecipeDuration(recipe);
+                long fuelBurnTime = (duration * fuelRemaining) / amountPerRecipe;
+
+                FluidFuelInfo fuelInfo = (FluidFuelInfo) fuels.get(tankContents.getUnlocalizedName());
+                if (fuelInfo == null) {
+                    fuelInfo = new FluidFuelInfo(tankContents, fuelRemaining, fuelCapacity, amountPerRecipe, fuelBurnTime);
+                    fuels.put(tankContents.getUnlocalizedName(), fuelInfo);
+                } else {
+                    fuelInfo.addFuelRemaining(fuelRemaining);
+                    fuelInfo.addFuelBurnTime(fuelBurnTime);
+                }
+            }
+            return fuels.values();
+        }
+
+        @Override
+        public NBTTagCompound serializeNBT() {
+            NBTTagCompound tagCompound = super.serializeNBT();
+            tagCompound.setInteger("Consumption", this.consumption);
+            tagCompound.setString("FuelName", this.fuelName);
+            tagCompound.setLong("Energy", this.energyProduced);
+            return tagCompound;
+        }
+
+        @Override
+        public void deserializeNBT(NBTTagCompound compound) {
+            super.deserializeNBT(compound);
+            this.consumption = compound.getInteger("Consumption");
+            this.fuelName = compound.getString("FuelName");
+            this.energyProduced = compound.getLong("Energy");
+        }
+
+        @Override
+        public <T> T getCapability(Capability<T> capability) {
+            if (capability == TJCapabilities.CAPABILITY_GENERATOR)
+                return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
+            return super.getCapability(capability);
+        }
+
+        public String getFuelName() {
+            return this.fuelName;
+        }
+
+        @Override
+        public String[] consumptionInfo() {
+            int seconds = this.maxProgress / 20;
+            String amount = String.valueOf(seconds);
+            String s = seconds < 2 ? "second" : "seconds";
+            return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r§7(§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
+        }
+
+        @Override
+        public String[] productionInfo() {
+            int tier = GAUtility.getTierByVoltage(this.energyProduced);
+            String voltage = GAValues.VN[tier];
+            String color = TJValues.VCC[tier];
+            return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
+                    " ", "§7(§6", color, voltage, "§7)");
+        }
+    }
 }
