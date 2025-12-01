@@ -63,6 +63,7 @@ import java.util.*;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.unification.material.Materials.DistilledWater;
+import static gregtech.api.unification.material.Materials.Steam;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
@@ -270,9 +271,15 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         protected void progressRecipe(int progress) {
             this.progress++;
             if (this.voidEnergy || this.exportEnergySupplier.get().getEnergyCanBeInserted() >= this.energyProduced) {
-                this.exportEnergySupplier.get().addEnergy(this.energyProduced);
-                this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(this.consumption / 160), true);
-            }
+                FluidStack fluidStack = this.importFluidsSupplier.get().drain(Steam.getFluid(this.consumption), true);
+                if (fluidStack != null && fluidStack.amount == this.consumption) {
+                    this.exportEnergySupplier.get().addEnergy(this.energyProduced);
+                    this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(fluidStack.amount / 160), true);
+                }
+                if (this.hasProblem)
+                    this.setActive(false);
+            } else if (!this.hasProblem)
+                this.setActive(true);
         }
 
         public FluidStack getFuelStack() {
