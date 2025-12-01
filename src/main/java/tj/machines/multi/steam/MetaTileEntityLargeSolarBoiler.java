@@ -10,6 +10,7 @@ import gregtech.api.capability.IWorkable;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
@@ -105,7 +106,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
             } else {
                 if (this.isActive)
                     setActive(false);
-                this.temp = MathHelper.clamp(this.temp - 20, 0, 12000);
+                this.temp = MathHelper.clamp(this.temp - 10, 0, 12000);
             }
         }
         if (!this.canGenerateSteam() || this.getOffsetTimer() < 20) {
@@ -221,7 +222,22 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return Textures.SOLID_STEEL_CASING;
+        if (sourcePart instanceof IMultiblockAbilityPart) {
+            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
+                return Textures.SOLID_STEEL_CASING;
+        }
+        return sourcePart == null ? Textures.SOLID_STEEL_CASING : this.isActive ? Textures.STEEL_FIREBOX_ACTIVE : Textures.STEEL_FIREBOX;
+    }
+
+    @Override
+    public int getLightValueForPart(IMultiblockPart sourcePart) {
+        if (sourcePart instanceof IMultiblockAbilityPart) {
+            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
+                return 0;
+        }
+        return sourcePart == null ? 0 : this.isActive ? 15 : 0;
     }
 
     @Override
