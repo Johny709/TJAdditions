@@ -57,6 +57,7 @@ import java.util.*;
 
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
+import static gregtech.api.unification.material.Materials.DistilledWater;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
@@ -244,7 +245,8 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         @Override
         protected void progressRecipe(int progress) {
             this.progress++;
-
+            this.exportEnergySupplier.get().addEnergy(this.energyProduced);
+            this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(this.consumption / 160), true);
         }
 
         public FluidStack getFuelStack() {
