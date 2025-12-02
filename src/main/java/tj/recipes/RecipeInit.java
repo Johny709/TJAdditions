@@ -305,6 +305,17 @@ public class RecipeInit {
                 'S', STAINLESS_STEEL_CHEST.getStackForm(),
                 'P', new UnificationEntry(OrePrefix.plate, RedSteel));
 
+        ModHandler.addShapedRecipe("large_solar_boiler", LARGE_SOLAR_BOILER.getStackForm(), "WCW", "CSC", "WCW",
+                'W', new UnificationEntry(OrePrefix.cableGtSingle, Tin),
+                'C', new UnificationEntry(OrePrefix.circuit, Basic),
+                'S', SOLAR_BOILER[2].getStackForm());
+
+        ModHandler.addShapedRecipe("solar_collector", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(AbilityBlocks.AbilityType.SOLAR_COLLECTOR), "GGG", "DDD", "PSP",
+                'G', new ItemStack(Blocks.GLASS),
+                'D', new UnificationEntry(OrePrefix.plateDense, Silver),
+                'P', new UnificationEntry(OrePrefix.pipeLarge, Steel),
+                'S', HULL[1].getStackForm());
+
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("filing_cabinet." + i, FILING_CABINET.getStackForm(), "NCN", "PSP", "NCN",
                     'N', new UnificationEntry(OrePrefix.plateDense, StainlessSteel),

@@ -557,6 +557,7 @@ tile.fusion_glass.fusion_glass_uv.name=Fusion Glass MK III
 tile.fusion_glass.fusion_glass_uhv.name=Fusion Glass MK IV
 tile.fusion_glass.fusion_glass_uev.name=Fusion Glass MK V
 tile.fusion_glass.description=Can replace casings at middle layer where output hatches are.
+tile.ability_block.solar_collector.name=Solar Collector
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover
@@ -755,7 +756,7 @@ machine.universal.ticks.operation=Ticks per operation
 machine.universal.batch.amount=Batch Mode: §6%sx§7
 machine.universal.fluid.input.sec=Fluid Input: §b%s %dL§7/sec
 machine.universal.fluid.input.secs=Fluid Input: §b%,dL§7 (§b%s§7) §7every §b%,d§r §7seconds
-machine.universal.fluid.input.tick=Fluid Input: §b%,dL %s/t
+machine.universal.fluid.input.tick=Fluid Input: §7(§b%s§7) §b%,dL/t
 machine.universal.fluid.input.ticks=Fluid Input: §b%,dL§7 (§b%s§7) §7every §b%,d§r §7ticks
 machine.universal.fluid.output.sec=Fluid Output: §b%s %dL§7/sec
 machine.universal.producing=Producing:

@@ -101,11 +101,11 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         if (this.getOffsetTimer() % 20 == 0) {
             if (this.isWorkingEnabled && this.canBurn() && this.areSolarCollectorsValid()) {
                 if (!this.isActive)
-                    setActive(true);
+                    this.setActive(true);
                 this.temp = MathHelper.clamp(this.temp + 20, 0, 12000);
             } else {
                 if (this.isActive)
-                    setActive(false);
+                    this.setActive(false);
                 this.temp = MathHelper.clamp(this.temp - 10, 0, 12000);
             }
         }
