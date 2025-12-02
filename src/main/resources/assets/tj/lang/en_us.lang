@@ -298,6 +298,7 @@ tj.multiblock.large_boiler.insert_item=Insert Item
 tj.multiblock.large_boiler.insert_burnable.name=Insert Burnable
 tj.multiblock.large_solar_boiler.obstructed=Sky Obstructed
 tj.multiblock.large_solar_boiler.invalid=Invalid Solar Collectors
+tj.multiblock.large_solar_boiler.calcification=Calcification: %s§7%%
 
 tj.multiblock.extreme_turbine.norotor=No Rotor
 tj.multiblock.extreme_turbine.insertrotor=Insert Rotor

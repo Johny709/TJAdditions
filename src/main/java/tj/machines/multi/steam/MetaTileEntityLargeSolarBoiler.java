@@ -32,16 +32,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -49,6 +48,7 @@ import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 import tj.multiblockpart.TJMultiblockAbility;
+import tj.util.Color;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -109,7 +109,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
                 this.temp = MathHelper.clamp(this.temp - 10, 0, 12000);
             }
         }
-        if (!this.canGenerateSteam() || this.getOffsetTimer() < 20) {
+        if (!this.canGenerateSteam() || this.getOffsetTimer() < 20 || this.calcification > 239999) {
             this.hadWater = false;
             return;
         }
@@ -125,7 +125,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
             this.steamProduction = this.steamTank.fill(Steam.getFluid(waterToConsume * 160), true);
             this.waterConsumption = this.waterTank.drain(waterToConsume, true).amount;
             if (!waterStack.isFluidEqual(DISTILLED_WATER))
-                this.calcification = MathHelper.clamp(this.calcification + 1, 0, 240000);
+                this.calcification = MathHelper.clamp(this.calcification + this.waterConsumption, 0, 240000);
         } else this.hadWater = true;
     }
 
@@ -150,6 +150,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
                         ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency",100);
                         withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
                         text.add(heatEffText);
+                        if (this.calcification > 0)
+                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_solar_boiler.calcification", (this.calcification == 240000 ? Color.RED : Color.DARK_AQUA) + TJValues.thousandTwoPlaceFormat.format(this.getCalcificationPercent() * 100))));
                         if (!this.canBurn())
                             text.add(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
                         if (!this.areSolarCollectorsValid())
@@ -297,18 +299,20 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("Temp", this.temp);
-        data.setBoolean("HadWater", this.hadWater);
-        data.setBoolean("IsActive", this.isActive);
+        data.setInteger("temp", this.temp);
+        data.setInteger("calcification", this.calcification);
+        data.setBoolean("hadWater", this.hadWater);
+        data.setBoolean("isActive", this.isActive);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.temp = data.getInteger("Temp");
-        this.hadWater = data.getBoolean("HadWater");
-        this.isActive = data.getBoolean("IsActive");
+        this.temp = data.getInteger("temp");
+        this.calcification = data.getInteger("calcification");
+        this.hadWater = data.getBoolean("hadWater");
+        this.isActive = data.getBoolean("isActive");
     }
 
     @Override
@@ -349,6 +353,10 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
             if (pos.getY() != startY)
                 return false;
         return true;
+    }
+
+    public float getCalcificationPercent() {
+        return this.calcification / (240000 * 1.00F);
     }
 
     public float getTempPercent() {
