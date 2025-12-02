@@ -133,9 +133,17 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
         if (this.isStructureFormed()) {
+            boolean hasEnoughWater = false;
+            FluidStack water = Water.getFluid(this.waterConsumption), distilledWater = DistilledWater.getFluid(this.waterConsumption);
+            if (this.hasEnoughWater(water, this.waterConsumption)) {
+                hasEnoughWater = true;
+            } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
+                hasEnoughWater = true;
+                water = distilledWater;
+            }
             MultiblockDisplayBuilder.start(textList)
                     .temperature(this.heat(), this.maxHeat())
-                    .fluidInput(true, Water.getFluid(this.waterConsumption))
+                    .fluidInput(hasEnoughWater, water)
                     .custom(text -> {
                         text.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));
 
@@ -294,6 +302,11 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         if (capability == TJCapabilities.CAPABILITY_HEAT)
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    public boolean hasEnoughWater(FluidStack fluid, int amount) {
+        FluidStack fluidStack = this.waterTank.drain(fluid, false);
+        return fluidStack != null && fluidStack.amount == amount || amount == 0;
     }
 
     private boolean canBurn() {

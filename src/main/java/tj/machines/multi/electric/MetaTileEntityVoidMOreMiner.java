@@ -63,11 +63,11 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     private long maxVoltage;
     private int tier;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final VoidMOreMinerWorkableHandler minerRecipeLogic = new VoidMOreMinerWorkableHandler(this);
+    private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this);
 
     public MetaTileEntityVoidMOreMiner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.minerRecipeLogic.setExportItemsSupplier(() -> this.outputInventory)
+        this.workableHandler.setExportItemsSupplier(() -> this.outputInventory)
                 .setImportFluidsSupplier(() -> this.importFluidHandler)
                 .setExportFluidsSupplier(() -> this.exportFluidHandler)
                 .setImportEnergySupplier(() -> this.energyContainer)
@@ -113,25 +113,25 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
             MultiblockDisplayBuilder.start(textList)
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
-                    .energyInput(!this.minerRecipeLogic.hasNotEnoughEnergy(), this.minerRecipeLogic.getEnergyPerTick())
-                    .temperature(this.minerRecipeLogic.heat(), this.minerRecipeLogic.maxHeat())
-                    .isWorking(this.minerRecipeLogic.isWorkingEnabled(), this.minerRecipeLogic.isActive(), this.minerRecipeLogic.getProgress(), this.minerRecipeLogic.getMaxProgress());
-            if (this.minerRecipeLogic.isOverheat())
+                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEnergyPerTick())
+                    .temperature(this.workableHandler.heat(), this.workableHandler.maxHeat())
+                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+            if (this.workableHandler.isOverheat())
                 textList.add(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
         }
     }
 
     private void addFluidDisplayText(List<ITextComponent> textList) {
-        int amount = this.minerRecipeLogic.getCurrentDrillingFluid();
-        FluidStack pyrotheum = Pyrotheum.getFluid(this.minerRecipeLogic.getCurrentDrillingFluid());
-        FluidStack cryotheum = Cryotheum.getFluid(this.minerRecipeLogic.getCurrentDrillingFluid());
-        FluidStack drillingMud = DrillingMud.getFluid(this.minerRecipeLogic.getCurrentDrillingFluid());
-        FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.minerRecipeLogic.getCurrentDrillingFluid());
+        int amount = this.workableHandler.getCurrentDrillingFluid();
+        FluidStack pyrotheum = Pyrotheum.getFluid(this.workableHandler.getCurrentDrillingFluid());
+        FluidStack cryotheum = Cryotheum.getFluid(this.workableHandler.getCurrentDrillingFluid());
+        FluidStack drillingMud = DrillingMud.getFluid(this.workableHandler.getCurrentDrillingFluid());
+        FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.workableHandler.getCurrentDrillingFluid());
         MultiblockDisplayBuilder.start(textList)
-                .fluidInput(this.minerRecipeLogic.hasEnoughFluid(pyrotheum, amount), pyrotheum)
-                .fluidInput(this.minerRecipeLogic.hasEnoughFluid(cryotheum, amount), cryotheum)
-                .fluidInput(this.minerRecipeLogic.hasEnoughFluid(drillingMud, amount), drillingMud)
-                .fluidOutput(this.minerRecipeLogic.canOutputFluid(usedDrillingMud, amount), usedDrillingMud);
+                .fluidInput(this.workableHandler.hasEnoughFluid(pyrotheum, amount), pyrotheum, this.workableHandler.getMaxProgress())
+                .fluidInput(this.workableHandler.hasEnoughFluid(cryotheum, amount), cryotheum, this.workableHandler.getMaxProgress())
+                .fluidInput(this.workableHandler.hasEnoughFluid(drillingMud, amount), drillingMud, this.workableHandler.getMaxProgress())
+                .fluidOutput(this.workableHandler.canOutputFluid(usedDrillingMud, amount), usedDrillingMud);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     @Override
     protected void updateFormedValid() {
         if (this.tier > GTValues.ZPM && this.getNumProblems() < 6)
-            this.minerRecipeLogic.update();
+            this.workableHandler.update();
     }
 
     @Override
@@ -154,7 +154,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
         this.energyContainer = new EnergyContainerList(this.getAbilities(MultiblockAbility.INPUT_ENERGY));
         this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.maxVoltage = GAValues.VA[this.tier];
-        this.minerRecipeLogic.initialize(this.tier);
+        this.workableHandler.initialize(this.tier);
     }
 
     @Override
@@ -201,16 +201,16 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.minerRecipeLogic.isActive(), this.minerRecipeLogic.hasProblem(), this.minerRecipeLogic.isWorkingEnabled());
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
     }
 
     @Override
     public void setWorkingEnabled(boolean isActivationAllowed) {
-        this.minerRecipeLogic.setWorkingEnabled(isActivationAllowed);
+        this.workableHandler.setWorkingEnabled(isActivationAllowed);
     }
 
     @Override
     public boolean isWorkingEnabled() {
-        return this.minerRecipeLogic.isWorkingEnabled();
+        return this.workableHandler.isWorkingEnabled();
     }
 }

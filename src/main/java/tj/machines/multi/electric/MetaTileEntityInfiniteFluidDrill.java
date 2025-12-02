@@ -56,7 +56,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final InfiniteFluidDrillWorkableHandler fluidDrillWorkableHandler = new InfiniteFluidDrillWorkableHandler(this);
+    private final InfiniteFluidDrillWorkableHandler workableHandler = new InfiniteFluidDrillWorkableHandler(this);
     private long maxVoltage;
     private int tier;
     private IMultipleTankHandler outputFluid;
@@ -65,7 +65,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     public MetaTileEntityInfiniteFluidDrill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.fluidDrillWorkableHandler.setImportFluidsSupplier(() -> this.inputFluid)
+        this.workableHandler.setImportFluidsSupplier(() -> this.inputFluid)
                 .setExportFluidsSupplier(() -> this.outputFluid)
                 .setImportEnergySupplier(() -> this.energyContainer)
                 .setMaxVoltageSupplier(() -> this.maxVoltage);
@@ -111,7 +111,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
         if (!this.isStructureFormed())
             return;
 
-        if (this.fluidDrillWorkableHandler.getVeinFluid() == null) {
+        if (this.workableHandler.getVeinFluid() == null) {
             textList.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(RED)));
             return;
         }
@@ -119,23 +119,23 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
         MultiblockDisplayBuilder.start(textList)
                 .voltageIn(this.energyContainer)
                 .voltageTier(this.tier)
-                .energyInput(!this.fluidDrillWorkableHandler.hasNotEnoughEnergy(), this.maxVoltage)
-                .addTranslation("gtadditions.multiblock.drilling_rig.fluid", this.fluidDrillWorkableHandler.getVeinFluid().getName())
-                .isWorking(this.fluidDrillWorkableHandler.isWorkingEnabled(), this.fluidDrillWorkableHandler.isActive(), this.fluidDrillWorkableHandler.getProgress(), this.fluidDrillWorkableHandler.getMaxProgress());
+                .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.maxVoltage)
+                .addTranslation("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
+                .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     private void addFluidDisplayText(List<ITextComponent> textList) {
-        FluidStack drillingMud = DrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount());
-        List<FluidStack> fluidOutputs = this.fluidDrillWorkableHandler.getFluidOutputs();
+        FluidStack drillingMud = DrillingMud.getFluid(this.workableHandler.getDrillingMudAmount());
+        List<FluidStack> fluidOutputs = this.workableHandler.getFluidOutputs();
 
         MultiblockDisplayBuilder builder = new MultiblockDisplayBuilder(textList);
-        builder.fluidInput(this.fluidDrillWorkableHandler.hasEnoughFluid(drillingMud, this.fluidDrillWorkableHandler.getDrillingMudAmount()), drillingMud);
+        builder.fluidInput(this.workableHandler.hasEnoughFluid(drillingMud, this.workableHandler.getDrillingMudAmount()), drillingMud, this.workableHandler.getMaxProgress());
         int index = 0;
         for (FluidStack fluidOutput : fluidOutputs) {
-            int amount = fluidOutput.isFluidEqual(UsedDrillingMud.getFluid(this.fluidDrillWorkableHandler.getDrillingMudAmount()))
-                    ? this.fluidDrillWorkableHandler.getDrillingMudAmount()
-                    : this.fluidDrillWorkableHandler.getOutputVeinFluidAmount()[index++];
-            builder.fluidOutput(this.fluidDrillWorkableHandler.canOutputFluid(fluidOutput, amount), fluidOutput);
+            int amount = fluidOutput.isFluidEqual(UsedDrillingMud.getFluid(this.workableHandler.getDrillingMudAmount()))
+                    ? this.workableHandler.getDrillingMudAmount()
+                    : this.workableHandler.getOutputVeinFluidAmount()[index++];
+            builder.fluidOutput(this.workableHandler.canOutputFluid(fluidOutput, amount), fluidOutput);
         }
     }
 
@@ -150,7 +150,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
         int pumpTier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
         this.tier = Math.min(motorTier, pumpTier);
         this.maxVoltage = GAValues.VA[this.tier];
-        this.fluidDrillWorkableHandler.initialize(this.tier);
+        this.workableHandler.initialize(this.tier);
     }
 
     @Override
@@ -160,8 +160,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     @Override
     protected void updateFormedValid() {
-        if (this.tier > GAValues.UV && this.getNumProblems() < 6 && this.fluidDrillWorkableHandler.getVeinFluid() != null)
-            this.fluidDrillWorkableHandler.update();
+        if (this.tier > GAValues.UV && this.getNumProblems() < 6 && this.workableHandler.getVeinFluid() != null)
+            this.workableHandler.update();
     }
 
     @Override
@@ -197,6 +197,6 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.fluidDrillWorkableHandler.isActive(), this.fluidDrillWorkableHandler.hasProblem(), this.fluidDrillWorkableHandler.isWorkingEnabled());
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
     }
 }

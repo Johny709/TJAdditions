@@ -88,11 +88,18 @@ public class MultiblockDisplayBuilder {
     }
 
     public MultiblockDisplayBuilder fluidInput(boolean hasEnoughAmount, FluidStack fluidStack) {
+        return this.fluidInput(hasEnoughAmount, fluidStack, 1);
+    }
+
+    public MultiblockDisplayBuilder fluidInput(boolean hasEnoughAmount, FluidStack fluidStack, int ticks) {
         String fluidName = fluidStack.getLocalizedName();
         int amount = fluidStack.amount;
         boolean hasEnoughFluid = hasEnoughAmount || amount == 0;
-        ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.sec", fluidName, amount))
-                : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", fluidName, amount));
+        ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", fluidName, amount))
+                : ticks == 1 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", amount, fluidName))
+                : ticks % 20 != 0 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
+                : ticks == 20 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.input.sec", fluidName, amount))
+                : new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.secs", amount, fluidName, ticks / 20));
         this.textList.add(fluidInputText);
         return this;
     }

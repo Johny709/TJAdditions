@@ -182,8 +182,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
                         buttonText.appendText(" ");
                         buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
                         text.add(buttonText);
-                    })
-                    .isWorking(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress());
+                    }).isWorking(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress());
         }
     }
 

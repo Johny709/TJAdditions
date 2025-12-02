@@ -135,7 +135,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
                     .voltageIn(this.energyContainer)
                     .voltageTier(this.tier)
                     .energyInput(this.energyContainer.getEnergyStored() >= this.workableHandler.getEnergyPerTick(), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInput(hasEnoughFluid(this.workableHandler.getFluidConsumption()), UUMatter.getFluid(this.workableHandler.getFluidConsumption()))
+                    .fluidInput(hasEnoughFluid(this.workableHandler.getFluidConsumption()), UUMatter.getFluid(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
                     .custom(text -> text.add(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
                             : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
                             : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
