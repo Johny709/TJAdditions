@@ -59,11 +59,11 @@ import tj.gui.widgets.impl.TJToggleButtonWidget;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.DoubleSupplier;
 
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.unification.material.Materials.DistilledWater;
-import static gregtech.api.unification.material.Materials.Steam;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
@@ -71,7 +71,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS);
+    private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS, this::getEfficiency);
     private IMultipleTankHandler importFluidHandler;
     private IMultipleTankHandler exportFluidHandler;
     private IEnergyContainer energyContainer;
@@ -176,7 +176,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         this.energyContainer = new EnergyContainerList(this.getAbilities(MultiblockAbility.OUTPUT_ENERGY));
         this.tier = Math.min(motor, Math.max(framework, framework2));
         this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
-        this.efficiency = Math.max(0.1F, (1.0F - (this.tier - 1 / 10.0F)));
+        this.efficiency = Math.max(0.1F, (1.0F - ((this.tier - 1) / 10.0F)));
     }
 
     @Override
@@ -251,15 +251,17 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
     private static class SteamEngineWorkableHandler extends AbstractWorkableHandler<SteamEngineWorkableHandler> implements IGeneratorInfo, IFuelable {
 
         private final FuelRecipeMap recipeMap;
+        private final DoubleSupplier efficiencySupplier;
         private FuelRecipe previousRecipe;
         private String fuelName;
         private boolean voidEnergy;
         private long energyProduced;
         private int consumption;
 
-        public SteamEngineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap) {
+        public SteamEngineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, DoubleSupplier efficiencySupplier) {
             super(metaTileEntity);
             this.recipeMap = recipeMap;
+            this.efficiencySupplier = efficiencySupplier;
         }
 
         @Override
@@ -269,17 +271,18 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
         @Override
         protected void progressRecipe(int progress) {
-            this.progress++;
             if (this.voidEnergy || this.exportEnergySupplier.get().getEnergyCanBeInserted() >= this.energyProduced) {
-                FluidStack fluidStack = this.importFluidsSupplier.get().drain(Steam.getFluid(this.consumption), true);
-                if (fluidStack != null && fluidStack.amount == this.consumption) {
-                    this.exportEnergySupplier.get().addEnergy(this.energyProduced);
-                    this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(fluidStack.amount / 160), true);
-                }
+                this.exportEnergySupplier.get().addEnergy(this.energyProduced);
                 if (this.hasProblem)
-                    this.setActive(false);
+                    this.setProblem(false);
+                this.progress++;
             } else if (!this.hasProblem)
-                this.setActive(true);
+                this.setProblem(true);
+        }
+
+        @Override
+        protected boolean completeRecipe() {
+            return true;
         }
 
         public FluidStack getFuelStack() {
@@ -307,6 +310,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
             if (fuelAmountUsed > 0) {
                 FluidStack fluidStack = this.importFluidsSupplier.get().drain(fuelAmountUsed, true);
                 this.consumption = fluidStack.amount;
+                this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(this.consumption / 160), true);
                 this.fuelName = fluidStack.getUnlocalizedName();
                 return true; //recipe is found and ready to use
             }
@@ -342,7 +346,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         }
 
         protected int calculateFuelAmount(FuelRecipe currentRecipe) {
-            return currentRecipe.getRecipeFluid().amount * getVoltageMultiplier(this.maxVoltageSupplier.getAsLong(), currentRecipe.getMinVoltage());
+            return (int) ((currentRecipe.getRecipeFluid().amount * 2 * getVoltageMultiplier(this.maxVoltageSupplier.getAsLong(), currentRecipe.getMinVoltage())) / this.efficiencySupplier.getAsDouble());
         }
 
         public static int getVoltageMultiplier(long maxVoltage, long minVoltage) {
