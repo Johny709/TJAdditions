@@ -62,7 +62,10 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
 
     private static final FluidStack WATER = Water.getFluid(1);
     private static final FluidStack DISTILLED_WATER = DistilledWater.getFluid(1);
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.MUFFLER_HATCH};
     private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+    private final Set<BlockPos> solarCollectorPos = new HashSet<>();
+    private final Set<BlockPos> activeStates = new HashSet<>();
     private IMultipleTankHandler waterTank;
     private IMultipleTankHandler steamTank;
     private BlockPos offSetPos;
@@ -72,9 +75,6 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     private int waterConsumption;
     private int calcification;
     private int temp;
-
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.MUFFLER_HATCH};
-    private final Set<BlockPos> activeStates = new HashSet<>();
 
     public MetaTileEntityLargeSolarBoiler(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -99,7 +99,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     protected void updateFormedValid() {
         if (((this.getProblems() >> 5) & 1) == 0) return;
         if (this.getOffsetTimer() % 20 == 0) {
-            if (this.isWorkingEnabled && this.canBurn()) {
+            if (this.isWorkingEnabled && this.canBurn() && this.areSolarCollectorsValid()) {
                 if (!this.isActive)
                     setActive(true);
                 this.temp = MathHelper.clamp(this.temp + 20, 0, 12000);
@@ -152,6 +152,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
                         text.add(heatEffText);
                         if (!this.canBurn())
                             text.add(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
+                        if (!this.areSolarCollectorsValid())
+                            text.add(new TextComponentTranslation("tj.multiblock.large_solar_boiler.invalid").setStyle(new Style().setColor(TextFormatting.RED)));
                     }).isWorking(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
         }
     }
@@ -168,7 +170,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
                 .where('C', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                         .or(abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
-                .where('s', statePredicate(TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR)))
+                .where('s', solarCollectorPredicate())
                 .build();
     }
 
@@ -181,6 +183,18 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
                 return true;
             }
             return false;
+        };
+    }
+
+    public static Predicate<BlockWorldState> solarCollectorPredicate() {
+        return (blockWorldState) -> {
+            if (blockWorldState.getBlockState() != TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR))
+                return false;
+            if (blockWorldState.getWorld() != null) {
+                Set<BlockPos> posList = blockWorldState.getMatchContext().getOrCreate("solarCollectors", HashSet::new);
+                posList.add(blockWorldState.getPos());
+            }
+            return true;
         };
     }
 
@@ -204,6 +218,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         this.waterTank = new FluidTankList(true, this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.steamTank = new FluidTankList(true, fluidTanks);
         this.offSetPos = this.getPos().offset(this.getFrontFacing().getOpposite(), 1);
+        this.solarCollectorPos.addAll(context.getOrDefault("solarCollectors", new HashSet<>()));
     }
 
     @Override
@@ -211,6 +226,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         super.invalidateStructure();
         this.waterTank = new FluidTankList(true);
         this.steamTank = new FluidTankList(true);
+        this.solarCollectorPos.clear();
     }
 
     @Override
@@ -327,13 +343,21 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         return true;
     }
 
+    private boolean areSolarCollectorsValid() {
+        int startY = this.offSetPos.getY() + 2;
+        for (BlockPos pos : this.solarCollectorPos)
+            if (pos.getY() != startY)
+                return false;
+        return true;
+    }
+
     public float getTempPercent() {
         return this.temp / (12000 * 1.00F);
     }
 
     @Override
     public int getProgress() {
-        return this.canBurn() ? (int) this.getWorld().getWorldTime() % 24000 : 0;
+        return this.canBurn() && this.areSolarCollectorsValid() ? (int) this.getWorld().getWorldTime() % 24000 : 0;
     }
 
     @Override
