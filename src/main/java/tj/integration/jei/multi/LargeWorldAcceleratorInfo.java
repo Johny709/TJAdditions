@@ -59,6 +59,9 @@ public class LargeWorldAcceleratorInfo extends TJMultiblockInfoPage {
     public String[] getDescription() {
         return new String[] {
                 I18n.format("tj.multiblock.large_world_accelerator.description"),
-                I18n.format("metaitem.item.linking.device.link.from")};
+                I18n.format("metaitem.item.linking.device.link.from"),
+                "§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.entity") + "§r§e§l -> §0" + I18n.format("tj.multiblock.world_accelerator.mode.entity.description").replace("§7", "§0").replace("§r", "§r§0"),
+                "§f§n" + I18n.format("gregtech.machine.world_accelerator.mode.tile") + "§r§e§l -> §0" + I18n.format("tj.multiblock.world_accelerator.mode.tile.description").replace("§7", "§0").replace("§r", "§r§0"),
+                "§f§n" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT") + "§r§e§l -> §0" + I18n.format("tj.multiblock.large_world_accelerator.mode.GT.description").replace("§7", "§0").replace("§r", "§r§0")};
     }
 }

@@ -59,7 +59,7 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
     public String[] getDescription() {
         return new String[] {
                 I18n.format("tj.multiblock.industrial_fusion_reactor.description"),
-                I18n.format("tj.multiblock.industrial_fusion_reactor.overclock.description"),
+                I18n.format("tj.multiblock.industrial_fusion_reactor.overclock.description").replace("§7", "§0").replace("§r", "§r§0"),
                 I18n.format("tj.multiblock.universal.tooltip.1", RecipeMaps.FUSION_RECIPES.getLocalizedName()),
                 I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)),
                 I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)),

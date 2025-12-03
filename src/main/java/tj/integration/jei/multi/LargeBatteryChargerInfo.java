@@ -59,7 +59,7 @@ public class LargeBatteryChargerInfo extends TJMultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.large_battery_charger.description")};
+                I18n.format("tj.multiblock.large_battery_charger.description").replace("§r", "§7")};
     }
 
     @Override
