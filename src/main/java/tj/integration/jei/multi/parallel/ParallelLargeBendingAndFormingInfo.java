@@ -4,7 +4,6 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PistonCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;
-import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;

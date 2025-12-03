@@ -4,7 +4,6 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.EmitterCasing;
@@ -46,7 +45,6 @@ import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -130,7 +128,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
 
     @Override
     protected void updateFormedValid() {
-        if (this.getNumProblems() < 6)
+        if (((this.getProblems() >> 5) & 1) != 0)
             this.workableHandler.update();
     }
 

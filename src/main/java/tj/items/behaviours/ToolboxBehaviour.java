@@ -32,7 +32,6 @@ import tj.gui.GuiUtils;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {

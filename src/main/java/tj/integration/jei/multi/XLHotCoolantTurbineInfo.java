@@ -15,7 +15,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import tj.TJConfig;
 import tj.builder.handlers.XLTurbineWorkableHandler;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;

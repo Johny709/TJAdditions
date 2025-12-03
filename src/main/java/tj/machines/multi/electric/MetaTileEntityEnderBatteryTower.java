@@ -7,7 +7,6 @@ import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -17,7 +16,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
@@ -25,7 +23,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
 
-import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;

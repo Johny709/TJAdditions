@@ -206,7 +206,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
 
     @Override
     protected void updateFormedValid() {
-        if (this.getOffsetTimer() > 40 && this.getNumProblems() < 6)
+        if (this.getOffsetTimer() > 40 && ((this.getProblems() >> 5) & 1) != 0)
             this.boilerRecipeLogic.update();
     }
 

@@ -12,7 +12,6 @@ import tj.TJValues;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
 
-import java.text.DecimalFormat;
 
 public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultipleWorkable> {
 

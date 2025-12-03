@@ -111,6 +111,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         }
         if (!this.canGenerateSteam() || this.getOffsetTimer() < 20 || this.calcification > 239999) {
             this.hadWater = false;
+            this.steamProduction = 0;
+            this.waterConsumption = 0;
             return;
         }
         int waterToConsume = Math.round((900 * this.getTempPercent()) / 160);

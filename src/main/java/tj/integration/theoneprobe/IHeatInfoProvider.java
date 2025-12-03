@@ -11,7 +11,6 @@ import tj.TJValues;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 
-import java.text.DecimalFormat;
 
 public class IHeatInfoProvider extends CapabilityInfoProvider<IHeatInfo> {
 

@@ -363,7 +363,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     protected void updateFormedValid() {
-        if (this.getOffsetTimer() > 100 && (!(((this.getProblems() >> 5) & 1) == 0)))
+        if (this.getOffsetTimer() > 100 && ((this.getProblems() >> 5) & 1) != 0)
             this.workableHandler.update();
     }
 

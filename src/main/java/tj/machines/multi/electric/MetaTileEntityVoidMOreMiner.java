@@ -141,7 +141,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
 
     @Override
     protected void updateFormedValid() {
-        if (this.tier > GTValues.ZPM && this.getNumProblems() < 6)
+        if (this.tier > GTValues.ZPM && ((this.getProblems() >> 5) & 1) != 0)
             this.workableHandler.update();
     }
 

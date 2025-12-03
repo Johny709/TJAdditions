@@ -160,7 +160,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     @Override
     protected void updateFormedValid() {
-        if (this.tier > GAValues.UV && this.getNumProblems() < 6 && this.workableHandler.getVeinFluid() != null)
+        if (this.tier > GAValues.UV && ((this.getProblems() >> 5) & 1) != 0 && this.workableHandler.getVeinFluid() != null)
             this.workableHandler.update();
     }
 

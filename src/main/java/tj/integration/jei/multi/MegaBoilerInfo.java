@@ -18,7 +18,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.machines.multi.steam.MetaTileEntityMegaBoiler;
 import tj.util.Color;
-import tj.util.TooltipHelper;
 
 import java.util.List;
 

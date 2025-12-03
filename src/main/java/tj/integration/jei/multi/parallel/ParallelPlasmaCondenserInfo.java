@@ -1,6 +1,5 @@
 package tj.integration.jei.multi.parallel;
 
-import com.google.common.collect.ImmutableList;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.item.metal.MetalCasing1;

@@ -1,6 +1,5 @@
 package tj.builder.handlers;
 
-import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;

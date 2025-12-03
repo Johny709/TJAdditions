@@ -4,7 +4,6 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.item.GAMetaItems;
 import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
