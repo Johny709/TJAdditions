@@ -101,6 +101,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityMegaFusion MEGA_FUSION;
     public static MetaTileEntityEnderBatteryTower ENDER_BATTERY_TOWER;
     public static MetaTileEntityLargeSolarBoiler LARGE_SOLAR_BOILER;
+    public static MetaTileEntityLargeSolarBoiler MEGA_SOLAR_BOILER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -250,7 +251,8 @@ public class TJMetaTileEntities {
         LARGE_CRAFTER = GregTechAPI.registerMetaTileEntity(5506, new MetaTileEntityLargeCrafter(TJId("large_crafter")));
         MEGA_FUSION = GregTechAPI.registerMetaTileEntity(5507, new MetaTileEntityMegaFusion(TJId("mega_fusion")));
         ENDER_BATTERY_TOWER = GregTechAPI.registerMetaTileEntity(5508, new MetaTileEntityEnderBatteryTower(TJId("ender_battery_tower")));
-        LARGE_SOLAR_BOILER = GregTechAPI.registerMetaTileEntity(5509, new MetaTileEntityLargeSolarBoiler(TJId("large_solar_boiler")));
+        LARGE_SOLAR_BOILER = GregTechAPI.registerMetaTileEntity(5509, new MetaTileEntityLargeSolarBoiler(TJId("large_solar_boiler"), false));
+        MEGA_SOLAR_BOILER = GregTechAPI.registerMetaTileEntity(5510, new MetaTileEntityLargeSolarBoiler(TJId("mega_solar_boiler"), true));
 
         // range 6000+ -> hatches
         int superBusID = 6000; // occupies ID range 6000 - 6019
