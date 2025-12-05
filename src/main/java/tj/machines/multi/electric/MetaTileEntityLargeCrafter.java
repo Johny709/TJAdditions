@@ -31,6 +31,7 @@ import gregtech.common.items.MetaItems;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
@@ -140,8 +141,8 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     }
 
     @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
-        super.addTabs(tabBuilder);
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
             debugTab.addWidget(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
                     .setMaxWidthLimit(180));

@@ -25,6 +25,7 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -99,8 +100,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
-        super.addTabs(tabBuilder);
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab -> fluidsTab.addWidget(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)));
     }

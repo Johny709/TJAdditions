@@ -331,8 +331,8 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
-        super.addTabs(tabBuilder);
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab -> {
             PopUpWidgetGroup slotsPopUp = new PopUpWidgetGroup(0, 7, 180, 90, null);
             PopUpWidgetGroup oreDictPopUp = new PopUpWidgetGroup(9, 37, 179, 90, GuiTextures.BACKGROUND);

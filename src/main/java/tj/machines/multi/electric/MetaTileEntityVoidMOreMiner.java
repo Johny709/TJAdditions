@@ -8,6 +8,7 @@ import gregicadditions.GAValues;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fluids.FluidStack;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
@@ -100,8 +101,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
-        super.addTabs(tabBuilder);
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab -> fluidsTab.addWidget(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)));
     }

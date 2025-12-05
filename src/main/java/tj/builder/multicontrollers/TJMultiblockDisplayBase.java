@@ -181,7 +181,7 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                 .setPosition(-10, 1 + this.getExtended());
-        this.addTabs(tabBuilder);
+        this.addTabs(tabBuilder, player);
         builder.image(-10, -20, 195, 237 + this.getExtended(), this.getExtended() == 0 ? NEW_MULTIBLOCK_DISPLAY : NEW_MULTIBLOCK_DISPLAY_EXTENDED);
         builder.bindPlayerInventory(player.inventory, GuiTextures.SLOT ,-3, 134 + this.getExtended());
         builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
@@ -195,7 +195,7 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     }
 
     @OverridingMethodsMustInvokeSuper
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
                 maintenanceTab.addWidget(new AdvancedTextWidget(10, -2 - this.getExtended(), textList -> {

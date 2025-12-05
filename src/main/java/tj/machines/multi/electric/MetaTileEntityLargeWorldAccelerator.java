@@ -149,8 +149,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
-        super.addTabs(tabBuilder);
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
         int[] searchResults = new int[1];
         int[] patternFlags = new int[9];
         String[] search = {""};
