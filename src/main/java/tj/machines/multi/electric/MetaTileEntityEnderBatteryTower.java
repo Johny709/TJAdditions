@@ -8,6 +8,7 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
+import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -17,6 +18,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.covers.CoverPump;
@@ -55,9 +57,7 @@ import tj.util.EnderWorldData;
 import tj.util.predicates.QuadActionResultPredicate;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -74,14 +74,16 @@ import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPred
 
 public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockController implements IEnderNotifiable<BasicEnergyHandler> {
 
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+
     private BasicEnergyHandler handler;
+    private BasicEnergyHandler energyBuffer;
+    private List<IEnergyContainer> inputEnergy;
+    private List<IEnergyContainer> outputEnergy;
     protected String frequency;
     protected String channel;
     protected String displayName;
     protected UUID ownerId;
-    private long capacity;
-
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityEnderBatteryTower(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -94,11 +96,30 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
     @Override
     protected void updateFormedValid() {
+        for (int i = 0; i < this.inputEnergy.size(); i++)
+            this.importEnergy(this.inputEnergy.get(i));
+        for (int i = 0; i < this.outputEnergy.size(); i++)
+            this.exportEnergy(this.outputEnergy.get(i));
+    }
 
+    private void exportEnergy(IEnergyContainer enderEnergyContainer) {
+        long energyRemainingToFill = enderEnergyContainer.getEnergyCapacity() - enderEnergyContainer.getEnergyStored();
+        if (enderEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyExtracted = this.energyBuffer.removeEnergy(energyRemainingToFill);
+            enderEnergyContainer.addEnergy(Math.abs(energyExtracted));
+        }
+    }
+
+    private void importEnergy(IEnergyContainer enderEnergyContainer) {
+        long energyRemainingToFill = this.energyBuffer.getEnergyCapacity() - this.energyBuffer.getEnergyStored();
+        if (this.energyBuffer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyExtracted = Math.abs(enderEnergyContainer.removeEnergy(energyRemainingToFill));
+            this.energyBuffer.addEnergy(energyExtracted);
+        }
     }
 
     protected BasicEnergyHandler createHandler() {
-        return new BasicEnergyHandler(this.capacity);
+        return new BasicEnergyHandler(this.energyBuffer != null ? this.energyBuffer.getEnergyCapacity() : 0);
     }
 
     protected Map<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
@@ -645,7 +666,10 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         };
     }
 
-    protected abstract void addChannelText(ITextComponent keyEntry, String key, V value);
+    protected void addChannelText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
+        keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", value.getEnergyStored(), value.getEnergyCapacity()))));
+    }
 
     private String[] getTooltipFormat() {
         return ArrayUtils.toArray(getTransferRate());
@@ -653,7 +677,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
     private void setTransferRate(String amount, String id) {
         this.transferRate = Math.min(Integer.parseInt(amount), this.maxTransferRate);
-        this.markAsDirty();
+        this.markDirty();
     }
 
     public String getTransferRate() {
@@ -662,7 +686,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
     private void onIncrement(String id) {
         this.transferRate = (int) MathHelper.clamp(this.transferRate * 2, 1, Math.min(this.maxTransferRate, this.getEnderProfile().maxThroughPut(UUID.fromString(id))));
-        this.markAsDirty();
+        this.markDirty();
     }
 
     private void onDecrement(String id) {
@@ -693,7 +717,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         int index = id.lastIndexOf(":");
         String uuid = id.substring(index + 1);
         String oldKey = id.substring(0, index);
-        EnderCoverProfile<V> profile = this.getPlayerMap().get(oldKey);
+        EnderCoverProfile<BasicEnergyHandler> profile = this.getPlayerMap().get(oldKey);
         if (profile != null && this.getEnderProfile().editFrequency(key, UUID.fromString(uuid))) {
             this.getPlayerMap().put(key, this.getPlayerMap().remove(oldKey));
             this.markDirty();
@@ -744,6 +768,11 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     @Override
+    public void markToDirty() {
+        this.markDirty();
+    }
+
+    @Override
     public void setHandler(BasicEnergyHandler handler) {
         this.handler = handler;
     }
@@ -782,9 +811,33 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 return false;
             CellCasing glassCasing = (CellCasing) blockState.getBlock();
             CellCasing.CellType tieredCasingType = glassCasing.getState(blockState);
-            CellCasing.CellType currentCasing = blockWorldState.getMatchContext().getOrPut("Cell", tieredCasingType);
-            return currentCasing.getName().equals(tieredCasingType.getName());
+            List<CellCasing.CellType> cellTypes = blockWorldState.getMatchContext().getOrCreate("Cells", ArrayList::new);
+            cellTypes.add(tieredCasingType);
+            return cellTypes.get(0).getName().equals(tieredCasingType.getName());
         };
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.inputEnergy = this.getAbilities(MultiblockAbility.INPUT_ENERGY);
+        this.outputEnergy = this.getAbilities(MultiblockAbility.OUTPUT_ENERGY);
+        List<CellCasing.CellType> cellTypes = context.getOrCreate("Cells", ArrayList::new);
+        long capacity = cellTypes.get(0).getStorage() * cellTypes.size();
+        if (this.energyBuffer == null) {
+            this.energyBuffer = new BasicEnergyHandler(capacity);
+        } else {
+            long stored = this.energyBuffer.getEnergyStored();
+            this.energyBuffer = new BasicEnergyHandler(capacity);
+            this.energyBuffer.addEnergy(Math.min(stored, capacity));
+        }
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.inputEnergy = Collections.emptyList();
+        this.outputEnergy = Collections.emptyList();
     }
 
     @Override
@@ -830,6 +883,10 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
             data.setUniqueId("ownerId", this.ownerId);
         if (this.channel != null)
             data.setString("channel", this.channel);
+        if (this.energyBuffer != null) {
+            data.setBoolean("buffer", true);
+            this.energyBuffer.writeToNBT(data);
+        }
         return data;
     }
 
@@ -844,6 +901,10 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
             this.channel = data.getString("channel");
             this.handler = this.getEnderProfile().getChannels().get(this.channel);
             this.getEnderProfile().addToNotifiable(this.channel, this);
+        }
+        if (data.hasKey("buffer")) {
+            this.energyBuffer = new BasicEnergyHandler(0);
+            this.energyBuffer.readFromNBT(data);
         }
     }
 

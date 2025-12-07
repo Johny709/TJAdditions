@@ -107,8 +107,8 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
             public void detectAndSendChanges() {
                 super.detectAndSendChanges();
                 if (handler != null) {
-                    long energyStored = handler.getStored();
-                    long energyCapacity = handler.getCapacity();
+                    long energyStored = handler.getEnergyStored();
+                    long energyCapacity = handler.getEnergyCapacity();
                     this.writeUpdateInfo(1, buffer -> buffer.writeLong(energyStored));
                     this.writeUpdateInfo(2, buffer -> buffer.writeLong(energyCapacity));
                 }
@@ -127,7 +127,7 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     }
 
     private double getEnergyStored() {
-        return this.handler != null ? (double) this.handler.getStored() / this.handler.getCapacity() : 0;
+        return this.handler != null ? (double) this.handler.getEnergyStored() / this.handler.getEnergyCapacity() : 0;
     }
 
     @Override
@@ -138,7 +138,7 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     @Override
     protected void addChannelText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", value.getStored(), value.getCapacity()))));
+                new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", value.getEnergyStored(), value.getEnergyCapacity()))));
     }
 
     @Override

@@ -61,12 +61,12 @@ public class EnderEnergyHandler implements IEnergyContainer {
 
     @Override
     public long getEnergyStored() {
-        return this.basicEnergyHandler.getStored();
+        return this.basicEnergyHandler.getEnergyStored();
     }
 
     @Override
     public long getEnergyCapacity() {
-        return this.basicEnergyHandler.getCapacity();
+        return this.basicEnergyHandler.getEnergyCapacity();
     }
 
     @Override
