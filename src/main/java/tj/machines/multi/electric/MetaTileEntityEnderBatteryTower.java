@@ -65,6 +65,7 @@ import java.util.regex.Pattern;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
@@ -75,6 +76,7 @@ import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPred
 public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockController implements IEnderNotifiable<BasicEnergyHandler> {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private final long maxTransferRate = Long.MAX_VALUE;
 
     private BasicEnergyHandler handler;
     private BasicEnergyHandler energyBuffer;
@@ -84,6 +86,8 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     protected String channel;
     protected String displayName;
     protected UUID ownerId;
+    private long transferRate;
+    private CoverPump.PumpMode pumpMode;
 
     public MetaTileEntityEnderBatteryTower(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -214,7 +218,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                         widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                         widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                                 .setTooltipText("machine.universal.toggle.run.mode"));
-                        this.addWidgets(widgetGroup::addWidget);
+                        this.addEnergyWidgets(widgetGroup::addWidget);
                         return true;
                     }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
@@ -278,7 +282,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                     .addPopupCondition(this::handleButtonClick).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
                         widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
                         widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
-                    }).passPopup(this::addToPopUpWidget));
+                    }));
         }).addTab("tj.multiblock.tab.frequencies", new ItemStack(Item.getByNameOrId("appliedenergistics2:part"), 1, 76), tab -> {
             NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                     .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -471,6 +475,42 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 1)));
         });
+    }
+
+    protected void addEnergyWidgets(Consumer<Widget> widget) {
+        widget.accept(new ProgressWidget(this::getEnergyStored, 7, 38, 18, 18) {
+            private long energyStored;
+            private long energyCapacity;
+
+            @Override
+            public void drawInForeground(int mouseX, int mouseY) {
+                if(isMouseOverElement(mouseX, mouseY)) {
+                    List<String> hoverList = Collections.singletonList(net.minecraft.client.resources.I18n.format("machine.universal.energy.stored", this.energyStored, this.energyCapacity));
+                    this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
+                }
+            }
+
+            @Override
+            public void detectAndSendChanges() {
+                super.detectAndSendChanges();
+                if (handler != null) {
+                    long energyStored = handler.getEnergyStored();
+                    long energyCapacity = handler.getEnergyCapacity();
+                    this.writeUpdateInfo(1, buffer -> buffer.writeLong(energyStored));
+                    this.writeUpdateInfo(2, buffer -> buffer.writeLong(energyCapacity));
+                }
+            }
+
+            @Override
+            public void readUpdateInfo(int id, PacketBuffer buffer) {
+                super.readUpdateInfo(id, buffer);
+                if (id == 1) {
+                    this.energyStored = buffer.readLong();
+                } else if (id == 2) {
+                    this.energyCapacity = buffer.readLong();
+                }
+            }
+        }.setProgressBar(BAR_STEEL, BAR_HEAT, VERTICAL));
     }
 
     private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
@@ -911,5 +951,9 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     public int getMaxParallel() {
         return 256;
+    }
+
+    private long getEnergyStored() {
+        return this.handler != null ? this.handler.getEnergyStored() : 0;
     }
 }
