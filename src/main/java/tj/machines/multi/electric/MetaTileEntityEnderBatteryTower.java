@@ -87,7 +87,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     protected String displayName;
     protected UUID ownerId;
     private long transferRate;
-    private CoverPump.PumpMode pumpMode;
+    private CoverPump.PumpMode pumpMode = CoverPump.PumpMode.EXPORT;
 
     public MetaTileEntityEnderBatteryTower(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);

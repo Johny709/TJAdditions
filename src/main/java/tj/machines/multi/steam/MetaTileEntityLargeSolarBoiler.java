@@ -373,7 +373,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     }
 
     private boolean areSolarCollectorsValid() {
-        int startY = this.offSetPos.getY() + 2;
+        int startY = this.offSetPos.getY() + (this.mega ? 17 : 2);
         for (BlockPos pos : this.solarCollectorPos)
             if (pos.getY() != startY)
                 return false;
