@@ -26,6 +26,7 @@ public class TJGuiTextures {
     public static final TextureArea FLUID_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle.png");
     public static final TextureArea CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
     public static final TextureArea UNLOCK_LOCK = TextureArea.fullImage("textures/gui/widget/unlock_lock.png");
+    public static final TextureArea TOGGLE_DISPLAY = TextureArea.fullImage("textures/gui/widget/toggle_button_display.png");
 
     public static final TextureArea ENERGY_VOID = TextureArea.fullImage("textures/gui/widget/button_energy_void.png");
 

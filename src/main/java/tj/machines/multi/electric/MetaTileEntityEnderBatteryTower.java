@@ -136,6 +136,17 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     @Override
+    protected int getExtended() {
+        return 18;
+    }
+
+    @Override
+    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.addWidget(new CycleButtonWidget(7, 113, 162, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
+    }
+
+    @Override
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
         int[] searchResults = new int[3];
@@ -159,16 +170,14 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                     .setMaxStringLength(256);
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
             textWidget.setMaxWidthLimit(1000);
-            tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+            tab.addWidget(new ClickPopUpWidget(0, -30, 0, 0)
                     .addPopup(widgetGroup -> {
-                        widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
-                        widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
-                        widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
-                        widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
-                        widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
-                        widgetGroup.addWidget(new ScrollableTextWidget(3, 61, 182, 80)
+                        widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
+                        widgetGroup.addWidget(new ImageWidget(35, 40, 130, 18, DISPLAY));
+                        widgetGroup.addWidget(new ImageWidget(30, 142, 139, 18, DISPLAY));
+                        widgetGroup.addWidget(new ScrollableTextWidget(8, 58, 199, 80)
                                 .addTextWidget(textWidget));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(38, 45, 112, 13, false)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                 .setBackgroundText("machine.universal.toggle.current.channel")
                                 .setTooltipText("machine.universal.toggle.current.channel")
@@ -177,7 +186,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 .setTextResponder(this::setChannel)
                                 .setMaxStringLength(256)
                                 .setUpdateOnTyping(true));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 13, false)
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(38, 22, 112, 13, false)
                                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                                 .setBackgroundText("metaitem.ender_cover.transfer")
                                 .setTooltipText("metaitem.ender_cover.transfer")
@@ -185,42 +194,39 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 .setTextResponder(this::setTransferRate)
                                 .setTextSupplier(this::getTransferRate)
                                 .setUpdateOnTyping(true));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(33, 147, 112, 13, false)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                 .setTextResponder((result, id) -> search[0] = result)
                                 .setBackgroundText("machine.universal.search")
                                 .setTextSupplier(() -> search[0])
                                 .setMaxStringLength(256)
                                 .setUpdateOnTyping(true));
-                        widgetGroup.addWidget(new TJToggleButtonWidget(151, 15, 18, 18)
+                        widgetGroup.addWidget(new TJToggleButtonWidget(169, 17, 18, 18)
                                 .setTooltipText("machine.universal.toggle.increment.disabled")
                                 .setButtonId(player.getUniqueID().toString())
                                 .setButtonResponder(this::onIncrement)
-                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                .setToggleTexture(TOGGLE_DISPLAY)
                                 .setButtonSupplier(() -> false)
                                 .useToggleTexture(true)
-                                .setDisplayText("+"));
-                        widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18)
+                                .setDisplayText("§e+"));
+                        widgetGroup.addWidget(new TJToggleButtonWidget(12, 17, 18, 18)
                                 .setTooltipText("machine.universal.toggle.decrement.disabled")
                                 .setButtonId(player.getUniqueID().toString())
                                 .setButtonResponder(this::onDecrement)
-                                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                                .setToggleTexture(TOGGLE_DISPLAY)
                                 .setButtonSupplier(() -> false)
                                 .useToggleTexture(true)
-                                .setDisplayText("-"));
-                        widgetGroup.addWidget(new TJToggleButtonWidget(-20, 38, 18, 18)
+                                .setDisplayText("§e-"));
+                        widgetGroup.addWidget(new TJToggleButtonWidget(7, 142, 18, 18)
                                 .setTooltipText("machine.universal.toggle.clear")
                                 .setButtonId(player.getUniqueID().toString())
                                 .setBackgroundTextures(BUTTON_CLEAR_GRID)
                                 .setToggleButtonResponder(this::onClear)
                                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true));
-                        widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                        widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                                .setTooltipText("machine.universal.toggle.run.mode"));
                         this.addEnergyWidgets(widgetGroup::addWidget);
                         return true;
-                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
+                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 142, 18, 18) // search settings button
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                             .setTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -264,12 +270,12 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .setButtonSupplier(() -> false)
                             .useToggleTexture(true))
-                    .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 38, 18, 18)
+                    .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(169, 40, 18, 18)
                             .setTooltipText("machine.universal.toggle.add.channel")
                             .setButtonId("channel:" + player.getUniqueID())
-                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                            .setToggleTexture(TOGGLE_DISPLAY)
                             .useToggleTexture(true)
-                            .setDisplayText("O"), widgetGroup -> {
+                            .setDisplayText("§eO"), widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                         widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                         widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
@@ -299,14 +305,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                     .setMaxStringLength(256);
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
             textWidget.setMaxWidthLimit(1000);
-            tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+            tab.addWidget(new ClickPopUpWidget(0, -30, 0, 0)
                     .addPopup(widgetGroup -> {
-                        widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
-                        widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
-                        widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
-                        widgetGroup.addWidget(new ScrollableTextWidget(3, 38, 182, 103)
+                        widgetGroup.addWidget(new ImageWidget(8, 17, 145, 18, DISPLAY));
+                        widgetGroup.addWidget(new ImageWidget(30, 142, 139, 18, DISPLAY));
+                        widgetGroup.addWidget(new ScrollableTextWidget(8, 35, 199, 103)
                                 .addTextWidget(textWidget));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(10, 22, 142, 18)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                 .setBackgroundText("machine.universal.toggle.current.frequency")
                                 .setTooltipText("machine.universal.toggle.current.frequency")
@@ -321,7 +326,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 .setToggleButtonResponder(this::setPublic)
                                 .setToggleTexture(UNLOCK_LOCK)
                                 .useToggleTexture(true));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(33, 147, 112, 13, false)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                 .setTextResponder((result, id) -> search[1] = result)
                                 .setBackgroundText("machine.universal.search")
@@ -343,7 +348,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                             .useToggleTexture(true))
                     .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                        widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                        widgetGroup.addWidget(new ImageWidget(10, 17, 162, 18, DISPLAY));
                         widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
                             int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
                             String entry = textFieldWidgetRename.getTextId().substring(0, index);
@@ -369,11 +374,11 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .setButtonSupplier(() -> false)
                             .useToggleTexture(true))
-                    .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 15, 18, 18)
+                    .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(169, 17, 18, 18)
                             .setTooltipText("machine.universal.toggle.add.frequency")
-                            .setToggleTexture(TOGGLE_BUTTON_BACK)
+                            .setToggleTexture(TOGGLE_DISPLAY)
                             .useToggleTexture(true)
-                            .setDisplayText("O"), widgetGroup -> {
+                            .setDisplayText("§eO"), widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                         widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                         widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.frequency")), 0x404040));
@@ -463,13 +468,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                                 widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                                             }));
                                     return true;
-                                }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18)
+                                }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18) // search settings button
                                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                                         .setTooltipText("machine.universal.search.settings")
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .useToggleTexture(true), innerWidgetGroup -> this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2)));
                         return false;
-                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
+                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 142, 18, 18) // search settings button
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                             .setTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -478,7 +483,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     protected void addEnergyWidgets(Consumer<Widget> widget) {
-        widget.accept(new ProgressWidget(this::getEnergyStored, 7, 38, 18, 18) {
+        widget.accept(new ProgressWidget(this::getEnergyStored, 12, 40, 18, 18) {
             private long energyStored;
             private long energyCapacity;
 
