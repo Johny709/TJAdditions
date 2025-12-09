@@ -80,6 +80,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     public MetaTileEntityLargeSolarBoiler(ResourceLocation metaTileEntityId, boolean mega) {
         super(metaTileEntityId);
         this.mega = mega;
+        if (this.mega)
+            this.reinitializeStructurePattern();
     }
 
     @Override
@@ -117,7 +119,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
             this.waterConsumption = 0;
             return;
         }
-        int waterToConsume = Math.round((900 * this.getTempPercent()) / 160) * this.getMaxParallel();
+        int waterToConsume = Math.round((900 * this.getMaxParallel() * this.getTempPercent()) / 160);
         FluidStack waterStack = this.waterTank.drain(waterToConsume, false);
         boolean hasEnoughWater = waterStack != null && (waterStack.isFluidEqual(WATER) || waterStack.isFluidEqual(DISTILLED_WATER)) && waterStack.amount == waterToConsume || waterToConsume == 0;
         if (hasEnoughWater && this.hadWater) {
@@ -359,7 +361,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     private boolean canSeeSky() {
         int start = this.mega ? -7 : -1;
         int end = this.mega ? 8 : 2;
-        int startY = this.offSetPos.getY() + 3;
+        int startY = this.offSetPos.getY() + (this.mega ? 18 : 3);
         for (int x = start; x < end; x++) {
             for (int y = startY; y <= this.getWorld().getHeight(); y++) {
                 for (int z = start; z < end; z++) {
