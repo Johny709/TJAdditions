@@ -1,5 +1,7 @@
 package tj.machines.multi.electric;
 
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IMetaItemStats;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
@@ -55,7 +57,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -79,8 +80,8 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     public static final int BASE_PARALLEL = 12;
     public final MetaTileEntityHotCoolantTurbine.TurbineType turbineType;
-    public IFluidHandler exportFluidHandler;
-    public ItemHandlerList importItemHandler;
+    private IMultipleTankHandler exportFluidHandler;
+    private ItemHandlerList importItemHandler;
 
     private int pageIndex;
     private final int pageSize = 10;
@@ -116,7 +117,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     @Override
     protected HotCoolantRecipeLogic createWorkable(long maxVoltage) {
-        this.xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, this.recipeMap, () -> this.energyContainer, () -> this.importFluidHandler);
+        this.xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getExportFluidHandler);
         this.fastModeConsumer = xlHotCoolantTurbineWorkableHandler::setFastMode;
         return xlHotCoolantTurbineWorkableHandler;
     }
@@ -544,5 +545,17 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     public void storeTaped(boolean isTaped) {
         this.storedTaped = isTaped;
         this.writeCustomData(STORE_TAPED, buf -> buf.writeBoolean(isTaped));
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private IMultipleTankHandler getImportFluidHandler() {
+        return this.importFluidHandler;
+    }
+
+    private IMultipleTankHandler getExportFluidHandler() {
+        return this.exportFluidHandler;
     }
 }

@@ -10,9 +10,7 @@ import gregicadditions.recipes.impl.nuclear.HotCoolantRecipeMap;
 import gregtech.api.capability.*;
 import gregtech.api.capability.impl.FluidFuelInfo;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.unification.material.type.FluidMaterial;
 import gregtech.common.ConfigHolder;
-import gregtech.common.MetaFluids;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.MathHelper;
@@ -41,6 +39,9 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     private static final int BASE_ROTOR_DAMAGE = 11;
     private static final int BASE_EU_OUTPUT = 2048;
 
+    private final MetaTileEntityXLHotCoolantTurbine extremeTurbine;
+    private final Supplier<IMultipleTankHandler> exportFluidTank;
+
     private int totalEnergyProduced;
     private int consumption;
     private String fuelName;
@@ -51,13 +52,12 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     private int progress;
     private int maxProgress;
     private boolean active;
-
-    private final MetaTileEntityXLHotCoolantTurbine extremeTurbine;
     private int rotorCycleLength = CYCLE_LENGTH;
 
-    public XLHotCoolantTurbineWorkableHandler(MetaTileEntity metaTileEntity, HotCoolantRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
-        super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
+    public XLHotCoolantTurbineWorkableHandler(MetaTileEntity metaTileEntity, HotCoolantRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> importFluidTank, Supplier<IMultipleTankHandler> exportFluidTank) {
+        super(metaTileEntity, recipeMap, energyContainer, importFluidTank, 0L);
         this.extremeTurbine = (MetaTileEntityXLHotCoolantTurbine) metaTileEntity;
+        this.exportFluidTank = exportFluidTank;
     }
 
     public static float getTurbineBonus() {
@@ -169,7 +169,9 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fluidStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
+                FluidStack outputFluid = currentRecipe.getOutputFluid();
+                outputFluid.amount = fuelAmountToUse;
+                this.exportFluidTank.get().fill(outputFluid, true);
                 return fuelAmountToUse;
             }
         }
@@ -200,23 +202,6 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
                 areReadyForRecipes++;
         }
         return areReadyForRecipes == rotorHolderSize;
-    }
-
-    @Override
-    protected long startRecipe(HotCoolantRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
-        this.addOutputFluids(currentRecipe, fuelAmountUsed);
-        return 0L; //energy is added each tick while the rotor speed is >0 RPM
-    }
-
-    private void addOutputFluids(HotCoolantRecipe currentRecipe, int fuelAmountUsed) {
-        if (this.extremeTurbine.turbineType == MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT) {
-            if (fuelAmountUsed > 0) {
-                FluidMaterial material = MetaFluids.getMaterialFromFluid(currentRecipe.getRecipeFluid().getFluid());
-                if (material != null) {
-                    this.extremeTurbine.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
-                }
-            }
-        }
     }
 
     private int getBonusForTurbineType(MetaTileEntityXLHotCoolantTurbine turbine) {
@@ -420,7 +405,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
                 continue;
             int amountPerRecipe = calculateFuelAmount(recipe);
             int duration = calculateRecipeDuration(recipe);
-            long fuelBurnTime = (duration * fuelRemaining) / amountPerRecipe;
+            long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
 
             FluidFuelInfo fuelInfo = (FluidFuelInfo) fuels.get(tankContents.getUnlocalizedName());
             if (fuelInfo == null) {

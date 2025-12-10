@@ -1,5 +1,7 @@
 package tj.machines.multi.electric;
 
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IMetaItemStats;
@@ -46,7 +48,6 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -65,8 +66,8 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.STEAM};
     public static final int BASE_PARALLEL = 12;
-    public IFluidHandler exportFluidHandler;
-    public ItemHandlerList importItemHandler;
+    private IMultipleTankHandler exportFluidHandler;
+    private ItemHandlerList importItemHandler;
 
     private int pageIndex;
     private final int pageSize = 10;
@@ -87,7 +88,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
 
     @Override
     protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, this.recipeMap, () -> this.energyContainer, () -> this.importFluidHandler);
+        this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getExportFluidHandler);
         this.fastModeConsumer = this.xlTurbineWorkableHandler::setFastMode;
         return this.xlTurbineWorkableHandler;
     }
@@ -241,7 +242,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
-        this.exportFluidHandler = null;
+        this.exportFluidHandler = new FluidTankList(true);
         this.importItemHandler = new ItemHandlerList(Collections.emptyList());
     }
 
@@ -408,5 +409,17 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @SideOnly(Side.CLIENT)
     public String getRecipeMapName() {
         return this.recipeMap.getLocalizedName();
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private IMultipleTankHandler getImportFluidHandler() {
+        return this.importFluidHandler;
+    }
+
+    private IMultipleTankHandler getExportFluidHandler() {
+        return this.exportFluidHandler;
     }
 }

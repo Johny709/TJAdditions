@@ -10,15 +10,13 @@ import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.recipes.recipes.FuelRecipe;
-import gregtech.api.unification.material.Materials;
-import gregtech.api.unification.material.type.FluidMaterial;
 import gregtech.common.ConfigHolder;
-import gregtech.common.MetaFluids;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import org.apache.commons.lang3.ArrayUtils;
@@ -30,6 +28,7 @@ import tj.machines.multi.electric.MetaTileEntityXLTurbine;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static gregtech.api.unification.material.Materials.DistilledWater;
 import static gregtech.common.metatileentities.multi.electric.generator.RotorHolderMultiblockController.ABILITY_ROTOR_HOLDER;
 
 public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
@@ -39,6 +38,9 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     private static final int BASE_ROTOR_DAMAGE = 220;
     private static final int BASE_EU_OUTPUT = 2048;
     private static final int BASE_EU_VOLTAGE = 512;
+
+    private final MetaTileEntityXLTurbine extremeTurbine;
+    private final Supplier<IMultipleTankHandler> exportFluidTank;
 
     private int totalEnergyProduced;
     private int consumption;
@@ -50,12 +52,12 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
     private int progress;
     private int maxProgress;
 
-    private final MetaTileEntityXLTurbine extremeTurbine;
     private int rotorCycleLength = CYCLE_LENGTH;
 
-    public XLTurbineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
-        super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
+    public XLTurbineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> importFluidTank, Supplier<IMultipleTankHandler> exportFluidTank) {
+        super(metaTileEntity, recipeMap, energyContainer, importFluidTank, 0L);
         this.extremeTurbine = (MetaTileEntityXLTurbine) metaTileEntity;
+        this.exportFluidTank = exportFluidTank;
     }
 
     public static float getTurbineBonus() {
@@ -165,7 +167,10 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fluidStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
+                if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA)
+                    this.exportFluidTank.get().fill(FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse), true);
+                else if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM)
+                    this.exportFluidTank.get().fill(DistilledWater.getFluid(fuelAmountToUse / 160), true);
                 return fuelAmountToUse;
             }
         }
@@ -200,27 +205,6 @@ public class XLTurbineWorkableHandler extends FuelRecipeLogic implements IWorkab
                 areReadyForRecipes++;
         }
         return areReadyForRecipes == rotorHolderSize;
-    }
-
-    @Override
-    protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
-        this.addOutputFluids(currentRecipe, fuelAmountUsed);
-        return 0L; //energy is added each tick while the rotor speed is >0 RPM
-    }
-
-    private void addOutputFluids(FuelRecipe currentRecipe, int fuelAmountUsed) {
-        if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
-            int waterFluidAmount = fuelAmountUsed / 15;
-            if (waterFluidAmount > 0) {
-                FluidStack waterStack = Materials.Water.getFluid(waterFluidAmount);
-                this.extremeTurbine.exportFluidHandler.fill(waterStack, true);
-            }
-        } else if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
-            FluidMaterial material = MetaFluids.getMaterialFromFluid(currentRecipe.getRecipeFluid().getFluid());
-            if (material != null) {
-                this.extremeTurbine.exportFluidHandler.fill(material.getFluid(fuelAmountUsed), true);
-            }
-        }
     }
 
     private int getBonusForTurbineType(MetaTileEntityXLTurbine turbine) {
