@@ -32,11 +32,9 @@ public abstract class FuelableInfoProviderMixin {
         double burnTimePrecise = fuelInfo.getFuelBurnTimeLong() / 20.0;
         if (fuelInfo instanceof ItemFuelInfo) {
             horizontalPane.text(TextStyleClass.INFO + "{*gregtech.top.fuel_name*} §b").itemLabel(((ItemFuelInfo) fuelInfo).getItemStack());
-        } else {
-            horizontalPane.text(TextStyleClass.INFO + "{*gregtech.top.fuel_name*} §7(§b{*" + fuelName + "*}§7)");
-        }
+        } else horizontalPane.text(TextStyleClass.INFO + "{*gregtech.top.fuel_name*} §7(§b{*" + fuelName + "*}§7)");
 
-        int fuelPercent = (fuelRemaining / (fuelCapacity) * 100);
+        long fuelPercent = (fuelRemaining / (fuelCapacity) * 100L);
         String displayFuel = String.format("%s/%s | ", TJValues.thousandFormat.format(fuelRemaining), TJValues.thousandFormat.format(fuelCapacity));
         probeInfo.progress(fuelPercent, 100, probeInfo.defaultProgressStyle()
                 .width((int) (displayFuel.length() * 6.2))

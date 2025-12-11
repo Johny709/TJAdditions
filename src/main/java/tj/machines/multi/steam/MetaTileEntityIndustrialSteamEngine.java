@@ -75,7 +75,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
     private IMultipleTankHandler importFluidHandler;
     private IMultipleTankHandler exportFluidHandler;
     private IEnergyContainer energyContainer;
-    private float efficiency;
+    private double efficiency;
     private long maxVoltage;
     private int tier;
 
@@ -117,7 +117,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
                     text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
 
-                    text.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", efficiency * 100).setStyle(new Style().setColor(AQUA)));
+                    text.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100)).setStyle(new Style().setColor(AQUA)));
 
                     if (!this.workableHandler.isVoidEnergy() && this.energyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
                         text.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
@@ -236,7 +236,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         return this.energyContainer;
     }
 
-    public float getEfficiency() {
+    public double getEfficiency() {
         return this.efficiency;
     }
 
@@ -346,7 +346,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         }
 
         protected int calculateFuelAmount(FuelRecipe currentRecipe) {
-            return (int) ((currentRecipe.getRecipeFluid().amount * 2 * getVoltageMultiplier(this.maxVoltageSupplier.getAsLong(), currentRecipe.getMinVoltage())) / this.efficiencySupplier.getAsDouble());
+            return (int) Math.round((currentRecipe.getRecipeFluid().amount * 2 * getVoltageMultiplier(this.maxVoltageSupplier.getAsLong(), currentRecipe.getMinVoltage())) / this.efficiencySupplier.getAsDouble());
         }
 
         public static int getVoltageMultiplier(long maxVoltage, long minVoltage) {
@@ -384,7 +384,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
                     continue;
                 int amountPerRecipe = this.calculateFuelAmount(recipe);
                 int duration = this.calculateRecipeDuration(recipe);
-                long fuelBurnTime = (duration * fuelRemaining) / amountPerRecipe;
+                long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
 
                 FluidFuelInfo fuelInfo = (FluidFuelInfo) fuels.get(tankContents.getUnlocalizedName());
                 if (fuelInfo == null) {
