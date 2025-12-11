@@ -38,8 +38,7 @@ import static tj.gui.TJGuiTextures.BAR_STEEL;
 
 public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyContainer, BasicEnergyHandler> {
 
-    private static final BasicEnergyHandler DUMMY_ENERGY = new BasicEnergyHandler(0);
-    private final EnderEnergyHandler enderEnergyHandler = new EnderEnergyHandler(DUMMY_ENERGY);
+    private final EnderEnergyHandler enderEnergyHandler = new EnderEnergyHandler(TJValues.DUMMY_ENERGY);
     private final long capacity;
     private final boolean isOutput;
 
@@ -154,18 +153,18 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     @Override
     public void setHandler(BasicEnergyHandler handler) {
         super.setHandler(handler);
-        this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : DUMMY_ENERGY);
+        this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : TJValues.DUMMY_ENERGY);
     }
 
     @Override
     public void setChannel(String lastEntry) {
         super.setChannel(lastEntry);
-        this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : DUMMY_ENERGY);
+        this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : TJValues.DUMMY_ENERGY);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : DUMMY_ENERGY);
+        this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : TJValues.DUMMY_ENERGY);
     }
 }

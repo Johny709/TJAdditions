@@ -295,6 +295,15 @@ tj.machine.energy_hatch.not_tier=Energy hatch is not the same tier
 
 tj.machine.crafter.tooltip=Click on recipe output slot to add to recipe list on the right. Left-Click on recipe list slot to display ingredients on crafting grid. Right-Click to remove recipe.
 
+tj.machine.ender_battery_tower.last_energy_extracted=§7Energy Extracted: §e%,d§7 EU
+tj.machine.ender_battery_tower.last_energy_extracted.tooltip=The amount of energy extracted from ender energy network.
+tj.machine.ender_battery_tower.energy_extracted=§7Energy Out: §e%,d§7 EU/t
+tj.machine.ender_battery_tower.energy_extracted.tooltip=The amount of EU/t going out from battery tower.
+tj.machine.ender_battery_tower.last_energy_inserted=§7Energy Inserted: §e%,d§7 EU
+tj.machine.ender_battery_tower.last_energy_inserted.tooltip=The amount of energy inserted into ender energy network.
+tj.machine.ender_battery_tower.energy_inserted=§7Energy In: §e%,d§7 EU/t
+tj.machine.ender_battery_tower.energy_inserted.tooltip=The amount of EU/t going into battery tower.
+
 tj.multiblock.large_boiler.insert_item=Insert Item
 tj.multiblock.large_boiler.insert_burnable.name=Insert Burnable
 tj.multiblock.large_solar_boiler.obstructed=Sky Obstructed

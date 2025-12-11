@@ -4,6 +4,7 @@ import gregtech.api.unification.material.type.Material;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
+import tj.builder.handlers.BasicEnergyHandler;
 
 import java.text.DecimalFormat;
 
@@ -20,6 +21,8 @@ public class TJValues {
     public static final BlockPos DUMMY_POS = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
 
     public static final IFluidTank DUMMY_TANK = new FluidTank(0);
+
+    public static final BasicEnergyHandler DUMMY_ENERGY = new BasicEnergyHandler(0);
 
     public static final DecimalFormat thousandFormat = new DecimalFormat(",###");
 

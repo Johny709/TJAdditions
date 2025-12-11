@@ -8,9 +8,11 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
+import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
+import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -31,6 +33,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
@@ -39,14 +42,18 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.BasicEnergyHandler;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
+import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.capability.IEnderNotifiable;
+import tj.capability.impl.AbstractWorkableHandler;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
@@ -60,6 +67,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -77,6 +85,8 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final long maxTransferRate = Long.MAX_VALUE;
+
+    private final EnderBatteryTowerWorkableHandler workableHandler = new EnderBatteryTowerWorkableHandler(this, this::getPumpMode, this::getHandler, this::getEnergyBuffer, this::getInputEnergy, this::getOutputEnergy);
 
     private BasicEnergyHandler handler;
     private BasicEnergyHandler energyBuffer;
@@ -99,27 +109,14 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
     protected void updateFormedValid() {
-        for (int i = 0; i < this.inputEnergy.size(); i++)
-            this.importEnergy(this.inputEnergy.get(i));
-        for (int i = 0; i < this.outputEnergy.size(); i++)
-            this.exportEnergy(this.outputEnergy.get(i));
-    }
-
-    private void exportEnergy(IEnergyContainer enderEnergyContainer) {
-        long energyRemainingToFill = enderEnergyContainer.getEnergyCapacity() - enderEnergyContainer.getEnergyStored();
-        if (enderEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-            long energyExtracted = this.energyBuffer.removeEnergy(energyRemainingToFill);
-            enderEnergyContainer.addEnergy(Math.abs(energyExtracted));
-        }
-    }
-
-    private void importEnergy(IEnergyContainer enderEnergyContainer) {
-        long energyRemainingToFill = this.energyBuffer.getEnergyCapacity() - this.energyBuffer.getEnergyStored();
-        if (this.energyBuffer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-            long energyExtracted = Math.abs(enderEnergyContainer.removeEnergy(energyRemainingToFill));
-            this.energyBuffer.addEnergy(energyExtracted);
-        }
+        if (((this.getProblems() >> 5) & 1) != 0)
+            this.workableHandler.update();
     }
 
     protected BasicEnergyHandler createHandler() {
@@ -716,6 +713,24 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", value.getEnergyStored(), value.getEnergyCapacity()))));
     }
 
+    @Override
+    protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
+        if (!this.isStructureFormed()) return;
+        MultiblockDisplayBuilder.start(textList)
+                .energyStored(this.energyBuffer.getEnergyStored(), this.energyBuffer.getEnergyCapacity())
+                .custom(text -> {
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.energy_inserted", this.workableHandler.getEnergyInserted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.energy_inserted.tooltip")))));
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.energy_extracted", this.workableHandler.getEnergyExtracted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.energy_extracted.tooltip")))));
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.last_energy_inserted", this.workableHandler.getLastEnergyInserted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.last_energy_inserted.tooltip")))));
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.last_energy_extracted", this.workableHandler.getLastEnergyExtracted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.last_energy_extracted.tooltip")))));
+                }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+    }
+
     private String[] getTooltipFormat() {
         return ArrayUtils.toArray(getTransferRate());
     }
@@ -907,6 +922,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
         buf.writeBoolean(this.ownerId != null);
         if (this.ownerId != null)
             buf.writeUniqueId(this.ownerId);
@@ -922,6 +938,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
+        data.setInteger("mode", this.pumpMode.ordinal());
         if (this.frequency != null)
             data.setString("frequency", this.frequency);
         if (this.ownerId != null)
@@ -938,6 +955,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
+        this.pumpMode = CoverPump.PumpMode.values()[data.getInteger("mode")];
         if (data.hasKey("frequency"))
             this.frequency = data.getString("frequency");
         if (data.hasKey("ownerId"))
@@ -960,5 +978,150 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
     private long getEnergyStored() {
         return this.handler != null ? this.handler.getEnergyStored() : 0;
+    }
+
+    public CoverPump.PumpMode getPumpMode() {
+        return this.pumpMode;
+    }
+
+    public BasicEnergyHandler getHandler() {
+        return this.handler != null ? this.handler : TJValues.DUMMY_ENERGY;
+    }
+
+    private IEnergyContainer getEnergyBuffer() {
+        return this.energyBuffer;
+    }
+
+    private List<IEnergyContainer> getInputEnergy() {
+        return this.inputEnergy;
+    }
+
+    private List<IEnergyContainer> getOutputEnergy() {
+        return this.outputEnergy;
+    }
+
+    private static class EnderBatteryTowerWorkableHandler extends AbstractWorkableHandler<EnderBatteryTowerWorkableHandler> implements IEnergyContainer {
+
+        private final Supplier<CoverPump.PumpMode> pumpMode;
+        private final Supplier<BasicEnergyHandler> handler;
+        private final Supplier<IEnergyContainer> energyBuffer;
+        private final Supplier<List<IEnergyContainer>> inputEnergy;
+        private final Supplier<List<IEnergyContainer>> outputEnergy;
+        private long lastEnergyExtracted;
+        private long energyExtracted;
+        private long lastEnergyInserted;
+        private long energyInserted;
+
+        public EnderBatteryTowerWorkableHandler(MetaTileEntity metaTileEntity, Supplier<CoverPump.PumpMode> pumpMode, Supplier<BasicEnergyHandler> handler, Supplier<IEnergyContainer> energyBuffer, Supplier<List<IEnergyContainer>> inputEnergy, Supplier<List<IEnergyContainer>> outputEnergy) {
+            super(metaTileEntity);
+            this.pumpMode = pumpMode;
+            this.handler = handler;
+            this.energyBuffer = energyBuffer;
+            this.inputEnergy = inputEnergy;
+            this.outputEnergy = outputEnergy;
+            this.maxProgress = 1200;
+        }
+
+        @Override
+        protected boolean startRecipe() {
+            return true;
+        }
+
+        @Override
+        protected void progressRecipe(int progress) {
+            this.energyExtracted = 0;
+            this.energyInserted = 0;
+            for (int i = 0; i < this.inputEnergy.get().size(); i++)
+                this.energyInserted += this.importEnergy(this.inputEnergy.get().get(i));
+            for (int i = 0; i < this.outputEnergy.get().size(); i++)
+                this.energyExtracted += this.exportEnergy(this.outputEnergy.get().get(i));
+            this.progress++;
+        }
+
+        @Override
+        protected boolean completeRecipe() {
+            this.lastEnergyExtracted = 0;
+            this.lastEnergyInserted = 0;
+            if (this.pumpMode.get() == CoverPump.PumpMode.IMPORT)
+                this.lastEnergyInserted = this.exportEnergy(this.handler.get());
+            else this.lastEnergyExtracted = this.importEnergy(this.handler.get());
+            return true;
+        }
+
+        private long exportEnergy(IEnergyContainer enderEnergyContainer) {
+            long energyRemainingToFill = enderEnergyContainer.getEnergyCapacity() - enderEnergyContainer.getEnergyStored();
+            if (enderEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
+                long energyExtracted = this.energyBuffer.get().removeEnergy(energyRemainingToFill);
+                return enderEnergyContainer.addEnergy(Math.abs(energyExtracted));
+            }
+            return 0;
+        }
+
+        private long importEnergy(IEnergyContainer enderEnergyContainer) {
+            long energyRemainingToFill = this.energyBuffer.get().getEnergyCapacity() - this.energyBuffer.get().getEnergyStored();
+            if (this.energyBuffer.get().getEnergyStored() < 1 || energyRemainingToFill != 0) {
+                long energyExtracted = Math.abs(enderEnergyContainer.removeEnergy(energyRemainingToFill));
+                return this.energyBuffer.get().addEnergy(energyExtracted);
+            }
+            return 0;
+        }
+
+        @Override
+        public <T> T getCapability(Capability<T> capability) {
+            if (capability == GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER)
+                return GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER.cast(this);
+            return super.getCapability(capability);
+        }
+
+        public long getLastEnergyExtracted() {
+            return this.lastEnergyExtracted;
+        }
+
+        public long getEnergyExtracted() {
+            return this.energyExtracted;
+        }
+
+        public long getLastEnergyInserted() {
+            return this.lastEnergyInserted;
+        }
+
+        public long getEnergyInserted() {
+            return this.energyInserted;
+        }
+
+        @Override
+        public long acceptEnergyFromNetwork(EnumFacing enumFacing, long l, long l1) {
+            return 0;
+        }
+
+        @Override
+        public boolean inputsEnergy(EnumFacing enumFacing) {
+            return false;
+        }
+
+        @Override
+        public long changeEnergy(long l) {
+            return 0;
+        }
+
+        @Override
+        public long getEnergyStored() {
+            return this.energyBuffer.get().getEnergyStored();
+        }
+
+        @Override
+        public long getEnergyCapacity() {
+            return this.energyBuffer.get().getEnergyCapacity();
+        }
+
+        @Override
+        public long getInputAmperage() {
+            return 0;
+        }
+
+        @Override
+        public long getInputVoltage() {
+            return 0;
+        }
     }
 }

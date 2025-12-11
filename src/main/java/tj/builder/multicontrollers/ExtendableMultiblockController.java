@@ -53,8 +53,7 @@ public abstract class ExtendableMultiblockController extends TJMultiblockDisplay
             if (parallelLayer > 1) {
                 this.parallelLayer--;
                 textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
-            } else
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
+            } else textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
         }
         if (getWorld().isRemote)
             playerIn.sendMessage(textComponent);
