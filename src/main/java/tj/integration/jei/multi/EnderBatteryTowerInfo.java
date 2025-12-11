@@ -7,6 +7,7 @@ import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -63,5 +64,11 @@ public class EnderBatteryTowerInfo extends TJMultiblockInfoPage implements IPara
         Arrays.stream(GATransparentCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.TRANSPARENT_CASING.getItemVariant(casingType), COMPONENT_TIER_ANY_TOOLTIP));
         this.addBlockTooltip(GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.HASTELLOY_X78), new TextComponentTranslation("gregtech.multiblock.preview.limit", 10)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{I18n.format("gtadditions.multiblock.battery_tower.tooltip.1"),
+                net.minecraft.client.resources.I18n.format("tj.multiblock.ender_battery_tower.description")};
     }
 }

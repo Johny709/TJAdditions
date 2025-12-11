@@ -73,6 +73,8 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
+        if (!(this.getController() instanceof ParallelRecipeMapMultiblockController))
+            return new String[]{""};
         ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.getController();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < controller.getRecipeMaps().length; i++) {

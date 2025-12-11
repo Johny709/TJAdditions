@@ -42,6 +42,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -64,6 +65,7 @@ import tj.util.EnderWorldData;
 import tj.util.predicates.QuadActionResultPredicate;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -106,6 +108,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityEnderBatteryTower(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.battery_tower.tooltip.1"));
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.ender_battery_tower.description"));
     }
 
     @Override
@@ -720,14 +729,14 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         MultiblockDisplayBuilder.start(textList)
                 .energyStored(this.energyBuffer.getEnergyStored(), this.energyBuffer.getEnergyCapacity())
                 .custom(text -> {
-                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.energy_inserted", this.workableHandler.getEnergyInserted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.energy_inserted.tooltip")))));
-                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.energy_extracted", this.workableHandler.getEnergyExtracted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.energy_extracted.tooltip")))));
-                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.last_energy_inserted", this.workableHandler.getLastEnergyInserted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.last_energy_inserted.tooltip")))));
-                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.machine.ender_battery_tower.last_energy_extracted", this.workableHandler.getLastEnergyExtracted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.ender_battery_tower.last_energy_extracted.tooltip")))));
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.ender_battery_tower.energy_inserted", this.workableHandler.getEnergyInserted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_inserted.tooltip")))));
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.ender_battery_tower.energy_extracted", this.workableHandler.getEnergyExtracted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_extracted.tooltip")))));
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.ender_battery_tower.last_energy_inserted", this.workableHandler.getLastEnergyInserted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_inserted.tooltip")))));
+                    text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.ender_battery_tower.last_energy_extracted", this.workableHandler.getLastEnergyExtracted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_extracted.tooltip")))));
                 }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 

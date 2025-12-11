@@ -26,6 +26,7 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
@@ -34,6 +35,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
@@ -49,7 +51,9 @@ import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.util.Color;
+import tj.util.TooltipHelper;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -87,6 +91,15 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityLargeSolarBoiler(this.metaTileEntityId, this.mega);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.large_solar_boiler.description"));
+        if (!this.mega) return;
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.mega_boiler.parallel.description", this.getMaxParallel()).replace("§r", "§7"));
+        tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.multiblock.mega_boiler.warning"));
     }
 
     @Override
