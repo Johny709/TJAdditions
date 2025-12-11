@@ -5,7 +5,9 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
+import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
+import gregtech.api.render.Textures;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.handlers.MegaBoilerRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -211,11 +213,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     }
 
     @Override
-    public int getLightValueForPart(IMultiblockPart sourcePart) {
-        return sourcePart == null ? 0 : (this.boilerRecipeLogic.isActive() ? 15 : 0);
-    }
-
-    @Override
     protected BlockPattern createStructurePattern() {
         return this.boilerType == null ? null : FactoryBlockPattern.start()
                 .aisle("XXXXXXXXXXXXXXX", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCC")
@@ -264,21 +261,24 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.hasProblem(), this.boilerRecipeLogic.isWorkingEnabled());
     }
 
-    private boolean isFireboxPart(IMultiblockPart sourcePart) {
-        return this.isStructureFormed() && (((MetaTileEntity) sourcePart).getPos().getY() < getPos().getY());
-    }
-
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        if (sourcePart != null && isFireboxPart(sourcePart)) {
-            return this.boilerRecipeLogic.isActive() ? this.boilerType.firefoxActiveRenderer : this.boilerType.fireboxIdleRenderer;
+        if (sourcePart instanceof IMultiblockAbilityPart) {
+            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
+                return this.boilerType.solidCasingRenderer;
         }
-        return this.boilerType.solidCasingRenderer;
+        return sourcePart == null ? this.boilerType.solidCasingRenderer : this.boilerRecipeLogic.isActive() ? this.boilerType.firefoxActiveRenderer : this.boilerType.fireboxIdleRenderer;
     }
 
     @Override
-    public boolean shouldRenderOverlay(IMultiblockPart sourcePart) {
-        return sourcePart == null || !this.isFireboxPart(sourcePart);
+    public int getLightValueForPart(IMultiblockPart sourcePart) {
+        if (sourcePart instanceof IMultiblockAbilityPart) {
+            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
+                return 0;
+        }
+        return sourcePart == null ? 0 : this.boilerRecipeLogic.isActive() ? 15 : 0;
     }
 
     @Override
