@@ -37,7 +37,7 @@ public class MetaTileEntitySolarBoiler extends MetaTileEntityCoalBoiler {
     private boolean canSeeSky() {
         this.pos.setPos(this.getPos().getX(), this.getPos().getY() + 1, this.getPos().getZ());
         for (int i = this.pos.getY(); i <= this.getWorld().getHeight(); this.pos.setPos(this.pos.getX(), ++i, this.pos.getZ())) {
-            if (this.getWorld().getBlockState(this.pos).getBlock() != Blocks.AIR)
+            if (this.getWorld().getBlockState(this.pos).isFullCube())
                 return false;
         }
         return true;

@@ -379,7 +379,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
             for (int y = startY; y <= this.getWorld().getHeight(); y++) {
                 for (int z = start; z < end; z++) {
                     this.pos.setPos(this.offSetPos.getX() + x, y, this.offSetPos.getZ() + z);
-                    if (this.getWorld().getBlockState(this.pos).getBlock() != Blocks.AIR)
+                    if (this.getWorld().getBlockState(this.pos).isFullCube())
                         return false;
                 }
             }
