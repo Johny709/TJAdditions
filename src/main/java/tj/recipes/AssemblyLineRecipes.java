@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.items.metaitem.MetaItem;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -1129,6 +1130,17 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.gear, Adamantium, 16)
                 .input(OrePrefix.plateDense, Mendelevium.getMaterial(), 7)
                 .outputs(MEGA_FUSION.getStackForm())
+                .duration(2000).EUt(GAValues.VA[10])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(14400), Lubricant.getFluid(16000), EnderPearl.getFluid(57600), EnderPearl.getFluid(57600))
+                .inputs(BATTERY_TOWER.getStackForm(16), SENSOR_UHV.getStackForm(16), EMITTER_UHV.getStackForm(16), FIELD_GENERATOR_UHV.getStackForm(16))
+                .inputs(UHPIC.getStackForm(16))
+                .input(OrePrefix.circuit, UEV, 16)
+                .input(OrePrefix.circuit, UEV, 16)
+                .inputs(UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16), UHPIC.getStackForm(16), UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16))
+                .outputs(ENDER_BATTERY_TOWER.getStackForm())
                 .duration(2000).EUt(GAValues.VA[10])
                 .buildAndRegister();
     }

@@ -214,6 +214,12 @@ public class AssemblerRecipes {
                 .EUt(GAValues.VA[6])
                 .buildAndRegister();
 
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .inputs(LARGE_SOLAR_BOILER.getStackForm(64), LARGE_SOLAR_BOILER.getStackForm(64), LARGE_SOLAR_BOILER.getStackForm(64), LARGE_SOLAR_BOILER.getStackForm(64))
+                .outputs(MEGA_SOLAR_BOILER.getStackForm())
+                .duration(1200).EUt(GAValues.VA[1])
+                .buildAndRegister();
+
         for (int i = 0; i < 15; i++) {
             if (i == GAValues.UHV || i == GAValues.UMV || i == GAValues.MAX)
                 ASSEMBLER_RECIPES.recipeBuilder()
