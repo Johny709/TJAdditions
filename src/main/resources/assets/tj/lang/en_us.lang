@@ -88,6 +88,7 @@ tj.machine.mega_fusion.name=Mega Fusion (MF)
 tj.machine.ender_battery_tower.name=Ender Battery Tower (EBT)
 tj.machine.large_solar_boiler.name=Large Solar Boiler (LSB)
 tj.machine.mega_solar_boiler.name=Mega Solar Boiler (MSB)
+tj.machine.large_implosion_compressor.name=Large Implosion Compressor (LIC)
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II

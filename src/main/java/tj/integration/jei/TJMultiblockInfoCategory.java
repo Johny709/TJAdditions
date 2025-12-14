@@ -18,6 +18,9 @@ import tj.TJ;
 import tj.TJConfig;
 import tj.integration.jei.multi.*;
 import tj.integration.jei.multi.parallel.*;
+import tj.integration.jei.multi.XLHotCoolantTurbineInfo;
+import tj.integration.jei.multi.XLTurbineInfo;
+import tj.integration.jei.multi.steam.*;
 import tj.machines.TJMetaTileEntities;
 
 import javax.annotation.Nonnull;
@@ -118,7 +121,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("mega_fusion", new MultiblockInfoRecipeWrapper(new MegaFusionInfo()))
                             .put("ender_battery_tower", new MultiblockInfoRecipeWrapper(new EnderBatteryTowerInfo()))
                             .put("large_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(false)))
-                            .put("mega_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(true)));
+                            .put("mega_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(true)))
+                            .put("large_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeImplosionCompressorInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

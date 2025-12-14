@@ -1,4 +1,4 @@
-package tj.integration.jei.multi;
+package tj.integration.jei.multi.steam;
 
 import com.google.common.collect.Lists;
 import gregicadditions.item.metal.MetalCasing1;

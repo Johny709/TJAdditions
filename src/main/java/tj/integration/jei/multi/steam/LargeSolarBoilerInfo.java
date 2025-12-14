@@ -1,4 +1,4 @@
-package tj.integration.jei.multi;
+package tj.integration.jei.multi.steam;
 
 import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockBoilerCasing;

@@ -1,4 +1,4 @@
-package tj.integration.jei.multi;
+package tj.integration.jei.multi.steam;
 
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
