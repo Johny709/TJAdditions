@@ -1,15 +1,15 @@
-package tj.integration.jei.multi;
+package tj.integration.jei.multi.electric;
 
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
-import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCoolant;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
@@ -18,37 +18,37 @@ import net.minecraft.util.EnumFacing;
 import tj.builder.handlers.XLTurbineWorkableHandler;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
-import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
+import tj.machines.multi.electric.MetaTileEntityXLTurbine;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
+public class XLTurbineInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
-    public final MetaTileEntityXLHotCoolantTurbine turbine;
+    public final MetaTileEntityXLTurbine turbine;
 
-    public XLHotCoolantTurbineInfo(MetaTileEntityXLHotCoolantTurbine turbine) {
+    public XLTurbineInfo(MetaTileEntityXLTurbine turbine) {
         this.turbine = turbine;
     }
 
     @Override
     public MultiblockControllerBase getController() {
-        return turbine;
+        return this.turbine;
     }
 
     @Override
     public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
         MetaTileEntityHolder holderNorth = new MetaTileEntityHolder();
         MetaTileEntityHolder holderSouth = new MetaTileEntityHolder();
-        holderNorth.setMetaTileEntity(GATileEntities.ROTOR_HOLDER[2]);
-        holderSouth.setMetaTileEntity(GATileEntities.ROTOR_HOLDER[2]);
+        holderNorth.setMetaTileEntity(MetaTileEntities.ROTOR_HOLDER[2]);
+        holderSouth.setMetaTileEntity(MetaTileEntities.ROTOR_HOLDER[2]);
         ItemStack rotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm();
         //noinspection ConstantConditions
         TurbineRotorBehavior.getInstanceFor(rotorStack).setPartMaterial(rotorStack, Materials.Darmstadtium);
-        ((MetaTileEntityRotorHolderForNuclearCoolant) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
-        ((MetaTileEntityRotorHolderForNuclearCoolant) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
+        ((MetaTileEntityRotorHolder) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
+        ((MetaTileEntityRotorHolder) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
         List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         for (int shapeInfo = 0; shapeInfo < 7; shapeInfo++) {
             GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)

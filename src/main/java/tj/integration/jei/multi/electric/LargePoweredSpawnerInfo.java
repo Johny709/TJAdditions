@@ -1,8 +1,6 @@
-package tj.integration.jei.multi;
+package tj.integration.jei.multi.electric;
 
 import com.google.common.collect.Lists;
-import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
@@ -22,34 +20,34 @@ import tj.machines.TJMetaTileEntities;
 
 import java.util.List;
 
-public class LargeVialProcessorInfo extends MultiblockInfoPage {
+public class LargePoweredSpawnerInfo extends MultiblockInfoPage {
 
-    public LargeVialProcessorInfo() {
+    public LargePoweredSpawnerInfo() {
     }
 
     @Override
     public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.LARGE_VIAL_PROCESSOR;
+        return TJMetaTileEntities.LARGE_POWERED_SPAWNER;
     }
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
                 .aisle("ICCCC", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
-                .aisle("LTTTC", "~BGB~", "~BGB~", "~BGB~", "CTTTC")
-                .aisle("STETC", "~GEG~", "~GEG~", "~GEG~", "HTETC")
-                .aisle("OTTTC", "~BGB~", "~BGB~", "~BGB~", "CTTTC")
+                .aisle("LCCCC", "~TMT~", "~TMT~", "~TMT~", "CGGGC")
+                .aisle("SCCCC", "~MEM~", "~MEM~", "~MEM~", "HGGGC")
+                .aisle("OCCCC", "~TMT~", "~TMT~", "~TMT~", "CGGGC")
                 .aisle("JCCCC", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
-                .where('S', TJMetaTileEntities.LARGE_VIAL_PROCESSOR, EnumFacing.WEST)
+                .where('S', TJMetaTileEntities.LARGE_POWERED_SPAWNER, EnumFacing.WEST)
                 .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SOUL_CASING))
-                .where('B', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
-                .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('F', new BlockInfo(Block.getBlockFromName("gregtech:frame_protactinium")))
+                .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
+                .where('M', new BlockInfo(Block.getBlockFromName("enderio:block_decoration1")))
                 .where('E', Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                .where('I', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.WEST)
+                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MV], EnumFacing.WEST)
                 .where('L', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MV], EnumFacing.WEST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.EV], EnumFacing.WEST)
+                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.MV], EnumFacing.WEST)
                 .where('J', MetaTileEntities.ENERGY_INPUT_HATCH[GTValues.LuV], EnumFacing.WEST)
                 .where('H', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .build();
@@ -59,7 +57,7 @@ public class LargeVialProcessorInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[] {
-                I18n.format("tj.multiblock.large_vial_processor.description")};
+                I18n.format("tj.multiblock.large_powered_spawner.description")};
     }
 
     @Override

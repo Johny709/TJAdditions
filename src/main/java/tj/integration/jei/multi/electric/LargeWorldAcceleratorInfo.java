@@ -1,4 +1,4 @@
-package tj.integration.jei.multi;
+package tj.integration.jei.multi.electric;
 
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.EmitterCasing;

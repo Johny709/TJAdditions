@@ -16,10 +16,10 @@ import mezz.jei.gui.recipes.RecipeLayout;
 import net.minecraft.client.resources.I18n;
 import tj.TJ;
 import tj.TJConfig;
-import tj.integration.jei.multi.*;
+import tj.integration.jei.multi.electric.*;
 import tj.integration.jei.multi.parallel.*;
-import tj.integration.jei.multi.XLHotCoolantTurbineInfo;
-import tj.integration.jei.multi.XLTurbineInfo;
+import tj.integration.jei.multi.electric.XLHotCoolantTurbineInfo;
+import tj.integration.jei.multi.electric.XLTurbineInfo;
 import tj.integration.jei.multi.steam.*;
 import tj.machines.TJMetaTileEntities;
 
@@ -122,7 +122,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("ender_battery_tower", new MultiblockInfoRecipeWrapper(new EnderBatteryTowerInfo()))
                             .put("large_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(false)))
                             .put("mega_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(true)))
-                            .put("large_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeImplosionCompressorInfo()));
+                            .put("large_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeImplosionCompressorInfo()))
+                            .put("large_electric_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeElectricImplosionCompressor()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

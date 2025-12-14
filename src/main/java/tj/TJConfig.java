@@ -979,4 +979,25 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int stack = 16;
     }
+
+    @Config.Comment("Large Electric Implosion Compressor")
+    public static LargeElectricImplosionCompressor largeElectricImplosionCompressor = new LargeElectricImplosionCompressor();
+
+    public static class LargeElectricImplosionCompressor {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+    }
 }

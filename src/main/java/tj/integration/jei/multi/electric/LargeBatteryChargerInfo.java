@@ -1,4 +1,4 @@
-package tj.integration.jei.multi;
+package tj.integration.jei.multi.electric;
 
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
