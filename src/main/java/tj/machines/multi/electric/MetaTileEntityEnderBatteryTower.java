@@ -232,7 +232,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 .useToggleTexture(true));
                         this.addEnergyWidgets(widgetGroup::addWidget);
                         return true;
-                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 142, 18, 18) // search settings button
+                    }).addPopup(130, 61, 60, 78, new TJToggleButtonWidget(172, 142, 18, 18) // search settings button
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                             .setTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -313,11 +313,11 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
             textWidget.setMaxWidthLimit(1000);
             tab.addWidget(new ClickPopUpWidget(0, -30, 0, 0)
                     .addPopup(widgetGroup -> {
-                        widgetGroup.addWidget(new ImageWidget(8, 17, 145, 18, DISPLAY));
+                        widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
                         widgetGroup.addWidget(new ImageWidget(30, 142, 139, 18, DISPLAY));
                         widgetGroup.addWidget(new ScrollableTextWidget(8, 35, 199, 103)
                                 .addTextWidget(textWidget));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(10, 22, 142, 18)
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(32, 22, 136, 18)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                 .setBackgroundText("machine.universal.toggle.current.frequency")
                                 .setTooltipText("machine.universal.toggle.current.frequency")
@@ -339,7 +339,6 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 .setTextSupplier(() -> search[1])
                                 .setMaxStringLength(256)
                                 .setUpdateOnTyping(true));
-                        widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.displayName));
                         return true;
                     }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                             .setDisplayText("machine.universal.cancel")
@@ -480,7 +479,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .useToggleTexture(true), innerWidgetGroup -> this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2)));
                         return false;
-                    }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(172, 142, 18, 18) // search settings button
+                    }).addPopup(130, 61, 60, 78, new TJToggleButtonWidget(172, 142, 18, 18) // search settings button
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                             .setTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -985,6 +984,16 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         return 256;
     }
 
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.workableHandler.isWorkingEnabled();
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isActivationAllowed) {
+        this.workableHandler.setWorkingEnabled(isActivationAllowed);
+    }
+
     private long getEnergyStored() {
         return this.handler != null ? this.handler.getEnergyStored() : 0;
     }
@@ -1040,6 +1049,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         protected void progressRecipe(int progress) {
             this.energyExtracted = 0;
             this.energyInserted = 0;
+            if (!this.isWorking) return;
             for (int i = 0; i < this.inputEnergy.get().size(); i++)
                 this.energyInserted += this.importEnergy(this.inputEnergy.get().get(i));
             for (int i = 0; i < this.outputEnergy.get().size(); i++)
