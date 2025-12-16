@@ -22,6 +22,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -48,7 +50,7 @@ import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
-    private int cryoConsumeAmount;
+    private FluidStack cryotheum;
 
     public MetaTileEntityParallelCryogenicFreezer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_VACUUM_RECIPES});
@@ -56,10 +58,9 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
 
             @Override
             protected boolean drawEnergy(long recipeEUt) {
-                FluidStack cryotheum = this.getInputTank().drain(Cryotheum.getFluid(cryoConsumeAmount), false);
-                if (cryotheum != null && cryotheum.amount == cryoConsumeAmount)
-                    this.getInputTank().drain(Cryotheum.getFluid(cryoConsumeAmount), true);
-                else return false;
+                FluidStack drained = this.getInputTank().drain(cryotheum, true);
+                if (drained == null || drained.amount != cryotheum.amount)
+                    return false;
                 return super.drawEnergy(recipeEUt);
             }
         };
@@ -81,6 +82,15 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
             tip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
             super.addInformation(stack, player, tip, advanced);
         });
+    }
+
+    @Override
+    protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
+        if (!this.isStructureFormed()) return;
+        FluidStack drained = this.inputFluidInventory.drain(this.cryotheum, false);
+        textList.add(drained != null && drained.amount == this.cryotheum.amount ? new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", this.cryotheum.getLocalizedName(), this.cryotheum.amount))
+                : new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", this.cryotheum.getLocalizedName(), this.cryotheum.amount)));
     }
 
     @Override
@@ -117,7 +127,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
                 .filter(voltage -> voltage <= GAValues.V[7])
                 .max()
                 .orElse(GAValues.V[7]);
-        this.cryoConsumeAmount = (int) Math.pow(2, GAUtility.getTierByVoltage(this.maxVoltage));
+        this.cryotheum = Cryotheum.getFluid((int) Math.pow(2, GAUtility.getTierByVoltage(this.maxVoltage)));
     }
 
     @Override

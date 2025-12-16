@@ -13,26 +13,24 @@ import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 
 import java.util.Collection;
 import java.util.function.IntSupplier;
-
-import static gregicadditions.GAMaterials.Pyrotheum;
+import java.util.function.Supplier;
 
 public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic {
 
     private final IntSupplier temperature;
-    private final IntSupplier pyroConsumeAmount;
+    private final Supplier<FluidStack> pyrotheum;
 
-    public ParallelVolcanusRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, IntSupplier temperature, IntSupplier pyroConsumeAmount, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
+    public ParallelVolcanusRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, IntSupplier temperature, Supplier<FluidStack> pyrotheum, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
         super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
         this.temperature = temperature;
-        this.pyroConsumeAmount = pyroConsumeAmount;
+        this.pyrotheum = pyrotheum;
     }
 
     @Override
     protected boolean drawEnergy(long recipeEUt) {
-        FluidStack pyrotheum = this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), false);
-        if (pyrotheum != null && pyrotheum.amount == pyroConsumeAmount.getAsInt())
-            this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), true);
-        else return false;
+        FluidStack drained = this.getInputTank().drain(this.pyrotheum.get(), true);
+        if (drained == null || drained.amount != this.pyrotheum.get().amount)
+            return false;
         return super.drawEnergy(recipeEUt);
     }
 

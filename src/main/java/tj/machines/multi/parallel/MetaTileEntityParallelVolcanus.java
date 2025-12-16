@@ -24,8 +24,10 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
@@ -38,6 +40,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregicadditions.GAMaterials.Pyrotheum;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -51,10 +54,11 @@ import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController {
 
-    private int pyroConsumeAmount;
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
+
+    private FluidStack pyro;
     private int blastFurnaceTemperature;
     private int bonusTemperature;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelVolcanus(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
@@ -85,10 +89,12 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
         super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            textList.add(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature));
-            textList.add(new TextComponentTranslation("gtadditions.multiblock.blast_furnace.additional_temperature", this.bonusTemperature));
-        }
+        if (!this.isStructureFormed()) return;
+        textList.add(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature));
+        textList.add(new TextComponentTranslation("gtadditions.multiblock.blast_furnace.additional_temperature", this.bonusTemperature));
+        FluidStack drained = this.inputFluidInventory.drain(this.pyro, false);
+        textList.add(drained != null && drained.amount == this.pyro.amount ? new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", this.pyro.getLocalizedName(), this.pyro.amount))
+                : new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", this.pyro.getLocalizedName(), this.pyro.amount)));
     }
 
     @Override
@@ -130,7 +136,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
         this.bonusTemperature = Math.max(0, 100 * (energyTier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
-        this.pyroConsumeAmount = (int) Math.pow(2, GAUtility.getTierByVoltage(this.maxVoltage));
+        this.pyro = Pyrotheum.getFluid((int) Math.pow(2, GAUtility.getTierByVoltage(this.maxVoltage)));
     }
 
     @Override
@@ -148,8 +154,8 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
         return this.blastFurnaceTemperature;
     }
 
-    public int getPyroConsumeAmount() {
-        return this.pyroConsumeAmount;
+    public FluidStack getPyroConsumeAmount() {
+        return this.pyro;
     }
 
     @Override
