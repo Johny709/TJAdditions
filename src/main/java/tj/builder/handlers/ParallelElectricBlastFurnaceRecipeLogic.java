@@ -25,7 +25,7 @@ public class ParallelElectricBlastFurnaceRecipeLogic extends ParallelMultiblockR
     }
 
     @Override
-    protected boolean calculateOverclock(int EUt, int duration) {
+    protected boolean calculateOverclock(long EUt, int duration) {
         if (!this.allowOverclocking) {
             this.overclockManager.setEUtAndDuration(EUt, duration);
             return true;
@@ -51,12 +51,12 @@ public class ParallelElectricBlastFurnaceRecipeLogic extends ParallelMultiblockR
             EUt = -EUt;
         if (EUt <= 16) {
             int multiplier = EUt <= 8 ? tier : tier - 1;
-            int resultEUt = EUt * (1 << multiplier) * (1 << multiplier);
+            long resultEUt = EUt * (1 << multiplier) * (1 << multiplier);
             int resultDuration = duration / (1 << multiplier);
             this.overclockManager.setEUtAndDuration(negativeEU ? -resultEUt : resultEUt, resultDuration);
             return true;
         } else {
-            int resultEUt = EUt;
+            long resultEUt = EUt;
             double resultDuration = duration;
 
             // Do not overclock further if duration is already too small

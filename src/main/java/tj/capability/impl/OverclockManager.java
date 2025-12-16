@@ -2,12 +2,12 @@ package tj.capability.impl;
 
 public class OverclockManager<T> {
 
-    private int EUt;
+    private long EUt;
     private int duration;
     private int parallel;
     private T recipeProperty;
 
-    public void setEUtAndDuration(int EUt, int duration) {
+    public void setEUtAndDuration(long EUt, int duration) {
         this.EUt = EUt;
         this.duration = duration;
     }
@@ -16,7 +16,7 @@ public class OverclockManager<T> {
         this.recipeProperty = recipeProperty;
     }
 
-    public void setEUt(int EUt) {
+    public void setEUt(long EUt) {
         this.EUt = EUt;
     }
 
@@ -29,18 +29,18 @@ public class OverclockManager<T> {
     }
 
     public T getRecipeProperty() {
-        return recipeProperty;
+        return this.recipeProperty;
     }
 
-    public int getEUt() {
-        return EUt;
+    public long getEUt() {
+        return this.EUt;
     }
 
     public int getDuration() {
-        return duration;
+        return this.duration;
     }
 
     public int getParallel() {
-        return parallel;
+        return this.parallel;
     }
 }

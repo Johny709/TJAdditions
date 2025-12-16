@@ -56,8 +56,8 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
             @Override
             protected void setupRecipe(Recipe recipe, int i) {
                 int energyBonus = this.controller.getEUBonus();
-                int resultOverclock = this.overclockManager.getEUt();
-                resultOverclock -= (int) (resultOverclock * energyBonus * 0.01f);
+                long resultOverclock = this.overclockManager.getEUt();
+                resultOverclock -= (long) (resultOverclock * energyBonus * 0.01f);
                 this.overclockManager.setEUt(resultOverclock);
                 super.setupRecipe(recipe, i);
             }

@@ -52,7 +52,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     protected int[] progressTime = new int[1];
     protected int[] maxProgressTime = new int[1];
-    protected int[] recipeEUt = new int[1];
+    protected long[] recipeEUt = new long[1];
     protected int[] parallel = new int[1];
     protected int[] itemOutputIndex = new int[1];
     protected int[] fluidOutputIndex = new int[1];
@@ -135,7 +135,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     protected abstract long getEnergyCapacity();
 
-    protected abstract boolean drawEnergy(int recipeEUt);
+    protected abstract boolean drawEnergy(long recipeEUt);
 
     protected abstract long getMaxVoltage();
 
@@ -386,8 +386,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe) {
         if (!this.calculateOverclock(recipe.getEUt(), recipe.getDuration()))
             return false;
-        int resultEU = this.overclockManager.getEUt();
-        long totalEUt = (long) resultEU * this.overclockManager.getDuration();
+        long resultEU = this.overclockManager.getEUt();
+        long totalEUt = resultEU * this.overclockManager.getDuration();
         IItemHandlerModifiable importInventory = this.getInputInventory();
         IMultipleTankHandler importFluids = this.getInputTank();
         return (totalEUt >= 0 ? this.getEnergyStored() >= (totalEUt > this.getEnergyCapacity() / 2 ? resultEU : totalEUt) :
@@ -405,7 +405,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
      * @param duration recipe duration ticks
      * @return true if the overclock can be successfully performed
      */
-    protected boolean calculateOverclock(int EUt, int duration) {
+    protected boolean calculateOverclock(long EUt, int duration) {
         if (!this.allowOverclocking) {
             this.overclockManager.setEUtAndDuration(EUt, duration);
             return true;
@@ -418,7 +418,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         }
         if (negativeEU)
             EUt = -EUt;
-        int resultEUt = EUt;
+        long resultEUt = EUt;
         double resultDuration = duration;
         double durationModifier = this.getDurationOverclock();
         //do not overclock further if duration is already too small
@@ -519,7 +519,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     @Override
-    public int getRecipeEUt(int i) {
+    public long getRecipeEUt(int i) {
         return this.recipeEUt[i];
     }
 
@@ -679,7 +679,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             workableInstanceCompound.setBoolean("Active", this.isInstanceActive[i]);
             workableInstanceCompound.setInteger("MaxProgress", this.maxProgressTime[i]);
             workableInstanceCompound.setInteger("Progress", this.progressTime[i]);
-            workableInstanceCompound.setInteger("EUt", this.recipeEUt[i]);
+            workableInstanceCompound.setLong("EUt", this.recipeEUt[i]);
             workableInstanceCompound.setInteger("ItemIndex", this.itemOutputIndex[i]);
             workableInstanceCompound.setInteger("FluidIndex", this.fluidOutputIndex[i]);
 
@@ -736,7 +736,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         this.forceRecipeRecheck = new boolean[this.size];
         this.progressTime = new int[this.size];
         this.maxProgressTime = new int[this.size];
-        this.recipeEUt = new int[this.size];
+        this.recipeEUt = new long[this.size];
         this.parallel = new int[this.size];
         this.itemOutputIndex = new int[this.size];
         this.fluidOutputIndex = new int[this.size];
@@ -761,7 +761,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             this.isInstanceActive[i] = workableInstanceCompound.getBoolean("Active");
             this.maxProgressTime[i] = workableInstanceCompound.getInteger("MaxProgress");
             this.progressTime[i] = workableInstanceCompound.getInteger("Progress");
-            this.recipeEUt[i] = workableInstanceCompound.getInteger("EUt");
+            this.recipeEUt[i] = workableInstanceCompound.getLong("EUt");
             this.itemOutputIndex[i] = workableInstanceCompound.getInteger("ItemIndex");
             this.fluidOutputIndex[i] = workableInstanceCompound.getInteger("FluidIndex");
             this.occupiedRecipes.add(i, null);

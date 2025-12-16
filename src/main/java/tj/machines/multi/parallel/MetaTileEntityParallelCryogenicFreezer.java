@@ -55,7 +55,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
-            protected boolean drawEnergy(int recipeEUt) {
+            protected boolean drawEnergy(long recipeEUt) {
                 FluidStack cryotheum = this.getInputTank().drain(Cryotheum.getFluid(cryoConsumeAmount), false);
                 if (cryotheum != null && cryotheum.amount == cryoConsumeAmount)
                     this.getInputTank().drain(Cryotheum.getFluid(cryoConsumeAmount), true);

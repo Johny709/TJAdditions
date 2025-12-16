@@ -297,7 +297,7 @@ tj.machine.energy_hatch.not_tier=Energy hatch is not the same tier
 
 tj.machine.crafter.tooltip=Click on recipe output slot to add to recipe list on the right. Left-Click on recipe list slot to display ingredients on crafting grid. Right-Click to remove recipe.
 
-tj.multiblock.large_solar_boiler.description=Produces steam from the sun. Cannot produce steam at night and while raining.
+tj.multiblock.large_solar_boiler.description=Produces steam from the sun. Cannot produce steam at night and while raining. Can accept either water or distilled water however doing water will make the boiler calcify over time. Once calcification reaches 100%%, then the boiler will stop working completely.
 
 tj.multiblock.ender_battery_tower.description=This Ender Battery Tower can interact with ender energy network by inserting or extracting all stored energy every minute.
 tj.multiblock.ender_battery_tower.last_energy_extracted=§7Energy Extracted: §e%,d§7 EU
@@ -449,7 +449,7 @@ tj.multiblock.industrial_fusion_reactor.overclock.description=§f§nOverclocking
 tj.multiblock.large_world_accelerator.description=Tick accelerates blocks by sending them more updates. Effectively increasing their speed. Comes with 3 modes. Use screwdriver to switch modes.
 tj.multiblock.large_rock_breaker.description=Generates stone from interaction of 2 fluids. Max Parallels can be increased by extending the machine
 tj.multiblock.large_atmosphere_collector.description=Collects lots of air every second. Works like large turbines but outputs air instead
-tj.multiblock.industrial_steam_engine.description=A "scalable" steam generator. Motor block and framework determines tier and energy output however each tier reduces efficiency by 10%%. Minimum Efficiency is 10%%.
+tj.multiblock.industrial_steam_engine.description=A "scalable" steam generator. Motor block and framework determines tier and energy output however each tier reduces efficiency by 10%%. Minimum Efficiency is 10%%. Outputs distilled water byproduct from steam at 1:160 ratio
 tj.multiblock.large_decay_chamber.description=Large version of Decay Chamber that can "parallel" recipes.
 tj.multiblock.large_alloy_smelter.description=Large version of Alloy Smelter that can "parallel" recipes.
 tj.multiblock.large_greenhouse.description=Large version of Greenhouse that can "parallel" recipes. Also can do bonsai recipes.

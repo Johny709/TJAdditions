@@ -9,7 +9,7 @@ public interface IMultipleWorkable extends IMultiControllable {
      * @param i instance
      * @return Recipe EU/t of this instance
      */
-    int getRecipeEUt(int i);
+    long getRecipeEUt(int i);
 
     /**
      * @param i instance

@@ -90,7 +90,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     @Override
-    protected boolean drawEnergy(int recipeEUt) {
+    protected boolean drawEnergy(long recipeEUt) {
         long resultEnergy = this.getEnergyStored() - recipeEUt;
         if (resultEnergy >= 0L && resultEnergy <= this.getEnergyCapacity()) {
             this.getEnergyContainer().changeEnergy(-recipeEUt);
@@ -115,7 +115,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     @Override
-    protected boolean calculateOverclock(int EUt, int duration) {
+    protected boolean calculateOverclock(long EUt, int duration) {
         super.calculateOverclock(EUt, duration);
         int numMaintenanceProblems = (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) ?
                 ((ParallelRecipeMapMultiblockController) this.metaTileEntity).getNumProblems() : 0;
@@ -276,8 +276,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
         if (controller.checkRecipe(recipe, false)) {
 
             this.calculateOverclock(recipe.getEUt(), recipe.getDuration());
-            int resultEU = this.overclockManager.getEUt();
-            long totalEUt = (long) resultEU * this.overclockManager.getDuration();
+            long resultEU = this.overclockManager.getEUt();
+            long totalEUt = resultEU * this.overclockManager.getDuration();
             IItemHandlerModifiable importInventory = this.getInputBuses().get(index);
             IItemHandlerModifiable exportInventory = this.getOutputInventory();
             IMultipleTankHandler importFluids = this.getInputTank();

@@ -28,7 +28,7 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
     }
 
     @Override
-    protected boolean drawEnergy(int recipeEUt) {
+    protected boolean drawEnergy(long recipeEUt) {
         FluidStack pyrotheum = this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), false);
         if (pyrotheum != null && pyrotheum.amount == pyroConsumeAmount.getAsInt())
             this.getInputTank().drain(Pyrotheum.getFluid(pyroConsumeAmount.getAsInt()), true);
@@ -43,7 +43,7 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
     }
 
     @Override
-    protected boolean calculateOverclock(int EUt, int duration) {
+    protected boolean calculateOverclock(long EUt, int duration) {
         if (!this.allowOverclocking) {
             this.overclockManager.setEUtAndDuration(EUt, duration);
             return true;
@@ -69,12 +69,12 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
             EUt = -EUt;
         if (EUt <= 16) {
             int multiplier = EUt <= 8 ? tier : tier - 1;
-            int resultEUt = EUt * (1 << multiplier) * (1 << multiplier);
+            long resultEUt = EUt * (1 << multiplier) * (1 << multiplier);
             int resultDuration = duration / (1 << multiplier);
             this.overclockManager.setEUtAndDuration(negativeEU ? -resultEUt : resultEUt, resultDuration);
             return true;
         } else {
-            int resultEUt = EUt;
+            long resultEUt = EUt;
             double resultDuration = duration;
 
             // Do not overclock further if duration is already too small
@@ -105,7 +105,7 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
                 .fluidInputs(fluidInputs)
                 .outputs(outputs)
                 .fluidOutputs(fluidOutputs)
-                .EUt(Math.max(1, recipe.getEUt() * this.EUtPercentage.getAsInt() / 100))
+                .EUt(Math.min(Integer.MAX_VALUE, Math.max(1, recipe.getEUt() * this.EUtPercentage.getAsInt() / 100)))
                 .duration(Math.max(1, recipe.getDuration() * this.controller.getBatchMode().getAmount() * this.durationPercentage.getAsInt() / 100))
                 .blastFurnaceTemp(recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0))
                 .build()

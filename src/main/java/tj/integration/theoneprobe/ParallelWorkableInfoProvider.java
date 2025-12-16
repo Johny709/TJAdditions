@@ -33,7 +33,7 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
             if (i < size) {
                 float currentProgress = capability.getProgress(i);
                 float maxProgress = capability.getMaxProgress(i);
-                int EUt = capability.getRecipeEUt(i);
+                long EUt = capability.getRecipeEUt(i);
                 int progressScaled = maxProgress == 0 ? 0 : (int) Math.floor(currentProgress / (maxProgress * 1.0) * 100);
                 boolean isWorking = capability.isWorkingEnabled(i);
                 boolean isActive = capability.isInstanceActive(i);
