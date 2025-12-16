@@ -49,8 +49,9 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
         this.maxTransferRate = (int) Math.min(Math.pow(4, tier) * 16, Integer.MAX_VALUE);
         this.transferRate = this.maxTransferRate;
         this.enderEnergyHandler.setInputAmps(this.isOutput ? 0 : 2)
-                .setOutputAmps(this.isOutput ? 4 : 0)
-                .setVoltage((long) (Math.pow(4, tier) * 8));
+                .setOutputVoltage(this.isOutput ? (long) (Math.pow(4, tier) * 8) : 0)
+                .setInputVoltage(this.isOutput ? 0 : (long) (Math.pow(4, tier) * 8))
+                .setOutputAmps(this.isOutput ? 4 : 0);
     }
 
     @Override

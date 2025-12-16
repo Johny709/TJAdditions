@@ -6,7 +6,8 @@ import net.minecraft.util.EnumFacing;
 public class EnderEnergyHandler implements IEnergyContainer {
 
     private BasicEnergyHandler basicEnergyHandler;
-    private long voltage;
+    private long inputVoltage;
+    private long outputVoltage;
     private int inputAmps;
     private int outputAmps;
 
@@ -19,8 +20,13 @@ public class EnderEnergyHandler implements IEnergyContainer {
         return this;
     }
 
-    public EnderEnergyHandler setVoltage(long voltage) {
-        this.voltage = voltage;
+    public EnderEnergyHandler setInputVoltage(long inputVoltage) {
+        this.inputVoltage = inputVoltage;
+        return this;
+    }
+
+    public EnderEnergyHandler setOutputVoltage(long outputVoltage) {
+        this.outputVoltage = outputVoltage;
         return this;
     }
 
@@ -81,6 +87,11 @@ public class EnderEnergyHandler implements IEnergyContainer {
 
     @Override
     public long getInputVoltage() {
-        return this.voltage;
+        return this.inputVoltage;
+    }
+
+    @Override
+    public long getOutputVoltage() {
+        return this.outputVoltage;
     }
 }

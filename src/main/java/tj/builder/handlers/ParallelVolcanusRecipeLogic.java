@@ -105,7 +105,7 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
                 .fluidInputs(fluidInputs)
                 .outputs(outputs)
                 .fluidOutputs(fluidOutputs)
-                .EUt(Math.min(Integer.MAX_VALUE, Math.max(1, recipe.getEUt() * this.EUtPercentage.getAsInt() / 100)))
+                .EUt((int) Math.min(Integer.MAX_VALUE, Math.max(1, (long) recipe.getEUt() * this.EUtPercentage.getAsInt() / 100)))
                 .duration(Math.max(1, recipe.getDuration() * this.controller.getBatchMode().getAmount() * this.durationPercentage.getAsInt() / 100))
                 .blastFurnaceTemp(recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0))
                 .build()
