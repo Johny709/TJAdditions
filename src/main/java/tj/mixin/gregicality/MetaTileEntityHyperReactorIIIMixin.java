@@ -2,7 +2,7 @@ package tj.mixin.gregicality;
 
 import gregicadditions.GAConfig;
 import gregicadditions.machines.multi.GAFueledMultiblockController;
-import gregicadditions.machines.multi.advance.hyper.MetaTileEntityHyperReactorII;
+import gregicadditions.machines.multi.advance.hyper.MetaTileEntityHyperReactorIII;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -24,21 +24,21 @@ import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mixin(value = MetaTileEntityHyperReactorII.class, remap = false)
-public abstract class MetaTileEntityHyperReactorIIMixin extends GAFueledMultiblockController implements IMetaTileEntityHyperReactorIIMixin {
+@Mixin(value = MetaTileEntityHyperReactorIII.class, remap = false)
+public abstract class MetaTileEntityHyperReactorIIIMixin extends GAFueledMultiblockController implements IMetaTileEntityHyperReactorIIIMixin {
 
     @Shadow
     @Nonnull
     protected abstract FluidStack getBooster();
 
-    public MetaTileEntityHyperReactorIIMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
+    public MetaTileEntityHyperReactorIIIMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
         super(metaTileEntityId, GARecipeMaps.HYPER_REACTOR_FUELS, maxVoltage);
     }
 
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
-            MetaTileEntityHyperReactorII tileEntity = (MetaTileEntityHyperReactorII) (Object) this;
+            MetaTileEntityHyperReactorIII tileEntity = (MetaTileEntityHyperReactorIII) (Object) this;
             cir.setReturnValue(new TJFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getFuelMultiplier, this::getEUMultiplier, maxVoltage));
         }
     }
@@ -87,11 +87,11 @@ public abstract class MetaTileEntityHyperReactorIIMixin extends GAFueledMultiblo
 
     @Unique
     private int getFuelMultiplier() {
-        return GAConfig.multis.hyperReactors.boostedFuelAmount[1];
+        return GAConfig.multis.hyperReactors.boostedFuelAmount[2];
     }
 
     @Unique
     private int getEUMultiplier() {
-        return GAConfig.multis.hyperReactors.boostedEuAmount[1];
+        return GAConfig.multis.hyperReactors.boostedEuAmount[2];
     }
 }
