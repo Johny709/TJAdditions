@@ -1,4 +1,4 @@
-package tj.builder.handlers;
+package tj.capability.impl;
 
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;

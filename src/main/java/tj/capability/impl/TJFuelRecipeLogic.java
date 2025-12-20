@@ -1,4 +1,4 @@
-package tj.builder.handlers;
+package tj.capability.impl;
 
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
@@ -22,7 +22,6 @@ import tj.capability.TJCapabilities;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
@@ -31,24 +30,10 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     private int progress;
     private int maxProgress;
     private int consumption;
-    private IntSupplier euMultiplier;
-    private IntSupplier fuelMultiplier;
-    private Supplier<FluidStack> booster;
-    private boolean boosted;
     private String fuelName;
 
-    public TJFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, Supplier<FluidStack> booster, IntSupplier fuelMultiplier, IntSupplier euMultiplier, long maxVoltage) {
+    public TJFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
-        this.euMultiplier = euMultiplier;
-        this.fuelMultiplier = fuelMultiplier;
-        this.booster = booster;
-    }
-
-    public FluidStack getFuelStack() {
-        if (this.previousRecipe == null)
-            return null;
-        FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
-        return this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
     }
 
     @Override
@@ -136,41 +121,6 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     }
 
     @Override
-    protected int calculateFuelAmount(FuelRecipe currentRecipe) {
-        FluidStack drainBooster = this.fluidTank.get().drain(this.booster.get(), false);
-        this.boosted = drainBooster != null && drainBooster.amount >= this.booster.get().amount;
-        return super.calculateFuelAmount(currentRecipe) * (this.boosted ? this.fuelMultiplier.getAsInt() : 1);
-    }
-
-    @Override
-    protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
-        if (this.boosted)
-            this.fluidTank.get().drain(this.booster.get(), true);
-        return this.maxVoltage * (this.boosted ? this.euMultiplier.getAsInt() : 1);
-    }
-
-    @Override
-    public NBTTagCompound serializeNBT() {
-        NBTTagCompound tagCompound = super.serializeNBT();
-        tagCompound.setInteger("progress", this.progress);
-        tagCompound.setInteger("maxProgress", this.maxProgress);
-        tagCompound.setInteger("consumption", this.consumption);
-        tagCompound.setString("fuelName", this.fuelName);
-        tagCompound.setLong("energy", this.energyProduced);
-        return tagCompound;
-    }
-
-    @Override
-    public void deserializeNBT(NBTTagCompound compound) {
-        super.deserializeNBT(compound);
-        this.consumption = compound.getInteger("consumption");
-        this.fuelName = compound.getString("fuelName");
-        this.energyProduced = compound.getLong("energy");
-        this.maxProgress = compound.getInteger("maxProgress");
-        this.progress = compound.getInteger("progress");
-    }
-
-    @Override
     public <T> T getCapability(Capability<T> capability) {
         if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
             return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
@@ -221,6 +171,34 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         return true;
     }
 
+    @Override
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound tagCompound = super.serializeNBT();
+        tagCompound.setInteger("progress", this.progress);
+        tagCompound.setInteger("maxProgress", this.maxProgress);
+        tagCompound.setInteger("consumption", this.consumption);
+        tagCompound.setString("fuelName", this.fuelName);
+        tagCompound.setLong("energy", this.energyProduced);
+        return tagCompound;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound compound) {
+        super.deserializeNBT(compound);
+        this.consumption = compound.getInteger("consumption");
+        this.fuelName = compound.getString("fuelName");
+        this.energyProduced = compound.getLong("energy");
+        this.maxProgress = compound.getInteger("maxProgress");
+        this.progress = compound.getInteger("progress");
+    }
+
+    public FluidStack getFuelStack() {
+        if (this.previousRecipe == null)
+            return null;
+        FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+        return this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+    }
+
     public String getFuelName() {
         return this.fuelName;
     }
@@ -243,10 +221,6 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     @Override
     public long getProduction() {
         return this.energyProduced;
-    }
-
-    public boolean isBoosted() {
-        return boosted;
     }
 
     @Override

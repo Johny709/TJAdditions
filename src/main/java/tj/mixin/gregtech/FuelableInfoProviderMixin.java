@@ -34,7 +34,7 @@ public abstract class FuelableInfoProviderMixin {
             horizontalPane.text(TextStyleClass.INFO + "{*gregtech.top.fuel_name*} §b").itemLabel(((ItemFuelInfo) fuelInfo).getItemStack());
         } else horizontalPane.text(TextStyleClass.INFO + "{*gregtech.top.fuel_name*} §7(§b{*" + fuelName + "*}§7)");
 
-        long fuelPercent = (fuelRemaining / (fuelCapacity) * 100L);
+        long fuelPercent = (long) Math.floor(fuelRemaining / (fuelCapacity * 1.0) * 100);
         String displayFuel = String.format("%s/%s | ", TJValues.thousandFormat.format(fuelRemaining), TJValues.thousandFormat.format(fuelCapacity));
         probeInfo.progress(fuelPercent, 100, probeInfo.defaultProgressStyle()
                 .width((int) (displayFuel.length() * 6.2))

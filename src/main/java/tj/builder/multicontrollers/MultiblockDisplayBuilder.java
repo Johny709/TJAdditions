@@ -92,6 +92,8 @@ public class MultiblockDisplayBuilder {
     }
 
     public MultiblockDisplayBuilder fluidInput(boolean hasEnoughAmount, FluidStack fluidStack, int ticks) {
+        if (fluidStack == null)
+            return this;
         String fluidName = fluidStack.getLocalizedName();
         int amount = fluidStack.amount;
         boolean hasEnoughFluid = hasEnoughAmount || amount == 0;
