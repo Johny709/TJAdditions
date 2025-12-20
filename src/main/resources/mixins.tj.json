@@ -12,9 +12,11 @@
     "gregicality.GATransformerProviderMixin",
     "gregicality.IGAMetaTileEntityEnergyHatchMixin",
     "gregicality.IMetaTileEntityAdvFusionReactorMixin",
+    "gregicality.IMetaTileEntityHyperReactorIMixin",
     "gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin",
     "gregicality.ITileEntityFusionReactorMixin",
     "gregicality.MetaTileEntityAdvFusionReactorMixin",
+    "gregicality.MetaTileEntityHyperReactorIMixin",
     "gregicality.MetaTileEntityMufflerHatchMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregicality.TileEntityFusionReactorMixin",
@@ -25,7 +27,7 @@
   ],
   "server": [],
   "client": [
-    "gregtech.MultiblockInfoRecipeWrapperMixin",
-    "gregtech.IMultiblockInfoRecipeWrapperMixin"
+    "gregtech.IMultiblockInfoRecipeWrapperMixin",
+    "gregtech.MultiblockInfoRecipeWrapperMixin"
   ]
 }

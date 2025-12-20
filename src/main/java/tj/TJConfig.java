@@ -30,6 +30,11 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public boolean theOneProbeInfoProviderOverrides = true;
 
+        @Config.Name("Override Logic of GT Generators")
+        @Config.Comment("Set to replace generator logic with TJ Additions' edits and implementation")
+        @Config.RequiresMcRestart
+        public boolean generatorWorkableHandlerOverrides = true;
+
         @Config.Name("Max Extendable Layers Shown In JEI")
         @Config.Comment("Set the maximum amount of layers to be shown in JEI preview of extendable multiblocks")
         @Config.RequiresMcRestart
