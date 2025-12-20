@@ -11,7 +11,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.XLHotCoolantTurbineWorkableHandler;
-import tj.capability.impl.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.gui.TJGuiTextures;
@@ -158,7 +157,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
             tip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
-            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()));
+            tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLHotCoolantTurbineWorkableHandler.getTurbineBonus()));
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100));
         });
     }

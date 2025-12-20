@@ -15,7 +15,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import tj.capability.impl.XLTurbineWorkableHandler;
+import tj.capability.impl.XLHotCoolantTurbineWorkableHandler;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
@@ -89,7 +89,7 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
                 I18n.format("tj.multiblock.universal.tooltip.1", this.turbine.getRecipeMapName()),
                 I18n.format("tj.multiblock.universal.tooltip.2", 12),
                 I18n.format("tj.multiblock.turbine.tooltip.efficiency"),
-                I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()),
+                I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLHotCoolantTurbineWorkableHandler.getTurbineBonus()),
                 I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100)};
     }
 

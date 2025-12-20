@@ -24,10 +24,7 @@ import tj.capability.TJCapabilities;
 import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
 import tj.mixin.gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine.ABILITY_ROTOR_HOLDER;
@@ -41,17 +38,19 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
     private final MetaTileEntityXLHotCoolantTurbine extremeTurbine;
     private final Supplier<IMultipleTankHandler> exportFluidTank;
+    private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
 
-    private int totalEnergyProduced;
-    private int consumption;
     private String fuelName;
-    private int fastModeMultiplier = 1;
-    private int rotorDamageMultiplier = 1;
     private boolean isFastMode;
     private boolean fastMode;
+    private boolean active;
+    private int totalEnergyProduced;
+    private int consumption;
+    private int fastModeMultiplier = 1;
+    private int rotorDamageMultiplier = 1;
     private int progress;
     private int maxProgress;
-    private boolean active;
+    private int searchCount;
     private int rotorCycleLength = CYCLE_LENGTH;
 
     public XLHotCoolantTurbineWorkableHandler(MetaTileEntity metaTileEntity, HotCoolantRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> importFluidTank, Supplier<IMultipleTankHandler> exportFluidTank) {
@@ -128,38 +127,44 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         return this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
     }
 
-    private boolean tryAcquireNewRecipe() {
+    protected boolean tryAcquireNewRecipe() {
         FluidStack fuelStack = null;
         for (int i = 0; i < this.fluidTank.get().getTanks(); i++) {
             IFluidTank tank = this.fluidTank.get().getTankAt(i);
             FluidStack stack = tank.getFluid();
-            if (stack == null)
-                continue;
-            if (fuelStack == null)
+            if (stack == null) continue;
+            if (fuelStack == null) {
+                if (this.lastSearchedFluid.contains(stack)) continue;
                 fuelStack = stack.copy();
-            else if (fuelStack.isFluidEqual(stack)) {
+                this.lastSearchedFluid.add(fuelStack);
+            } else if (fuelStack.isFluidEqual(stack)) {
                 long amount = fuelStack.amount + stack.amount;
                 fuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
             }
         }
-        int fuelAmountUsed = this.tryAcquireNewRecipe(fuelStack);
-        if (fuelAmountUsed > 0) {
-            FluidStack fluidStack = this.fluidTank.get().drain(fuelAmountUsed, true);
+        fuelStack = this.tryAcquireNewRecipe(fuelStack);
+        if (fuelStack != null && fuelStack.amount > 0) {
+            FluidStack fluidStack = this.fluidTank.get().drain(fuelStack, true);
             this.consumption = fluidStack.amount;
             this.fuelName = fluidStack.getUnlocalizedName();
+            this.lastSearchedFluid.clear();
             return true; //recipe is found and ready to use
+        }
+        if (++this.searchCount >= this.fluidTank.get().getTanks()) {
+            this.lastSearchedFluid.clear();
+            this.searchCount = 0;
         }
         return false;
     }
 
-    private int tryAcquireNewRecipe(FluidStack fluidStack) {
+    private FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
         HotCoolantRecipe currentRecipe;
-        if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fluidStack)) {
+        if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fuelStack)) {
             //if previous recipe still matches inputs, try to use it
             currentRecipe = this.previousRecipe;
         } else {
             //else, try searching new recipe for given inputs
-            currentRecipe = recipeMap.findRecipe(this.getMaxVoltage(), fluidStack);
+            currentRecipe = recipeMap.findRecipe(this.getMaxVoltage(), fuelStack);
             //if we found recipe that can be buffered, buffer it
             if (currentRecipe != null) {
                 this.previousRecipe = currentRecipe;
@@ -167,15 +172,17 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         }
         if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
-            if (fluidStack.amount >= fuelAmountToUse) {
+            if (fuelStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                 FluidStack outputFluid = currentRecipe.getOutputFluid();
                 outputFluid.amount = fuelAmountToUse;
                 this.exportFluidTank.get().fill(outputFluid, true);
-                return fuelAmountToUse;
+                FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                recipeFluid.amount = fuelAmountToUse;
+                return recipeFluid;
             }
         }
-        return 0;
+        return null;
     }
 
     @Override

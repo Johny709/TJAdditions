@@ -19,17 +19,17 @@ import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
 
+    private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
     private long energyProduced;
     private int progress;
     private int maxProgress;
     private int consumption;
+    private int searchCount;
     private String fuelName;
 
     public TJFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
@@ -77,33 +77,39 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         for (int i = 0; i < this.fluidTank.get().getTanks(); i++) {
             IFluidTank tank = this.fluidTank.get().getTankAt(i);
             FluidStack stack = tank.getFluid();
-            if (stack == null)
-                continue;
-            if (fuelStack == null)
+            if (stack == null) continue;
+            if (fuelStack == null) {
+                if (this.lastSearchedFluid.contains(stack)) continue;
                 fuelStack = stack.copy();
-            else if (fuelStack.isFluidEqual(stack)) {
+                this.lastSearchedFluid.add(fuelStack);
+            } else if (fuelStack.isFluidEqual(stack)) {
                 long amount = fuelStack.amount + stack.amount;
                 fuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
             }
         }
-        int fuelAmountUsed = this.tryAcquireNewRecipe(fuelStack);
-        if (fuelAmountUsed > 0) {
-            FluidStack fluidStack = this.fluidTank.get().drain(fuelAmountUsed, true);
+        fuelStack = this.tryAcquireNewRecipe(fuelStack);
+        if (fuelStack != null && fuelStack.amount > 0) {
+            FluidStack fluidStack = this.fluidTank.get().drain(fuelStack, true);
             this.consumption = fluidStack.amount;
             this.fuelName = fluidStack.getUnlocalizedName();
+            this.lastSearchedFluid.clear();
             return true; //recipe is found and ready to use
+        }
+        if (++this.searchCount >= this.fluidTank.get().getTanks()) {
+            this.lastSearchedFluid.clear();
+            this.searchCount = 0;
         }
         return false;
     }
 
-    protected int tryAcquireNewRecipe(FluidStack fluidStack) {
+    protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
         FuelRecipe currentRecipe;
-        if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fluidStack)) {
+        if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fuelStack)) {
             //if previous recipe still matches inputs, try to use it
             currentRecipe = this.previousRecipe;
         } else {
             //else, try searching new recipe for given inputs
-            currentRecipe = this.recipeMap.findRecipe(this.getMaxVoltage(), fluidStack);
+            currentRecipe = this.recipeMap.findRecipe(this.getMaxVoltage(), fuelStack);
             //if we found recipe that can be buffered, buffer it
             if (currentRecipe != null) {
                 this.previousRecipe = currentRecipe;
@@ -111,13 +117,15 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         }
         if (currentRecipe != null && checkRecipe(currentRecipe)) {
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
-            if (fluidStack.amount >= fuelAmountToUse) {
+            if (fuelStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                 this.energyProduced = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
-                return fuelAmountToUse;
+                FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                recipeFluid.amount = fuelAmountToUse;
+                return recipeFluid;
             }
         }
-        return 0;
+        return null;
     }
 
     @Override
@@ -177,8 +185,9 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         tagCompound.setInteger("progress", this.progress);
         tagCompound.setInteger("maxProgress", this.maxProgress);
         tagCompound.setInteger("consumption", this.consumption);
-        tagCompound.setString("fuelName", this.fuelName);
         tagCompound.setLong("energy", this.energyProduced);
+        if (this.fuelName != null)
+            tagCompound.setString("fuelName", this.fuelName);
         return tagCompound;
     }
 
@@ -186,10 +195,11 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
         this.consumption = compound.getInteger("consumption");
-        this.fuelName = compound.getString("fuelName");
         this.energyProduced = compound.getLong("energy");
         this.maxProgress = compound.getInteger("maxProgress");
         this.progress = compound.getInteger("progress");
+        if (compound.hasKey("fuelName"))
+            this.fuelName = compound.getString("fuelName");
     }
 
     public FluidStack getFuelStack() {
