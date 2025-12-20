@@ -250,6 +250,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
     private static class SteamEngineWorkableHandler extends AbstractWorkableHandler<SteamEngineWorkableHandler> implements IGeneratorInfo, IFuelable {
 
+        private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
         private final FuelRecipeMap recipeMap;
         private final DoubleSupplier efficiencySupplier;
         private FuelRecipe previousRecipe;
@@ -257,6 +258,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         private boolean voidEnergy;
         private long energyProduced;
         private int consumption;
+        private int searchCount;
 
         public SteamEngineWorkableHandler(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, DoubleSupplier efficiencySupplier) {
             super(metaTileEntity);
@@ -297,34 +299,39 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
             for (int i = 0; i < ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTanks(); i++) {
                 IFluidTank tank = ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTankAt(i);
                 FluidStack stack = tank.getFluid();
-                if (stack == null)
-                    continue;
-                if (fuelStack == null)
+                if (stack == null) continue;
+                if (fuelStack == null) {
+                    if (this.lastSearchedFluid.contains(stack)) continue;
                     fuelStack = stack.copy();
-                else if (fuelStack.isFluidEqual(stack)) {
+                    this.lastSearchedFluid.add(fuelStack);
+                } else if (fuelStack.isFluidEqual(stack)) {
                     long amount = fuelStack.amount + stack.amount;
                     fuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
                 }
             }
-            int fuelAmountUsed = this.tryAcquireNewRecipe(fuelStack);
-            if (fuelAmountUsed > 0) {
-                FluidStack fluidStack = this.importFluidsSupplier.get().drain(fuelAmountUsed, true);
+            fuelStack = this.tryAcquireNewRecipe(fuelStack);
+            if (fuelStack != null && fuelStack.amount > 0) {
+                FluidStack fluidStack = this.importFluidsSupplier.get().drain(fuelStack, true);
                 this.consumption = fluidStack.amount;
-                this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(this.consumption / 160), true);
                 this.fuelName = fluidStack.getUnlocalizedName();
+                this.lastSearchedFluid.clear();
                 return true; //recipe is found and ready to use
+            }
+            if (++this.searchCount >= ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTanks()) {
+                this.lastSearchedFluid.clear();
+                this.searchCount = 0;
             }
             return false;
         }
 
-        protected int tryAcquireNewRecipe(FluidStack fluidStack) {
+        protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
             FuelRecipe currentRecipe;
-            if (this.previousRecipe != null && this.previousRecipe.matches(this.maxVoltageSupplier.getAsLong(), fluidStack)) {
+            if (this.previousRecipe != null && this.previousRecipe.matches(this.maxVoltageSupplier.getAsLong(), fuelStack)) {
                 //if previous recipe still matches inputs, try to use it
                 currentRecipe = this.previousRecipe;
             } else {
                 //else, try searching new recipe for given inputs
-                currentRecipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), fluidStack);
+                currentRecipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), fuelStack);
                 //if we found recipe that can be buffered, buffer it
                 if (currentRecipe != null) {
                     this.previousRecipe = currentRecipe;
@@ -332,13 +339,15 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
             }
             if (currentRecipe != null && checkRecipe(currentRecipe)) {
                 int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
-                if (fluidStack.amount >= fuelAmountToUse) {
+                if (fuelStack.amount >= fuelAmountToUse) {
                     this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                     this.energyProduced = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
-                    return fuelAmountToUse;
+                    FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                    recipeFluid.amount = fuelAmountToUse;
+                    return recipeFluid;
                 }
             }
-            return 0;
+            return null;
         }
 
         protected int calculateRecipeDuration(FuelRecipe currentRecipe) {
