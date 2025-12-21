@@ -18,6 +18,7 @@
     "gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin",
     "gregicality.ITileEntityFusionReactorMixin",
     "gregicality.MetaTileEntityAdvFusionReactorMixin",
+    "gregicality.MetaTileEntityExtremeDieselEngineMixin",
     "gregicality.MetaTileEntityHyperReactorIIIMixin",
     "gregicality.MetaTileEntityHyperReactorIIMixin",
     "gregicality.MetaTileEntityHyperReactorIMixin",
@@ -29,6 +30,7 @@
     "gregtech.FuelableInfoProviderMixin",
     "gregtech.IAbstractWidgetGroupMixin",
     "gregtech.IMetaTileEntityEnergyHatchMixin",
+    "gregtech.MetaTileEntityDieselEngineMixin",
     "gregtech.TransformerInfoProviderMixin"
   ],
   "server": [],

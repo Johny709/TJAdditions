@@ -1,14 +1,14 @@
 package tj.mixin.gregicality;
 
-import gregicadditions.GAValues;
-import gregicadditions.machines.multi.GAFueledMultiblockController;
-import gregicadditions.machines.multi.advance.MetaTileEntityLargeNaquadahReactor;
-import gregicadditions.recipes.GARecipeMaps;
+import gregicadditions.GAMaterials;
+import gregicadditions.machines.multi.MetaTileEntityExtremeDieselEngine;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FuelRecipeLogic;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipes.FuelRecipe;
 import gregtech.api.unification.material.Materials;
+import gregtech.common.metatileentities.multi.electric.generator.FueledMultiblockController;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
@@ -26,30 +26,30 @@ import tj.capability.impl.TJBoostableFuelRecipeLogic;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mixin(value = MetaTileEntityLargeNaquadahReactor.class, remap = false)
-public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMultiblockController {
+@Mixin(value = MetaTileEntityExtremeDieselEngine.class, remap = false)
+public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMultiblockController {
 
     @Unique
     private FluidStack booster;
 
-    public MetaTileEntityLargeNaquadahReactorMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
-        super(metaTileEntityId, GARecipeMaps.NAQUADAH_REACTOR_FUELS, maxVoltage);
+    public MetaTileEntityExtremeDieselEngineMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
+        super(metaTileEntityId, RecipeMaps.DIESEL_GENERATOR_FUELS, maxVoltage);
     }
 
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
-            this.booster = Materials.Oxygen.getPlasma(50);
-            MetaTileEntityLargeNaquadahReactor tileEntity = (MetaTileEntityLargeNaquadahReactor) (Object) this;
-            cir.setReturnValue(new TJBoostableFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getFuelMultiplier, this::getEUMultiplier, GAValues.V[10]) {
+            this.booster = GAMaterials.LiquidOxygen.getFluid(80);
+            MetaTileEntityExtremeDieselEngine tileEntity = (MetaTileEntityExtremeDieselEngine) (Object) this;
+            cir.setReturnValue(new TJBoostableFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getFuelMultiplier, this::getEUMultiplier, maxVoltage) {
                 private int currentCycle;
 
                 @Override
                 protected boolean checkRecipe(FuelRecipe recipe) {
                     boolean start = true;
                     if (this.currentCycle > 20) {
-                        FluidStack reagent = this.fluidTank.get().drain(Materials.Tritium.getFluid(1000), true);
-                        start = reagent != null && reagent.amount == 1000;
+                        FluidStack reagent = this.fluidTank.get().drain(Materials.Lubricant.getFluid(100), true);
+                        start = reagent != null && reagent.amount == 100;
                         if (start)
                             this.currentCycle = 0;
                     } else this.currentCycle++;
@@ -133,4 +133,5 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
     private int getEUMultiplier() {
         return 3;
     }
+
 }
