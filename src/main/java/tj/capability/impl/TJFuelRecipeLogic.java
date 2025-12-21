@@ -2,10 +2,8 @@ package tj.capability.impl;
 
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
-import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.capability.*;
 import gregtech.api.capability.impl.FluidFuelInfo;
-import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.recipes.recipes.FuelRecipe;
@@ -15,64 +13,26 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 
 import java.util.*;
 import java.util.function.Supplier;
 
-public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGeneratorInfo {
+public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic> implements IGeneratorInfo, IFuelable {
 
     private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
-    private long energyProduced;
-    private int progress;
-    private int maxProgress;
-    private int consumption;
+    private boolean voidEnergy = true;
+    protected int consumption;
     private int searchCount;
-    private String fuelName;
+    protected String fuelName;
 
     public TJFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
     }
 
     @Override
-    public void update() {
-        if (this.getMetaTileEntity().getWorld().isRemote || !this.isWorkingEnabled())
-            return;
-
-        if (!this.shouldVoidExcessiveEnergy() && this.energyContainer.get().getEnergyCanBeInserted() < this.energyProduced) {
-            if (this.isActive())
-                this.setActive(false);
-            return;
-        }
-
-        this.energyContainer.get().addEnergy(this.energyProduced);
-
-        if (this.progress > 0 && !this.isActive())
-            this.setActive(true);
-
-        if (this.progress >= this.maxProgress) {
-            if (this.metaTileEntity instanceof TJFueledMultiblockControllerBase)
-                ((TJFueledMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
-            this.progress = 0;
-            this.setActive(false);
-        }
-
-        if (this.progress <= 0) {
-            boolean problems = false;
-            if (this.metaTileEntity instanceof IMaintenance)
-                problems = ((IMaintenance) this.metaTileEntity).getNumProblems() >= 6;
-            if (problems || !this.isReadyForRecipes() || !this.tryAcquireNewRecipe())
-                return;
-            this.progress = 1;
-            this.setActive(true);
-        } else {
-            this.progress++;
-        }
-    }
-
-    protected boolean tryAcquireNewRecipe() {
+    protected boolean startRecipe() {
         FluidStack fuelStack = null;
         for (int i = 0; i < this.fluidTank.get().getTanks(); i++) {
             IFluidTank tank = this.fluidTank.get().getTankAt(i);
@@ -90,9 +50,9 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
         fuelStack = this.tryAcquireNewRecipe(fuelStack);
         if (fuelStack != null && fuelStack.amount > 0) {
             FluidStack fluidStack = this.fluidTank.get().drain(fuelStack, true);
-            this.consumption = fluidStack.amount;
             this.fuelName = fluidStack.getUnlocalizedName();
-            this.lastSearchedFluid.clear();
+            this.lastSearchedFluid.remove(fuelStack);
+            this.consumption = fluidStack.amount;
             return true; //recipe is found and ready to use
         }
         if (++this.searchCount >= this.fluidTank.get().getTanks()) {
@@ -100,6 +60,23 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
             this.searchCount = 0;
         }
         return false;
+    }
+
+    @Override
+    protected void progressRecipe(int progress) {
+        if (this.voidEnergy || this.energyContainer.get().getEnergyCanBeInserted() >= this.energyPerTick) {
+            this.energyContainer.get().addEnergy(this.energyPerTick);
+            if (this.hasProblem)
+                this.setProblem(false);
+            this.progress++;
+        } else if (!this.hasProblem)
+            this.setProblem(true);
+    }
+
+    @Override
+    protected boolean completeRecipe() {
+        this.lastSearchedFluid.clear();
+        return true;
     }
 
     protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
@@ -119,22 +96,13 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                this.energyProduced = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
+                this.energyPerTick = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
                 FluidStack recipeFluid = currentRecipe.getRecipeFluid();
                 recipeFluid.amount = fuelAmountToUse;
                 return recipeFluid;
             }
         }
         return null;
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
-            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
-        if (capability == TJCapabilities.CAPABILITY_GENERATOR)
-            return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
-        return super.getCapability(capability);
     }
 
     @Override
@@ -152,12 +120,16 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
 
         for (IFluidTank fluidTank : fluidTanks) {
             final FluidStack tankContents = fluidTank.drain(Integer.MAX_VALUE, false);
-            if (tankContents == null || tankContents.amount <= 0)
+            if (tankContents == null || tankContents.amount <= 0) {
+                fuelCapacity -= fluidTank.getCapacity();
                 continue;
+            }
             int fuelRemaining = tankContents.amount;
-            FuelRecipe recipe = this.recipeMap.findRecipe(this.maxVoltage, tankContents);
-            if (recipe == null)
+            FuelRecipe recipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), tankContents);
+            if (recipe == null || this.lastSearchedFluid.contains(recipe.getRecipeFluid())) {
+                fuelCapacity -= fluidTank.getCapacity();
                 continue;
+            }
             int amountPerRecipe = this.calculateFuelAmount(recipe);
             int duration = this.calculateRecipeDuration(recipe);
             long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
@@ -175,17 +147,10 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     }
 
     @Override
-    protected boolean shouldVoidExcessiveEnergy() {
-        return true;
-    }
-
-    @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tagCompound = super.serializeNBT();
-        tagCompound.setInteger("progress", this.progress);
-        tagCompound.setInteger("maxProgress", this.maxProgress);
         tagCompound.setInteger("consumption", this.consumption);
-        tagCompound.setLong("energy", this.energyProduced);
+        tagCompound.setBoolean("voidEnergy", this.voidEnergy);
         if (this.fuelName != null)
             tagCompound.setString("fuelName", this.fuelName);
         return tagCompound;
@@ -195,18 +160,34 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
         this.consumption = compound.getInteger("consumption");
-        this.energyProduced = compound.getLong("energy");
-        this.maxProgress = compound.getInteger("maxProgress");
-        this.progress = compound.getInteger("progress");
+        this.voidEnergy = compound.getBoolean("voidEnergy");
         if (compound.hasKey("fuelName"))
             this.fuelName = compound.getString("fuelName");
     }
 
+    @Override
+    public <T> T getCapability(Capability<T> capability) {
+        if (capability == TJCapabilities.CAPABILITY_GENERATOR)
+            return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
+        if (capability == GregtechCapabilities.CAPABILITY_FUELABLE)
+            return GregtechCapabilities.CAPABILITY_FUELABLE.cast(this);
+        return super.getCapability(capability);
+    }
+
     public FluidStack getFuelStack() {
-        if (this.previousRecipe == null)
+        if (previousRecipe == null)
             return null;
-        FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
-        return this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+        FluidStack fuelStack = previousRecipe.getRecipeFluid();
+        return fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+    }
+
+    public void setVoidEnergy(boolean voidEnergy, String id) {
+        this.voidEnergy = voidEnergy;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidEnergy() {
+        return this.voidEnergy;
     }
 
     public String getFuelName() {
@@ -214,13 +195,8 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     }
 
     @Override
-    public int getProgress() {
-        return this.progress;
-    }
-
-    @Override
-    public int getMaxProgress() {
-        return this.maxProgress;
+    public long getProduction() {
+        return this.energyPerTick;
     }
 
     @Override
@@ -229,21 +205,16 @@ public class TJFuelRecipeLogic extends FuelRecipeLogic implements IWorkable, IGe
     }
 
     @Override
-    public long getProduction() {
-        return this.energyProduced;
-    }
-
-    @Override
     public String[] consumptionInfo() {
         int seconds = this.maxProgress / 20;
         String amount = String.valueOf(seconds);
         String s = seconds < 2 ? "second" : "seconds";
-        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r§7(§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
+        return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r§7 (§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
     }
 
     @Override
     public String[] productionInfo() {
-        int tier = GAUtility.getTierByVoltage(this.energyProduced);
+        int tier = GAUtility.getTierByVoltage(this.energyPerTick);
         String voltage = GAValues.VN[tier];
         String color = TJValues.VCC[tier];
         return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",

@@ -80,6 +80,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
         if (this.progress >= this.maxProgress) {
             this.extremeTurbine.calculateMaintenance(this.rotorDamageMultiplier * this.maxProgress);
+            this.lastSearchedFluid.clear();
             this.progress = 0;
             this.setActive(false);
         }
@@ -145,9 +146,9 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
         fuelStack = this.tryAcquireNewRecipe(fuelStack);
         if (fuelStack != null && fuelStack.amount > 0) {
             FluidStack fluidStack = this.fluidTank.get().drain(fuelStack, true);
-            this.consumption = fluidStack.amount;
             this.fuelName = fluidStack.getUnlocalizedName();
-            this.lastSearchedFluid.clear();
+            this.lastSearchedFluid.remove(fuelStack);
+            this.consumption = fluidStack.amount;
             return true; //recipe is found and ready to use
         }
         if (++this.searchCount >= this.fluidTank.get().getTanks()) {
@@ -404,12 +405,16 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
 
         for (IFluidTank fluidTank : fluidTanks) {
             final FluidStack tankContents = fluidTank.drain(Integer.MAX_VALUE, false);
-            if (tankContents == null || tankContents.amount <= 0)
+            if (tankContents == null || tankContents.amount <= 0) {
+                fuelCapacity -= fluidTank.getCapacity();
                 continue;
+            }
             int fuelRemaining = tankContents.amount;
             HotCoolantRecipe recipe = findRecipe(tankContents);
-            if (recipe == null)
+            if (recipe == null || this.lastSearchedFluid.contains(recipe.getRecipeFluid())) {
+                fuelCapacity -= fluidTank.getCapacity();
                 continue;
+            }
             int amountPerRecipe = calculateFuelAmount(recipe);
             int duration = calculateRecipeDuration(recipe);
             long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;

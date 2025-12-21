@@ -7,7 +7,6 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
-import gregtech.api.render.Textures;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.handlers.MegaBoilerRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
@@ -79,10 +78,10 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.parallel = parallel;
-        this.boilerRecipeLogic.setImportItemsSupplier(() -> this.itemImportInventory)
-                .setExportItemsSupplier(() -> this.itemExportInventory)
-                .setImportFluidsSupplier(() -> this.fluidImportInventory)
-                .setExportFluidsSupplier(() -> this.steamOutputTank)
+        this.boilerRecipeLogic.setImportItemsSupplier(this::getItemImportInventory)
+                .setExportItemsSupplier(this::getItemExportInventory)
+                .setImportFluidsSupplier(this::getFluidImportInventory)
+                .setExportFluidsSupplier(this::getSteamOutputTank)
                 .setParallelSupplier(this::getParallel)
                 .setActive(this::replaceFireboxAsActive);
         this.reinitializeStructurePattern();
@@ -314,5 +313,21 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     @Override
     public boolean isWorkingEnabled() {
         return this.boilerRecipeLogic.isWorkingEnabled();
+    }
+
+    private ItemHandlerList getItemImportInventory() {
+        return this.itemImportInventory;
+    }
+
+    private ItemHandlerList getItemExportInventory() {
+        return this.itemExportInventory;
+    }
+
+    private FluidTankList getFluidImportInventory() {
+        return this.fluidImportInventory;
+    }
+
+    private FluidTankList getSteamOutputTank() {
+        return this.steamOutputTank;
     }
 }

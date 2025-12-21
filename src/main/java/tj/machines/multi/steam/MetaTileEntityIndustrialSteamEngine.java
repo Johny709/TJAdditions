@@ -256,7 +256,6 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         private FuelRecipe previousRecipe;
         private String fuelName;
         private boolean voidEnergy;
-        private long energyProduced;
         private int consumption;
         private int searchCount;
 
@@ -268,33 +267,6 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
         @Override
         protected boolean startRecipe() {
-            return this.tryAcquireNewRecipe();
-        }
-
-        @Override
-        protected void progressRecipe(int progress) {
-            if (this.voidEnergy || this.exportEnergySupplier.get().getEnergyCanBeInserted() >= this.energyProduced) {
-                this.exportEnergySupplier.get().addEnergy(this.energyProduced);
-                if (this.hasProblem)
-                    this.setProblem(false);
-                this.progress++;
-            } else if (!this.hasProblem)
-                this.setProblem(true);
-        }
-
-        @Override
-        protected boolean completeRecipe() {
-            return true;
-        }
-
-        public FluidStack getFuelStack() {
-            if (this.previousRecipe == null)
-                return null;
-            FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
-            return this.importFluidsSupplier.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
-        }
-
-        private boolean tryAcquireNewRecipe() {
             FluidStack fuelStack = null;
             for (int i = 0; i < ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTanks(); i++) {
                 IFluidTank tank = ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTankAt(i);
@@ -312,9 +284,10 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
             fuelStack = this.tryAcquireNewRecipe(fuelStack);
             if (fuelStack != null && fuelStack.amount > 0) {
                 FluidStack fluidStack = this.importFluidsSupplier.get().drain(fuelStack, true);
-                this.consumption = fluidStack.amount;
+                this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(this.consumption / 160), true);
                 this.fuelName = fluidStack.getUnlocalizedName();
-                this.lastSearchedFluid.clear();
+                this.lastSearchedFluid.remove(fuelStack);
+                this.consumption = fluidStack.amount;
                 return true; //recipe is found and ready to use
             }
             if (++this.searchCount >= ((IMultipleTankHandler) this.importFluidsSupplier.get()).getTanks()) {
@@ -322,6 +295,30 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
                 this.searchCount = 0;
             }
             return false;
+        }
+
+        @Override
+        protected void progressRecipe(int progress) {
+            if (this.voidEnergy || this.exportEnergySupplier.get().getEnergyCanBeInserted() >= this.energyPerTick) {
+                this.exportEnergySupplier.get().addEnergy(this.energyPerTick);
+                if (this.hasProblem)
+                    this.setProblem(false);
+                this.progress++;
+            } else if (!this.hasProblem)
+                this.setProblem(true);
+        }
+
+        @Override
+        protected boolean completeRecipe() {
+            this.lastSearchedFluid.clear();
+            return true;
+        }
+
+        public FluidStack getFuelStack() {
+            if (this.previousRecipe == null)
+                return null;
+            FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+            return this.importFluidsSupplier.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
         }
 
         protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
@@ -341,7 +338,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
                 int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
                 if (fuelStack.amount >= fuelAmountToUse) {
                     this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                    this.energyProduced = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
+                    this.energyPerTick = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
                     FluidStack recipeFluid = currentRecipe.getRecipeFluid();
                     recipeFluid.amount = fuelAmountToUse;
                     return recipeFluid;
@@ -385,12 +382,16 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
             for (IFluidTank fluidTank : fluidTanks) {
                 final FluidStack tankContents = fluidTank.drain(Integer.MAX_VALUE, false);
-                if (tankContents == null || tankContents.amount <= 0)
+                if (tankContents == null || tankContents.amount <= 0) {
+                    fuelCapacity -= fluidTank.getCapacity();
                     continue;
+                }
                 int fuelRemaining = tankContents.amount;
                 FuelRecipe recipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), tankContents);
-                if (recipe == null)
+                if (recipe == null || this.lastSearchedFluid.contains(recipe.getRecipeFluid())) {
+                    fuelCapacity -= fluidTank.getCapacity();
                     continue;
+                }
                 int amountPerRecipe = this.calculateFuelAmount(recipe);
                 int duration = this.calculateRecipeDuration(recipe);
                 long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
@@ -411,9 +412,9 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         public NBTTagCompound serializeNBT() {
             NBTTagCompound tagCompound = super.serializeNBT();
             tagCompound.setInteger("consumption", this.consumption);
-            tagCompound.setString("fuelName", this.fuelName);
-            tagCompound.setLong("energy", this.energyProduced);
             tagCompound.setBoolean("voidEnergy", this.voidEnergy);
+            if (this.fuelName != null)
+                tagCompound.setString("fuelName", this.fuelName);
             return tagCompound;
         }
 
@@ -421,9 +422,9 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
             this.consumption = compound.getInteger("consumption");
-            this.fuelName = compound.getString("fuelName");
-            this.energyProduced = compound.getLong("energy");
             this.voidEnergy = compound.getBoolean("voidEnergy");
+            if (compound.hasKey("fuelName"))
+                this.fuelName = compound.getString("fuelName");
         }
 
         @Override
@@ -450,7 +451,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
         @Override
         public long getProduction() {
-            return this.energyProduced;
+            return this.energyPerTick;
         }
 
         @Override
@@ -463,12 +464,12 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
             int seconds = this.maxProgress / 20;
             String amount = String.valueOf(seconds);
             String s = seconds < 2 ? "second" : "seconds";
-            return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r§7(§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
+            return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r§7 (§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
         }
 
         @Override
         public String[] productionInfo() {
-            int tier = GAUtility.getTierByVoltage(this.energyProduced);
+            int tier = GAUtility.getTierByVoltage(this.energyPerTick);
             String voltage = GAValues.VN[tier];
             String color = TJValues.VCC[tier];
             return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",

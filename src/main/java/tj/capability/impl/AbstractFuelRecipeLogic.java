@@ -2,9 +2,11 @@ package tj.capability.impl;
 
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.IWorkable;
-import gregtech.api.metatileentity.MTETrait;
+import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,17 +17,17 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import java.util.function.*;
+import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
-
-public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<R>> extends MTETrait implements IWorkable {
+public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> extends FuelRecipeLogic implements IWorkable {
 
     protected Supplier<IItemHandlerModifiable> importItemsSupplier;
     protected Supplier<IItemHandlerModifiable> exportItemsSupplier;
-    protected Supplier<IFluidHandler> importFluidsSupplier;
     protected Supplier<IFluidHandler> exportFluidsSupplier;
     protected Supplier<IEnergyContainer> importEnergySupplier;
-    protected Supplier<IEnergyContainer> exportEnergySupplier;
     protected IntFunction<IItemHandlerModifiable> inputBus;
     protected LongSupplier maxVoltageSupplier;
     protected IntSupplier tierSupplier;
@@ -46,8 +48,9 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     protected int sleepTime = 1;
     protected int failCount;
 
-    public AbstractWorkableHandler(MetaTileEntity metaTileEntity) {
-        super(metaTileEntity);
+    public AbstractFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
+        super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
+        this.maxVoltageSupplier = this::getMaxVoltage;
     }
 
     /**
@@ -77,14 +80,6 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     /**
-     * @param importFluidsSupplier Fluid input supplier
-     */
-    public R setImportFluidsSupplier(Supplier<IFluidHandler> importFluidsSupplier) {
-        this.importFluidsSupplier = importFluidsSupplier;
-        return (R) this;
-    }
-
-    /**
      * @param exportFluidsSupplier Fluid output supplier
      */
     public R setExportFluidsSupplier(Supplier<IFluidHandler> exportFluidsSupplier) {
@@ -105,14 +100,6 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
      */
     public R setImportEnergySupplier(Supplier<IEnergyContainer> importEnergySupplier) {
         this.importEnergySupplier = importEnergySupplier;
-        return (R) this;
-    }
-
-    /**
-     * @param exportEnergySupplier Energy Output supplier
-     */
-    public R setExportEnergySupplier(Supplier<IEnergyContainer> exportEnergySupplier) {
-        this.exportEnergySupplier = exportEnergySupplier;
         return (R) this;
     }
 
@@ -156,11 +143,9 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
         return (R) this;
     }
 
-    /**
-     * Don't forget to set {@Link gregtech.api.metatileentity.MetaTileEntity#shouldUpdate(MTETrait trait) shouldUpdate} to return false for the MetaTileEntity using this workable handler.
-     */
     @Override
     public void update() {
+        if (this.metaTileEntity.getWorld().isRemote) return;
         if (!this.isWorking) {
             this.stopRecipe();
             return;
@@ -258,7 +243,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     }
 
     public boolean hasEnoughFluid(FluidStack fluid, int amount) {
-        FluidStack fluidStack = this.importFluidsSupplier.get().drain(fluid, false);
+        FluidStack fluidStack = this.fluidTank.get().drain(fluid, false);
         return fluidStack != null && fluidStack.amount == amount || amount == 0;
     }
 
