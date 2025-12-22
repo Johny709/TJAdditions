@@ -42,6 +42,7 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
             this.booster = Materials.Oxygen.getPlasma(50);
+            this.reagent = Materials.Tritium.getFluid(1000);
             MetaTileEntityLargeNaquadahReactor tileEntity = (MetaTileEntityLargeNaquadahReactor) (Object) this;
             cir.setReturnValue(new TJCycleFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getReagent, this::getFuelMultiplier, this::getEUMultiplier, GAValues.V[10]));
         }

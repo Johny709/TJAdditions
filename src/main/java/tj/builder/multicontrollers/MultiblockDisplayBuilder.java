@@ -123,7 +123,7 @@ public class MultiblockDisplayBuilder {
                 : new TextComponentString(I18n.translateToLocal("machine.universal.running"));
         this.textList.add(isWorkingText);
         if (isActive)
-            this.textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(progress / 20.0), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20.0), currentProgress)));
+            this.textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
         return this;
     }
 
