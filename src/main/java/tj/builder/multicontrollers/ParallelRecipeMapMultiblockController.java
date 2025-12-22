@@ -448,7 +448,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                                     .appendText("\n")
                                     .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.eu", this.recipeMapWorkable.getRecipeEUt(i))))
                                     .appendText("\n")
-                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(this.recipeMapWorkable.getProgress(i)), TJValues.thousandTwoPlaceFormat.format(this.recipeMapWorkable.getMaxProgress(i)), (int) progressPercent)))
+                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(this.recipeMapWorkable.getProgress(i) / 20.0), TJValues.thousandTwoPlaceFormat.format(this.recipeMapWorkable.getMaxProgress(i) / 20.0), (int) progressPercent)))
                                     .appendText("\n")
                                     .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel", parallel)))
                                     .appendText("\n\n")

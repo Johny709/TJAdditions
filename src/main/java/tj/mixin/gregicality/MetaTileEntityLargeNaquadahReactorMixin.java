@@ -7,11 +7,10 @@ import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FuelRecipeLogic;
-import gregtech.api.recipes.recipes.FuelRecipe;
 import gregtech.api.unification.material.Materials;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
-import tj.capability.impl.TJBoostableFuelRecipeLogic;
+import tj.capability.impl.TJCycleFuelRecipeLogic;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -32,6 +31,9 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
     @Unique
     private FluidStack booster;
 
+    @Unique
+    private FluidStack reagent;
+
     public MetaTileEntityLargeNaquadahReactorMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
         super(metaTileEntityId, GARecipeMaps.NAQUADAH_REACTOR_FUELS, maxVoltage);
     }
@@ -41,34 +43,7 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
             this.booster = Materials.Oxygen.getPlasma(50);
             MetaTileEntityLargeNaquadahReactor tileEntity = (MetaTileEntityLargeNaquadahReactor) (Object) this;
-            cir.setReturnValue(new TJBoostableFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getFuelMultiplier, this::getEUMultiplier, GAValues.V[10]) {
-                private int currentCycle;
-
-                @Override
-                protected boolean checkRecipe(FuelRecipe recipe) {
-                    boolean start = true;
-                    if (this.currentCycle > 20) {
-                        FluidStack reagent = this.fluidTank.get().drain(Materials.Tritium.getFluid(1000), true);
-                        start = reagent != null && reagent.amount == 1000;
-                        if (start)
-                            this.currentCycle = 0;
-                    } else this.currentCycle++;
-                    return start;
-                }
-
-                @Override
-                public NBTTagCompound serializeNBT() {
-                    NBTTagCompound compound = super.serializeNBT();
-                    compound.setInteger("Cycle", currentCycle);
-                    return compound;
-                }
-
-                @Override
-                public void deserializeNBT(NBTTagCompound compound) {
-                    super.deserializeNBT(compound);
-                    this.currentCycle = compound.getInteger("Cycle");
-                }
-            });
+            cir.setReturnValue(new TJCycleFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getReagent, this::getFuelMultiplier, this::getEUMultiplier, GAValues.V[10]));
         }
     }
 
@@ -80,7 +55,7 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
                 ci.cancel();
                 return;
             }
-            TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+            TJCycleFuelRecipeLogic workableHandler = (TJCycleFuelRecipeLogic) this.workableHandler;
             FluidStack fuelStack = workableHandler.getFuelStack();
             FluidStack booster = importFluidHandler.drain(this.booster, false);
             FluidStack fuelConsumed = fuelStack == null ? null : fuelStack.copy();
@@ -95,14 +70,15 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
                     .custom(text -> {
                         if (fuelStack == null)
                             text.add(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.no_fuel").setStyle(new Style().setColor(TextFormatting.RED)));
-                        else text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelStack.getLocalizedName())));
+                        else text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelStack.getLocalizedName())));
 
                         if (isBoosted) {
                             text.add(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.boost").setStyle(new Style().setColor(TextFormatting.GREEN)));
                             if (booster != null)
                                 text.add(new TextComponentString(String.format("%s: %dmb", booster.getLocalizedName(), boosterAmount)).setStyle(new Style().setColor(TextFormatting.AQUA)));
                         }
-                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())));
+                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())));
+                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_combustion_engine.cycles", 20 - workableHandler.getCurrentCycle())));
                     }).isWorking(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
             ci.cancel();
         }
@@ -112,6 +88,12 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
     @Nonnull
     private FluidStack getBooster() {
         return this.booster;
+    }
+
+    @Unique
+    @Nonnull
+    private FluidStack getReagent() {
+        return this.reagent;
     }
 
     @Unique
