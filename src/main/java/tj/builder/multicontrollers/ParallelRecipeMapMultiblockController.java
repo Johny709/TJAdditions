@@ -45,6 +45,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IParallelController;
@@ -447,7 +448,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                                     .appendText("\n")
                                     .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.eu", this.recipeMapWorkable.getRecipeEUt(i))))
                                     .appendText("\n")
-                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", (int) progressPercent)))
+                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(this.recipeMapWorkable.getProgress(i)), TJValues.thousandTwoPlaceFormat.format(this.recipeMapWorkable.getMaxProgress(i)), (int) progressPercent)))
                                     .appendText("\n")
                                     .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel", parallel)))
                                     .appendText("\n\n")

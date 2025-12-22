@@ -339,7 +339,7 @@ tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%,d§r
 tj.multiblock.industrial_fusion_reactor.required_heat=Required Heat to run recipe: §e%s§7 °C
 
 tj.multiblock.handler=Handler: [§a%d§r]
-tj.multiblock.progress=Progress: §b%d§7%%
+tj.multiblock.progress=Progress: §7%ss / %ss | §b%d§7%%
 tj.multiblock.eu=EU/t: §e%,d
 tj.multiblock.parallel=Parallel: §d%d
 tj.multiblock.temperature=Temperature: §c%,d§7 / §c%,d§7 °C
