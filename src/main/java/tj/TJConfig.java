@@ -35,6 +35,11 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public boolean generatorWorkableHandlerOverrides = true;
 
+        @Config.Name("Override Multiblock display UIs")
+        @Config.Comment("Set to replace Multiblock UIs with TJ Additions' edits and implementation")
+        @Config.RequiresMcRestart
+        public boolean multiblockUIOverrides = true;
+
         @Config.Name("Max Extendable Layers Shown In JEI")
         @Config.Comment("Set the maximum amount of layers to be shown in JEI preview of extendable multiblocks")
         @Config.RequiresMcRestart
