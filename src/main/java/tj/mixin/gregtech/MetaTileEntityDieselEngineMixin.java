@@ -43,7 +43,7 @@ public abstract class MetaTileEntityDieselEngineMixin extends FueledMultiblockCo
             this.booster = Materials.Oxygen.getFluid(20);
             this.reagent = Materials.Lubricant.getFluid(100);
             MetaTileEntityDieselEngine tileEntity = (MetaTileEntityDieselEngine) (Object) this;
-            cir.setReturnValue(new TJCycleFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getReagent, this::getFuelMultiplier, this::getEUMultiplier, maxVoltage));
+            cir.setReturnValue(new TJCycleFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getReagent, this::getFuelMultiplier, this::getEUMultiplier, maxVoltage * 4));
         }
     }
 

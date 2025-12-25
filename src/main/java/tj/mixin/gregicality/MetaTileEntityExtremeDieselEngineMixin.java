@@ -44,7 +44,7 @@ public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMulti
             this.booster = GAMaterials.LiquidOxygen.getFluid(80);
             this.reagent = Materials.Lubricant.getFluid(100);
             MetaTileEntityExtremeDieselEngine tileEntity = (MetaTileEntityExtremeDieselEngine) (Object) this;
-            cir.setReturnValue(new TJCycleFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getReagent, this::getFuelMultiplier, this::getEUMultiplier, maxVoltage));
+            cir.setReturnValue(new TJCycleFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getReagent, this::getFuelMultiplier, this::getEUMultiplier, maxVoltage * 4));
         }
     }
 
