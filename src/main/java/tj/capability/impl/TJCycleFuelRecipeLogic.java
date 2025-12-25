@@ -23,14 +23,17 @@ public class TJCycleFuelRecipeLogic extends TJBoostableFuelRecipeLogic {
 
     @Override
     protected boolean checkRecipe(FuelRecipe recipe) {
-        boolean start = true;
-        if (this.currentCycle >= 20) {
+        if (this.currentCycle >= 19) {
             FluidStack reagent = this.fluidTank.get().drain(this.reagent.get(), true);
-            start = reagent != null && reagent.isFluidStackIdentical(this.reagent.get());
-            if (start)
+            if (reagent != null && reagent.isFluidStackIdentical(this.reagent.get()))
                 this.currentCycle = 0;
+            else {
+                if (this.currentCycle < 20)
+                    this.currentCycle--;
+                return false;
+            }
         } else this.currentCycle++;
-        return start;
+        return true;
     }
 
     @Override
