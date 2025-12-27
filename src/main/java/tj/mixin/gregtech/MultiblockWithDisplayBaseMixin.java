@@ -1,11 +1,13 @@
 package tj.mixin.gregtech;
 
+import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
+import gregtech.common.metatileentities.multi.electric.generator.FueledMultiblockController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -17,16 +19,23 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
+import tj.capability.impl.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 
 import java.util.List;
 
+import static tj.gui.TJGuiTextures.CAUTION_BUTTON;
+import static tj.gui.TJGuiTextures.POWER_BUTTON;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 @Mixin(value = MultiblockWithDisplayBase.class, remap = false)
 public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControllerBase {
+
+    @Unique
+    private boolean structureCheck;
 
     public MultiblockWithDisplayBaseMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -64,5 +73,36 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
         widgetGroup.addWidget(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
+        if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
+            FuelRecipeLogic recipeLogic = ((IFueledMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getFuelRecipeLogic();
+            widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
+                    .setTooltipText("machine.universal.toggle.run.mode"));
+            widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+                    .setTooltipText("machine.universal.toggle.check.mode"));
+            if (recipeLogic instanceof TJFuelRecipeLogic) {
+                widgetGroup.addWidget(new TJToggleButtonWidget(172, 151, 18, 18)
+                        .setToggleButtonResponder(((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
+                        .setButtonSupplier(((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy)
+                        .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setBackgroundTextures(TJGuiTextures.ENERGY_VOID)
+                        .useToggleTexture(true));
+            }
+        }
+    }
+
+    @Unique
+    private boolean isStructureCheck() {
+        if (this.isStructureFormed())
+            this.structureCheck = false;
+        return this.structureCheck;
+    }
+
+    @Unique
+    private void doStructureCheck(boolean check) {
+        if (this.isStructureFormed()) {
+            this.structureCheck = true;
+            this.invalidateStructure();
+            this.structurePattern = this.createStructurePattern();
+        }
     }
 }
