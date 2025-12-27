@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic> implements IGeneratorInfo, IFuelable {
 
     private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
+    private final Set<FluidStack> blacklistFluid = new HashSet<>();
     private boolean voidEnergy = true;
     protected int consumption;
     private int searchCount;
@@ -39,7 +40,7 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
             FluidStack stack = tank.getFluid();
             if (stack == null) continue;
             if (fuelStack == null) {
-                if (this.lastSearchedFluid.contains(stack)) continue;
+                if (this.blacklistFluid.contains(stack) || this.lastSearchedFluid.contains(stack)) continue;
                 fuelStack = stack.copy();
                 this.lastSearchedFluid.add(fuelStack);
             } else if (fuelStack.isFluidEqual(stack)) {
@@ -90,7 +91,7 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
             //if we found recipe that can be buffered, buffer it
             if (currentRecipe != null) {
                 this.previousRecipe = currentRecipe;
-            }
+            } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
         if (currentRecipe != null && checkRecipe(currentRecipe)) {
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);

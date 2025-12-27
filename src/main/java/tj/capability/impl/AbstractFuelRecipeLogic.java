@@ -155,7 +155,7 @@ public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> exten
             this.setActive(false);
 
         if (this.progress < 1) {
-            if (this.sleepTimer > 0) {
+            if (this.sleepTimer > 1) {
                 this.sleepRecipe();
                 return;
             }

@@ -170,7 +170,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
             this.setActive(false);
 
         if (this.progress < 1) {
-            if (this.sleepTimer > 0) {
+            if (this.sleepTimer > 1) {
                 this.sleepRecipe();
                 return;
             }
