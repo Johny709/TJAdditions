@@ -1,5 +1,8 @@
 package tj.mixin.gregtech;
 
+import gregicadditions.machines.GATileEntities;
+import gregicadditions.machines.multi.GAFueledMultiblockController;
+import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -19,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
+import tj.builder.multicontrollers.MultiblockDisplaysUtility;
+import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
 import tj.capability.impl.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
@@ -66,6 +71,17 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     @Unique
     private void addNewTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
+        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
+                maintenanceTab.addWidget(new AdvancedTextWidget(10, -2, textList -> {
+                    if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController && !(this.getHolder().getMetaTileEntity() instanceof TJFueledMultiblockControllerBase)) {
+                        GAFueledMultiblockController controller = (GAFueledMultiblockController) this.getHolder().getMetaTileEntity();
+                        MultiblockDisplaysUtility.mufflerDisplay(textList, !controller.hasMufflerHatch() || controller.isMufflerFaceFree());
+                    }
+                    if (this.getHolder().getMetaTileEntity() instanceof IMaintenance) {
+                        IMaintenance maintenance = (IMaintenance) this.getHolder().getMetaTileEntity();
+                        MultiblockDisplaysUtility.maintenanceDisplay(textList, maintenance.getProblems(), maintenance.hasProblems());
+                    }
+                }, 0xFFFFFF).setMaxWidthLimit(180)));
     }
 
     @Unique
