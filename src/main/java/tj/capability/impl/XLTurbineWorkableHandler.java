@@ -91,7 +91,7 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
             //if we found recipe that can be buffered, buffer it
             if (currentRecipe != null) {
                 this.previousRecipe = currentRecipe;
-            }
+            } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
         if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
@@ -195,9 +195,6 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
         tagCompound.setInteger("damageMultiplier", this.rotorDamageMultiplier);
         tagCompound.setBoolean("isFastMode", this.isFastMode);
         tagCompound.setBoolean("fastMode", this.fastMode);
-        tagCompound.setInteger("consumption", this.consumption);
-        if (this.fuelName != null)
-            tagCompound.setString("fuelName", this.fuelName);
         return tagCompound;
     }
 
@@ -209,9 +206,6 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
         this.rotorDamageMultiplier = compound.getInteger("damageMultiplier");
         this.isFastMode = compound.getBoolean("isFastMode");
         this.fastMode = compound.getBoolean("fastMode");
-        this.consumption = compound.getInteger("consumption");
-        if (compound.hasKey("fuelName"))
-            this.fuelName = compound.getString("fuelName");
     }
 
     public void setFastMode(boolean fastMode) {

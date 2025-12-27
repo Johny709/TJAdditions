@@ -69,7 +69,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
     protected boolean startRecipe() {
         FluidStack drillingMud = DrillingMud.getFluid(this.drillingMudAmount);
         FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.drillingMudAmount);
-        if (this.hasEnoughFluid(drillingMud, this.drillingMudAmount) && this.canOutputFluid(usedDrillingMud, this.drillingMudAmount)) {
+        if (drillingMud.isFluidStackIdentical(this.importFluidsSupplier.get().drain(drillingMud, false)) && this.canOutputFluid(usedDrillingMud, this.drillingMudAmount)) {
             this.fluidInputsList.add(this.importFluidsSupplier.get().drain(DrillingMud.getFluid(this.drillingMudAmount), true));
             int outputAmount = this.exportFluidsSupplier.get().fill(UsedDrillingMud.getFluid(this.drillingMudAmount), true);
             this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));

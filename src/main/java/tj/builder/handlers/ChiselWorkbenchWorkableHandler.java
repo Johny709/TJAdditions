@@ -85,10 +85,12 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<Chis
             if (this.input == null || !stack.isItemEqual(this.input))
                 continue;
             int reminder = Math.min(stack.getCount(), availableParallels);
-            availableParallels -= reminder;
-            count += reminder;
-            stack.shrink(reminder);
-            this.input.setCount(count);
+            if (this.importItemsSupplier.get().extractItem(i, reminder, true).getCount() == reminder) {
+                this.importItemsSupplier.get().extractItem(i, reminder, false);
+                availableParallels -= reminder;
+                count += reminder;
+                this.input.setCount(count);
+            }
         }
         return count > 0;
     }

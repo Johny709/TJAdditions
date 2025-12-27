@@ -193,12 +193,11 @@ public class ItemStackHelper {
         int count = 0;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack slotStack = itemHandler.getStackInSlot(i);
-            if (ingredient.apply(slotStack)) {
+            if (!slotStack.isEmpty() && ingredient.apply(slotStack)) {
                 int extracted = Math.min(slotStack.getCount(), amount);
+                itemHandler.extractItem(i, extracted, simulate);
                 count += extracted;
                 amount -= extracted;
-                if (!simulate)
-                    itemHandler.extractItem(i, extracted, false);
                 if (amount < 1)
                     break;
             }

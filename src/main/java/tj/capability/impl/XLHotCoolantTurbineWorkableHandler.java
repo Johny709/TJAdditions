@@ -39,6 +39,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
     private final MetaTileEntityXLHotCoolantTurbine extremeTurbine;
     private final Supplier<IMultipleTankHandler> exportFluidTank;
     private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
+    private final Set<FluidStack> blacklistFluid = new HashSet<>();
 
     private String fuelName;
     private boolean isFastMode;
@@ -144,7 +145,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
             }
         }
         fuelStack = this.tryAcquireNewRecipe(fuelStack);
-        if (fuelStack != null && fuelStack.amount > 0) {
+        if (fuelStack != null && fuelStack.isFluidStackIdentical(this.fluidTank.get().drain(fuelStack, false))) {
             FluidStack fluidStack = this.fluidTank.get().drain(fuelStack, true);
             this.fuelName = fluidStack.getUnlocalizedName();
             this.lastSearchedFluid.remove(fuelStack);
@@ -169,7 +170,7 @@ public class XLHotCoolantTurbineWorkableHandler extends HotCoolantRecipeLogic im
             //if we found recipe that can be buffered, buffer it
             if (currentRecipe != null) {
                 this.previousRecipe = currentRecipe;
-            }
+            } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
         if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);

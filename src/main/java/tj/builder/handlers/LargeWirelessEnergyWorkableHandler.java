@@ -83,9 +83,10 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
                 continue;
             if (this.metaTileEntity.getWorld().provider.getDimension() != this.entityLinkWorld[i]) {
                 int fluidToConsume = this.fluidConsumption / this.linkedWorldsCount;
-                FluidStack fluidStack = this.importFluidsSupplier.get().drain(Nitrogen.getPlasma(fluidToConsume), true);
-                if (fluidStack == null || fluidStack.amount != fluidToConsume)
-                    continue;
+                FluidStack fluidStack = Nitrogen.getPlasma(fluidToConsume);
+                if (fluidStack.isFluidStackIdentical(this.importFluidsSupplier.get().drain(fluidStack, false)))
+                    this.importFluidsSupplier.get().drain(fluidStack, true);
+                else continue;
             }
             WorldServer world = DimensionManager.getWorld(this.entityLinkWorld[i]);
             if (world == null)

@@ -62,8 +62,10 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<VoidMO
         }
 
         boolean canMineOres = false;
-        boolean hasEnoughPyrotheum = this.hasEnoughFluid(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
-        boolean hasEnoughCryotheum = this.hasEnoughFluid(Cryotheum.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
+        FluidStack pyrotheum = Pyrotheum.getFluid(this.getCurrentDrillingFluid());
+        FluidStack cryotheum = Cryotheum.getFluid(this.getCurrentDrillingFluid());
+        boolean hasEnoughPyrotheum = pyrotheum.isFluidStackIdentical(this.importFluidsSupplier.get().drain(pyrotheum, false));
+        boolean hasEnoughCryotheum = cryotheum.isFluidStackIdentical(this.importFluidsSupplier.get().drain(cryotheum, false));
         if (hasEnoughPyrotheum && hasEnoughCryotheum) {
             this.fluidInputsList.add(this.importFluidsSupplier.get().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
             this.fluidInputsList.add(this.importFluidsSupplier.get().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
@@ -93,9 +95,9 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<VoidMO
         if (this.metaTileEntity instanceof IMaintenance)
             this.currentDrillingFluid += ((IMaintenance) this.metaTileEntity).getNumProblems();
 
-        boolean hasEnoughDrillingMud = this.hasEnoughFluid(DrillingMud.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
-        boolean canOutputUsedDrillingMud = this.canOutputFluid(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), (int) this.currentDrillingFluid);
-        if (hasEnoughDrillingMud && canOutputUsedDrillingMud) {
+        FluidStack drillingMud = DrillingMud.getFluid(this.getCurrentDrillingFluid());
+        boolean canOutputUsedDrillingMud = this.canOutputFluid(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), this.getCurrentDrillingFluid());
+        if (drillingMud.isFluidStackIdentical(this.importFluidsSupplier.get().drain(drillingMud, false)) && canOutputUsedDrillingMud) {
             this.fluidInputsList.add(this.importFluidsSupplier.get().drain(DrillingMud.getFluid(this.getCurrentDrillingFluid()), true));
             int outputAmount = this.exportFluidsSupplier.get().fill(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), true);
             this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));

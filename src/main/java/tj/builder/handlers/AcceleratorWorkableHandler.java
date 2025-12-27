@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.FluidStack;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.capability.LinkEvent;
 import tj.capability.impl.AbstractWorkableHandler;
@@ -102,17 +103,18 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<Accelera
                 break;
 
             case GT_TILE_ENTITY:
-                if (this.gtAcceleratorTier < 1) {
+                if (this.gtAcceleratorTier < 1 || this.entityLinkBlockPos[0] == null) {
                     break;
                 }
-                if (this.importFluidsSupplier.get().drain(UUMatter.getFluid(this.fluidConsumption), true).amount == this.fluidConsumption) {
-                    if (this.entityLinkBlockPos[0] != null) {
-                        MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, this.entityLinkBlockPos[0]);
-                        if (targetGTTE == null || targetGTTE instanceof AcceleratorBlacklist) {
-                            break;
-                        }
-                        IntStream.range(0, (int) Math.pow(4, this.gtAcceleratorTier)).forEach(value -> targetGTTE.update());
+
+                FluidStack uuMatter = UUMatter.getFluid(this.fluidConsumption);
+                if (uuMatter.isFluidStackIdentical(this.importFluidsSupplier.get().drain(uuMatter, false))) {
+                    this.importFluidsSupplier.get().drain(uuMatter, true);
+                    MetaTileEntity targetGTTE = BlockMachine.getMetaTileEntity(world, this.entityLinkBlockPos[0]);
+                    if (targetGTTE == null || targetGTTE instanceof AcceleratorBlacklist) {
+                        break;
                     }
+                    IntStream.range(0, (int) Math.pow(4, this.gtAcceleratorTier)).forEach(value -> targetGTTE.update());
                 }
                 break;
 
