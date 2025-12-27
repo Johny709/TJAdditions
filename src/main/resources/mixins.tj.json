@@ -29,6 +29,7 @@
     "gregicality.TileEntityFusionReactorMixin",
     "gregtech.FuelableInfoProviderMixin",
     "gregtech.IAbstractWidgetGroupMixin",
+    "gregtech.IFueledMultiblockControllerMixin",
     "gregtech.IMetaTileEntityEnergyHatchMixin",
     "gregtech.MetaTileEntityDieselEngineMixin",
     "gregtech.MultiblockWithDisplayBaseMixin",
