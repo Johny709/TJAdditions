@@ -131,7 +131,7 @@ public final class ParallelRecipeMap {
             for (Recipe tmpRecipe : recipes) {
                 if (tmpRecipe.matches(false, inputs, fluidInputs, matchingMode)) {
                     if (distinct) {
-                        if (Arrays.asList(occupiedRecipes).contains(tmpRecipe))
+                        if (occupiedRecipes.contains(tmpRecipe))
                             continue;
                     }
                     return voltage >= tmpRecipe.getEUt() ? tmpRecipe : null;
@@ -146,7 +146,7 @@ public final class ParallelRecipeMap {
         for (Recipe recipe : recipeList) {
             if (recipe.matches(false, inputs, fluidInputs, matchingMode)) {
                 if (distinct) {
-                    if (Arrays.asList(occupiedRecipes).contains(recipe))
+                    if (occupiedRecipes.contains(recipe))
                         continue;
                 }
                 return voltage >= recipe.getEUt() ? recipe : null;
@@ -198,7 +198,7 @@ public final class ParallelRecipeMap {
                 boolean isMatch = recipe.matches(false, inputs, fluidInputs, matchingMode);
                 if (isMatch) {
                     if (distinct) {
-                        if (Arrays.asList(occupiedRecipes).contains(recipe))
+                        if (occupiedRecipes.contains(recipe))
                             continue;
                     }
                     return recipe;
