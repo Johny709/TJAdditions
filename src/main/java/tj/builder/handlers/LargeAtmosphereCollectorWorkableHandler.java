@@ -49,7 +49,7 @@ public class LargeAtmosphereCollectorWorkableHandler extends TJFuelRecipeLogic {
 
     @Override
     protected void progressRecipe(int progress) {
-        super.progressRecipe(progress);
+        this.exportFluidsSupplier.get().fill(Air.getFluid((int) this.totalAirProduced), true);
         if (this.airCollector.getOffsetTimer() % 20 == 0)
             this.totalAirProduced = this.getRecipeOutputVoltage();
     }
