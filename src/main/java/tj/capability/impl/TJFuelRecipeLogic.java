@@ -21,8 +21,8 @@ import java.util.function.Supplier;
 
 public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic> implements IGeneratorInfo, IFuelable {
 
-    private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
-    private final Set<FluidStack> blacklistFluid = new HashSet<>();
+    protected final Set<FluidStack> lastSearchedFluid = new HashSet<>();
+    protected final Set<FluidStack> blacklistFluid = new HashSet<>();
     private boolean voidEnergy = true;
     protected int consumption;
     private int searchCount;
@@ -49,7 +49,7 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
             }
         }
         fuelStack = this.tryAcquireNewRecipe(fuelStack);
-        if (fuelStack != null && fuelStack.amount > 0) {
+        if (fuelStack != null && fuelStack.isFluidStackIdentical(this.fluidTank.get().drain(fuelStack, false))) {
             FluidStack fluidStack = this.fluidTank.get().drain(fuelStack, true);
             this.fuelName = fluidStack.getUnlocalizedName();
             this.lastSearchedFluid.remove(fuelStack);

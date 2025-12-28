@@ -96,18 +96,18 @@ public final class ParallelRecipeMap {
 
     @Nullable
     public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp, List<Recipe> occupiedRecipes, boolean distinct) {
-        return this.findRecipe(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp, occupiedRecipes, distinct);
+        return this.findRecipe(voltage, inputs, fluidInputs, outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp, occupiedRecipes, distinct);
     }
 
     @Nullable
-    public Recipe findRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode, boolean useOptimizedRecipeLookUp, List<Recipe> occupiedRecipes, boolean distinct) {
+    public Recipe findRecipe(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode, boolean useOptimizedRecipeLookUp, List<Recipe> occupiedRecipes, boolean distinct) {
 
         if (recipeList.isEmpty())
             return null;
-        if (minFluidInputs > 0 && GTUtility.amountOfNonNullElements(fluidInputs) < minFluidInputs) {
+        if (minFluidInputs > 0 && GTUtility.amountOfNonNullElements(GTUtility.fluidHandlerToList(fluidInputs)) < minFluidInputs) {
             return null;
         }
-        if (minInputs > 0 && GTUtility.amountOfNonEmptyStacks(inputs) < minInputs) {
+        if (minInputs > 0 && GTUtility.amountOfNonEmptyStacks(GTUtility.itemHandlerToList(inputs)) < minInputs) {
             return null;
         }
 
@@ -123,8 +123,8 @@ public final class ParallelRecipeMap {
     }
 
     @Nullable
-    private Recipe findByFluidInputs(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
-        for (FluidStack fluid : fluidInputs) {
+    private Recipe findByFluidInputs(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
+        for (FluidStack fluid : GTUtility.fluidHandlerToList(fluidInputs)) {
             if (fluid == null) continue;
             Collection<Recipe> recipes = recipeFluidMap.get(new MapFluidIngredient(fluid));
             if (recipes == null) continue;
@@ -142,7 +142,7 @@ public final class ParallelRecipeMap {
     }
 
     @Nullable
-    private Recipe findByInputs(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
+    private Recipe findByInputs(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
         for (Recipe recipe : recipeList) {
             if (recipe.matches(false, inputs, fluidInputs, matchingMode)) {
                 if (distinct) {
@@ -166,14 +166,14 @@ public final class ParallelRecipeMap {
     }
 
     @Nullable
-    private Recipe findWithHashMap(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
+    private Recipe findWithHashMap(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
         HashSet<MapItemStackIngredient> uniqueItems = new HashSet<>();
         HashSet<MapFluidIngredient> uniqueFluids = new HashSet<>();
 
-        for (ItemStack item : inputs) {
+        for (ItemStack item : GTUtility.itemHandlerToList(inputs)) {
             uniqueItems.add(new MapItemStackIngredient(item));
         }
-        for (FluidStack fluid : fluidInputs) {
+        for (FluidStack fluid : GTUtility.fluidHandlerToList(fluidInputs)) {
             if (fluid == null) continue;
             uniqueFluids.add(new MapFluidIngredient(fluid));
         }

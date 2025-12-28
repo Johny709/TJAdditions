@@ -73,9 +73,10 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<Batte
                 continue;
 
             if (this.metaTileEntity.getWorld().provider.getDimension() != linkedPlayer.world.provider.getDimension()) {
-                FluidStack fluidStack = this.importFluidsSupplier.get().drain(Nitrogen.getPlasma(this.fluidConsumption), true);
-                if (fluidStack == null || fluidStack.amount != this.fluidConsumption)
-                    continue;
+                FluidStack fluidStack = Nitrogen.getPlasma(this.fluidConsumption);
+                if (fluidStack.isFluidStackIdentical(this.importFluidsSupplier.get().drain(fluidStack, false)))
+                    this.importFluidsSupplier.get().drain(fluidStack, true);
+                else continue;
             }
 
             for (int j = 0; j < linkedPlayer.inventory.armorInventory.size(); j++) {

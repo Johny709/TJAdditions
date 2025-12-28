@@ -86,12 +86,14 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
             if (i != catalystSlotIndex && !stack.isEmpty()) {
                 catalystStack = this.catalyst.copy();
                 catalystStack.setCount(1);
+                if (this.importItemsSupplier.get().extractItem(i, 1, simulate).getCount() != 1)
+                    continue;
                 if (!simulate) {
                     this.itemInputs.add(stack.copy());
                     this.itemInputs.add(catalystStack.copy());
                     this.catalyst.shrink(1);
                 }
-                applied += this.applyEnchantments(catalystStack, stack, simulate);
+                applied += this.applyEnchantments(catalystStack, i, simulate);
             }
             if (catalystStack != null && !simulate) {
                 catalystStack = this.setBookOrEnchantedBook(catalystStack);
@@ -102,8 +104,9 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
         return this.experience > 0;
     }
 
-    private int applyEnchantments(ItemStack catalyst, ItemStack stack, boolean simulate) {
+    private int applyEnchantments(ItemStack catalyst, int slot, boolean simulate) {
         int applied = 0, parallelsUsed = 0;
+        ItemStack stack = this.importItemsSupplier.get().getStackInSlot(slot);
         NBTTagList catalystEnchants = this.getEnchantments(catalyst.getTagCompound()), newCatalystEnchants = new NBTTagList();
         NBTTagList stackEnchants = this.getEnchantments(stack.getTagCompound()), newStackEnchants = new NBTTagList();
         for (int i = 0; i < catalystEnchants.tagCount(); i++) {
@@ -146,10 +149,10 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<EnchanterW
         this.setEnchantments(catalyst, newCatalystEnchants);
         this.setEnchantments(newStack, newStackEnchants);
         newStack = this.setBookOrEnchantedBook(newStack);
-        if (!simulate) {
-            stack.shrink(1);
+        if (this.importItemsSupplier.get().extractItem(slot, 1, simulate).getCount() != 1) {
+            return 0;
+        } else if (!simulate)
             this.itemOutputs.add(newStack);
-        }
         return applied;
     }
 

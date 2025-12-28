@@ -150,9 +150,8 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<MegaBoilerRec
         }
         FuelRecipe dieselRecipe = RecipeMaps.DIESEL_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
         if (dieselRecipe != null) {
-            int fuelAmountToConsume = (int) Math.ceil(dieselRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.parallelSupplier.getAsInt() * this.fuelConsumptionMultiplier.getAsDouble() * getThrottleMultiplier());
-            if (fuelStack.amount >= fuelAmountToConsume) {
-                fuelStack.amount = fuelAmountToConsume;
+            fuelStack.amount = (int) Math.ceil(dieselRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.parallelSupplier.getAsInt() * this.fuelConsumptionMultiplier.getAsDouble() * getThrottleMultiplier());
+            if (fuelStack.isFluidStackIdentical(this.importFluidsSupplier.get().drain(fuelStack, false))) {
                 this.fluidInput.add(this.importFluidsSupplier.get().drain(fuelStack, true));
                 long recipeVoltage = FuelRecipeLogic.getTieredVoltage(dieselRecipe.getMinVoltage());
                 int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
@@ -164,9 +163,8 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<MegaBoilerRec
         }
         FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
         if (denseFuelRecipe != null) {
-            int fuelAmountToConsume = (int) Math.ceil(denseFuelRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.parallelSupplier.getAsInt() * this.fuelConsumptionMultiplier.getAsDouble() * getThrottleMultiplier());
-            if (fuelStack.amount >= fuelAmountToConsume) {
-                fuelStack.amount = fuelAmountToConsume;
+            fuelStack.amount = (int) Math.ceil(denseFuelRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.parallelSupplier.getAsInt() * this.fuelConsumptionMultiplier.getAsDouble() * getThrottleMultiplier());
+            if (fuelStack.isFluidStackIdentical(this.importFluidsSupplier.get().drain(fuelStack, false))) {
                 this.fluidInput.add(this.importFluidsSupplier.get().drain(fuelStack, true));
                 long recipeVoltage = FuelRecipeLogic.getTieredVoltage(denseFuelRecipe.getMinVoltage());
                 int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
@@ -211,7 +209,9 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<MegaBoilerRec
                 availableParallels -= extracted;
                 count += extracted;
                 fuelStack.setCount(count);
-                stack.shrink(extracted);
+                if (this.importItemsSupplier.get().extractItem(i, extracted, true).getCount() == extracted)
+                    this.importItemsSupplier.get().extractItem(i, extracted, false);
+                else return 0;
             }
             if (availableParallels < 1)
                 break;
